@@ -1,5 +1,5 @@
 [bot]
 client_id = "client_id"
 guild_id = "guild_id"
-token = "bot_token"
+token = "token"
 public_key = "public_key"
