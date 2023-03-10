@@ -1,0 +1,123 @@
+use crate::{constants::CURRENCIES, structs::ExchangeRateConversion};
+use reqwest::get;
+use slashook::{command, Client};
+use slashook::{
+    commands::{CommandInput, CommandResponder},
+    structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
+};
+
+pub struct Utils<'a> {
+    client: &'a mut Client,
+}
+
+impl<'a> Utils<'a> {
+    pub fn init(client: &'a mut Client) -> Self {
+        Utils { client }
+    }
+
+    pub fn register(&mut self) {
+        #[command(name = "ping", description = "haha")]
+        fn ping(_: CommandInput, res: CommandResponder) {
+            res.send_message("Pong!").await?;
+        }
+
+        self.client.register_command(ping);
+
+        #[command(
+            name = "convert-currency",
+            description = "haha",
+            dm_permission = false,
+            options = [
+                {
+                    name = "amount",
+                    description = "The amount of currency",
+                    option_type = InteractionOptionType::NUMBER,
+                    required = true
+                },
+                {
+                    name = "from-currency",
+                    description = "The origin currency, e.g. GBP, NOK, USD",
+                    option_type = InteractionOptionType::STRING,
+                    autocomplete = true,
+                    required = true
+                },
+                {
+                    name = "to-currency",
+                    description = "The currency to convert the amount to, e.g. GBP, NOK, USD",
+                    option_type = InteractionOptionType::STRING,
+                    autocomplete = true,
+                    required = true
+                }
+            ]
+        )]
+        async fn convert_currency(input: CommandInput, res: CommandResponder) {
+            if input.is_autocomplete() {
+                let search = input
+                    .args
+                    .get(&input.focused.unwrap())
+                    .unwrap()
+                    .as_string()
+                    .unwrap()
+                    .to_lowercase();
+
+                return res
+                    .autocomplete(
+                        CURRENCIES
+                            .iter()
+                            .filter(|currency| {
+                                currency[0].to_lowercase().contains(&search)
+                                    || currency[1].to_lowercase().contains(&search)
+                            })
+                            .map(|currency| {
+                                ApplicationCommandOptionChoice::new(currency[0], currency[1])
+                            })
+                            .take(25)
+                            .collect(),
+                    )
+                    .await?;
+            }
+
+            let amount = input.args.get("amount").unwrap().as_f64().unwrap();
+
+            let from_currency = input
+                .args
+                .get("from-currency")
+                .unwrap()
+                .as_string()
+                .unwrap()
+                .to_uppercase();
+
+            let to_currency = input
+                .args
+                .get("to-currency")
+                .unwrap()
+                .as_string()
+                .unwrap()
+                .to_uppercase();
+
+            if !CURRENCIES
+                .iter()
+                .any(|[_, currency]| currency == &from_currency)
+                || !CURRENCIES
+                    .iter()
+                    .any(|[_, currency]| currency == &to_currency)
+            {
+                return res.send_message("Invalid currency.").await?;
+            }
+
+            let converted = (get(format!(
+                "https://api.exchangerate.host/convert?amount={amount}&from={from_currency}&to={to_currency}"
+            ))
+            .await?
+            .json::<ExchangeRateConversion>()
+            .await?).result;
+
+            res.send_message(format!(
+                "{amount} {from_currency} equals {converted:.3} {to_currency}."
+            ))
+            .await?;
+        }
+
+        self.client.register_command(convert_currency);
+    }
+}

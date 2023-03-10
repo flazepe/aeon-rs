@@ -1,0 +1,11 @@
+[package]
+name = "aeon-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1"
+reqwest = "0.11"
+slashook = { git = "https://github.com/tonkku107/slashook.git", branch = "syncing" }
+serde = "1"
+toml = "0.7"
