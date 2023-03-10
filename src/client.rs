@@ -13,9 +13,9 @@ impl AeonClient {
         let config = config::load_config()?;
 
         let client = Client::new(SlashookConfig {
-            public_key: String::from(&config.bot.public_key),
             bot_token: Some(String::from(&config.bot.token)),
             client_id: Some(String::from(&config.bot.client_id)),
+            public_key: String::from(&config.bot.public_key),
             ..Default::default()
         });
 
