@@ -2,6 +2,7 @@ use crate::{
     constants::{CONTROL_CHARACTERS, CURRENCIES},
     structs::ExchangeRateConversion,
 };
+use nipper::Document;
 use reqwest::get;
 use slashook::{command, Client};
 use slashook::{
@@ -126,25 +127,71 @@ impl<'a> Utils<'a> {
         self.client.register_command(convert_currency);
 
         #[command(
-            name = "unicodes",
-            description = "Lists unicodes from a text.",
-            options = [
+            name = "unicode",
+            description = "Does operations with unicode.",
+            subcommands = [
                 {
-                    name = "text",
-                    description = "The text",
-                    option_type = InteractionOptionType::STRING,
-                    required = true
+                    name = "search",
+                    description = "Searches for a unicode emoji via query.",
+                    options = [
+                        {
+                            name = "query",
+                            description = "The query",
+                            option_type = InteractionOptionType::STRING,
+                            required = true
+                        }
+                    ]
+                },
+                {
+                    name = "list",
+                    description = "Lists unicodes from a text.",
+                    options = [
+                        {
+                            name = "text",
+                            description = "The text",
+                            option_type = InteractionOptionType::STRING,
+                            required = true
+                        }
+                    ]
                 }
             ]
         )]
-        async fn unicodes(input: CommandInput, res: CommandResponder) {
-            res.send_message(Utils::parse_unicodes(
-                &input.args.get("text").unwrap().as_string().unwrap(),
-            ))
-            .await?;
+        async fn unicode(input: CommandInput, res: CommandResponder) {
+            if input.sub_command == Some("search".into()) {
+                let result = {
+                    let document = Document::from(
+                        &get(format!(
+                            "https://symbl.cc/en/search/?q={}",
+                            input.args.get("query").unwrap().as_string().unwrap(),
+                        ))
+                        .await?
+                        .text()
+                        .await?,
+                    );
+
+                    let name = document.select("h2").first().text();
+                    let character = document.select(".search-page__char").first().text();
+
+                    format!(
+                        "`U+{:04X}` - {} - {}",
+                        character.trim().chars().next().unwrap() as u32,
+                        name.trim(),
+                        character.trim()
+                    )
+                };
+
+                res.send_message(result).await?;
+            }
+
+            if input.sub_command == Some("list".into()) {
+                res.send_message(Utils::parse_unicodes(
+                    &input.args.get("text").unwrap().as_string().unwrap(),
+                ))
+                .await?;
+            }
         }
 
-        self.client.register_command(unicodes);
+        self.client.register_command(unicode);
 
         #[command(
             name = "List Unicodes",
