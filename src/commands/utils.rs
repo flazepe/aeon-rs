@@ -1,10 +1,16 @@
-use crate::{constants::CURRENCIES, structs::ExchangeRateConversion};
+use crate::{
+    constants::{CONTROL_CHARACTERS, CURRENCIES},
+    structs::ExchangeRateConversion,
+};
 use reqwest::get;
 use slashook::{command, Client};
 use slashook::{
     commands::{CommandInput, CommandResponder},
-    structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
+    structs::interactions::{
+        ApplicationCommandOptionChoice, ApplicationCommandType, InteractionOptionType,
+    },
 };
+use unicode_names2::name as get_unicode_name;
 
 pub struct Utils<'a> {
     client: &'a mut Client,
@@ -25,8 +31,7 @@ impl<'a> Utils<'a> {
 
         #[command(
             name = "convert-currency",
-            description = "haha",
-            dm_permission = false,
+            description = "Converts a currency to another currency.",
             options = [
                 {
                     name = "amount",
@@ -119,5 +124,69 @@ impl<'a> Utils<'a> {
         }
 
         self.client.register_command(convert_currency);
+
+        #[command(
+            name = "unicodes",
+            description = "Lists unicodes from a text.",
+            options = [
+                {
+                    name = "text",
+                    description = "The text",
+                    option_type = InteractionOptionType::STRING,
+                    required = true
+                }
+            ]
+        )]
+        async fn unicodes(input: CommandInput, res: CommandResponder) {
+            res.send_message(Utils::parse_unicodes(
+                &input.args.get("text").unwrap().as_string().unwrap(),
+            ))
+            .await?;
+        }
+
+        self.client.register_command(unicodes);
+
+        #[command(
+            name = "List Unicodes",
+            command_type = ApplicationCommandType::MESSAGE
+        )]
+        async fn list_unicodes(input: CommandInput, res: CommandResponder) {
+            res.send_message(Utils::parse_unicodes(
+                &input.target_message.unwrap().content,
+            ))
+            .await?;
+        }
+
+        self.client.register_command(list_unicodes);
+    }
+
+    fn parse_unicodes(string: &str) -> String {
+        let characters = string;
+        let mut unicodes: Vec<String> = vec![];
+
+        for character in characters.chars() {
+            let unicode = format!("U+{:04X}", character as u32);
+            let mut name = String::from("UNKNOWN");
+
+            if let Some(character_name) = CONTROL_CHARACTERS.iter().find(|[control_character, _]| {
+                control_character == &format!("{:X}", character as u32)
+            }) {
+                name = character_name[1].to_string();
+            }
+
+            if let Some(character_name) = get_unicode_name(character) {
+                name = character_name.to_string();
+            }
+
+            unicodes.push(format!("`{unicode}` - {name}"));
+        }
+
+        unicodes = unicodes.into_iter().take(20).collect::<Vec<String>>();
+
+        format!(
+            "Showing first {} character(s):\n\n{}",
+            unicodes.len(),
+            unicodes.join("\n")
+        )
     }
 }
