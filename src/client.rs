@@ -25,9 +25,11 @@ impl AeonClient {
     pub async fn register_commands(&mut self) -> Result<()> {
         commands::utils::Utils::init(&mut self.client).register();
 
-        self.client
-            .sync_guild_commands(&self.config.bot.guild_id)
-            .await?;
+        if let Some(guild_id) = &self.config.bot.guild_id {
+            self.client.sync_guild_commands(&guild_id).await?;
+        } else {
+            self.client.sync_commands().await?;
+        }
 
         Ok(())
     }

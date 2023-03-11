@@ -11,7 +11,7 @@ pub struct Config {
 #[derive(Deserialize)]
 pub struct BotConfig {
     pub client_id: String,
-    pub guild_id: String,
+    pub guild_id: Option<String>,
     pub public_key: String,
     pub token: String,
 }
