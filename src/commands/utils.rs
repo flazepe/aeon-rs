@@ -26,11 +26,6 @@ impl<'a> Utils<'a> {
     }
 
     pub fn register(&mut self) {
-        #[command(name = "ping", description = "haha")]
-        fn ping(_: CommandInput, res: CommandResponder) {
-            res.send_message("Pong!").await?;
-        }
-
         #[command(
             name = "convert-currency",
             description = "Converts a currency to another currency.",
@@ -285,7 +280,6 @@ impl<'a> Utils<'a> {
             .await?;
         }
 
-        self.client.register_command(ping);
         self.client.register_command(convert_currency);
         self.client.register_command(unicode);
         self.client.register_command(list_unicodes);
