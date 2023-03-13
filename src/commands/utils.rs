@@ -1,7 +1,8 @@
 use crate::{
-    constants::{CONTROL_CHARACTERS, CURRENCIES},
-    structs::ExchangeRateConversion,
+    constants::{CONTROL_CHARACTERS, CURRENCIES, GOOGLE_TRANSLATE_LANGUAGES},
+    structs::{ExchangeRateConversion, GoogleTranslateResponse},
 };
+use anyhow::Result;
 use nipper::Document;
 use reqwest::get;
 use slashook::{command, commands::Command};
@@ -119,84 +120,6 @@ impl Utils {
         }
 
         #[command(
-            name = "unicode",
-            description = "Does operations with unicode.",
-            subcommands = [
-                {
-                    name = "search",
-                    description = "Searches for a unicode emoji via query.",
-                    options = [
-                        {
-                            name = "query",
-                            description = "The query",
-                            option_type = InteractionOptionType::STRING,
-                            required = true
-                        }
-                    ]
-                },
-                {
-                    name = "list",
-                    description = "Lists unicodes from a text.",
-                    options = [
-                        {
-                            name = "text",
-                            description = "The text",
-                            option_type = InteractionOptionType::STRING,
-                            required = true
-                        }
-                    ]
-                }
-            ]
-        )]
-        async fn unicode(input: CommandInput, res: CommandResponder) {
-            match input.sub_command.as_deref() {
-                Some("search") => {
-                    let result = {
-                        let document = Document::from(
-                            &get(format!(
-                                "https://symbl.cc/en/search/?q={}",
-                                input.args.get("query").unwrap().as_string().unwrap(),
-                            ))
-                            .await?
-                            .text()
-                            .await?,
-                        );
-
-                        let name = document.select("h2").first().text();
-                        let character = document.select(".search-page__char").first().text();
-
-                        format!(
-                            "`U+{:04X}` - {} - {}",
-                            character.trim().chars().next().unwrap() as u32,
-                            name.trim(),
-                            character.trim()
-                        )
-                    };
-
-                    res.send_message(result).await?;
-                }
-                Some("list") => {
-                    res.send_message(Utils::parse_unicodes(
-                        &input.args.get("text").unwrap().as_string().unwrap(),
-                    ))
-                    .await?;
-                }
-                _ => {}
-            }
-        }
-
-        #[command(
-            name = "List Unicodes",
-            command_type = ApplicationCommandType::MESSAGE
-        )]
-        async fn list_unicodes(input: CommandInput, res: CommandResponder) {
-            res.send_message(Utils::parse_unicodes(
-                &input.target_message.unwrap().content,
-            ))
-            .await?;
-        }
-
-        #[command(
             name = "stock",
             description = "Fetches stock information.",
             options = [
@@ -278,7 +201,173 @@ impl Utils {
             .await?;
         }
 
-        vec![convert_currency, unicode, list_unicodes, stock]
+        #[command(
+            name = "translate",
+            description = "Translate a text to any language.",
+            options = [
+                {
+                    name = "text",
+                    description = "The text to translate",
+                    option_type = InteractionOptionType::STRING,
+                    required = true
+                },
+                {
+                    name = "to-language",
+                    description = "The language to translate the text to",
+                    option_type = InteractionOptionType::STRING,
+                    autocomplete = true,
+                    required = true
+                },
+                {
+                    name = "from-language",
+                    description = "The text's origin language",
+                    option_type = InteractionOptionType::STRING,
+                    autocomplete = true
+                }
+            ]
+        )]
+        async fn translate(input: CommandInput, res: CommandResponder) {
+            if input.is_autocomplete() {
+                let search = input
+                    .args
+                    .get(&input.focused.unwrap())
+                    .unwrap()
+                    .as_string()
+                    .unwrap()
+                    .to_lowercase();
+
+                return res
+                    .autocomplete(
+                        GOOGLE_TRANSLATE_LANGUAGES
+                            .iter()
+                            .filter(|[language_code, language_name]| {
+                                language_code == &search
+                                    || language_name.to_lowercase().contains(&search)
+                            })
+                            .map(|[language_code, language_name]| {
+                                ApplicationCommandOptionChoice::new(
+                                    language_name,
+                                    language_code.to_string(),
+                                )
+                            })
+                            .take(25)
+                            .collect(),
+                    )
+                    .await?;
+            }
+
+            res.send_message(
+                Utils::translate(
+                    &input.args.get("text").unwrap().as_string().unwrap(),
+                    &input
+                        .args
+                        .get("from-language")
+                        .and_then(|arg| arg.as_string())
+                        .unwrap_or("auto".into()),
+                    &input.args.get("to-language").unwrap().as_string().unwrap(),
+                )
+                .await?,
+            )
+            .await?;
+        }
+
+        #[command(
+            name = "Translate to English",
+            command_type = ApplicationCommandType::MESSAGE
+        )]
+        async fn translate_message(input: CommandInput, res: CommandResponder) {
+            res.send_message(
+                Utils::translate(&input.target_message.unwrap().content, "auto", "en").await?,
+            )
+            .await?;
+        }
+
+        #[command(
+            name = "unicode",
+            description = "Does operations with unicode.",
+            subcommands = [
+                {
+                    name = "search",
+                    description = "Searches for a unicode emoji via query.",
+                    options = [
+                        {
+                            name = "query",
+                            description = "The query",
+                            option_type = InteractionOptionType::STRING,
+                            required = true
+                        }
+                    ]
+                },
+                {
+                    name = "list",
+                    description = "Lists unicodes from a text.",
+                    options = [
+                        {
+                            name = "text",
+                            description = "The text",
+                            option_type = InteractionOptionType::STRING,
+                            required = true
+                        }
+                    ]
+                }
+            ]
+        )]
+        async fn unicode(input: CommandInput, res: CommandResponder) {
+            match input.sub_command.as_deref() {
+                Some("search") => {
+                    let result = {
+                        let document = Document::from(
+                            &get(format!(
+                                "https://symbl.cc/en/search/?q={}",
+                                input.args.get("query").unwrap().as_string().unwrap(),
+                            ))
+                            .await?
+                            .text()
+                            .await?,
+                        );
+
+                        let name = document.select("h2").first().text();
+                        let character = document.select(".search-page__char").first().text();
+
+                        format!(
+                            "`U+{:04X}` - {} - {}",
+                            character.trim().chars().next().unwrap() as u32,
+                            name.trim(),
+                            character.trim()
+                        )
+                    };
+
+                    res.send_message(result).await?;
+                }
+                Some("list") => {
+                    res.send_message(Utils::parse_unicodes(
+                        &input.args.get("text").unwrap().as_string().unwrap(),
+                    ))
+                    .await?;
+                }
+                _ => {}
+            }
+        }
+
+        #[command(
+            name = "List Unicodes",
+            command_type = ApplicationCommandType::MESSAGE
+        )]
+        async fn unicode_message(input: CommandInput, res: CommandResponder) {
+            res.send_message(Utils::parse_unicodes(
+                &input.target_message.unwrap().content,
+            ))
+            .await?;
+        }
+
+        vec![
+            convert_currency,
+            stock,
+            translate,
+            translate_message,
+            unicode,
+            unicode_message,
+        ]
     }
 
     fn parse_unicodes(string: &str) -> String {
@@ -309,5 +398,39 @@ impl Utils {
             unicodes.len(),
             unicodes.join("\n")
         )
+    }
+
+    async fn translate(string: &str, from_language: &str, to_language: &str) -> Result<Embed> {
+        let from_language = GOOGLE_TRANSLATE_LANGUAGES
+            .iter()
+            .find(|[language, _]| language == &from_language)
+            .unwrap_or(&GOOGLE_TRANSLATE_LANGUAGES[0]); // Set auto as fallback
+
+        let to_language = GOOGLE_TRANSLATE_LANGUAGES
+            .iter()
+            .find(|[language, _]| language == &to_language)
+            .unwrap_or(&GOOGLE_TRANSLATE_LANGUAGES[22]); // Set english as fallback
+
+        let result  = get(format!("https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&dt=t&sl={}&tl={}&q={string}", from_language[0], to_language[0])).await?.json::<GoogleTranslateResponse>().await?;
+
+        // Get origin language from the response
+        let from_language = GOOGLE_TRANSLATE_LANGUAGES
+            .iter()
+            .find(|[language, _]| language == &result.src)
+            .unwrap();
+
+        Ok(Embed::new()
+            .set_title(format!("{} to {}", from_language[1], to_language[1]))
+            .set_description(
+                result
+                    .sentences
+                    .into_iter()
+                    .map(|sentence| sentence.trans)
+                    .collect::<Vec<String>>()
+                    .join("")
+                    .chars()
+                    .take(4000)
+                    .collect::<String>(),
+            ))
     }
 }
