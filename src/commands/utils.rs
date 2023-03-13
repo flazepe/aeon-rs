@@ -233,28 +233,32 @@ impl Utils {
                                 .await?,
                         );
 
-                        let currency = document.select("#quote-header-info span").first().text();
-                        let currency = currency.split(" ").last().unwrap();
-
-                        let price = document
-                            .select("#quote-header-info [data-field=\"regularMarketPrice\"]")
-                            .first()
-                            .text();
-
-                        let diff = ["regularMarketChange", "regularMarketChangePercent"]
-                            .map(|field| {
-                                document
-                                    .select(&format!(
-                                        "#quote-header-info [data-field=\"{}\"]",
-                                        field
-                                    ))
-                                    .first()
-                                    .text()
-                                    .to_string()
-                            })
-                            .join(" ");
-
-                        format!("```diff\n{currency} {price}\n{diff}```")
+                        format!(
+                            "```diff\n{} {}\n{}```",
+                            document
+                                .select("#quote-header-info span")
+                                .first()
+                                .text()
+                                .split(" ")
+                                .last()
+                                .unwrap(),
+                            document
+                                .select("#quote-header-info [data-field=\"regularMarketPrice\"]")
+                                .first()
+                                .text(),
+                            ["regularMarketChange", "regularMarketChangePercent"]
+                                .map(|field| {
+                                    document
+                                        .select(&format!(
+                                            "#quote-header-info [data-field=\"{}\"]",
+                                            field
+                                        ))
+                                        .first()
+                                        .text()
+                                        .to_string()
+                                })
+                                .join(" "),
+                        )
                     }),
             )
             .await?;
