@@ -21,7 +21,7 @@ pub struct Utils {}
 
 impl Utils {
     pub fn init() -> Self {
-        Utils {}
+        Self {}
     }
 
     pub fn get_commands(self) -> Vec<Command> {
