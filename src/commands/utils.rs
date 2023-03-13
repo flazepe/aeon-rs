@@ -7,8 +7,11 @@ use reqwest::get;
 use slashook::{command, Client};
 use slashook::{
     commands::{CommandInput, CommandResponder},
-    structs::interactions::{
-        ApplicationCommandOptionChoice, ApplicationCommandType, InteractionOptionType,
+    structs::{
+        embeds::Embed,
+        interactions::{
+            ApplicationCommandOptionChoice, ApplicationCommandType, InteractionOptionType,
+        },
     },
 };
 use unicode_names2::name as get_unicode_name;
@@ -27,8 +30,6 @@ impl<'a> Utils<'a> {
         fn ping(_: CommandInput, res: CommandResponder) {
             res.send_message("Pong!").await?;
         }
-
-        self.client.register_command(ping);
 
         #[command(
             name = "convert-currency",
@@ -124,8 +125,6 @@ impl<'a> Utils<'a> {
             .await?;
         }
 
-        self.client.register_command(convert_currency);
-
         #[command(
             name = "unicode",
             description = "Does operations with unicode.",
@@ -157,41 +156,41 @@ impl<'a> Utils<'a> {
             ]
         )]
         async fn unicode(input: CommandInput, res: CommandResponder) {
-            if input.sub_command == Some("search".into()) {
-                let result = {
-                    let document = Document::from(
-                        &get(format!(
-                            "https://symbl.cc/en/search/?q={}",
-                            input.args.get("query").unwrap().as_string().unwrap(),
-                        ))
-                        .await?
-                        .text()
-                        .await?,
-                    );
+            match input.sub_command.as_deref() {
+                Some("search") => {
+                    let result = {
+                        let document = Document::from(
+                            &get(format!(
+                                "https://symbl.cc/en/search/?q={}",
+                                input.args.get("query").unwrap().as_string().unwrap(),
+                            ))
+                            .await?
+                            .text()
+                            .await?,
+                        );
 
-                    let name = document.select("h2").first().text();
-                    let character = document.select(".search-page__char").first().text();
+                        let name = document.select("h2").first().text();
+                        let character = document.select(".search-page__char").first().text();
 
-                    format!(
-                        "`U+{:04X}` - {} - {}",
-                        character.trim().chars().next().unwrap() as u32,
-                        name.trim(),
-                        character.trim()
-                    )
-                };
+                        format!(
+                            "`U+{:04X}` - {} - {}",
+                            character.trim().chars().next().unwrap() as u32,
+                            name.trim(),
+                            character.trim()
+                        )
+                    };
 
-                res.send_message(result).await?;
-            }
-
-            if input.sub_command == Some("list".into()) {
-                res.send_message(Utils::parse_unicodes(
-                    &input.args.get("text").unwrap().as_string().unwrap(),
-                ))
-                .await?;
+                    res.send_message(result).await?;
+                }
+                Some("list") => {
+                    res.send_message(Utils::parse_unicodes(
+                        &input.args.get("text").unwrap().as_string().unwrap(),
+                    ))
+                    .await?;
+                }
+                _ => {}
             }
         }
-
-        self.client.register_command(unicode);
 
         #[command(
             name = "List Unicodes",
@@ -204,7 +203,93 @@ impl<'a> Utils<'a> {
             .await?;
         }
 
+        #[command(
+            name = "stock",
+            description = "Fetches stock information.",
+            options = [
+                {
+                    name = "stock",
+                    description = "The stock name",
+                    option_type = InteractionOptionType::STRING,
+                    required = true
+                }
+            ]
+        )]
+        fn stock(input: CommandInput, res: CommandResponder) {
+            res.defer(false).await?;
+
+            let search = {
+                let document = Document::from(
+                    &get(format!(
+                        "https://finance.yahoo.com/lookup/equity?s={}",
+                        input.args.get("stock").unwrap().as_string().unwrap(),
+                    ))
+                    .await?
+                    .text()
+                    .await?,
+                );
+
+                let selection = &document.select("td a");
+
+                if selection.nodes().is_empty() {
+                    vec![]
+                } else {
+                    vec![
+                        selection.attr("href").unwrap().to_string(),
+                        selection.attr("title").unwrap().to_string(),
+                        selection.attr("data-symbol").unwrap().to_string(),
+                    ]
+                }
+            };
+
+            if search.is_empty() {
+                return res.send_message("Not found.").await?;
+            }
+
+            res.send_message(
+                Embed::new()
+                    .set_title(format!("{} ({})", search[1], search[2]))
+                    .set_url(format!("https://finance.yahoo.com/quote/{}", search[2]))
+                    .set_description({
+                        let document = Document::from(
+                            &get(format!("https://finance.yahoo.com{}", search[0]))
+                                .await?
+                                .text()
+                                .await?,
+                        );
+
+                        let currency = document.select("#quote-header-info span").first().text();
+                        let currency = currency.split(" ").last().unwrap();
+
+                        let price = document
+                            .select("#quote-header-info [data-field=\"regularMarketPrice\"]")
+                            .first()
+                            .text();
+
+                        let diff = ["regularMarketChange", "regularMarketChangePercent"]
+                            .map(|field| {
+                                document
+                                    .select(&format!(
+                                        "#quote-header-info [data-field=\"{}\"]",
+                                        field
+                                    ))
+                                    .first()
+                                    .text()
+                                    .to_string()
+                            })
+                            .join(" ");
+
+                        format!("```diff\n{currency} {price}\n{diff}```")
+                    }),
+            )
+            .await?;
+        }
+
+        self.client.register_command(ping);
+        self.client.register_command(convert_currency);
+        self.client.register_command(unicode);
         self.client.register_command(list_unicodes);
+        self.client.register_command(stock);
     }
 
     fn parse_unicodes(string: &str) -> String {
