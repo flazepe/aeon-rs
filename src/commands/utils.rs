@@ -4,7 +4,7 @@ use crate::{
 };
 use nipper::Document;
 use reqwest::get;
-use slashook::{command, Client};
+use slashook::{command, commands::Command};
 use slashook::{
     commands::{CommandInput, CommandResponder},
     structs::{
@@ -16,16 +16,14 @@ use slashook::{
 };
 use unicode_names2::name as get_unicode_name;
 
-pub struct Utils<'a> {
-    client: &'a mut Client,
-}
+pub struct Utils {}
 
-impl<'a> Utils<'a> {
-    pub fn init(client: &'a mut Client) -> Self {
-        Utils { client }
+impl Utils {
+    pub fn init() -> Self {
+        Utils {}
     }
 
-    pub fn register(&mut self) {
+    pub fn get_commands(self) -> Vec<Command> {
         #[command(
             name = "convert-currency",
             description = "Converts a currency to another currency.",
@@ -280,10 +278,7 @@ impl<'a> Utils<'a> {
             .await?;
         }
 
-        self.client.register_command(convert_currency);
-        self.client.register_command(unicode);
-        self.client.register_command(list_unicodes);
-        self.client.register_command(stock);
+        vec![convert_currency, unicode, list_unicodes, stock]
     }
 
     fn parse_unicodes(string: &str) -> String {
