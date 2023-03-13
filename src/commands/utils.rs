@@ -432,7 +432,7 @@ impl Utils {
                 result
                     .sentences
                     .into_iter()
-                    .map(|sentence| sentence.trans)
+                    .map(|sentence| sentence.trans) // 🏳️‍⚧️
                     .collect::<Vec<String>>()
                     .join("")
                     .chars()
