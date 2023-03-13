@@ -413,14 +413,21 @@ impl Utils {
 
         let result  = get(format!("https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&dt=t&sl={}&tl={}&q={string}", from_language[0], to_language[0])).await?.json::<GoogleTranslateResponse>().await?;
 
-        // Get origin language from the response
-        let from_language = GOOGLE_TRANSLATE_LANGUAGES
-            .iter()
-            .find(|[language, _]| language == &result.src)
-            .unwrap();
-
         Ok(Embed::new()
-            .set_title(format!("{} to {}", from_language[1], to_language[1]))
+            .set_title(format!(
+                "{}{} to {}",
+                // Get origin language from the response
+                GOOGLE_TRANSLATE_LANGUAGES
+                    .iter()
+                    .find(|[language, _]| language == &result.src)
+                    .unwrap()[1],
+                if from_language[0] == "auto" {
+                    " (detected)"
+                } else {
+                    ""
+                },
+                to_language[1]
+            ))
             .set_description(
                 result
                     .sentences
