@@ -1,6 +1,6 @@
 use crate::{
     constants::{CONTROL_CHARACTERS, CURRENCIES, GOOGLE_TRANSLATE_LANGUAGES},
-    structs::{ExchangeRateConversion, GoogleTranslateResponse},
+    structs::{ExchangeRateConversion, GoogleTranslateResponse, IPInfo},
 };
 use anyhow::Result;
 use nipper::Document;
@@ -115,6 +115,64 @@ impl Utils {
 
             res.send_message(format!(
                 "{amount} {from_currency} equals {converted:.3} {to_currency}."
+            ))
+            .await?;
+        }
+
+        #[command(
+            name = "ip",
+            description = "Fetches information based on the given IP address.",
+            options = [
+                {
+                    name = "ip",
+                    description = "The IP address",
+                    option_type = InteractionOptionType::STRING,
+                    required = true
+                }
+            ]
+        )]
+        async fn ip(input: CommandInput, res: CommandResponder) {
+            let response = get(format!(
+                "https://ipinfo.io/{}/json",
+                input
+                    .args
+                    .get("ip")
+                    .unwrap()
+                    .as_string()
+                    .unwrap()
+                    .replace(['/', '?'], "")
+            ))
+            .await?;
+
+            if response.status() != 200 {
+                return res.send_message("IP address not found.").await?;
+            }
+
+            let json = response.json::<IPInfo>().await?;
+
+            res.send_message(format!(
+                "[{ip}](<https://whatismyipaddress.com/ip/{ip}>)\n{}",
+                [
+                    json.hostname.unwrap_or("".into()),
+                    [
+                        json.city.unwrap_or("".into()),
+                        json.region.unwrap_or("".into()),
+                        json.country.unwrap_or("".into()),
+                    ]
+                    .into_iter()
+                    .filter(|entry| !entry.is_empty())
+                    .collect::<Vec<String>>()
+                    .join(", "),
+                    json.loc
+                        .and_then(|loc| Some(loc.replace(',', ", ")))
+                        .unwrap_or("".into()),
+                    json.org.unwrap_or("".into()),
+                ]
+                .into_iter()
+                .filter(|entry| !entry.is_empty())
+                .collect::<Vec<String>>()
+                .join("\n"),
+                ip = json.ip
             ))
             .await?;
         }
@@ -362,6 +420,7 @@ impl Utils {
 
         vec![
             convert_currency,
+            ip,
             stock,
             translate,
             translate_message,
