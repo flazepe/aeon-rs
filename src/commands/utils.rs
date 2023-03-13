@@ -53,7 +53,7 @@ impl Utils {
         )]
         async fn convert_currency(input: CommandInput, res: CommandResponder) {
             if input.is_autocomplete() {
-                let search = input
+                let value = input
                     .args
                     .get(&input.focused.unwrap())
                     .unwrap()
@@ -66,8 +66,8 @@ impl Utils {
                         CURRENCIES
                             .iter()
                             .filter(|currency| {
-                                currency[0].to_lowercase().contains(&search)
-                                    || currency[1].to_lowercase().contains(&search)
+                                currency[0].to_lowercase().contains(&value)
+                                    || currency[1].to_lowercase().contains(&value)
                             })
                             .map(|currency| {
                                 ApplicationCommandOptionChoice::new(currency[0], currency[1])
@@ -106,16 +106,17 @@ impl Utils {
                 return res.send_message("Invalid currency.").await?;
             }
 
-            let converted = (get(format!(
-                "https://api.exchangerate.host/convert?amount={amount}&from={from_currency}&to={to_currency}"
-            ))
-            .await?
-            .json::<ExchangeRateConversion>()
-            .await?).result;
-
-            res.send_message(format!(
-                "{amount} {from_currency} equals {converted:.3} {to_currency}."
-            ))
+            res.send_message(
+                format!(
+                    "{amount} {from_currency} equals {:.3} {to_currency}.",
+                    (
+                        get(format!("https://api.exchangerate.host/convert?amount={amount}&from={from_currency}&to={to_currency}"))
+                        .await?
+                        .json::<ExchangeRateConversion>()
+                        .await?
+                    ).result
+                )
+            )
             .await?;
         }
 
@@ -286,7 +287,7 @@ impl Utils {
         )]
         async fn translate(input: CommandInput, res: CommandResponder) {
             if input.is_autocomplete() {
-                let search = input
+                let value = input
                     .args
                     .get(&input.focused.unwrap())
                     .unwrap()
@@ -299,8 +300,8 @@ impl Utils {
                         GOOGLE_TRANSLATE_LANGUAGES
                             .iter()
                             .filter(|[language_code, language_name]| {
-                                language_code == &search
-                                    || language_name.to_lowercase().contains(&search)
+                                language_code == &value
+                                    || language_name.to_lowercase().contains(&value)
                             })
                             .map(|[language_code, language_name]| {
                                 ApplicationCommandOptionChoice::new(
@@ -470,7 +471,7 @@ impl Utils {
             .find(|[language, _]| language == &to_language)
             .unwrap_or(&GOOGLE_TRANSLATE_LANGUAGES[22]); // Set english as fallback
 
-        let result  = get(format!("https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&dt=t&sl={}&tl={}&q={string}", from_language[0], to_language[0])).await?.json::<GoogleTranslateResponse>().await?;
+        let json  = get(format!("https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&dt=t&sl={}&tl={}&q={string}", from_language[0], to_language[0])).await?.json::<GoogleTranslateResponse>().await?;
 
         Ok(Embed::new()
             .set_title(format!(
@@ -478,7 +479,7 @@ impl Utils {
                 // Get origin language from the response
                 GOOGLE_TRANSLATE_LANGUAGES
                     .iter()
-                    .find(|[language, _]| language == &result.src)
+                    .find(|[language, _]| language == &json.src)
                     .unwrap()[1],
                 if from_language[0] == "auto" {
                     " (detected)"
@@ -488,8 +489,7 @@ impl Utils {
                 to_language[1]
             ))
             .set_description(
-                result
-                    .sentences
+                json.sentences
                     .into_iter()
                     .map(|sentence| sentence.trans) // 🏳️‍⚧️
                     .collect::<Vec<String>>()
