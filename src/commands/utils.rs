@@ -121,6 +121,72 @@ impl Utils {
         }
 
         #[command(
+            name = "distro",
+            description = "Fetches a distribution information.",
+            options = [
+                {
+                    name = "distro",
+                    description = "The distribution",
+                    option_type = InteractionOptionType::STRING,
+                    required = true
+                }
+            ]
+        )]
+        fn distro(input: CommandInput, res: CommandResponder) {
+            let fields: Vec<[String; 2]> = {
+                let document = Document::from(
+                    &get(format!(
+                        "https://distrowatch.com/table.php?distribution={}",
+                        input.args.get("distro").unwrap().as_string().unwrap(),
+                    ))
+                    .await?
+                    .text()
+                    .await?,
+                );
+
+                let name = document.select("td.TablesTitle h1").text();
+
+                if name.is_empty() {
+                    vec![]
+                } else {
+                    let get_table_nth_child = |n: u8| {
+                        document
+                            .select(&format!("td.TablesTitle li:nth-child({n})"))
+                            .text()
+                            .split(":")
+                            .last()
+                            .unwrap()
+                            .to_string()
+                    };
+
+                    vec![
+                        ["Name".into(), name.to_string()],
+                        ["Type".into(), get_table_nth_child(1)],
+                        ["Architecture".into(), get_table_nth_child(4)],
+                        ["Based on".into(), get_table_nth_child(2)],
+                        ["Origin".into(), get_table_nth_child(3)],
+                        ["Status".into(), get_table_nth_child(7)],
+                        ["Category".into(), get_table_nth_child(6)],
+                        ["Desktop".into(), get_table_nth_child(5)],
+                        ["Popularity".into(), get_table_nth_child(8)],
+                    ]
+                }
+            };
+
+            if fields.is_empty() {
+                res.send_message("Distribution not found.").await?;
+            } else {
+                let mut embed = Embed::new();
+
+                for [name, value] in fields {
+                    embed = embed.add_field(name, value, true);
+                }
+
+                res.send_message(embed).await?;
+            }
+        }
+
+        #[command(
             name = "ip",
             description = "Fetches information based on the given IP address.",
             options = [
@@ -425,6 +491,7 @@ impl Utils {
 
         vec![
             convert_currency,
+            distro,
             ip,
             stock,
             translate,
