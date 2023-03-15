@@ -241,21 +241,21 @@ impl Utils {
                     .await?;
             }
 
-            let records = json.answer.unwrap_or(json.authority.unwrap_or(vec![]));
+            let records = json.answer.or(json.authority).unwrap_or(vec![]);
 
-            if records.is_empty() {
-                return res.send_message("No records found.").await?;
-            }
-
-            res.send_message(format!(
-                "{}```diff\n{}```",
-                json.comment.unwrap_or("".into()),
-                records
-                    .iter()
-                    .map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl))
-                    .collect::<Vec<String>>()
-                    .join("\n")
-            ))
+            res.send_message(if records.is_empty() {
+                "No records found.".into()
+            } else {
+                format!(
+                    "{}```diff\n{}```",
+                    json.comment.unwrap_or("".into()),
+                    records
+                        .iter()
+                        .map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl))
+                        .collect::<Vec<String>>()
+                        .join("\n")
+                )
+            })
             .await?;
         }
 
