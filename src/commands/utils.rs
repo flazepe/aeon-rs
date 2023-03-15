@@ -1,6 +1,6 @@
 use crate::{
-    constants::{CONTROL_CHARACTERS, CURRENCIES, GOOGLE_TRANSLATE_LANGUAGES},
-    structs::{ExchangeRateConversion, GoogleTranslateResponse, IPInfo},
+    constants::{CONTROL_CHARACTERS, CURRENCIES, DNS_CODES, GOOGLE_TRANSLATE_LANGUAGES},
+    structs::{DNSResponse, ExchangeRateConversion, GoogleTranslateResponse, IPInfo},
 };
 use anyhow::Result;
 use nipper::Document;
@@ -184,6 +184,79 @@ impl Utils {
 
                 res.send_message(embed).await?;
             }
+        }
+
+        #[command(
+            name = "dns",
+            description = "Fetches DNS records of a domain.",
+            options = [
+                {
+                    name = "type",
+                    description = "The record type, such as A, AAAA, MX, NS, PTR, etc.",
+                    option_type = InteractionOptionType::STRING,
+                    required = true
+                },
+                {
+                    name = "url",
+                    description = "The URL",
+                    option_type = InteractionOptionType::STRING,
+                    required = true
+                }
+            ]
+        )]
+        fn dns(input: CommandInput, res: CommandResponder) {
+            let response = get(format!(
+                "https://dns.google/resolve?type={}&name={}",
+                input.args.get("type").unwrap().as_string().unwrap(),
+                input
+                    .args
+                    .get("url")
+                    .unwrap()
+                    .as_string()
+                    .unwrap()
+                    .to_lowercase()
+                    .replace("http://", "")
+                    .replace("https://", "")
+            ))
+            .await?;
+
+            if response.status() != 200 {
+                return res.send_message("Invalid record type.").await?;
+            }
+
+            let json = response.json::<DNSResponse>().await?;
+
+            if json.status != 0 {
+                let status = DNS_CODES
+                    .iter()
+                    .enumerate()
+                    .find(|(index, _)| index == &(json.status as usize));
+
+                return res
+                    .send_message(if let Some(status) = status {
+                        format!("{}: {}", status.1[0], status.1[1])
+                    } else {
+                        "An unknown error occurred.".into()
+                    })
+                    .await?;
+            }
+
+            let records = json.answer.unwrap_or(json.authority.unwrap_or(vec![]));
+
+            if records.is_empty() {
+                return res.send_message("No records found.").await?;
+            }
+
+            res.send_message(format!(
+                "{}```diff\n{}```",
+                json.comment.unwrap_or("".into()),
+                records
+                    .iter()
+                    .map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl))
+                    .collect::<Vec<String>>()
+                    .join("\n")
+            ))
+            .await?;
         }
 
         #[command(
@@ -492,6 +565,7 @@ impl Utils {
         vec![
             convert_currency,
             distro,
+            dns,
             ip,
             stock,
             translate,

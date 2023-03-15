@@ -38,3 +38,57 @@ pub struct IPInfo {
     pub region: Option<String>,
     pub timezone: Option<String>,
 }
+
+#[derive(Deserialize)]
+pub struct DNSRecord {
+    pub name: String,
+
+    #[serde(rename = "type")]
+    pub record_type: u64,
+
+    #[serde(rename = "TTL")]
+    pub ttl: u64,
+
+    pub data: String,
+}
+
+#[derive(Deserialize)]
+pub struct DNSQuestion {
+    pub name: String,
+
+    #[serde(rename = "type")]
+    pub record_type: u64,
+}
+
+#[derive(Deserialize)]
+pub struct DNSResponse {
+    #[serde(rename = "Status")]
+    pub status: u64,
+
+    #[serde(rename = "TC")]
+    pub tc: bool,
+
+    #[serde(rename = "RD")]
+    pub rd: bool,
+
+    #[serde(rename = "RA")]
+    pub ra: bool,
+
+    #[serde(rename = "AD")]
+    pub ad: bool,
+
+    #[serde(rename = "CD")]
+    pub cd: bool,
+
+    #[serde(rename = "Question")]
+    pub question: Vec<DNSQuestion>,
+
+    #[serde(rename = "Answer")]
+    pub answer: Option<Vec<DNSRecord>>,
+
+    #[serde(rename = "Authority")]
+    pub authority: Option<Vec<DNSRecord>>,
+
+    #[serde(rename = "Comment")]
+    pub comment: Option<String>,
+}
