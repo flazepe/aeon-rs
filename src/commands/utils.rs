@@ -515,7 +515,7 @@ impl Utils {
             ]
         )]
         async fn unicode(input: CommandInput, res: CommandResponder) {
-            match input.sub_command.as_deref() {
+            match input.subcommand.as_deref() {
                 Some("search") => {
                     let result = {
                         let document = Document::from(
