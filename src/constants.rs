@@ -220,6 +220,8 @@ pub const DNS_CODES: [[&str; 2]; 10] = [
     ["NOTZONE", "Name not in zone."],
 ];
 
+pub const ERROR_EMOJI: &str = "<:error:841838403821633569>";
+
 pub const GOOGLE_TRANSLATE_LANGUAGES: [[&str; 2]; 105] = [
     ["auto", "Automatic"],
     ["af", "Afrikaans"],

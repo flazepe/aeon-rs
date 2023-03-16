@@ -64,7 +64,7 @@ impl Utils {
                     res.send_message(exchange_rate_conversion.format()).await?;
                 }
                 Err(error) => {
-                    res.send_message(error.to_string()).await?;
+                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
                 }
             };
         }
@@ -87,7 +87,7 @@ impl Utils {
                     res.send_message(distro.format()).await?;
                 }
                 Err(error) => {
-                    res.send_message(error.to_string()).await?;
+                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
                 }
             };
         }
@@ -121,7 +121,7 @@ impl Utils {
                     res.send_message(dns_response.format()).await?;
                 }
                 Err(error) => {
-                    res.send_message(error.to_string()).await?;
+                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
                 }
             };
         }
@@ -144,7 +144,7 @@ impl Utils {
                     res.send_message(ip_info.format()).await?;
                 }
                 Err(error) => {
-                    res.send_message(error.to_string()).await?;
+                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
                 }
             };
         }
@@ -170,7 +170,7 @@ impl Utils {
                     res.send_message(stock.format()).await?;
                 }
                 Err(error) => {
-                    res.send_message(error.to_string()).await?;
+                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
                 }
             };
         }
@@ -223,7 +223,7 @@ impl Utils {
                     res.send_message(translation.format()).await?;
                 }
                 Err(error) => {
-                    res.send_message(error.to_string()).await?;
+                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
                 }
             }
         }
@@ -247,7 +247,7 @@ impl Utils {
                     res.send_message(translation.format()).await?;
                 }
                 Err(error) => {
-                    res.send_message(error.to_string()).await?;
+                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
                 }
             }
         }
@@ -290,7 +290,7 @@ impl Utils {
                             res.send_message(unicode_character.format()).await?;
                         }
                         Err(error) => {
-                            res.send_message(error.to_string()).await?;
+                            res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
                         }
                     }
                 }
