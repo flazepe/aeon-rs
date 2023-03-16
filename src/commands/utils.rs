@@ -11,7 +11,7 @@ use anyhow::Context;
 use slashook::{command, commands::Command};
 use slashook::{
     commands::{CommandInput, CommandResponder},
-    structs::{embeds::Embed, interactions::*},
+    structs::interactions::*,
 };
 
 pub struct Utils {}
@@ -53,23 +53,15 @@ impl Utils {
                 kv_autocomplete!(input, res, CURRENCIES);
             }
 
-            let amount = input.get_f64_arg("amount")?;
-
             match ExchangeRateConversion::get(
-                &amount,
+                &input.get_f64_arg("amount")?,
                 &input.get_string_arg("from-currency")?,
                 &input.get_string_arg("to-currency")?,
             )
             .await
             {
                 Ok(exchange_rate_conversion) => {
-                    res.send_message(format!(
-                        "{amount} {} equals {:.3} {}.",
-                        exchange_rate_conversion.from_currency,
-                        exchange_rate_conversion.converted_amount,
-                        exchange_rate_conversion.to_currency
-                    ))
-                    .await?;
+                    res.send_message(exchange_rate_conversion.format()).await?;
                 }
                 Err(error) => {
                     res.send_message(error.to_string()).await?;
@@ -92,19 +84,7 @@ impl Utils {
         async fn distro(input: CommandInput, res: CommandResponder) {
             match Distro::get(&input.get_string_arg("distro")?).await {
                 Ok(distro) => {
-                    res.send_message(
-                        Embed::new()
-                            .add_field("Name", distro.name, true)
-                            .add_field("Type", distro.distro_type, true)
-                            .add_field("Architecture", distro.architecture, true)
-                            .add_field("Based on", distro.based_on, true)
-                            .add_field("Origin", distro.origin, true)
-                            .add_field("Status", distro.status, true)
-                            .add_field("Category", distro.category, true)
-                            .add_field("Desktop", distro.desktop, true)
-                            .add_field("Popularity", distro.popularity, true),
-                    )
-                    .await?;
+                    res.send_message(distro.format()).await?;
                 }
                 Err(error) => {
                     res.send_message(error.to_string()).await?;
@@ -138,29 +118,7 @@ impl Utils {
             .await
             {
                 Ok(dns_response) => {
-                    let records = dns_response
-                        .answer
-                        .or(dns_response.authority)
-                        .unwrap_or(vec![]);
-
-                    res.send_message(if records.is_empty() {
-                        "No records found.".into()
-                    } else {
-                        format!(
-                            "{}```diff\n{}```",
-                            dns_response.comment.unwrap_or("".into()),
-                            records
-                                .iter()
-                                .map(|record| format!(
-                                    "+ {} (TTL {})",
-                                    record.data.trim(),
-                                    record.ttl
-                                ))
-                                .collect::<Vec<String>>()
-                                .join("\n")
-                        )
-                    })
-                    .await?;
+                    res.send_message(dns_response.format()).await?;
                 }
                 Err(error) => {
                     res.send_message(error.to_string()).await?;
@@ -183,32 +141,7 @@ impl Utils {
         async fn ip(input: CommandInput, res: CommandResponder) {
             match IPInfo::get(&input.get_string_arg("ip")?).await {
                 Ok(ip_info) => {
-                    res.send_message(format!(
-                        "[{ip}](<https://whatismyipaddress.com/ip/{ip}>)\n{}",
-                        [
-                            ip_info.hostname.unwrap_or("".into()),
-                            [
-                                ip_info.city.unwrap_or("".into()),
-                                ip_info.region.unwrap_or("".into()),
-                                ip_info.country.unwrap_or("".into()),
-                            ]
-                            .into_iter()
-                            .filter(|entry| !entry.is_empty())
-                            .collect::<Vec<String>>()
-                            .join(", "),
-                            ip_info
-                                .loc
-                                .and_then(|loc| Some(loc.replace(',', ", ")))
-                                .unwrap_or("".into()),
-                            ip_info.org.unwrap_or("".into()),
-                        ]
-                        .into_iter()
-                        .filter(|entry| !entry.is_empty())
-                        .collect::<Vec<String>>()
-                        .join("\n"),
-                        ip = ip_info.ip
-                    ))
-                    .await?;
+                    res.send_message(ip_info.format()).await?;
                 }
                 Err(error) => {
                     res.send_message(error.to_string()).await?;
@@ -234,16 +167,7 @@ impl Utils {
 
             match Stock::get(&input.get_string_arg("stock")?).await {
                 Ok(stock) => {
-                    res.send_message(
-                        Embed::new()
-                            .set_title(stock.name)
-                            .set_url(stock.url)
-                            .set_description(format!(
-                                "```diff\n{} {}\n{}```",
-                                stock.currency, stock.price, stock.diff
-                            )),
-                    )
-                    .await?;
+                    res.send_message(stock.to_embed()).await?;
                 }
                 Err(error) => {
                     res.send_message(error.to_string()).await?;
@@ -296,7 +220,7 @@ impl Utils {
             .await
             {
                 Ok(translation) => {
-                    res.send_message(translation.to_embed()).await?;
+                    res.send_message(translation.format()).await?;
                 }
                 Err(error) => {
                     res.send_message(error.to_string()).await?;
@@ -320,7 +244,7 @@ impl Utils {
             .await
             {
                 Ok(translation) => {
-                    res.send_message(translation.to_embed()).await?;
+                    res.send_message(translation.format()).await?;
                 }
                 Err(error) => {
                     res.send_message(error.to_string()).await?;
@@ -363,13 +287,7 @@ impl Utils {
                 Some("search") => {
                     match UnicodeCharacter::get(&input.get_string_arg("query")?).await {
                         Ok(unicode_character) => {
-                            res.send_message(format!(
-                                "{} - {} - {}",
-                                unicode_character.codepoint,
-                                unicode_character.name,
-                                unicode_character.character
-                            ))
-                            .await?;
+                            res.send_message(unicode_character.format()).await?;
                         }
                         Err(error) => {
                             res.send_message(error.to_string()).await?;

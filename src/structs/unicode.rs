@@ -43,6 +43,22 @@ impl UnicodeCharacter {
         })
     }
 
+    pub fn format(self) -> String {
+        format!(
+            "`{}` - {}{}",
+            self.codepoint,
+            self.name,
+            if CONTROL_CHARACTERS
+                .iter()
+                .any(|[_, control_character]| control_character == &self.name)
+            {
+                String::from("")
+            } else {
+                format!(" - `{}`", self.character.replace('`', "｀"))
+            }
+        )
+    }
+
     pub fn list(string: &str) -> Vec<Self> {
         let mut unicodes: Vec<Self> = vec![];
 
@@ -80,23 +96,8 @@ impl UnicodeCharacter {
             "Showing first {} character(s):\n\n{}",
             unicode_characters.len(),
             unicode_characters
-                .iter()
-                .map(|unicode_character| {
-                    format!(
-                        "`{}` - {}{}",
-                        unicode_character.codepoint,
-                        unicode_character.name,
-                        if CONTROL_CHARACTERS
-                            .iter()
-                            .any(|[_, control_character]| control_character
-                                == &unicode_character.name)
-                        {
-                            "".into()
-                        } else {
-                            format!(" - `{}`", unicode_character.character.replace('`', "｀"))
-                        }
-                    )
-                })
+                .into_iter()
+                .map(|unicode_character| { unicode_character.format() })
                 .collect::<Vec<String>>()
                 .join("\n"),
         )

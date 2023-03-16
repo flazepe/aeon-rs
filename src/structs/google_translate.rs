@@ -67,7 +67,7 @@ impl Translation {
         })
     }
 
-    pub fn to_embed(self) -> Embed {
+    pub fn format(self) -> Embed {
         Embed::new()
             .set_title(format!("{} to {}", self.from_language, self.to_language))
             .set_description(self.translation)

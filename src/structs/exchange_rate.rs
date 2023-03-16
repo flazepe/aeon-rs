@@ -4,22 +4,19 @@ use reqwest::get;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
-pub struct ExchangeRateConversion {
+pub struct ExchangeRateConversionResponse {
     pub result: f64,
 }
 
-pub struct FormattedExchangeRateConversion {
+pub struct ExchangeRateConversion {
     pub from_currency: String,
+    pub from_amount: f64,
     pub to_currency: String,
-    pub converted_amount: f64,
+    pub to_amount: f64,
 }
 
 impl ExchangeRateConversion {
-    pub async fn get(
-        amount: &f64,
-        from_currency: &str,
-        to_currency: &str,
-    ) -> Result<FormattedExchangeRateConversion> {
+    pub async fn get(from_amount: &f64, from_currency: &str, to_currency: &str) -> Result<Self> {
         let from_currency = CURRENCIES
             .iter()
             .find(|[_, currency]| currency == &from_currency)
@@ -30,17 +27,25 @@ impl ExchangeRateConversion {
             .find(|[_, currency]| currency == &to_currency)
             .context("Invalid currency.")?;
 
-        Ok(FormattedExchangeRateConversion {
+        Ok(Self {
             from_currency: format!("{} ({})", from_currency[1], from_currency[0]),
+            from_amount: from_amount.clone(),
             to_currency: format!("{} ({})", to_currency[1], to_currency[0]),
-            converted_amount: (get(format!(
-                "https://api.exchangerate.host/convert?amount={amount}&from={}&to={}",
+            to_amount: (get(format!(
+                "https://api.exchangerate.host/convert?amount={from_amount}&from={}&to={}",
                 from_currency[0], to_currency[0]
             ))
             .await?
-            .json::<ExchangeRateConversion>()
+            .json::<ExchangeRateConversionResponse>()
             .await?)
                 .result,
         })
+    }
+
+    pub fn format(self) -> String {
+        format!(
+            "{} {} equals {:.3} {}.",
+            self.from_amount, self.from_currency, self.to_amount, self.to_currency
+        )
     }
 }

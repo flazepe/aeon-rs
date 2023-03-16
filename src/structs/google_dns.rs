@@ -90,4 +90,22 @@ impl GoogleDNS {
 
         Ok(dns_response)
     }
+
+    pub fn format(self) -> String {
+        let records = self.answer.or(self.authority).unwrap_or(vec![]);
+
+        if records.is_empty() {
+            String::from("No DNS records found.")
+        } else {
+            format!(
+                "{}```diff\n{}```",
+                self.comment.unwrap_or("".into()),
+                records
+                    .iter()
+                    .map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl))
+                    .collect::<Vec<String>>()
+                    .join("\n")
+            )
+        }
+    }
 }

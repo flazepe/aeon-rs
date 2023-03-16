@@ -38,4 +38,31 @@ impl IPInfo {
 
         Ok(res.json().await?)
     }
+
+    pub fn format(self) -> String {
+        format!(
+            "[{ip}](<https://whatismyipaddress.com/ip/{ip}>)\n{}",
+            [
+                self.hostname.unwrap_or("".into()),
+                [
+                    self.city.unwrap_or("".into()),
+                    self.region.unwrap_or("".into()),
+                    self.country.unwrap_or("".into()),
+                ]
+                .into_iter()
+                .filter(|entry| !entry.is_empty())
+                .collect::<Vec<String>>()
+                .join(", "),
+                self.loc
+                    .and_then(|loc| Some(loc.replace(',', ", ")))
+                    .unwrap_or("".into()),
+                self.org.unwrap_or("".into()),
+            ]
+            .into_iter()
+            .filter(|entry| !entry.is_empty())
+            .collect::<Vec<String>>()
+            .join("\n"),
+            ip = self.ip
+        )
+    }
 }
