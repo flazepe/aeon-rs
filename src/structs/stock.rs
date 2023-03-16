@@ -84,10 +84,10 @@ impl Stock {
         })
     }
 
-    pub fn to_embed(&self) -> Embed {
+    pub fn format(self) -> Embed {
         Embed::new()
-            .set_title(&self.name)
-            .set_url(&self.url)
+            .set_title(self.name)
+            .set_url(self.url)
             .set_description(format!(
                 "```diff\n{} {}\n{}```",
                 self.currency, self.price, self.diff

@@ -167,7 +167,7 @@ impl Utils {
 
             match Stock::get(&input.get_string_arg("stock")?).await {
                 Ok(stock) => {
-                    res.send_message(stock.to_embed()).await?;
+                    res.send_message(stock.format()).await?;
                 }
                 Err(error) => {
                     res.send_message(error.to_string()).await?;
