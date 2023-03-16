@@ -76,16 +76,12 @@ impl GoogleDNS {
         let dns_response = res.json::<Self>().await?;
 
         if dns_response.status != 0 {
-            let status = DNS_CODES
+            bail!(DNS_CODES
                 .iter()
                 .enumerate()
-                .find(|(index, _)| index == &(dns_response.status as usize));
-
-            bail!(if let Some(status) = status {
-                format!("{}: {}", status.1[0], status.1[1])
-            } else {
-                "An unknown error occurred.".into()
-            });
+                .find(|(index, _)| index == &(dns_response.status as usize))
+                .and_then(|status| Some(status.1.join(": ")))
+                .unwrap_or("An unknown error occurred.".into()));
         }
 
         Ok(dns_response)
