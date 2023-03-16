@@ -23,3 +23,22 @@ macro_rules! kv_autocomplete {
             .await?);
     };
 }
+
+#[macro_export]
+macro_rules! format_timestamp {
+    ($timestamp:expr $(, $format:expr)?) => {{
+        let duration = format!("<t:{}:R>", $timestamp);
+        let simple = format!("<t:{}:D>", $timestamp);
+        let full = format!("{simple} ({duration})");
+
+        let format = "full";
+        $(format = $format;)?
+
+        match format {
+            "duration" => duration,
+            "simple" => simple,
+            "full" => full,
+            _ => full,
+        }
+    }};
+}
