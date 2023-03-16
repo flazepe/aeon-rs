@@ -1,7 +1,8 @@
-use crate::commands;
-use crate::config::{self, Config};
+use crate::{commands, structs::config::*};
 use anyhow::Result;
 use slashook::{Client, Config as SlashookConfig};
+use std::fs::read_to_string;
+use toml::from_str;
 
 pub struct AeonClient {
     client: Client,
@@ -10,7 +11,7 @@ pub struct AeonClient {
 
 impl AeonClient {
     pub fn new() -> Result<Self> {
-        let config = config::load_config()?;
+        let config: Config = from_str(&read_to_string("config.toml")?)?;
 
         let client = Client::new(SlashookConfig {
             bot_token: Some(String::from(&config.bot.token)),

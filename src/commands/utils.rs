@@ -1,21 +1,18 @@
 use crate::{
-    constants::{CONTROL_CHARACTERS, CURRENCIES, DNS_CODES, GOOGLE_TRANSLATE_LANGUAGES},
-    structs::{DNSResponse, ExchangeRateConversion, GoogleTranslateResponse, IPInfo},
+    constants::*,
+    kv_autocomplete,
+    structs::{
+        distrowatch::*, exchange_rate::*, google_dns::*, google_translate::*, ip_info::*, stock::*,
+        unicode::*,
+    },
+    traits::*,
 };
-use anyhow::Result;
-use nipper::Document;
-use reqwest::get;
+use anyhow::Context;
 use slashook::{command, commands::Command};
 use slashook::{
     commands::{CommandInput, CommandResponder},
-    structs::{
-        embeds::Embed,
-        interactions::{
-            ApplicationCommandOptionChoice, ApplicationCommandType, InteractionOptionType,
-        },
-    },
+    structs::{embeds::Embed, interactions::*},
 };
-use unicode_names2::name as get_unicode_name;
 
 pub struct Utils {}
 
@@ -53,71 +50,31 @@ impl Utils {
         )]
         async fn convert_currency(input: CommandInput, res: CommandResponder) {
             if input.is_autocomplete() {
-                let value = input
-                    .args
-                    .get(&input.focused.unwrap())
-                    .unwrap()
-                    .as_string()
-                    .unwrap()
-                    .to_lowercase();
-
-                return res
-                    .autocomplete(
-                        CURRENCIES
-                            .iter()
-                            .filter(|currency| {
-                                currency[0].to_lowercase().contains(&value)
-                                    || currency[1].to_lowercase().contains(&value)
-                            })
-                            .map(|currency| {
-                                ApplicationCommandOptionChoice::new(currency[0], currency[1])
-                            })
-                            .take(25)
-                            .collect(),
-                    )
-                    .await?;
+                kv_autocomplete!(input, res, CURRENCIES);
             }
 
-            let amount = input.args.get("amount").unwrap().as_f64().unwrap();
+            let amount = input.get_f64_arg("amount")?;
 
-            let from_currency = input
-                .args
-                .get("from-currency")
-                .unwrap()
-                .as_string()
-                .unwrap()
-                .to_uppercase();
-
-            let to_currency = input
-                .args
-                .get("to-currency")
-                .unwrap()
-                .as_string()
-                .unwrap()
-                .to_uppercase();
-
-            if !CURRENCIES
-                .iter()
-                .any(|[_, currency]| currency == &from_currency)
-                || !CURRENCIES
-                    .iter()
-                    .any(|[_, currency]| currency == &to_currency)
-            {
-                return res.send_message("Invalid currency.").await?;
-            }
-
-            res.send_message(
-                format!(
-                    "{amount} {from_currency} equals {:.3} {to_currency}.",
-                    (
-                        get(format!("https://api.exchangerate.host/convert?amount={amount}&from={from_currency}&to={to_currency}"))
-                        .await?
-                        .json::<ExchangeRateConversion>()
-                        .await?
-                    ).result
-                )
+            match ExchangeRateConversion::get(
+                &amount,
+                &input.get_string_arg("from-currency")?,
+                &input.get_string_arg("to-currency")?,
             )
-            .await?;
+            .await
+            {
+                Ok(exchange_rate_conversion) => {
+                    res.send_message(format!(
+                        "{amount} {} equals {:.3} {}.",
+                        exchange_rate_conversion.from_currency,
+                        exchange_rate_conversion.converted_amount,
+                        exchange_rate_conversion.to_currency
+                    ))
+                    .await?;
+                }
+                Err(error) => {
+                    res.send_message(error.to_string()).await?;
+                }
+            };
         }
 
         #[command(
@@ -132,58 +89,27 @@ impl Utils {
                 }
             ]
         )]
-        fn distro(input: CommandInput, res: CommandResponder) {
-            let fields: Vec<[String; 2]> = {
-                let document = Document::from(
-                    &get(format!(
-                        "https://distrowatch.com/table.php?distribution={}",
-                        input.args.get("distro").unwrap().as_string().unwrap(),
-                    ))
-                    .await?
-                    .text()
-                    .await?,
-                );
-
-                let name = document.select("td.TablesTitle h1").text();
-
-                if name.is_empty() {
-                    vec![]
-                } else {
-                    let get_table_nth_child = |n: u8| {
-                        document
-                            .select(&format!("td.TablesTitle li:nth-child({n})"))
-                            .text()
-                            .split(":")
-                            .last()
-                            .unwrap()
-                            .to_string()
-                    };
-
-                    vec![
-                        ["Name".into(), name.to_string()],
-                        ["Type".into(), get_table_nth_child(1)],
-                        ["Architecture".into(), get_table_nth_child(4)],
-                        ["Based on".into(), get_table_nth_child(2)],
-                        ["Origin".into(), get_table_nth_child(3)],
-                        ["Status".into(), get_table_nth_child(7)],
-                        ["Category".into(), get_table_nth_child(6)],
-                        ["Desktop".into(), get_table_nth_child(5)],
-                        ["Popularity".into(), get_table_nth_child(8)],
-                    ]
+        async fn distro(input: CommandInput, res: CommandResponder) {
+            match Distro::get(&input.get_string_arg("distro")?).await {
+                Ok(distro) => {
+                    res.send_message(
+                        Embed::new()
+                            .add_field("Name", distro.name, true)
+                            .add_field("Type", distro.distro_type, true)
+                            .add_field("Architecture", distro.architecture, true)
+                            .add_field("Based on", distro.based_on, true)
+                            .add_field("Origin", distro.origin, true)
+                            .add_field("Status", distro.status, true)
+                            .add_field("Category", distro.category, true)
+                            .add_field("Desktop", distro.desktop, true)
+                            .add_field("Popularity", distro.popularity, true),
+                    )
+                    .await?;
+                }
+                Err(error) => {
+                    res.send_message(error.to_string()).await?;
                 }
             };
-
-            if fields.is_empty() {
-                res.send_message("Distribution not found.").await?;
-            } else {
-                let mut embed = Embed::new();
-
-                for [name, value] in fields {
-                    embed = embed.add_field(name, value, true);
-                }
-
-                res.send_message(embed).await?;
-            }
         }
 
         #[command(
@@ -205,58 +131,41 @@ impl Utils {
             ]
         )]
         fn dns(input: CommandInput, res: CommandResponder) {
-            let response = get(format!(
-                "https://dns.google/resolve?type={}&name={}",
-                input.args.get("type").unwrap().as_string().unwrap(),
-                input
-                    .args
-                    .get("url")
-                    .unwrap()
-                    .as_string()
-                    .unwrap()
-                    .to_lowercase()
-                    .replace("http://", "")
-                    .replace("https://", "")
-            ))
-            .await?;
+            match GoogleDNS::query(
+                &input.get_string_arg("type")?,
+                &input.get_string_arg("url")?,
+            )
+            .await
+            {
+                Ok(dns_response) => {
+                    let records = dns_response
+                        .answer
+                        .or(dns_response.authority)
+                        .unwrap_or(vec![]);
 
-            if response.status() != 200 {
-                return res.send_message("Invalid record type.").await?;
-            }
-
-            let json = response.json::<DNSResponse>().await?;
-
-            if json.status != 0 {
-                let status = DNS_CODES
-                    .iter()
-                    .enumerate()
-                    .find(|(index, _)| index == &(json.status as usize));
-
-                return res
-                    .send_message(if let Some(status) = status {
-                        format!("{}: {}", status.1[0], status.1[1])
+                    res.send_message(if records.is_empty() {
+                        "No records found.".into()
                     } else {
-                        "An unknown error occurred.".into()
+                        format!(
+                            "{}```diff\n{}```",
+                            dns_response.comment.unwrap_or("".into()),
+                            records
+                                .iter()
+                                .map(|record| format!(
+                                    "+ {} (TTL {})",
+                                    record.data.trim(),
+                                    record.ttl
+                                ))
+                                .collect::<Vec<String>>()
+                                .join("\n")
+                        )
                     })
                     .await?;
-            }
-
-            let records = json.answer.or(json.authority).unwrap_or(vec![]);
-
-            res.send_message(if records.is_empty() {
-                "No records found.".into()
-            } else {
-                format!(
-                    "{}```diff\n{}```",
-                    json.comment.unwrap_or("".into()),
-                    records
-                        .iter()
-                        .map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl))
-                        .collect::<Vec<String>>()
-                        .join("\n")
-                )
-            })
-            .await?;
+                }
+                Err(error) => {
+                    res.send_message(error.to_string()).await?;
+                }
+            };
         }
 
         #[command(
@@ -272,49 +181,39 @@ impl Utils {
             ]
         )]
         async fn ip(input: CommandInput, res: CommandResponder) {
-            let response = get(format!(
-                "https://ipinfo.io/{}/json",
-                input
-                    .args
-                    .get("ip")
-                    .unwrap()
-                    .as_string()
-                    .unwrap()
-                    .replace(['/', '?'], "")
-            ))
-            .await?;
-
-            if response.status() != 200 {
-                return res.send_message("IP address not found.").await?;
-            }
-
-            let json = response.json::<IPInfo>().await?;
-
-            res.send_message(format!(
-                "[{ip}](<https://whatismyipaddress.com/ip/{ip}>)\n{}",
-                [
-                    json.hostname.unwrap_or("".into()),
-                    [
-                        json.city.unwrap_or("".into()),
-                        json.region.unwrap_or("".into()),
-                        json.country.unwrap_or("".into()),
-                    ]
-                    .into_iter()
-                    .filter(|entry| !entry.is_empty())
-                    .collect::<Vec<String>>()
-                    .join(", "),
-                    json.loc
-                        .and_then(|loc| Some(loc.replace(',', ", ")))
-                        .unwrap_or("".into()),
-                    json.org.unwrap_or("".into()),
-                ]
-                .into_iter()
-                .filter(|entry| !entry.is_empty())
-                .collect::<Vec<String>>()
-                .join("\n"),
-                ip = json.ip
-            ))
-            .await?;
+            match IPInfo::get(&input.get_string_arg("ip")?).await {
+                Ok(ip_info) => {
+                    res.send_message(format!(
+                        "[{ip}](<https://whatismyipaddress.com/ip/{ip}>)\n{}",
+                        [
+                            ip_info.hostname.unwrap_or("".into()),
+                            [
+                                ip_info.city.unwrap_or("".into()),
+                                ip_info.region.unwrap_or("".into()),
+                                ip_info.country.unwrap_or("".into()),
+                            ]
+                            .into_iter()
+                            .filter(|entry| !entry.is_empty())
+                            .collect::<Vec<String>>()
+                            .join(", "),
+                            ip_info
+                                .loc
+                                .and_then(|loc| Some(loc.replace(',', ", ")))
+                                .unwrap_or("".into()),
+                            ip_info.org.unwrap_or("".into()),
+                        ]
+                        .into_iter()
+                        .filter(|entry| !entry.is_empty())
+                        .collect::<Vec<String>>()
+                        .join("\n"),
+                        ip = ip_info.ip
+                    ))
+                    .await?;
+                }
+                Err(error) => {
+                    res.send_message(error.to_string()).await?;
+                }
+            };
         }
 
         #[command(
@@ -330,77 +229,26 @@ impl Utils {
             ]
         )]
         fn stock(input: CommandInput, res: CommandResponder) {
+            // We have to defer since scraping this takes a bit of time
             res.defer(false).await?;
 
-            let search = {
-                let document = Document::from(
-                    &get(format!(
-                        "https://finance.yahoo.com/lookup/equity?s={}",
-                        input.args.get("stock").unwrap().as_string().unwrap(),
-                    ))
-                    .await?
-                    .text()
-                    .await?,
-                );
-
-                let selection = &document.select("td a");
-
-                if selection.nodes().is_empty() {
-                    vec![]
-                } else {
-                    vec![
-                        selection.attr("href").unwrap().to_string(),
-                        selection.attr("title").unwrap().to_string(),
-                        selection.attr("data-symbol").unwrap().to_string(),
-                    ]
+            match Stock::get(&input.get_string_arg("stock")?).await {
+                Ok(stock) => {
+                    res.send_message(
+                        Embed::new()
+                            .set_title(stock.name)
+                            .set_url(stock.url)
+                            .set_description(format!(
+                                "```diff\n{} {}\n{}```",
+                                stock.currency, stock.price, stock.diff
+                            )),
+                    )
+                    .await?;
+                }
+                Err(error) => {
+                    res.send_message(error.to_string()).await?;
                 }
             };
-
-            if search.is_empty() {
-                return res.send_message("Not found.").await?;
-            }
-
-            res.send_message(
-                Embed::new()
-                    .set_title(format!("{} ({})", search[1], search[2]))
-                    .set_url(format!("https://finance.yahoo.com/quote/{}", search[2]))
-                    .set_description({
-                        let document = Document::from(
-                            &get(format!("https://finance.yahoo.com{}", search[0]))
-                                .await?
-                                .text()
-                                .await?,
-                        );
-
-                        format!(
-                            "```diff\n{} {}\n{}```",
-                            document
-                                .select("#quote-header-info span")
-                                .first()
-                                .text()
-                                .split(" ")
-                                .last()
-                                .unwrap(),
-                            document
-                                .select("#quote-header-info [data-field=\"regularMarketPrice\"]")
-                                .first()
-                                .text(),
-                            ["regularMarketChange", "regularMarketChangePercent"]
-                                .map(|field| {
-                                    document
-                                        .select(&format!(
-                                            "#quote-header-info [data-field=\"{}\"]",
-                                            field
-                                        ))
-                                        .first()
-                                        .text()
-                                        .to_string()
-                                })
-                                .join(" "),
-                        )
-                    }),
-            )
-            .await?;
         }
 
         #[command(
@@ -417,8 +265,7 @@ impl Utils {
                     name = "to-language",
                     description = "The language to translate the text to",
                     option_type = InteractionOptionType::STRING,
-                    autocomplete = true,
-                    required = true
+                    autocomplete = true
                 },
                 {
                     name = "from-language",
@@ -430,47 +277,31 @@ impl Utils {
         )]
         async fn translate(input: CommandInput, res: CommandResponder) {
             if input.is_autocomplete() {
-                let value = input
-                    .args
-                    .get(&input.focused.unwrap())
-                    .unwrap()
-                    .as_string()
-                    .unwrap()
-                    .to_lowercase();
-
-                return res
-                    .autocomplete(
-                        GOOGLE_TRANSLATE_LANGUAGES
-                            .iter()
-                            .filter(|[language_code, language_name]| {
-                                language_code == &value
-                                    || language_name.to_lowercase().contains(&value)
-                            })
-                            .map(|[language_code, language_name]| {
-                                ApplicationCommandOptionChoice::new(
-                                    language_name,
-                                    language_code.to_string(),
-                                )
-                            })
-                            .take(25)
-                            .collect(),
-                    )
-                    .await?;
+                kv_autocomplete!(input, res, GOOGLE_TRANSLATE_LANGUAGES);
             }
 
-            res.send_message(
-                Utils::translate(
-                    &input.args.get("text").unwrap().as_string().unwrap(),
-                    &input
-                        .args
-                        .get("from-language")
-                        .and_then(|arg| arg.as_string())
-                        .unwrap_or("auto".into()),
-                    &input.args.get("to-language").unwrap().as_string().unwrap(),
-                )
-                .await?,
+            match Translation::get(
+                &input.get_string_arg("text")?,
+                &input
+                    .args
+                    .get("from-language")
+                    .and_then(|arg| arg.as_string())
+                    .unwrap_or("auto".into()),
+                &input
+                    .args
+                    .get("to-language")
+                    .and_then(|arg| arg.as_string())
+                    .unwrap_or("en".into()),
             )
-            .await?;
+            .await
+            {
+                Ok(translation) => {
+                    res.send_message(translation.to_embed()).await?;
+                }
+                Err(error) => {
+                    res.send_message(error.to_string()).await?;
+                }
+            }
         }
 
         #[command(
@@ -478,10 +309,23 @@ impl Utils {
             command_type = ApplicationCommandType::MESSAGE
         )]
         async fn translate_message(input: CommandInput, res: CommandResponder) {
-            res.send_message(
-                Utils::translate(&input.target_message.unwrap().content, "auto", "en").await?,
+            match Translation::get(
+                &input
+                    .target_message
+                    .context("Missing target message")?
+                    .content,
+                "auto",
+                "en",
             )
-            .await?;
+            .await
+            {
+                Ok(translation) => {
+                    res.send_message(translation.to_embed()).await?;
+                }
+                Err(error) => {
+                    res.send_message(error.to_string()).await?;
+                }
+            }
         }
 
         #[command(
@@ -517,35 +361,26 @@ impl Utils {
         async fn unicode(input: CommandInput, res: CommandResponder) {
             match input.subcommand.as_deref() {
                 Some("search") => {
-                    let result = {
-                        let document = Document::from(
-                            &get(format!(
-                                "https://symbl.cc/en/search/?q={}",
-                                input.args.get("query").unwrap().as_string().unwrap(),
+                    match UnicodeCharacter::get(&input.get_string_arg("query")?).await {
+                        Ok(unicode_character) => {
+                            res.send_message(format!(
+                                "{} - {} - {}",
+                                unicode_character.codepoint,
+                                unicode_character.name,
+                                unicode_character.character
                             ))
-                            .await?
-                            .text()
-                            .await?,
-                        );
-
-                        let name = document.select("h2").first().text();
-                        let character = document.select(".search-page__char").first().text();
-
-                        format!(
-                            "`U+{:04X}` - {} - {}",
-                            character.trim().chars().next().unwrap() as u32,
-                            name.trim(),
-                            character.trim()
-                        )
-                    };
-
-                    res.send_message(result).await?;
+                            .await?;
+                        }
+                        Err(error) => {
+                            res.send_message(error.to_string()).await?;
+                        }
+                    }
                 }
                 Some("list") => {
-                    res.send_message(Utils::parse_unicodes(
-                        &input.args.get("text").unwrap().as_string().unwrap(),
+                    res.send_message(UnicodeCharacter::formatted_list(
+                        &input.get_string_arg("text")?,
                     ))
-                    .await?;
+                    .await?
                 }
                 _ => {}
             }
@@ -556,8 +391,11 @@ impl Utils {
             command_type = ApplicationCommandType::MESSAGE
         )]
         async fn unicode_message(input: CommandInput, res: CommandResponder) {
-            res.send_message(Utils::parse_unicodes(
-                &input.target_message.unwrap().content,
+            res.send_message(UnicodeCharacter::formatted_list(
+                &input
+                    .target_message
+                    .context("Missing target message")?
+                    .content,
             ))
             .await?;
         }
@@ -573,75 +411,5 @@ impl Utils {
             unicode,
             unicode_message,
         ]
-    }
-
-    fn parse_unicodes(string: &str) -> String {
-        let characters = string;
-        let mut unicodes: Vec<String> = vec![];
-
-        for character in characters.chars() {
-            let unicode = format!("U+{:04X}", character as u32);
-            let mut name = String::from("UNKNOWN");
-
-            if let Some(character_name) = CONTROL_CHARACTERS.iter().find(|[control_character, _]| {
-                control_character == &format!("{:X}", character as u32)
-            }) {
-                name = character_name[1].to_string();
-            }
-
-            if let Some(character_name) = get_unicode_name(character) {
-                name = character_name.to_string();
-            }
-
-            unicodes.push(format!("`{unicode}` - {name}"));
-        }
-
-        unicodes = unicodes.into_iter().take(20).collect::<Vec<String>>();
-
-        format!(
-            "Showing first {} character(s):\n\n{}",
-            unicodes.len(),
-            unicodes.join("\n")
-        )
-    }
-
-    async fn translate(string: &str, from_language: &str, to_language: &str) -> Result<Embed> {
-        let from_language = GOOGLE_TRANSLATE_LANGUAGES
-            .iter()
-            .find(|[language, _]| language == &from_language)
-            .unwrap_or(&GOOGLE_TRANSLATE_LANGUAGES[0]); // Set auto as fallback
-
-        let to_language = GOOGLE_TRANSLATE_LANGUAGES
-            .iter()
-            .find(|[language, _]| language == &to_language)
-            .unwrap_or(&GOOGLE_TRANSLATE_LANGUAGES[22]); // Set english as fallback
-
-        let json  = get(format!("https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&dt=t&sl={}&tl={}&q={string}", from_language[0], to_language[0])).await?.json::<GoogleTranslateResponse>().await?;
-
-        Ok(Embed::new()
-            .set_title(format!(
-                "{}{} to {}",
-                // Get origin language from the response
-                GOOGLE_TRANSLATE_LANGUAGES
-                    .iter()
-                    .find(|[language, _]| language == &json.src)
-                    .unwrap()[1],
-                if from_language[0] == "auto" {
-                    " (detected)"
-                } else {
-                    ""
-                },
-                to_language[1]
-            ))
-            .set_description(
-                json.sentences
-                    .into_iter()
-                    .map(|sentence| sentence.trans) // 🏳️‍⚧️
-                    .collect::<Vec<String>>()
-                    .join("")
-                    .chars()
-                    .take(4000)
-                    .collect::<String>(),
-            ))
     }
 }

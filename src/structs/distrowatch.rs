@@ -1,0 +1,57 @@
+use anyhow::{bail, Context, Result};
+use nipper::Document;
+use reqwest::get;
+
+pub struct Distro {
+    pub name: String,
+    pub distro_type: String,
+    pub architecture: String,
+    pub based_on: String,
+    pub origin: String,
+    pub status: String,
+    pub category: String,
+    pub desktop: String,
+    pub popularity: String,
+}
+
+impl Distro {
+    pub async fn get(name: &str) -> Result<Self> {
+        let document = Document::from(
+            &get(format!(
+                "https://distrowatch.com/table.php?distribution={}",
+                name,
+            ))
+            .await?
+            .text()
+            .await?,
+        );
+
+        let name = document.select("td.TablesTitle h1").text();
+
+        if name.is_empty() {
+            bail!("Distribution not found.");
+        }
+
+        let get_table_nth_child = |n: u8| -> Result<String> {
+            Ok(document
+                .select(&format!("td.TablesTitle li:nth-child({n})"))
+                .text()
+                .split(":")
+                .last()
+                .context(format!("Could not get table nth child value for {n}"))?
+                .to_string())
+        };
+
+        Ok(Self {
+            name: name.to_string(),
+            distro_type: get_table_nth_child(1)?,
+            architecture: get_table_nth_child(4)?,
+            based_on: get_table_nth_child(2)?,
+            origin: get_table_nth_child(3)?,
+            status: get_table_nth_child(7)?,
+            category: get_table_nth_child(6)?,
+            desktop: get_table_nth_child(5)?,
+            popularity: get_table_nth_child(8)?,
+        })
+    }
+}
