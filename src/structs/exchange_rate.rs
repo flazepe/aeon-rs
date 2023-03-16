@@ -19,12 +19,12 @@ impl ExchangeRateConversion {
     pub async fn get(from_amount: &f64, from_currency: &str, to_currency: &str) -> Result<Self> {
         let from_currency = CURRENCIES
             .iter()
-            .find(|[_, currency]| currency == &from_currency)
+            .find(|[currency, _]| currency == &from_currency)
             .context("Invalid currency.")?;
 
         let to_currency = CURRENCIES
             .iter()
-            .find(|[_, currency]| currency == &to_currency)
+            .find(|[currency, _]| currency == &to_currency)
             .context("Invalid currency.")?;
 
         Ok(Self {
