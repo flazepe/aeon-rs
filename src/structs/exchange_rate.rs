@@ -4,15 +4,15 @@ use reqwest::get;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
-pub struct ExchangeRateConversionResponse {
-    pub result: f64,
+struct ExchangeRateConversionResponse {
+    result: f64,
 }
 
 pub struct ExchangeRateConversion {
-    pub from_currency: String,
-    pub from_amount: f64,
-    pub to_currency: String,
-    pub to_amount: f64,
+    from_currency: String,
+    from_amount: f64,
+    to_currency: String,
+    to_amount: f64,
 }
 
 impl ExchangeRateConversion {

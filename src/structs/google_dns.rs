@@ -4,57 +4,57 @@ use reqwest::get;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
-pub struct GoogleDNSRecord {
-    pub name: String,
+struct GoogleDNSRecord {
+    name: String,
 
     #[serde(rename = "type")]
-    pub record_type: u64,
+    record_type: u64,
 
     #[serde(rename = "TTL")]
-    pub ttl: u64,
+    ttl: u64,
 
-    pub data: String,
+    data: String,
 }
 
 #[derive(Deserialize)]
-pub struct GoogleDNSQuestion {
-    pub name: String,
+struct GoogleDNSQuestion {
+    name: String,
 
     #[serde(rename = "type")]
-    pub record_type: u64,
+    record_type: u64,
 }
 
 #[derive(Deserialize)]
 pub struct GoogleDNS {
     #[serde(rename = "Status")]
-    pub status: u64,
+    status: u64,
 
     #[serde(rename = "TC")]
-    pub tc: bool,
+    tc: bool,
 
     #[serde(rename = "RD")]
-    pub rd: bool,
+    rd: bool,
 
     #[serde(rename = "RA")]
-    pub ra: bool,
+    ra: bool,
 
     #[serde(rename = "AD")]
-    pub ad: bool,
+    ad: bool,
 
     #[serde(rename = "CD")]
-    pub cd: bool,
+    cd: bool,
 
     #[serde(rename = "Question")]
-    pub question: Vec<GoogleDNSQuestion>,
+    question: Vec<GoogleDNSQuestion>,
 
     #[serde(rename = "Answer")]
-    pub answer: Option<Vec<GoogleDNSRecord>>,
+    answer: Option<Vec<GoogleDNSRecord>>,
 
     #[serde(rename = "Authority")]
-    pub authority: Option<Vec<GoogleDNSRecord>>,
+    authority: Option<Vec<GoogleDNSRecord>>,
 
     #[serde(rename = "Comment")]
-    pub comment: Option<String>,
+    comment: Option<String>,
 }
 
 impl GoogleDNS {

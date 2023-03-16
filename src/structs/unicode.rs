@@ -5,9 +5,9 @@ use reqwest::get;
 use unicode_names2::name as get_unicode_name;
 
 pub struct UnicodeCharacter {
-    pub codepoint: String,
-    pub name: String,
-    pub character: String,
+    codepoint: String,
+    name: String,
+    character: String,
 }
 
 pub struct UnicodeCharacters {
@@ -100,8 +100,13 @@ impl UnicodeCharacters {
             .collect::<Vec<UnicodeCharacter>>();
 
         format!(
-            "Showing first {} character(s):\n\n{}",
+            "Showing first {} character{}:\n\n{}",
             unicode_characters.len(),
+            if unicode_characters.len() == 1 {
+                ""
+            } else {
+                "s"
+            },
             unicode_characters
                 .into_iter()
                 .map(|unicode_character| { unicode_character.format() })

@@ -23,6 +23,9 @@ impl AeonClient {
 
     pub async fn register_commands(&mut self) -> Result<()> {
         self.client
+            .register_commands(commands::gaming::get_commands());
+
+        self.client
             .register_commands(commands::utils::get_commands());
 
         if let Some(guild_id) = &self.config.bot.guild_id {
