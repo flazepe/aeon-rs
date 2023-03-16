@@ -6,6 +6,7 @@ use toml::from_str;
 #[derive(Deserialize)]
 pub struct Config {
     pub bot: BotConfig,
+    pub api: APIConfig,
 }
 
 #[derive(Deserialize)]
@@ -14,6 +15,11 @@ pub struct BotConfig {
     pub guild_id: Option<String>,
     pub public_key: String,
     pub token: String,
+}
+
+#[derive(Deserialize)]
+pub struct APIConfig {
+    pub steam_key: String,
 }
 
 impl Config {

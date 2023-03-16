@@ -3,3 +3,6 @@ client_id = "client_id"
 guild_id = "guild_id"
 token = "token"
 public_key = "public_key"
+
+[api]
+steam_key = "steam_key"
