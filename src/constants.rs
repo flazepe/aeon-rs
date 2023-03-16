@@ -329,3 +329,13 @@ pub const GOOGLE_TRANSLATE_LANGUAGES: [[&str; 2]; 105] = [
     ["yo", "Yoruba"],
     ["zu", "Zulu"],
 ];
+
+pub const STEAM_USER_STATES: [&str; 7] = [
+    "Offline",
+    "Online",
+    "Busy",
+    "Away",
+    "Snooze",
+    "Looking to trade",
+    "Looking to play",
+];
