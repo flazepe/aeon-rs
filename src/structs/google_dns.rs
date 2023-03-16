@@ -80,7 +80,7 @@ impl GoogleDNS {
                 .iter()
                 .enumerate()
                 .find(|(index, _)| index == &(dns_response.status as usize))
-                .and_then(|status| Some(status.1.join(": ")))
+                .and_then(|entry| Some(entry.1.join(": ")))
                 .unwrap_or("An unknown error occurred.".into()));
         }
 
