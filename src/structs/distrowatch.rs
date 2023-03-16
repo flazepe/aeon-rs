@@ -56,16 +56,16 @@ impl Distro {
         })
     }
 
-    pub fn format(&self) -> Embed {
+    pub fn format(self) -> Embed {
         Embed::new()
-            .add_field("Name", &self.name, true)
-            .add_field("Type", &self.distro_type, true)
-            .add_field("Architecture", &self.architecture, true)
-            .add_field("Based on", &self.based_on, true)
-            .add_field("Origin", &self.origin, true)
-            .add_field("Status", &self.status, true)
-            .add_field("Category", &self.category, true)
-            .add_field("Desktop", &self.desktop, true)
-            .add_field("Popularity", &self.popularity, true)
+            .add_field("Name", self.name, true)
+            .add_field("Type", self.distro_type, true)
+            .add_field("Architecture", self.architecture, true)
+            .add_field("Based on", self.based_on, true)
+            .add_field("Origin", self.origin, true)
+            .add_field("Status", self.status, true)
+            .add_field("Category", self.category, true)
+            .add_field("Desktop", self.desktop, true)
+            .add_field("Popularity", self.popularity, true)
     }
 }
