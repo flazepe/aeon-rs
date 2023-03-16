@@ -1,8 +1,8 @@
-pub mod commands;
-pub mod constants;
-pub mod macros;
-pub mod structs;
-pub mod traits;
+mod commands;
+mod constants;
+mod macros;
+mod structs;
+mod traits;
 
 use anyhow::Result;
 use slashook::main;
