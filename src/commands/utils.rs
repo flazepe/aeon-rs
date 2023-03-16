@@ -14,15 +14,8 @@ use slashook::{
     structs::interactions::*,
 };
 
-pub struct Utils {}
-
-impl Utils {
-    pub fn init() -> Self {
-        Self {}
-    }
-
-    pub fn get_commands(self) -> Vec<Command> {
-        #[command(
+pub fn get_commands() -> Vec<Command> {
+    #[command(
             name = "convert-currency",
             description = "Converts a currency to another currency.",
             options = [
@@ -48,28 +41,28 @@ impl Utils {
                 }
             ]
         )]
-        async fn convert_currency(input: CommandInput, res: CommandResponder) {
-            if input.is_autocomplete() {
-                kv_autocomplete!(input, res, CURRENCIES);
-            }
-
-            match ExchangeRateConversion::get(
-                &input.get_f64_arg("amount")?,
-                &input.get_string_arg("from-currency")?,
-                &input.get_string_arg("to-currency")?,
-            )
-            .await
-            {
-                Ok(exchange_rate_conversion) => {
-                    res.send_message(exchange_rate_conversion.format()).await?;
-                }
-                Err(error) => {
-                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                }
-            };
+    async fn convert_currency(input: CommandInput, res: CommandResponder) {
+        if input.is_autocomplete() {
+            kv_autocomplete!(input, res, CURRENCIES);
         }
 
-        #[command(
+        match ExchangeRateConversion::get(
+            &input.get_f64_arg("amount")?,
+            &input.get_string_arg("from-currency")?,
+            &input.get_string_arg("to-currency")?,
+        )
+        .await
+        {
+            Ok(exchange_rate_conversion) => {
+                res.send_message(exchange_rate_conversion.format()).await?;
+            }
+            Err(error) => {
+                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+            }
+        };
+    }
+
+    #[command(
             name = "distro",
             description = "Fetches a distribution information.",
             options = [
@@ -81,18 +74,18 @@ impl Utils {
                 }
             ]
         )]
-        async fn distro(input: CommandInput, res: CommandResponder) {
-            match Distro::get(&input.get_string_arg("distro")?).await {
-                Ok(distro) => {
-                    res.send_message(distro.format()).await?;
-                }
-                Err(error) => {
-                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                }
-            };
-        }
+    async fn distro(input: CommandInput, res: CommandResponder) {
+        match Distro::get(&input.get_string_arg("distro")?).await {
+            Ok(distro) => {
+                res.send_message(distro.format()).await?;
+            }
+            Err(error) => {
+                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+            }
+        };
+    }
 
-        #[command(
+    #[command(
             name = "dns",
             description = "Fetches DNS records of a domain.",
             options = [
@@ -110,23 +103,23 @@ impl Utils {
                 }
             ]
         )]
-        fn dns(input: CommandInput, res: CommandResponder) {
-            match GoogleDNS::query(
-                &input.get_string_arg("type")?,
-                &input.get_string_arg("url")?,
-            )
-            .await
-            {
-                Ok(dns_response) => {
-                    res.send_message(dns_response.format()).await?;
-                }
-                Err(error) => {
-                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                }
-            };
-        }
+    fn dns(input: CommandInput, res: CommandResponder) {
+        match GoogleDNS::query(
+            &input.get_string_arg("type")?,
+            &input.get_string_arg("url")?,
+        )
+        .await
+        {
+            Ok(dns_response) => {
+                res.send_message(dns_response.format()).await?;
+            }
+            Err(error) => {
+                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+            }
+        };
+    }
 
-        #[command(
+    #[command(
             name = "ip",
             description = "Fetches information based on the given IP address.",
             options = [
@@ -138,18 +131,18 @@ impl Utils {
                 }
             ]
         )]
-        async fn ip(input: CommandInput, res: CommandResponder) {
-            match IPInfo::get(&input.get_string_arg("ip")?).await {
-                Ok(ip_info) => {
-                    res.send_message(ip_info.format()).await?;
-                }
-                Err(error) => {
-                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                }
-            };
-        }
+    async fn ip(input: CommandInput, res: CommandResponder) {
+        match IPInfo::get(&input.get_string_arg("ip")?).await {
+            Ok(ip_info) => {
+                res.send_message(ip_info.format()).await?;
+            }
+            Err(error) => {
+                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+            }
+        };
+    }
 
-        #[command(
+    #[command(
             name = "stock",
             description = "Fetches stock information.",
             options = [
@@ -161,21 +154,21 @@ impl Utils {
                 }
             ]
         )]
-        fn stock(input: CommandInput, res: CommandResponder) {
-            // We have to defer since scraping this takes a bit of time
-            res.defer(false).await?;
+    fn stock(input: CommandInput, res: CommandResponder) {
+        // We have to defer since scraping this takes a bit of time
+        res.defer(false).await?;
 
-            match Stock::get(&input.get_string_arg("stock")?).await {
-                Ok(stock) => {
-                    res.send_message(stock.format()).await?;
-                }
-                Err(error) => {
-                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                }
-            };
-        }
+        match Stock::get(&input.get_string_arg("stock")?).await {
+            Ok(stock) => {
+                res.send_message(stock.format()).await?;
+            }
+            Err(error) => {
+                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+            }
+        };
+    }
 
-        #[command(
+    #[command(
             name = "translate",
             description = "Translate a text to any language.",
             options = [
@@ -199,60 +192,60 @@ impl Utils {
                 }
             ]
         )]
-        async fn translate(input: CommandInput, res: CommandResponder) {
-            if input.is_autocomplete() {
-                kv_autocomplete!(input, res, GOOGLE_TRANSLATE_LANGUAGES);
-            }
-
-            match Translation::get(
-                &input.get_string_arg("text")?,
-                &input
-                    .args
-                    .get("from-language")
-                    .and_then(|arg| arg.as_string())
-                    .unwrap_or("auto".into()),
-                &input
-                    .args
-                    .get("to-language")
-                    .and_then(|arg| arg.as_string())
-                    .unwrap_or("en".into()),
-            )
-            .await
-            {
-                Ok(translation) => {
-                    res.send_message(translation.format()).await?;
-                }
-                Err(error) => {
-                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                }
-            }
+    async fn translate(input: CommandInput, res: CommandResponder) {
+        if input.is_autocomplete() {
+            kv_autocomplete!(input, res, GOOGLE_TRANSLATE_LANGUAGES);
         }
 
-        #[command(
+        match GoogleTranslate::translate(
+            &input.get_string_arg("text")?,
+            &input
+                .args
+                .get("from-language")
+                .and_then(|arg| arg.as_string())
+                .unwrap_or("auto".into()),
+            &input
+                .args
+                .get("to-language")
+                .and_then(|arg| arg.as_string())
+                .unwrap_or("en".into()),
+        )
+        .await
+        {
+            Ok(translation) => {
+                res.send_message(translation.format()).await?;
+            }
+            Err(error) => {
+                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+            }
+        }
+    }
+
+    #[command(
             name = "Translate to English",
             command_type = ApplicationCommandType::MESSAGE
         )]
-        async fn translate_message(input: CommandInput, res: CommandResponder) {
-            match Translation::get(
-                &input
-                    .target_message
-                    .context("Missing target message")?
-                    .content,
-                "auto",
-                "en",
-            )
-            .await
-            {
-                Ok(translation) => {
-                    res.send_message(translation.format()).await?;
-                }
-                Err(error) => {
-                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                }
+    async fn translate_message(input: CommandInput, res: CommandResponder) {
+        match GoogleTranslate::translate(
+            &input
+                .target_message
+                .context("Missing target message")?
+                .content,
+            "auto",
+            "en",
+        )
+        .await
+        {
+            Ok(translation) => {
+                res.send_message(translation.format()).await?;
+            }
+            Err(error) => {
+                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
             }
         }
+    }
 
-        #[command(
+    #[command(
             name = "unicode",
             description = "Does operations with unicode.",
             subcommands = [
@@ -282,52 +275,50 @@ impl Utils {
                 }
             ]
         )]
-        async fn unicode(input: CommandInput, res: CommandResponder) {
-            match input.subcommand.as_deref() {
-                Some("search") => {
-                    match UnicodeCharacter::get(&input.get_string_arg("query")?).await {
-                        Ok(unicode_character) => {
-                            res.send_message(unicode_character.format()).await?;
-                        }
-                        Err(error) => {
-                            res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                        }
-                    }
+    async fn unicode(input: CommandInput, res: CommandResponder) {
+        match input.subcommand.as_deref() {
+            Some("search") => match UnicodeCharacter::get(&input.get_string_arg("query")?).await {
+                Ok(unicode_character) => {
+                    res.send_message(unicode_character.format()).await?;
                 }
-                Some("list") => {
-                    res.send_message(UnicodeCharacter::formatted_list(
-                        &input.get_string_arg("text")?,
-                    ))
+                Err(error) => {
+                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+                }
+            },
+            Some("list") => {
+                res.send_message(UnicodeCharacters::get(&input.get_string_arg("text")?).format())
                     .await?
-                }
-                _ => {}
             }
+            _ => {}
         }
+    }
 
-        #[command(
+    #[command(
             name = "List Unicodes",
             command_type = ApplicationCommandType::MESSAGE
         )]
-        async fn unicode_message(input: CommandInput, res: CommandResponder) {
-            res.send_message(UnicodeCharacter::formatted_list(
+    async fn unicode_message(input: CommandInput, res: CommandResponder) {
+        res.send_message(
+            UnicodeCharacters::get(
                 &input
                     .target_message
                     .context("Missing target message")?
                     .content,
-            ))
-            .await?;
-        }
-
-        vec![
-            convert_currency,
-            distro,
-            dns,
-            ip,
-            stock,
-            translate,
-            translate_message,
-            unicode,
-            unicode_message,
-        ]
+            )
+            .format(),
+        )
+        .await?;
     }
+
+    vec![
+        convert_currency,
+        distro,
+        dns,
+        ip,
+        stock,
+        translate,
+        translate_message,
+        unicode,
+        unicode_message,
+    ]
 }

@@ -16,14 +16,14 @@ pub struct GoogleTranslateResponse {
     pub src: String,
 }
 
-pub struct Translation {
+pub struct GoogleTranslate {
     pub from_language: String,
     pub to_language: String,
     pub translation: String,
 }
 
-impl Translation {
-    pub async fn get(text: &str, from_language: &str, to_language: &str) -> Result<Self> {
+impl GoogleTranslate {
+    pub async fn translate(text: &str, from_language: &str, to_language: &str) -> Result<Self> {
         if text.is_empty() {
             bail!("Text is empty.");
         }

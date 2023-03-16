@@ -10,6 +10,10 @@ pub struct UnicodeCharacter {
     pub character: String,
 }
 
+pub struct UnicodeCharacters {
+    pub unicode_characters: Vec<UnicodeCharacter>,
+}
+
 impl UnicodeCharacter {
     pub async fn get(name: &str) -> Result<Self> {
         let document = Document::from(
@@ -58,9 +62,11 @@ impl UnicodeCharacter {
             }
         )
     }
+}
 
-    pub fn list(string: &str) -> Vec<Self> {
-        let mut unicodes: Vec<Self> = vec![];
+impl UnicodeCharacters {
+    pub fn get(string: &str) -> Self {
+        let mut unicode_characters: Vec<UnicodeCharacter> = vec![];
 
         for character in string.chars() {
             let codepoint = format!("U+{:04X}", character as u32);
@@ -76,18 +82,19 @@ impl UnicodeCharacter {
                 name = character_name.to_string();
             }
 
-            unicodes.push(Self {
+            unicode_characters.push(UnicodeCharacter {
                 codepoint,
                 name,
                 character: character.to_string(),
             });
         }
 
-        unicodes
+        Self { unicode_characters }
     }
 
-    pub fn formatted_list(string: &str) -> String {
-        let unicode_characters = UnicodeCharacter::list(string)
+    pub fn format(self) -> String {
+        let unicode_characters = self
+            .unicode_characters
             .into_iter()
             .take(20)
             .collect::<Vec<UnicodeCharacter>>();
