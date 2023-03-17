@@ -90,7 +90,7 @@ macro_rules! plural {
 }
 
 #[macro_export]
-macro_rules! and_then_else {
+macro_rules! and_then_or {
     ($expr:expr, $and_then:expr, $else:expr) => {
         $expr.and_then($and_then).unwrap_or($else)
     };

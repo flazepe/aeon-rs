@@ -1,5 +1,5 @@
 use crate::{
-    and_then_else,
+    and_then_or,
     constants::STEAM_USER_STATES,
     format_timestamp, plural,
     structs::steam::{countries::*, user_bans::*, user_vanity::*},
@@ -140,7 +140,7 @@ impl SteamUser {
             )
             .add_field(
                 "Status",
-                and_then_else!(
+                and_then_or!(
                     STEAM_USER_STATES
                         .iter()
                         .enumerate()
@@ -157,11 +157,11 @@ impl SteamUser {
                     Some(country) => format!(
                         ":flag_{}: {}{}",
                         country.code.to_lowercase(),
-                        and_then_else!(
+                        and_then_or!(
                             self.loc_state_code,
                             |state_code| Some(format!(
                                 "{}, ",
-                                and_then_else!(
+                                and_then_or!(
                                     country
                                         .states
                                         .iter()
@@ -180,7 +180,7 @@ impl SteamUser {
             )
             .add_field(
                 "Playing",
-                and_then_else!(
+                and_then_or!(
                     self.game_extra_info,
                     |game_extra_info| {
                         Some(format!(

@@ -1,4 +1,4 @@
-use crate::{and_then_else, constants::*};
+use crate::{and_then_or, constants::*};
 use anyhow::{bail, Result};
 use reqwest::get;
 use serde::Deserialize;
@@ -76,7 +76,7 @@ impl GoogleDNS {
         let dns_response = res.json::<Self>().await?;
 
         if dns_response.status != 0 {
-            bail!(and_then_else!(
+            bail!(and_then_or!(
                 DNS_CODES
                     .iter()
                     .enumerate()
