@@ -11,7 +11,7 @@ pub struct UnicodeCharacter {
 }
 
 pub struct UnicodeCharacters {
-    pub unicode_characters: Vec<UnicodeCharacter>,
+    unicode_characters: Vec<UnicodeCharacter>,
 }
 
 impl UnicodeCharacter {
