@@ -1,4 +1,4 @@
-use crate::constants::*;
+use crate::{and_then_else, constants::*};
 use anyhow::{bail, Result};
 use reqwest::get;
 use serde::Deserialize;
@@ -76,12 +76,14 @@ impl GoogleDNS {
         let dns_response = res.json::<Self>().await?;
 
         if dns_response.status != 0 {
-            bail!(DNS_CODES
-                .iter()
-                .enumerate()
-                .find(|(index, _)| index == &(dns_response.status as usize))
-                .and_then(|entry| Some(entry.1.join(": ")))
-                .unwrap_or("An unknown error occurred.".into()));
+            bail!(and_then_else!(
+                DNS_CODES
+                    .iter()
+                    .enumerate()
+                    .find(|(index, _)| index == &(dns_response.status as usize)),
+                |entry| Some(entry.1.join(": ")),
+                "An unknown error occurred.".into()
+            ));
         }
 
         Ok(dns_response)

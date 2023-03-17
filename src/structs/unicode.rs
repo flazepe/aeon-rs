@@ -1,4 +1,4 @@
-use crate::constants::CONTROL_CHARACTERS;
+use crate::{constants::CONTROL_CHARACTERS, plural};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::get;
@@ -100,13 +100,8 @@ impl UnicodeCharacters {
             .collect::<Vec<UnicodeCharacter>>();
 
         format!(
-            "Showing first {} character{}:\n\n{}",
-            unicode_characters.len(),
-            if unicode_characters.len() == 1 {
-                ""
-            } else {
-                "s"
-            },
+            "Showing first {}:\n\n{}",
+            plural!(unicode_characters.len(), "character"),
             unicode_characters
                 .into_iter()
                 .map(|unicode_character| { unicode_character.format() })

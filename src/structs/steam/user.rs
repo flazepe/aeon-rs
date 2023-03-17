@@ -1,7 +1,9 @@
 use crate::{
+    and_then_else,
     constants::STEAM_USER_STATES,
-    format_timestamp,
+    format_timestamp, plural,
     structs::steam::{countries::*, user_bans::*, user_vanity::*},
+    yes_no,
 };
 use anyhow::{Context, Result};
 use reqwest::get;
@@ -138,87 +140,76 @@ impl SteamUser {
             )
             .add_field(
                 "Status",
-                STEAM_USER_STATES
-                    .iter()
-                    .enumerate()
-                    .find(|(index, _)| &(self.persona_state as usize) == index)
-                    .and_then(|state| Some(state.1))
-                    .unwrap_or(&"Unknown"),
+                and_then_else!(
+                    STEAM_USER_STATES
+                        .iter()
+                        .enumerate()
+                        .find(|(index, _)| &(self.persona_state as usize) == index),
+                    |state| Some(state.1),
+                    &"Unknown"
+                ),
                 true,
             )
             .add_field("Created", format_timestamp!(self.time_created), false)
             .add_field(
                 "Location",
-                if let Some(country) = self.loc_country_code {
-                    let country = SteamCountries::init().get(&country);
-
-                    if let Some(country) = country {
-                        format!(
-                            ":flag_{}: {}{}",
-                            country.code.to_lowercase(),
-                            self.loc_state_code
-                                .and_then(|state_code| Some(format!(
-                                    "{}, ",
+                match SteamCountries::init().get(&self.loc_country_code.unwrap_or("".into())) {
+                    Some(country) => format!(
+                        ":flag_{}: {}{}",
+                        country.code.to_lowercase(),
+                        and_then_else!(
+                            self.loc_state_code,
+                            |state_code| Some(format!(
+                                "{}, ",
+                                and_then_else!(
                                     country
                                         .states
                                         .iter()
-                                        .find(|[state, _]| state == &state_code)
-                                        .and_then(|state| Some(state[1].as_str()))
-                                        .unwrap_or("")
-                                )))
-                                .unwrap_or("".into()),
-                            country.name
-                        )
-                    } else {
-                        "".into()
-                    }
-                } else {
-                    "N/A".into()
+                                        .find(|[state, _]| state == &state_code),
+                                    |state| Some(state[1].as_str()),
+                                    ""
+                                )
+                            )),
+                            "".into()
+                        ),
+                        country.name
+                    ),
+                    None => "N/A".into(),
                 },
                 true,
             )
             .add_field(
                 "Playing",
-                if let Some(game_extra_info) = self.game_extra_info {
-                    format!(
-                        "[{}](https://store.steampowered.com/app/{}){}",
-                        game_extra_info,
-                        self.game_id.unwrap_or(0),
-                        self.game_server_ip
-                            .and_then(|game_server_ip| Some(format!("\n{game_server_ip}")))
-                            .unwrap_or("".into())
-                    )
-                } else {
+                and_then_else!(
+                    self.game_extra_info,
+                    |game_extra_info| {
+                        Some(format!(
+                            "[{}](https://store.steampowered.com/app/{}){}",
+                            game_extra_info,
+                            self.game_id.unwrap_or(0),
+                            format!("\n{}", self.game_server_ip.unwrap_or("".into())).trim()
+                        ))
+                    },
                     "None".into()
-                },
+                ),
                 true,
             )
             .add_field(
                 "Allows Profile Comments",
-                if self.comment_permission.is_some() {
-                    "Yes"
-                } else {
-                    "No"
-                },
+                yes_no!(self.comment_permission.is_some()),
                 true,
             );
 
         if let Some(bans) = self.bans {
             embed = embed
-                .add_field(
-                    "Community Banned",
-                    if bans.community_banned { "Yes" } else { "No" },
-                    true,
-                )
+                .add_field("Community Banned", yes_no!(bans.community_banned), true)
                 .add_field(
                     "Vac Banned",
                     format!(
-                        "{} ({} VAC ban{}, {} game ban{})",
-                        if bans.vac_banned { "Yes" } else { "No" },
-                        bans.vac_bans,
-                        if bans.vac_bans == 1 { "s" } else { "" },
-                        bans.game_bans,
-                        if bans.game_bans == 1 { "s" } else { "" }
+                        "{} ({}, {})",
+                        yes_no!(bans.vac_banned),
+                        plural!(bans.vac_bans, "VAC ban"),
+                        plural!(bans.game_bans, "game ban")
                     ),
                     true,
                 )

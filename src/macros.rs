@@ -42,3 +42,56 @@ macro_rules! format_timestamp {
         }
     }};
 }
+
+#[macro_export]
+macro_rules! if_else {
+    ($condition:expr, $true:expr, $false:expr) => {
+        if $condition {
+            $true
+        } else {
+            $false
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! yes_no {
+    ($condition:expr $(, $yes:expr, $no:expr)?) => {
+        {
+            let _yes = "Yes";
+            $(let _yes = $yes;)?
+
+            let _no = "No";
+            $(let _no = $no;)?
+
+            if $condition { _yes } else { _no }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! plural {
+    ($amount:expr, $subject:expr) => {{
+        let mut subject = $subject.to_string();
+
+        if $amount != 1 {
+            if subject.ends_with('y') {
+                subject = format!(
+                    "{}ies",
+                    subject.chars().take(subject.len() - 1).collect::<String>()
+                );
+            } else {
+                subject = format!("{}s", subject);
+            }
+        }
+
+        &format!("{} {subject}", $amount)
+    }};
+}
+
+#[macro_export]
+macro_rules! and_then_else {
+    ($expr:expr, $and_then:expr, $else:expr) => {
+        $expr.and_then($and_then).unwrap_or($else)
+    };
+}

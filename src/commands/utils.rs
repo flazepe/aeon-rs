@@ -1,4 +1,5 @@
 use crate::{
+    and_then_else,
     constants::*,
     kv_autocomplete,
     structs::{
@@ -200,15 +201,9 @@ pub fn get_commands() -> Vec<Command> {
         match GoogleTranslate::translate(
             &input.get_string_arg("text")?,
             &input
-                .args
-                .get("from-language")
-                .and_then(|arg| arg.as_string())
+                .get_string_arg("from-language")
                 .unwrap_or("auto".into()),
-            &input
-                .args
-                .get("to-language")
-                .and_then(|arg| arg.as_string())
-                .unwrap_or("en".into()),
+            &input.get_string_arg("to-language").unwrap_or("en".into()),
         )
         .await
         {
