@@ -1,7 +1,7 @@
 use crate::{
     and_then_or,
     constants::STEAM_USER_STATES,
-    format_timestamp, plural,
+    format_timestamp, if_else, plural,
     structs::steam::{countries::*, user_bans::*, user_vanity::*},
     yes_no,
 };
@@ -136,11 +136,7 @@ impl SteamUser {
             .add_field("ID", &self.id, true)
             .add_field(
                 "Custom ID",
-                if self.id == vanity {
-                    "None".into()
-                } else {
-                    format!("`{vanity}`")
-                },
+                if_else!(self.id == vanity, "None".into(), format!("`{vanity}`")),
                 true,
             )
             .add_field(
