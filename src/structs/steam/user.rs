@@ -2,7 +2,10 @@ use crate::{
     and_then_or,
     constants::STEAM_USER_STATES,
     format_timestamp, if_else, plural,
-    structs::steam::{countries::*, user_bans::*, user_vanity::*},
+    structs::{
+        config::CONFIG,
+        steam::{countries::*, user_bans::*, user_vanity::*},
+    },
     yes_no,
 };
 use anyhow::{Context, Result};
@@ -92,15 +95,16 @@ struct GetPlayerSummariesEndpoint {
 }
 
 impl SteamUser {
-    pub async fn get(user: &str, api_key: &str) -> Result<Self> {
+    pub async fn get(user: &str) -> Result<Self> {
         let mut user = user.to_string();
 
         if !user.chars().into_iter().all(|char| char.is_numeric()) {
-            user = SteamUserVanity::get(&user, api_key).await?;
+            user = SteamUserVanity::get(&user).await?;
         }
 
         let mut user = get(format!(
-            "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={api_key}&steamids={user}" 
+            "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={}&steamids={user}",
+            CONFIG.api.steam_key
         ))
         .await?
         .json::<GetPlayerSummariesEndpoint>()
@@ -112,7 +116,7 @@ impl SteamUser {
         .context("User not found.")?;
 
         // Get user bans
-        user.bans = SteamUserBans::get(&user.id, api_key).await.ok();
+        user.bans = SteamUserBans::get(&user.id).await.ok();
 
         Ok(user)
     }
@@ -154,7 +158,7 @@ impl SteamUser {
             .add_field("Created", format_timestamp!(self.time_created), false)
             .add_field(
                 "Location",
-                match SteamCountries::init().get(&self.loc_country_code.unwrap_or("".into())) {
+                match SteamCountries::get(&self.loc_country_code.unwrap_or("".into())) {
                     Some(country) => format!(
                         ":flag_{}: {}{}",
                         country.code.to_lowercase(),

@@ -1,9 +1,6 @@
 use crate::{
     constants::*,
-    structs::{
-        config::*,
-        steam::{game::*, user::*},
-    },
+    structs::steam::{game::*, user::*},
     traits::*,
 };
 use slashook::{command, commands::Command};
@@ -44,10 +41,8 @@ pub fn get_commands() -> Vec<Command> {
             ]
         )]
     fn steam(input: CommandInput, res: CommandResponder) {
-        let api_key = Config::load()?.api.steam_key;
-
         match input.subcommand.as_deref() {
-            Some("game") => match SteamGame::get(&input.get_string_arg("game")?, &api_key).await {
+            Some("game") => match SteamGame::get(&input.get_string_arg("game")?).await {
                 Ok(game) => {
                     res.send_message(game.format()).await?;
                 }
@@ -55,7 +50,7 @@ pub fn get_commands() -> Vec<Command> {
                     res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
                 }
             },
-            Some("user") => match SteamUser::get(&input.get_string_arg("user")?, &api_key).await {
+            Some("user") => match SteamUser::get(&input.get_string_arg("user")?).await {
                 Ok(user) => {
                     res.send_message(user.format()).await?;
                 }

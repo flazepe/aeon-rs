@@ -1,3 +1,4 @@
+use crate::structs::config::CONFIG;
 use anyhow::{Context, Result};
 use reqwest::get;
 use serde::Deserialize;
@@ -16,9 +17,10 @@ struct ResolveVanityURLEndpoint {
 }
 
 impl SteamUserVanity {
-    pub async fn get(player: &str, api_key: &str) -> Result<String> {
+    pub async fn get(player: &str) -> Result<String> {
         Ok(get(format!(
-			"http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={api_key}&vanityurl={player}"
+			"http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={}&vanityurl={player}",
+            CONFIG.api.steam_key
 		))
         .await?
         .json::<ResolveVanityURLEndpoint>()

@@ -1,7 +1,10 @@
-use anyhow::Result;
+use once_cell::sync::Lazy;
 use serde::Deserialize;
 use std::fs::read_to_string;
 use toml::from_str;
+
+pub static CONFIG: Lazy<Config> =
+    Lazy::new(|| from_str(&read_to_string("config.toml").unwrap()).unwrap());
 
 #[derive(Deserialize)]
 pub struct Config {
@@ -20,10 +23,4 @@ pub struct BotConfig {
 #[derive(Deserialize)]
 pub struct APIConfig {
     pub steam_key: String,
-}
-
-impl Config {
-    pub fn load() -> Result<Config> {
-        Ok(from_str(&read_to_string("config.toml")?)?)
-    }
 }
