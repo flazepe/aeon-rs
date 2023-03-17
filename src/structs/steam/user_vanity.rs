@@ -25,6 +25,6 @@ impl SteamUserVanity {
         .await?
         .response
         .id
-        .context("User not found.")?)
+        .context("Invalid user vanity.")?)
     }
 }

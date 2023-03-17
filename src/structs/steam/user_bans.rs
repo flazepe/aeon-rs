@@ -42,6 +42,6 @@ impl SteamUserBans {
         .players
         .into_iter()
         .next()
-        .context("User not found.")?)
+        .context("Could not fetch user's bans.")?)
     }
 }
