@@ -93,9 +93,14 @@ struct GetPlayerSummariesEndpoint {
 
 impl SteamUser {
     pub async fn get(user: &str, api_key: &str) -> Result<Self> {
+        let mut user = user.to_string();
+
+        if !user.chars().into_iter().all(|char| char.is_numeric()) {
+            user = SteamUserVanity::get(&user, api_key).await?;
+        }
+
         let mut user = get(format!(
-            "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={api_key}&steamids={}",
-            SteamUserVanity::get(user, api_key).await?
+            "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={api_key}&steamids={user}" 
         ))
         .await?
         .json::<GetPlayerSummariesEndpoint>()
@@ -166,7 +171,7 @@ impl SteamUser {
                                         .states
                                         .iter()
                                         .find(|[state, _]| state == &state_code),
-                                    |state| Some(state[1].as_str()),
+                                    |state| Some(state[1]),
                                     ""
                                 )
                             )),
