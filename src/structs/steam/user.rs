@@ -162,14 +162,11 @@ impl SteamUser {
                             self.loc_state_code,
                             |state_code| Some(format!(
                                 "{}, ",
-                                and_then_or!(
-                                    country
-                                        .states
-                                        .iter()
-                                        .find(|[state, _]| state == &state_code),
-                                    |state| Some(state[1]),
-                                    ""
-                                )
+                                country
+                                    .states
+                                    .iter()
+                                    .find(|[state, _]| state == &state_code)
+                                    .unwrap_or(&["0", "Unknown"])[1],
                             )),
                             "".into()
                         ),
