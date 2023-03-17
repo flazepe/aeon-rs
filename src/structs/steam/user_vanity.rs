@@ -5,9 +5,9 @@ use serde::Deserialize;
 #[derive(Deserialize)]
 pub struct SteamUserVanity {
     #[serde(rename = "steamid")]
-     id: Option<String>,
-     success: u64,
-     message: Option<String>,
+    pub id: Option<String>,
+    pub success: u64,
+    pub message: Option<String>,
 }
 
 #[derive(Deserialize)]

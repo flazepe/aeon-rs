@@ -5,13 +5,13 @@ use reqwest::get;
 use unicode_names2::name as get_unicode_name;
 
 pub struct UnicodeCharacter {
-    codepoint: String,
-    name: String,
-    character: String,
+    pub codepoint: String,
+    pub name: String,
+    pub character: String,
 }
 
 pub struct UnicodeCharacters {
-    unicode_characters: Vec<UnicodeCharacter>,
+    pub unicode_characters: Vec<UnicodeCharacter>,
 }
 
 impl UnicodeCharacter {

@@ -5,7 +5,7 @@ pub struct SteamCountry {
 }
 
 pub struct SteamCountries {
-     countries: Vec<SteamCountry>,
+    pub countries: Vec<SteamCountry>,
 }
 
 impl SteamCountries {

@@ -10,11 +10,11 @@ struct YahooFinanceLookupAttributes {
 }
 
 pub struct Stock {
-    name: String,
-    url: String,
-    currency: String,
-    price: String,
-    diff: String,
+    pub name: String,
+    pub url: String,
+    pub currency: String,
+    pub price: String,
+    pub diff: String,
 }
 
 impl Stock {

@@ -13,76 +13,76 @@ use slashook::structs::embeds::Embed;
 #[derive(Deserialize)]
 pub struct SteamUser {
     #[serde(rename = "steamid")]
-    id: String,
+    pub id: String,
 
     #[serde(rename = "communityvisibilitystate")]
-    community_visibility_state: u64,
+    pub community_visibility_state: u64,
 
     #[serde(rename = "profilestate")]
-    profile_state: u64,
+    pub profile_state: u64,
 
     #[serde(rename = "personaname")]
-    persona_name: String,
+    pub persona_name: String,
 
     #[serde(rename = "commentpermission")]
-    comment_permission: Option<u64>,
+    pub comment_permission: Option<u64>,
 
     #[serde(rename = "profileurl")]
-    profile_url: String,
+    pub profile_url: String,
 
-    avatar: String,
+    pub avatar: String,
 
     #[serde(rename = "avatarmedium")]
-    avatar_medium: String,
+    pub avatar_medium: String,
 
     #[serde(rename = "avatarfull")]
-    avatar_full: String,
+    pub avatar_full: String,
 
     #[serde(rename = "avatarhash")]
-    avatar_hash: String,
+    pub avatar_hash: String,
 
     #[serde(rename = "lastlogoff")]
-    last_log_off: Option<u64>,
+    pub last_log_off: Option<u64>,
 
     #[serde(rename = "personastate")]
-    persona_state: u64,
+    pub persona_state: u64,
 
     #[serde(rename = "realname")]
-    real_name: Option<String>,
+    pub real_name: Option<String>,
 
     #[serde(rename = "primaryclanid")]
-    primary_clan_id: String,
+    pub primary_clan_id: String,
 
     #[serde(rename = "timecreated")]
-    time_created: u64,
+    pub time_created: u64,
 
     #[serde(rename = "personastateflags")]
-    persona_state_flags: u64,
+    pub persona_state_flags: u64,
 
     #[serde(rename = "loccountrycode")]
-    loc_country_code: Option<String>,
+    pub loc_country_code: Option<String>,
 
     #[serde(rename = "locstatecode")]
-    loc_state_code: Option<String>,
+    pub loc_state_code: Option<String>,
 
     #[serde(rename = "loccityid")]
-    loc_city_id: Option<u64>,
+    pub loc_city_id: Option<u64>,
 
     #[serde(rename = "gameextrainfo")]
-    game_extra_info: Option<String>,
+    pub game_extra_info: Option<String>,
 
     #[serde(rename = "gameid")]
-    game_id: Option<u64>,
+    pub game_id: Option<u64>,
 
     #[serde(rename = "gameserverip")]
-    game_server_ip: Option<String>,
+    pub game_server_ip: Option<String>,
 
     // We have to fetch this from another endpoint
-    bans: Option<SteamUserBans>,
+    pub bans: Option<SteamUserBans>,
 }
 
 #[derive(Deserialize)]
-pub struct SteamUsers {
+struct SteamUsers {
     players: Vec<SteamUser>,
 }
 

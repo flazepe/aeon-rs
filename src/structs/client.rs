@@ -3,8 +3,8 @@ use anyhow::Result;
 use slashook::{Client, Config as SlashookConfig};
 
 pub struct AeonClient {
-    client: Client,
-    config: Config,
+    pub client: Client,
+    pub config: Config,
 }
 
 impl AeonClient {

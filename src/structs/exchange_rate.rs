@@ -9,10 +9,10 @@ struct ExchangeRateConversionResponse {
 }
 
 pub struct ExchangeRateConversion {
-    from_currency: String,
-    from_amount: f64,
-    to_currency: String,
-    to_amount: f64,
+    pub from_currency: String,
+    pub from_amount: f64,
+    pub to_currency: String,
+    pub to_amount: f64,
 }
 
 impl ExchangeRateConversion {

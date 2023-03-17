@@ -4,15 +4,15 @@ use reqwest::get;
 use slashook::structs::embeds::Embed;
 
 pub struct Distro {
-    name: String,
-    distro_type: String,
-    architecture: String,
-    based_on: String,
-    origin: String,
-    status: String,
-    category: String,
-    desktop: String,
-    popularity: String,
+    pub name: String,
+    pub distro_type: String,
+    pub architecture: String,
+    pub based_on: String,
+    pub origin: String,
+    pub status: String,
+    pub category: String,
+    pub desktop: String,
+    pub popularity: String,
 }
 
 impl Distro {
