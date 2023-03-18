@@ -2,6 +2,7 @@ use crate::{and_then_or, constants::*};
 use anyhow::{bail, Result};
 use reqwest::get;
 use serde::Deserialize;
+use slashook::structs::embeds::Embed;
 
 #[derive(Deserialize)]
 pub struct GoogleDNSRecord {
@@ -25,7 +26,7 @@ pub struct GoogleDNSQuestion {
 }
 
 #[derive(Deserialize)]
-pub struct GoogleDNS {
+pub struct GoogleDNSQuery {
     #[serde(rename = "Status")]
     pub status: u64,
 
@@ -57,15 +58,23 @@ pub struct GoogleDNS {
     pub comment: Option<String>,
 }
 
+pub struct GoogleDNS {
+    pub domain: String,
+    pub record_type: String,
+    pub comment: Option<String>,
+    pub records: Vec<GoogleDNSRecord>,
+}
+
 impl GoogleDNS {
     pub async fn query(record_type: &str, domain: &str) -> Result<Self> {
+        let record_type = record_type.to_uppercase();
+        let domain = domain
+            .to_lowercase()
+            .replace("http://", "")
+            .replace("https://", "");
+
         let res = get(format!(
-            "https://dns.google/resolve?type={}&name={}",
-            record_type,
-            domain
-                .to_lowercase()
-                .replace("http://", "")
-                .replace("https://", "")
+            "https://dns.google/resolve?type={record_type}&name={domain}"
         ))
         .await?;
 
@@ -73,7 +82,7 @@ impl GoogleDNS {
             bail!("Invalid record type.");
         }
 
-        let dns_response = res.json::<Self>().await?;
+        let dns_response = res.json::<GoogleDNSQuery>().await?;
 
         if dns_response.status != 0 {
             bail!(and_then_or!(
@@ -86,24 +95,34 @@ impl GoogleDNS {
             ));
         }
 
-        Ok(dns_response)
-    }
-
-    pub fn format(self) -> String {
-        let records = self.answer.or(self.authority).unwrap_or(vec![]);
+        let records = dns_response
+            .answer
+            .or(dns_response.authority)
+            .unwrap_or(vec![]);
 
         if records.is_empty() {
-            String::from("No DNS records found.")
-        } else {
-            format!(
+            bail!("No DNS records found.")
+        }
+
+        Ok(Self {
+            domain: domain.to_string(),
+            record_type,
+            comment: dns_response.comment,
+            records,
+        })
+    }
+
+    pub fn format(self) -> Embed {
+        Embed::new()
+            .set_title(format!("{} records for {}", self.record_type, self.domain))
+            .set_description(format!(
                 "{}```diff\n{}```",
                 self.comment.unwrap_or("".into()),
-                records
+                self.records
                     .iter()
                     .map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl))
                     .collect::<Vec<String>>()
                     .join("\n")
-            )
-        }
+            ))
     }
 }

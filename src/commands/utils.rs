@@ -1,9 +1,10 @@
 use crate::{
+    and_then_or,
     constants::*,
     kv_autocomplete,
     structs::{
-        distrowatch::*, exchange_rate::*, google_dns::*, google_translate::*, ip_info::*, stock::*,
-        unicode::*,
+        distrowatch::*, exchange_rate::*, google_dns::*, google_translate::*, ip_info::*,
+        saucenao::SauceNAOSearch, stock::*, unicode::*,
     },
     traits::*,
 };
@@ -110,8 +111,8 @@ pub fn get_commands() -> Vec<Command> {
         )
         .await
         {
-            Ok(dns_response) => {
-                res.send_message(dns_response.format()).await?;
+            Ok(records) => {
+                res.send_message(records.format()).await?;
             }
             Err(error) => {
                 res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
