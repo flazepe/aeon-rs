@@ -17,31 +17,31 @@ use slashook::{
 
 pub fn get_commands() -> Vec<Command> {
     #[command(
-            name = "convert-currency",
-            description = "Converts a currency to another currency.",
-            options = [
-                {
-                    name = "amount",
-                    description = "The amount of currency",
-                    option_type = InteractionOptionType::NUMBER,
-                    required = true
-                },
-                {
-                    name = "from-currency",
-                    description = "The origin currency, e.g. GBP, NOK, USD",
-                    option_type = InteractionOptionType::STRING,
-                    autocomplete = true,
-                    required = true
-                },
-                {
-                    name = "to-currency",
-                    description = "The currency to convert the amount to, e.g. GBP, NOK, USD",
-                    option_type = InteractionOptionType::STRING,
-                    autocomplete = true,
-                    required = true
-                },
-            ],
-        )]
+        name = "convert-currency",
+        description = "Converts a currency to another currency.",
+        options = [
+            {
+                name = "amount",
+                description = "The amount of currency",
+                option_type = InteractionOptionType::NUMBER,
+                required = true
+            },
+            {
+                name = "from-currency",
+                description = "The origin currency, e.g. GBP, NOK, USD",
+                option_type = InteractionOptionType::STRING,
+                autocomplete = true,
+                required = true
+            },
+            {
+                name = "to-currency",
+                description = "The currency to convert the amount to, e.g. GBP, NOK, USD",
+                option_type = InteractionOptionType::STRING,
+                autocomplete = true,
+                required = true
+            },
+        ],
+    )]
     async fn convert_currency(input: CommandInput, res: CommandResponder) {
         if input.is_autocomplete() {
             kv_autocomplete!(input, res, CURRENCIES);
@@ -64,17 +64,17 @@ pub fn get_commands() -> Vec<Command> {
     }
 
     #[command(
-            name = "distro",
-            description = "Fetches a distribution information.",
-            options = [
-                {
-                    name = "distro",
-                    description = "The distribution",
-                    option_type = InteractionOptionType::STRING,
-                    required = true
-                },
-            ],
-        )]
+        name = "distro",
+        description = "Fetches a distribution information.",
+        options = [
+            {
+                name = "distro",
+                description = "The distribution",
+                option_type = InteractionOptionType::STRING,
+                required = true
+            },
+        ],
+    )]
     async fn distro(input: CommandInput, res: CommandResponder) {
         match Distro::get(&input.get_string_arg("distro")?).await {
             Ok(distro) => {
@@ -87,23 +87,23 @@ pub fn get_commands() -> Vec<Command> {
     }
 
     #[command(
-            name = "dns",
-            description = "Fetches DNS records of a domain.",
-            options = [
-                {
-                    name = "type",
-                    description = "The record type, such as A, AAAA, MX, NS, PTR, etc.",
-                    option_type = InteractionOptionType::STRING,
-                    required = true
-                },
-                {
-                    name = "url",
-                    description = "The URL",
-                    option_type = InteractionOptionType::STRING,
-                    required = true
-                },
-            ],
-        )]
+        name = "dns",
+        description = "Fetches DNS records of a domain.",
+        options = [
+            {
+                name = "type",
+                description = "The record type, such as A, AAAA, MX, NS, PTR, etc.",
+                option_type = InteractionOptionType::STRING,
+                required = true
+            },
+            {
+                name = "url",
+                description = "The URL",
+                option_type = InteractionOptionType::STRING,
+                required = true
+            },
+        ],
+    )]
     fn dns(input: CommandInput, res: CommandResponder) {
         match GoogleDNS::query(
             &input.get_string_arg("type")?,
@@ -121,17 +121,17 @@ pub fn get_commands() -> Vec<Command> {
     }
 
     #[command(
-            name = "ip",
-            description = "Fetches information based on the given IP address.",
-            options = [
-                {
-                    name = "ip",
-                    description = "The IP address",
-                    option_type = InteractionOptionType::STRING,
-                    required = true
-                },
-            ],
-        )]
+        name = "ip",
+        description = "Fetches information based on the given IP address.",
+        options = [
+            {
+                name = "ip",
+                description = "The IP address",
+                option_type = InteractionOptionType::STRING,
+                required = true
+            },
+        ],
+    )]
     async fn ip(input: CommandInput, res: CommandResponder) {
         match IPInfo::get(&input.get_string_arg("ip")?).await {
             Ok(ip_info) => {
