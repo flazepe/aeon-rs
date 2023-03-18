@@ -39,8 +39,8 @@ pub fn get_commands() -> Vec<Command> {
                     option_type = InteractionOptionType::STRING,
                     autocomplete = true,
                     required = true
-                }
-            ]
+                },
+            ],
         )]
     async fn convert_currency(input: CommandInput, res: CommandResponder) {
         if input.is_autocomplete() {
@@ -72,8 +72,8 @@ pub fn get_commands() -> Vec<Command> {
                     description = "The distribution",
                     option_type = InteractionOptionType::STRING,
                     required = true
-                }
-            ]
+                },
+            ],
         )]
     async fn distro(input: CommandInput, res: CommandResponder) {
         match Distro::get(&input.get_string_arg("distro")?).await {
@@ -101,8 +101,8 @@ pub fn get_commands() -> Vec<Command> {
                     description = "The URL",
                     option_type = InteractionOptionType::STRING,
                     required = true
-                }
-            ]
+                },
+            ],
         )]
     fn dns(input: CommandInput, res: CommandResponder) {
         match GoogleDNS::query(
@@ -129,8 +129,8 @@ pub fn get_commands() -> Vec<Command> {
                     description = "The IP address",
                     option_type = InteractionOptionType::STRING,
                     required = true
-                }
-            ]
+                },
+            ],
         )]
     async fn ip(input: CommandInput, res: CommandResponder) {
         match IPInfo::get(&input.get_string_arg("ip")?).await {
@@ -156,8 +156,8 @@ pub fn get_commands() -> Vec<Command> {
                 name = "image-attachment",
                 description = "The image attachment",
                 option_type = InteractionOptionType::ATTACHMENT
-            }
-        ]
+            },
+        ],
     )]
     async fn sauce(input: CommandInput, res: CommandResponder) {
         let url = input
@@ -188,17 +188,17 @@ pub fn get_commands() -> Vec<Command> {
     }
 
     #[command(
-            name = "stock",
-            description = "Fetches stock information.",
-            options = [
-                {
-                    name = "stock",
-                    description = "The stock name",
-                    option_type = InteractionOptionType::STRING,
-                    required = true
-                }
-            ]
-        )]
+        name = "stock",
+        description = "Fetches stock information.",
+        options = [
+            {
+                name = "stock",
+                description = "The stock name",
+                option_type = InteractionOptionType::STRING,
+                required = true
+            },
+        ],
+    )]
     fn stock(input: CommandInput, res: CommandResponder) {
         // We have to defer since scraping this takes a bit of time
         res.defer(false).await?;
@@ -214,29 +214,29 @@ pub fn get_commands() -> Vec<Command> {
     }
 
     #[command(
-            name = "translate",
-            description = "Translate a text to any language.",
-            options = [
-                {
-                    name = "text",
-                    description = "The text to translate",
-                    option_type = InteractionOptionType::STRING,
-                    required = true
-                },
-                {
-                    name = "to-language",
-                    description = "The language to translate the text to",
-                    option_type = InteractionOptionType::STRING,
-                    autocomplete = true
-                },
-                {
-                    name = "from-language",
-                    description = "The text's origin language",
-                    option_type = InteractionOptionType::STRING,
-                    autocomplete = true
-                }
-            ]
-        )]
+        name = "translate",
+        description = "Translate a text to any language.",
+        options = [
+            {
+                name = "text",
+                description = "The text to translate",
+                option_type = InteractionOptionType::STRING,
+                required = true
+            },
+            {
+                name = "to-language",
+                description = "The language to translate the text to",
+                option_type = InteractionOptionType::STRING,
+                autocomplete = true
+            },
+            {
+                name = "from-language",
+                description = "The text's origin language",
+                option_type = InteractionOptionType::STRING,
+                autocomplete = true
+            },
+        ],
+    )]
     async fn translate(input: CommandInput, res: CommandResponder) {
         if input.is_autocomplete() {
             kv_autocomplete!(input, res, GOOGLE_TRANSLATE_LANGUAGES);
@@ -261,9 +261,9 @@ pub fn get_commands() -> Vec<Command> {
     }
 
     #[command(
-            name = "Translate to English",
-            command_type = ApplicationCommandType::MESSAGE
-        )]
+        name = "Translate to English",
+        command_type = ApplicationCommandType::MESSAGE,
+    )]
     async fn translate_message(input: CommandInput, res: CommandResponder) {
         match GoogleTranslate::translate(
             &input
@@ -285,35 +285,35 @@ pub fn get_commands() -> Vec<Command> {
     }
 
     #[command(
-            name = "unicode",
-            description = "Does operations with unicode.",
-            subcommands = [
-                {
-                    name = "search",
-                    description = "Searches for a unicode emoji via query.",
-                    options = [
-                        {
-                            name = "query",
-                            description = "The query",
-                            option_type = InteractionOptionType::STRING,
-                            required = true
-                        }
-                    ]
-                },
-                {
-                    name = "list",
-                    description = "Lists unicodes from a text.",
-                    options = [
-                        {
-                            name = "text",
-                            description = "The text",
-                            option_type = InteractionOptionType::STRING,
-                            required = true
-                        }
-                    ]
-                }
-            ]
-        )]
+        name = "unicode",
+        description = "Does operations with unicode.",
+        subcommands = [
+            {
+                name = "search",
+                description = "Searches for a unicode emoji via query.",
+                options = [
+                    {
+                        name = "query",
+                        description = "The query",
+                        option_type = InteractionOptionType::STRING,
+                        required = true
+                    },
+                ],
+            },
+            {
+                name = "list",
+                description = "Lists unicodes from a text.",
+                options = [
+                    {
+                        name = "text",
+                        description = "The text",
+                        option_type = InteractionOptionType::STRING,
+                        required = true
+                    },
+                ],
+            },
+        ]
+    )]
     async fn unicode(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref() {
             Some("search") => match UnicodeCharacter::get(&input.get_string_arg("query")?).await {
@@ -333,9 +333,9 @@ pub fn get_commands() -> Vec<Command> {
     }
 
     #[command(
-            name = "List Unicodes",
-            command_type = ApplicationCommandType::MESSAGE
-        )]
+        name = "List Unicodes",
+        command_type = ApplicationCommandType::MESSAGE,
+    )]
     async fn unicode_message(input: CommandInput, res: CommandResponder) {
         res.send_message(
             UnicodeCharacters::get(
