@@ -22,5 +22,6 @@ pub struct BotConfig {
 
 #[derive(Deserialize)]
 pub struct APIConfig {
+    pub saucenao_key: String,
     pub steam_key: String,
 }
