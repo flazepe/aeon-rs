@@ -7,7 +7,7 @@ pub struct AeonClient {
 }
 
 impl AeonClient {
-    pub fn new() -> Result<Self> {
+    pub fn new() -> Self {
         let client = Client::new(SlashookConfig {
             bot_token: Some(String::from(&CONFIG.bot.token)),
             client_id: Some(String::from(&CONFIG.bot.client_id)),
@@ -15,7 +15,7 @@ impl AeonClient {
             ..Default::default()
         });
 
-        Ok(Self { client })
+        Self { client }
     }
 
     pub async fn register_commands(&mut self) -> Result<()> {
