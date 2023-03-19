@@ -5388,10 +5388,8 @@ pub struct SteamCountry<'a> {
     pub states: &'a [[&'a str; 2]],
 }
 
-pub struct SteamCountries {}
-
-impl SteamCountries {
-    pub fn get(country_code: &str) -> Option<&SteamCountry> {
+impl<'a> SteamCountry<'a> {
+    pub fn get(country_code: &str) -> Option<&Self> {
         STEAM_COUNTRIES
             .iter()
             .find(|country| country.code == country_code)

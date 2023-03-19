@@ -4,7 +4,7 @@ use crate::{
     format_timestamp, if_else, plural,
     structs::{
         config::CONFIG,
-        steam::{countries::*, user_bans::*, user_vanity::*},
+        steam::{country::*, user_bans::*, user_vanity::*},
     },
     yes_no,
 };
@@ -158,7 +158,7 @@ impl SteamUser {
             .add_field("Created", format_timestamp!(self.time_created), false)
             .add_field(
                 "Location",
-                match SteamCountries::get(&self.loc_country_code.unwrap_or("".into())) {
+                match SteamCountry::get(&self.loc_country_code.unwrap_or("".into())) {
                     Some(country) => format!(
                         ":flag_{}: {}{}",
                         country.code.to_lowercase(),
