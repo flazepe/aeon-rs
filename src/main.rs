@@ -29,7 +29,7 @@ async fn main() -> Result<()> {
     // Spawn gateway client
     spawn(GatewayClient::new().create_shards());
 
-    let mut client = AeonClient::new().await?;
+    let mut client = AeonClient::new();
 
     client.register_commands().await?;
     client.start().await;

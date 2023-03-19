@@ -7,15 +7,15 @@ pub struct AeonClient {
 }
 
 impl AeonClient {
-    pub async fn new() -> Result<Self> {
-        Ok(Self {
+    pub fn new() -> Self {
+        Self {
             slashook: SlashookClient::new(SlashookConfig {
                 bot_token: Some(String::from(&CONFIG.bot.token)),
                 client_id: Some(String::from(&CONFIG.bot.client_id)),
                 public_key: String::from(&CONFIG.bot.public_key),
                 ..Default::default()
             }),
-        })
+        }
     }
 
     pub async fn register_commands(&mut self) -> Result<()> {
