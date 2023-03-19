@@ -1,11 +1,9 @@
 use crate::{commands::get_commands, structs::config::CONFIG};
 use anyhow::Result;
-use mongodb::{options::ClientOptions as MongoDBClientOptions, Client as MongoDBClient};
 use slashook::{Client as SlashookClient, Config as SlashookConfig};
 
 pub struct AeonClient {
     pub slashook: SlashookClient,
-    pub mongodb: MongoDBClient,
 }
 
 impl AeonClient {
@@ -17,9 +15,6 @@ impl AeonClient {
                 public_key: String::from(&CONFIG.bot.public_key),
                 ..Default::default()
             }),
-            mongodb: MongoDBClient::with_options(
-                MongoDBClientOptions::parse(&CONFIG.db.mongodb_uri).await?,
-            )?,
         })
     }
 
