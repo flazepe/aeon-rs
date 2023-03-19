@@ -192,8 +192,8 @@ pub fn get_commands() -> Vec<Command> {
         description = "Fetches stock information.",
         options = [
             {
-                name = "stock",
-                description = "The stock name",
+                name = "ticker",
+                description = "The ticker",
                 option_type = InteractionOptionType::STRING,
                 required = true
             },
@@ -203,7 +203,7 @@ pub fn get_commands() -> Vec<Command> {
         // We have to defer since scraping this takes a bit of time
         res.defer(false).await?;
 
-        match Stock::get(&input.get_string_arg("stock")?).await {
+        match Stock::get(&input.get_string_arg("ticker")?).await {
             Ok(stock) => {
                 res.send_message(stock.format()).await?;
             }

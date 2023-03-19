@@ -18,13 +18,15 @@ pub struct Stock {
 }
 
 impl Stock {
-    pub async fn get(stock: &str) -> Result<Self> {
+    pub async fn get(ticker: &str) -> Result<Self> {
         let attributes = {
             let document = Document::from(
-                &get(format!("https://finance.yahoo.com/lookup/equity?s={stock}"))
-                    .await?
-                    .text()
-                    .await?,
+                &get(format!(
+                    "https://finance.yahoo.com/lookup/equity?s={ticker}"
+                ))
+                .await?
+                .text()
+                .await?,
             );
 
             let selection = &document.select("td a");
