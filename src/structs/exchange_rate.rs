@@ -20,12 +20,12 @@ impl ExchangeRateConversion {
         let from_currency = CURRENCIES
             .iter()
             .find(|[currency, _]| currency == &from_currency)
-            .context("Invalid currency.")?;
+            .context("invalid from_currency")?;
 
         let to_currency = CURRENCIES
             .iter()
             .find(|[currency, _]| currency == &to_currency)
-            .context("Invalid currency.")?;
+            .context("invalid to_currency.")?;
 
         Ok(Self {
             from_currency: format!("{} ({})", from_currency[1], from_currency[0]),

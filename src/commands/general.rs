@@ -19,7 +19,7 @@ pub fn get_commands() -> Vec<Command> {
 
                 system.refresh_process(pid);
 
-                let process = system.process(pid).context("Could not get process.")?;
+                let process = system.process(pid).context("could not get process")?;
 
                 res.send_message(
                     vec![

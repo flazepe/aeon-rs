@@ -30,7 +30,7 @@ impl Stock {
             let selection = &document.select("td a");
 
             if selection.nodes().is_empty() {
-                bail!("Stock not found.");
+                bail!("ticker not found");
             }
 
             YahooFinanceLookupAttributes {
@@ -65,7 +65,7 @@ impl Stock {
                 .text()
                 .split(" ")
                 .last()
-                .context("Could not get currency")?
+                .context("could not get currency")?
                 .to_string(),
             price: document
                 .select("#quote-header-info [data-field=\"regularMarketPrice\"]")

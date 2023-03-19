@@ -79,7 +79,7 @@ impl GoogleDNS {
         .await?;
 
         if res.status() != 200 {
-            bail!("Invalid record type.");
+            bail!("invalid record type");
         }
 
         let dns_response = res.json::<GoogleDNSQuery>().await?;
@@ -91,7 +91,7 @@ impl GoogleDNS {
                     .enumerate()
                     .find(|(index, _)| index == &(dns_response.status as usize)),
                 |entry| Some(entry.1.join(": ")),
-                "An unknown error occurred.".into()
+                "an unknown error occurred".into()
             ));
         }
 
@@ -101,7 +101,7 @@ impl GoogleDNS {
             .unwrap_or(vec![]);
 
         if records.is_empty() {
-            bail!("No DNS records found.")
+            bail!("no DNS records found")
         }
 
         Ok(Self {

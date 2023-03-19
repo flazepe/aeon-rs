@@ -49,7 +49,7 @@ impl SauceNAOSearch {
         .await?;
 
         if search.results.is_empty() {
-            bail!("Sauce not found.");
+            bail!("sauce not found");
         }
 
         Ok(search)

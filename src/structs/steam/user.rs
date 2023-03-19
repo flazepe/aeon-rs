@@ -113,7 +113,7 @@ impl SteamUser {
         .players
         .into_iter()
         .next()
-        .context("User not found.")?;
+        .context("user not found")?;
 
         // Get user bans
         user.bans = SteamUserBans::get(&user.id).await.ok();

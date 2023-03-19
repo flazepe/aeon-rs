@@ -3,10 +3,10 @@ macro_rules! kv_autocomplete {
     ($input:expr, $res:expr, $kv_array:expr) => {
         let value = $input
             .args
-            .get(&$input.focused.context("Missing focused arg")?)
-            .context("Could not get focused arg")?
+            .get(&$input.focused.context("missing focused arg")?)
+            .context("could not get focused arg")?
             .as_string()
-            .context("Could not convert focused arg to String")?
+            .context("could not convert focused arg to String")?
             .to_lowercase();
 
         return Ok($res

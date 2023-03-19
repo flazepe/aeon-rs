@@ -25,25 +25,25 @@ pub struct GoogleTranslate {
 impl GoogleTranslate {
     pub async fn translate(text: &str, from_language: &str, to_language: &str) -> Result<Self> {
         if text.is_empty() {
-            bail!("Text is empty.");
+            bail!("text is empty");
         }
 
         let from_language = GOOGLE_TRANSLATE_LANGUAGES
             .iter()
             .find(|[language, _]| language == &from_language.to_lowercase())
-            .context("Invalid language.")?;
+            .context("invalid from_language")?;
 
         let to_language = GOOGLE_TRANSLATE_LANGUAGES
             .iter()
             .find(|[language, _]| language == &to_language.to_lowercase())
-            .context("Invalid language.")?;
+            .context("invalid to_language.")?;
 
         let google_translate_response  = get(format!("https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&dt=t&sl={}&tl={}&q={text}", from_language[0], to_language[0])).await?.json::<GoogleTranslateResponse>().await?;
 
         let detected_language = GOOGLE_TRANSLATE_LANGUAGES
             .iter()
             .find(|[language, _]| language == &google_translate_response.src)
-            .context("Unexpectd language code from API")?[1];
+            .context("unexpectd language code from API")?[1];
 
         Ok(Self {
             from_language: format!(

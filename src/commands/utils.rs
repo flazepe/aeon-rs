@@ -268,7 +268,7 @@ pub fn get_commands() -> Vec<Command> {
         match GoogleTranslate::translate(
             &input
                 .target_message
-                .context("Missing target message")?
+                .context("missing target message")?
                 .content,
             "auto",
             "en",
@@ -341,7 +341,7 @@ pub fn get_commands() -> Vec<Command> {
             UnicodeCharacters::get(
                 &input
                     .target_message
-                    .context("Missing target message")?
+                    .context("missing target message")?
                     .content,
             )
             .format(),
