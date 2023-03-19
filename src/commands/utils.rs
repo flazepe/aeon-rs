@@ -315,8 +315,8 @@ pub fn get_commands() -> Vec<Command> {
         ]
     )]
     async fn unicode(input: CommandInput, res: CommandResponder) {
-        match input.subcommand.as_deref() {
-            Some("search") => match UnicodeCharacter::get(&input.get_string_arg("query")?).await {
+        match input.subcommand.as_deref().unwrap_or("") {
+            "search" => match UnicodeCharacter::get(&input.get_string_arg("query")?).await {
                 Ok(unicode_character) => {
                     res.send_message(unicode_character.format()).await?;
                 }
@@ -324,7 +324,7 @@ pub fn get_commands() -> Vec<Command> {
                     res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
                 }
             },
-            Some("list") => {
+            "list" => {
                 res.send_message(UnicodeCharacters::get(&input.get_string_arg("text")?).format())
                     .await?
             }
