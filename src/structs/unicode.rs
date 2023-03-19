@@ -103,7 +103,7 @@ impl UnicodeCharacters {
             plural!(unicode_characters.len(), "character"),
             unicode_characters
                 .into_iter()
-                .map(|unicode_character| { unicode_character.format() })
+                .map(|unicode_character| unicode_character.format())
                 .collect::<Vec<String>>()
                 .join("\n"),
         )
