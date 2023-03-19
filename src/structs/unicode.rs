@@ -1,4 +1,4 @@
-use crate::{constants::CONTROL_CHARACTERS, plural};
+use crate::{constants::CONTROL_CHARACTERS, if_else, plural};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::get;
@@ -52,14 +52,13 @@ impl UnicodeCharacter {
             "`{}` - {}{}",
             self.codepoint,
             self.name,
-            if CONTROL_CHARACTERS
-                .iter()
-                .any(|[_, control_character]| control_character == &self.name)
-            {
-                String::from("")
-            } else {
+            if_else!(
+                CONTROL_CHARACTERS
+                    .iter()
+                    .any(|[_, control_character]| control_character == &self.name),
+                "".into(),
                 format!(" - `{}`", self.character.replace('`', "｀"))
-            }
+            )
         )
     }
 }

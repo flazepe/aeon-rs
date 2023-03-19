@@ -1,4 +1,4 @@
-use crate::constants::GOOGLE_TRANSLATE_LANGUAGES;
+use crate::{constants::GOOGLE_TRANSLATE_LANGUAGES, if_else};
 use anyhow::{bail, Context, Result};
 use reqwest::get;
 use serde::Deserialize;
@@ -48,11 +48,7 @@ impl GoogleTranslate {
         Ok(Self {
             from_language: format!(
                 "{detected_language}{}",
-                if from_language[0] == "auto" {
-                    " (detected)"
-                } else {
-                    ""
-                }
+                if_else!(from_language[0] == "auto", " (detected)", "")
             ),
             to_language: to_language[1].to_string(),
             translation: google_translate_response
