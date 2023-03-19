@@ -43,7 +43,7 @@ impl GoogleTranslate {
         let detected_language = GOOGLE_TRANSLATE_LANGUAGES
             .iter()
             .find(|[language, _]| language == &google_translate_response.src)
-            .context("unexpectd language code from API")?[1];
+            .context("unexpected language code from API")?[1];
 
         Ok(Self {
             from_language: format!(
