@@ -9,6 +9,7 @@ pub static CONFIG: Lazy<Config> =
 #[derive(Deserialize)]
 pub struct Config {
     pub bot: BotConfig,
+    pub db: DBConfig,
     pub api: APIConfig,
 }
 
@@ -18,6 +19,11 @@ pub struct BotConfig {
     pub guild_id: Option<String>,
     pub public_key: String,
     pub token: String,
+}
+
+#[derive(Deserialize)]
+pub struct DBConfig {
+    pub mongodb_uri: String,
 }
 
 #[derive(Deserialize)]

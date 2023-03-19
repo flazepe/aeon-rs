@@ -10,7 +10,7 @@ use structs::client::AeonClient;
 
 #[main]
 async fn main() -> Result<()> {
-    let mut client = AeonClient::new();
+    let mut client = AeonClient::new().await?;
 
     client.register_commands().await?;
     client.start().await;

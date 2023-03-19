@@ -4,6 +4,9 @@ guild_id = "guild_id"
 token = "token"
 public_key = "public_key"
 
+[db]
+mongodb_uri = "mongodb_uri"
+
 [api]
 saucenao_key = "saucenao_key"
 steam_key = "steam_key"
