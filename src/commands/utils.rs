@@ -2,7 +2,7 @@ use crate::{
     and_then_or,
     constants::*,
     kv_autocomplete,
-    structs::{
+    structs::commands::{
         distrowatch::*, exchange_rate::*, google_dns::*, google_translate::*, ip_info::*,
         saucenao::SauceNAOSearch, stock::*, unicode::*,
     },

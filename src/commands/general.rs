@@ -1,4 +1,4 @@
-use crate::{constants::ERROR_EMOJI, format_timestamp};
+use crate::{constants::ERROR_EMOJI, format_timestamp, structs::gateway::cache::CACHE};
 use anyhow::Context;
 use slashook::commands::{CommandInput, CommandResponder};
 use slashook::{command, commands::Command};

@@ -1,6 +1,6 @@
 use crate::{
     constants::*,
-    structs::steam::{game::*, user::*},
+    structs::commands::steam::{game::*, user::*},
     traits::*,
 };
 use slashook::{command, commands::Command};
