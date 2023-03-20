@@ -91,3 +91,19 @@ impl ArgGetters for CommandInput {
             .context("could not convert arg to Attachment")?)
     }
 }
+
+pub trait LimitedVec<T> {
+    fn push_limited(&mut self, value: T, limit: usize);
+}
+
+impl<T> LimitedVec<T> for Vec<T> {
+    fn push_limited(&mut self, value: T, limit: usize) {
+        self.push(value);
+
+        let length = self.len();
+
+        if length > limit {
+            self.drain(..length - limit);
+        }
+    }
+}

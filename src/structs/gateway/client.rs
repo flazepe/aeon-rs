@@ -1,4 +1,4 @@
-use crate::structs::{config::CONFIG, gateway::events::handler::handle};
+use crate::structs::{config::CONFIG, gateway::events::handler::EventHandler};
 use anyhow::Result;
 use futures::StreamExt;
 use twilight_gateway::{
@@ -34,7 +34,7 @@ impl GatewayClient {
 
         while let Some((shard, event)) = stream.next().await {
             match event {
-                Ok(event) => handle(shard, event),
+                Ok(event) => EventHandler::handle(shard, event),
                 Err(source) => {
                     if source.is_fatal() {
                         break;
