@@ -69,6 +69,13 @@ macro_rules! stringify_message {
 }
 
 #[macro_export]
+macro_rules! twilight_user_to_tag {
+    ($user:expr) => {
+        format!("{}#{}", $user.name, $user.discriminator)
+    };
+}
+
+#[macro_export]
 macro_rules! escape_markdown {
     ($text:expr) => {
         regex::Regex::new(r"/\\?[*_~`]/g")
