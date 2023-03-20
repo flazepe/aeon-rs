@@ -69,6 +69,14 @@ impl UnicodeCharacters {
 
         for character in string.chars() {
             let codepoint = format!("U+{:04X}", character as u32);
+
+            if unicode_characters
+                .iter()
+                .any(|unicode_character| unicode_character.codepoint == codepoint)
+            {
+                continue;
+            }
+
             let mut name = String::from("UNKNOWN");
 
             if let Some(character_name) = CONTROL_CHARACTERS.iter().find(|[control_character, _]| {
