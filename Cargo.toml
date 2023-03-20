@@ -10,6 +10,7 @@ futures = "0.3"
 mongodb = "2.4"
 nipper = "0.1"
 once_cell = "1.5"
+regex = "1"
 reqwest = "0.11"
 slashook = { git = "https://github.com/tonkku107/slashook.git", branch = "syncing" }
 serde = "1"

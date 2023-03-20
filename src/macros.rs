@@ -25,6 +25,65 @@ macro_rules! kv_autocomplete {
 }
 
 #[macro_export]
+macro_rules! stringify_message {
+    ($message:expr $(, $empty_vec:expr)?) => {{
+        let mut text = String::from(&$message.content);
+
+        for embed in &$message.embeds {
+            if let Some(author) = embed.author.as_ref() {
+                text += &format!("\n**{}**", escape_markdown!(&author.name));
+            }
+
+            if let Some(title) = embed.title.as_ref() {
+                text += &format!(
+                    "**[{title}](<{}>)**",
+                    embed.url.as_ref().unwrap_or(&"".into())
+                );
+            }
+
+            if let Some(description) = embed.description.as_ref() {
+                text += &format!("\n{description}");
+            }
+
+            text += &embed
+                .fields
+                $(.as_ref().unwrap_or(&$empty_vec))?
+                .iter()
+                .map(|field| {
+                    format!(
+                        "\n**{}**\n{}",
+                        escape_markdown!(field.name.trim()),
+                        field.value
+                    )
+                })
+                .collect::<Vec<String>>()
+                .join("");
+
+            if let Some(footer) = embed.footer.as_ref() {
+                text += &format!("\n**{}**", escape_markdown!(&footer.text));
+            }
+        }
+
+        &text.trim().to_string()
+    }};
+}
+
+#[macro_export]
+macro_rules! escape_markdown {
+    ($text:expr) => {
+        regex::Regex::new(r"/\\?[*_~`]/g")
+            .unwrap()
+            .replace_all($text, |caps: &regex::Captures| {
+                if caps[0].starts_with("\\") {
+                    caps[0].to_string()
+                } else {
+                    format!("\\{}", caps[0].to_string())
+                }
+            })
+    };
+}
+
+#[macro_export]
 macro_rules! format_timestamp {
     ($timestamp:expr $(, $format:expr)?) => {{
         let duration = format!("<t:{}:R>", $timestamp);
