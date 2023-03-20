@@ -1,4 +1,6 @@
+pub mod api;
 pub mod client;
-pub mod commands;
 pub mod config;
 pub mod gateway;
+pub mod scraping;
+pub mod unicode;

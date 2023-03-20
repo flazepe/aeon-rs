@@ -1,11 +1,10 @@
 use crate::{
     constants::*,
     structs::{
-        commands::{
-            distrowatch::*, exchange_rate::*, google_dns::*, google_translate::*, ip_info::*,
-            saucenao::*, stock::*, unicode::*,
-        },
+        api::{exchange_rate::*, google_dns::*, google_translate::*, ip_info::*, saucenao::*},
         gateway::cache::CACHE,
+        scraping::{distrowatch::*, stock::*},
+        unicode::*,
     },
     traits::*,
     *,

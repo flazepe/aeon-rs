@@ -3,7 +3,7 @@ use crate::{
     constants::STEAM_USER_STATES,
     format_timestamp, if_else, plural,
     structs::{
-        commands::steam::{country::*, user_bans::*, user_vanity::*},
+        api::steam::{country::*, user_bans::*, user_vanity::*},
         config::CONFIG,
     },
     yes_no,
