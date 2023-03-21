@@ -1,4 +1,4 @@
-use crate::{constants::*, if_else};
+use crate::{constants::*, *};
 use anyhow::{bail, Context, Result};
 use reqwest::get;
 use serde::Deserialize;

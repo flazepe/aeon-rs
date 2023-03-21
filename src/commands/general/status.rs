@@ -1,4 +1,4 @@
-use crate::{constants::*, format_timestamp};
+use crate::{constants::*, *};
 use anyhow::Context;
 use slashook::commands::{CommandInput, CommandResponder};
 use slashook::{command, commands::Command};

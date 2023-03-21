@@ -1,4 +1,4 @@
-use crate::{constants::*, if_else};
+use crate::{constants::*, *};
 use anyhow::{Context, Result};
 use flate2::{write::*, Compression};
 use reqwest::Client;
