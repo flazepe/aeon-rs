@@ -3,6 +3,7 @@ pub mod dns;
 pub mod ip;
 pub mod sauce;
 pub mod snipe;
+pub mod snipe_message_reactions;
 pub mod translate;
 pub mod translate_message;
 pub mod unicode;
@@ -17,6 +18,7 @@ pub fn get_commands() -> Vec<Command> {
         ip::get_command(),
         sauce::get_command(),
         snipe::get_command(),
+        snipe_message_reactions::get_command(),
         translate::get_command(),
         translate_message::get_command(),
         unicode::get_command(),
