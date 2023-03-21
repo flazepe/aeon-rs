@@ -1,3 +1,4 @@
+pub mod code;
 pub mod convert_currency;
 pub mod dns;
 pub mod ip;
@@ -14,6 +15,7 @@ use slashook::commands::Command;
 pub fn get_commands() -> Vec<Command> {
     vec![
         convert_currency::get_command(),
+        code::get_command(),
         dns::get_command(),
         ip::get_command(),
         sauce::get_command(),

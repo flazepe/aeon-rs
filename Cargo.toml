@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1"
 async-once-cell = "0.4"
+flate2 = "1"
 futures = "0.3"
 mongodb = "2.4"
 nipper = "0.1"

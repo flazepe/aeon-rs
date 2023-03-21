@@ -7,6 +7,7 @@ pub struct Cache {
     pub snipes: HashMap<String, Vec<Message>>,
     pub edit_snipes: HashMap<String, Vec<Message>>,
     pub reaction_snipes: HashMap<String, Vec<String>>,
+    pub last_tio_programming_languages: HashMap<String, String>,
 }
 
 pub static CACHE: Lazy<Mutex<Cache>> = Lazy::new(|| {
@@ -15,5 +16,6 @@ pub static CACHE: Lazy<Mutex<Cache>> = Lazy::new(|| {
         snipes: HashMap::new(),
         edit_snipes: HashMap::new(),
         reaction_snipes: HashMap::new(),
+        last_tio_programming_languages: HashMap::new(),
     })
 });
