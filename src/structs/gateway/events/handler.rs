@@ -17,6 +17,7 @@ impl EventHandler {
             Event::MessageDelete(message) => EventHandler::on_message_delete(message),
             Event::MessageDeleteBulk(data) => EventHandler::on_message_delete_bulk(data),
             Event::MessageUpdate(message) => EventHandler::on_message_update(message),
+            Event::ReactionRemove(reaction) => EventHandler::on_reaction_remove(reaction),
             _ => {}
         }
     }
