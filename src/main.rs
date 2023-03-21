@@ -4,29 +4,27 @@ mod macros;
 mod structs;
 mod traits;
 
-use crate::structs::{client::AeonClient, config::CONFIG, gateway::client::GatewayClient};
+use crate::{
+    constants::*,
+    structs::{client::AeonClient, gateway::client::GatewayClient},
+};
 use anyhow::Result;
-use async_once_cell::OnceCell;
 use mongodb::{options::ClientOptions as MongoDBClientOptions, Client as MongoDBClient};
 use slashook::main;
 use tokio::spawn;
 
-pub static MONGODB: OnceCell<MongoDBClient> = OnceCell::new();
-
 #[main]
 async fn main() -> Result<()> {
-    /*
-        MONGODB
-            .get_or_init(async {
-                MongoDBClient::with_options(
-                    MongoDBClientOptions::parse(&CONFIG.db.mongodb_uri)
-                        .await
-                        .unwrap(),
-                )
-                .unwrap()
-            })
-            .await;
-    */
+    MONGODB
+        .get_or_init(async {
+            MongoDBClient::with_options(
+                MongoDBClientOptions::parse(&CONFIG.db.mongodb_uri)
+                    .await
+                    .unwrap(),
+            )
+            .unwrap()
+        })
+        .await;
 
     // Spawn gateway client
     spawn(GatewayClient::new().create_shards());

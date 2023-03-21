@@ -1,10 +1,4 @@
-use crate::{
-    and_then_or,
-    constants::*,
-    kv_autocomplete,
-    structs::{api::tio::*, gateway::cache::CACHE},
-    traits::*,
-};
+use crate::{and_then_or, constants::*, kv_autocomplete, structs::api::tio::*, traits::*};
 use anyhow::Context;
 use slashook::{
     command,

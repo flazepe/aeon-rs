@@ -1,10 +1,4 @@
-use once_cell::sync::Lazy;
 use serde::Deserialize;
-use std::fs::read_to_string;
-use toml::from_str;
-
-pub static CONFIG: Lazy<Config> =
-    Lazy::new(|| from_str(&read_to_string("config.toml").unwrap()).unwrap());
 
 #[derive(Deserialize)]
 pub struct Config {

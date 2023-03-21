@@ -1,4 +1,4 @@
-use crate::{structs::gateway::cache::CACHE, traits::*, *};
+use crate::{constants::*, traits::*, *};
 use anyhow::{bail, Result};
 use slashook::chrono::DateTime;
 use slashook::commands::MessageResponse;

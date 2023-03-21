@@ -1,4 +1,4 @@
-use crate::structs::gateway::{cache::CACHE, events::handler::EventHandler};
+use crate::{constants::*, structs::gateway::events::handler::EventHandler};
 use twilight_model::gateway::payload::incoming::MessageDeleteBulk;
 
 impl EventHandler {

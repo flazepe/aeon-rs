@@ -1,11 +1,8 @@
 use crate::{
     and_then_or,
-    constants::STEAM_USER_STATES,
+    constants::*,
     format_timestamp, if_else, plural,
-    structs::{
-        api::steam::{country::*, user_bans::*, user_vanity::*},
-        config::CONFIG,
-    },
+    structs::api::steam::{country::*, user_bans::*, user_vanity::*},
     yes_no,
 };
 use anyhow::{Context, Result};

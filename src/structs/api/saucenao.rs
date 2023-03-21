@@ -1,4 +1,4 @@
-use crate::{and_then_or, if_else, structs::config::CONFIG};
+use crate::{and_then_or, constants::*, if_else};
 use anyhow::{bail, Result};
 use reqwest::get;
 use serde::Deserialize;

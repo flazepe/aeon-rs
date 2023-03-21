@@ -1,7 +1,4 @@
-use crate::{
-    structs::gateway::{cache::CACHE, events::handler::EventHandler},
-    *,
-};
+use crate::{constants::*, structs::gateway::events::handler::EventHandler, *};
 use std::time::{SystemTime, UNIX_EPOCH};
 use twilight_model::{channel::message::ReactionType, gateway::payload::incoming::ReactionRemove};
 
