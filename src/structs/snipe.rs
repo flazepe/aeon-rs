@@ -31,9 +31,7 @@ impl Snipes {
             bail!("no snipes found");
         }
 
-        let mut response = MessageResponse::from("");
-
-        response = response.set_content(format!(
+        let mut response = MessageResponse::from(format!(
             "last {} for <#{}>:",
             plural!(
                 if_else!(self.send_list, snipes.len(), 1),
@@ -116,12 +114,11 @@ impl ReactionSnipes {
             bail!("no reaction snipes found");
         }
 
-        Ok(MessageResponse::from("")
-            .set_content(format!(
-                "last {} for `{}`:",
-                plural!(reaction_snipes.len(), "reaction snipe"),
-                self.message_id
-            ))
-            .add_embed(Embed::new().set_description(reaction_snipes.join("\n\n"))))
+        Ok(MessageResponse::from(format!(
+            "last {} for `{}`:",
+            plural!(reaction_snipes.len(), "reaction snipe"),
+            self.message_id
+        ))
+        .add_embed(Embed::new().set_description(reaction_snipes.join("\n\n"))))
     }
 }
