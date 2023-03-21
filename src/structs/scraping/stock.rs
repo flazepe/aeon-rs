@@ -38,15 +38,15 @@ impl Stock {
             YahooFinanceLookupAttributes {
                 href: selection
                     .attr("href")
-                    .context("href attr missing")?
+                    .context("missing href attr")?
                     .to_string(),
                 title: selection
                     .attr("title")
-                    .context("title attr missing")?
+                    .context("missing title attr")?
                     .to_string(),
                 data_symbol: selection
                     .attr("data-symbol")
-                    .context("data-symbol attr missing")?
+                    .context("missing data-symbol attr")?
                     .to_string(),
             }
         };

@@ -10,13 +10,13 @@ pub fn get_command() -> Command {
                 name = "type",
                 description = "The record type, such as A, AAAA, MX, NS, PTR, etc.",
                 option_type = InteractionOptionType::STRING,
-                required = true
+                required = true,
             },
             {
                 name = "url",
                 description = "The URL",
                 option_type = InteractionOptionType::STRING,
-                required = true
+                required = true,
             },
         ],
     )]

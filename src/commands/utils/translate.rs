@@ -11,19 +11,19 @@ pub fn get_command() -> Command {
 				name = "text",
 				description = "The text to translate",
 				option_type = InteractionOptionType::STRING,
-				required = true
+				required = true,
 			},
 			{
 				name = "to-language",
 				description = "The language to translate the text to",
 				option_type = InteractionOptionType::STRING,
-				autocomplete = true
+				autocomplete = true,
 			},
 			{
 				name = "from-language",
 				description = "The text's origin language",
 				option_type = InteractionOptionType::STRING,
-				autocomplete = true
+				autocomplete = true,
 			},
 		],
 	)]

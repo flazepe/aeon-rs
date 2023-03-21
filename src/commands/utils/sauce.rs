@@ -9,12 +9,12 @@ pub fn get_command() -> Command {
 			{
 				name = "image-url",
 				description = "The image URL",
-				option_type = InteractionOptionType::STRING
+				option_type = InteractionOptionType::STRING,
 			},
 			{
 				name = "image-attachment",
 				description = "The image attachment",
-				option_type = InteractionOptionType::ATTACHMENT
+				option_type = InteractionOptionType::ATTACHMENT,
 			},
 		],
 	)]

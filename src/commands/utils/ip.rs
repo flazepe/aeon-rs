@@ -10,7 +10,7 @@ pub fn get_command() -> Command {
                 name = "ip",
                 description = "The IP address",
                 option_type = InteractionOptionType::STRING,
-                required = true
+                required = true,
             },
         ],
     )]

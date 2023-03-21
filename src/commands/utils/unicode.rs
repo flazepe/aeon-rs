@@ -14,7 +14,7 @@ pub fn get_command() -> Command {
 						name = "query",
 						description = "The query",
 						option_type = InteractionOptionType::STRING,
-						required = true
+						required = true,
 					},
 				],
 			},
@@ -26,7 +26,7 @@ pub fn get_command() -> Command {
 						name = "text",
 						description = "The text",
 						option_type = InteractionOptionType::STRING,
-						required = true
+						required = true,
 					},
 				],
 			},

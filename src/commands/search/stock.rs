@@ -10,7 +10,7 @@ pub fn get_command() -> Command {
 				name = "ticker",
 				description = "The ticker",
 				option_type = InteractionOptionType::STRING,
-				required = true
+				required = true,
 			},
 		],
 	)]

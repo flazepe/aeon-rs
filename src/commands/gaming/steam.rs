@@ -22,7 +22,7 @@ pub fn get_command() -> Command {
                         name = "game",
                         description = "The game",
                         option_type = InteractionOptionType::STRING,
-                        required = true
+                        required = true,
                     },
                 ],
             },
@@ -34,7 +34,7 @@ pub fn get_command() -> Command {
                         name = "user",
                         description = "The user",
                         option_type = InteractionOptionType::STRING,
-                        required = true
+                        required = true,
                     },
                 ],
             },

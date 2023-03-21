@@ -11,21 +11,21 @@ pub fn get_command() -> Command {
                 name = "amount",
                 description = "The amount of currency",
                 option_type = InteractionOptionType::NUMBER,
-                required = true
+                required = true,
             },
             {
                 name = "from-currency",
                 description = "The origin currency, e.g. GBP, NOK, USD",
                 option_type = InteractionOptionType::STRING,
                 autocomplete = true,
-                required = true
+                required = true,
             },
             {
                 name = "to-currency",
                 description = "The currency to convert the amount to, e.g. GBP, NOK, USD",
                 option_type = InteractionOptionType::STRING,
                 autocomplete = true,
-                required = true
+                required = true,
             },
         ],
     )]

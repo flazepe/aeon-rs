@@ -10,7 +10,7 @@ pub fn get_command() -> Command {
                 name = "distro",
                 description = "The distribution",
                 option_type = InteractionOptionType::STRING,
-                required = true
+                required = true,
             },
         ],
     )]
