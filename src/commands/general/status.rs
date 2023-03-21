@@ -4,13 +4,7 @@ use slashook::commands::{CommandInput, CommandResponder};
 use slashook::{command, commands::Command};
 use sysinfo::{get_current_pid, ProcessExt, System, SystemExt};
 
-pub fn get_commands() -> Vec<Command> {
-    #[command(name = "source", description = "Sends my source.")]
-    async fn source(_: CommandInput, res: CommandResponder) {
-        res.send_message("<https://github.com/flazepe/aeon-rs>")
-            .await?;
-    }
-
+pub fn get_command() -> Command {
     #[command(name = "status", description = "Sends the process status.")]
     async fn status(_: CommandInput, res: CommandResponder) {
         match get_current_pid() {
@@ -46,5 +40,5 @@ pub fn get_commands() -> Vec<Command> {
         }
     }
 
-    vec![source, status]
+    status
 }

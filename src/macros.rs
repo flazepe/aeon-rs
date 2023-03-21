@@ -31,7 +31,7 @@ macro_rules! stringify_message {
 
         for embed in &$message.embeds {
             if let Some(author) = embed.author.as_ref() {
-                text += &format!("\n**{}**", escape_markdown!(&author.name));
+                text += &format!("\n**{}**", crate::escape_markdown!(&author.name));
             }
 
             if let Some(title) = embed.title.as_ref() {
@@ -52,7 +52,7 @@ macro_rules! stringify_message {
                 .map(|field| {
                     format!(
                         "\n**{}**\n{}",
-                        escape_markdown!(field.name.trim()),
+                        crate::escape_markdown!(field.name.trim()),
                         field.value
                     )
                 })
@@ -60,7 +60,7 @@ macro_rules! stringify_message {
                 .join("");
 
             if let Some(footer) = embed.footer.as_ref() {
-                text += &format!("\n**{}**", escape_markdown!(&footer.text));
+                text += &format!("\n**{}**", crate::escape_markdown!(&footer.text));
             }
         }
 

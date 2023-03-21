@@ -9,7 +9,7 @@ use slashook::{
     structs::interactions::*,
 };
 
-pub fn get_commands() -> Vec<Command> {
+pub fn get_command() -> Command {
     #[command(
         name = "steam",
         description = "Fetches various resources from Steam.",
@@ -62,5 +62,5 @@ pub fn get_commands() -> Vec<Command> {
         }
     }
 
-    vec![steam]
+    steam
 }
