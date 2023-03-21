@@ -11,7 +11,6 @@ pub struct TioProgrammingLanguage<'a> {
     pub alias: &'a [&'a str],
 }
 
-#[derive(Debug)]
 pub struct Tio {
     pub programming_language: String,
     pub code: String,
