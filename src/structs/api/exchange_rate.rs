@@ -44,7 +44,7 @@ impl ExchangeRateConversion {
 
     pub fn format(self) -> String {
         format!(
-            "{} {} equals {:.3} {}.",
+            "{} {} = {:.3} {}",
             self.from_amount, self.from_currency, self.to_amount, self.to_currency
         )
     }
