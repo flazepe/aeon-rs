@@ -60,7 +60,7 @@ pub fn get_command() -> Command {
                 res.send_message({
                     let cache = CACHE.lock()?;
                     let empty_vec = vec![];
-                    let messages = if_else!(
+                    let snipes = if_else!(
                         input.get_bool_arg("edit")?,
                         &cache.edit_snipes,
                         &cache.snipes
@@ -68,19 +68,33 @@ pub fn get_command() -> Command {
                     .get(&channel_id)
                     .unwrap_or(&empty_vec);
 
-                    let response = MessageResponse::from("");
+                    let mut response = MessageResponse::from("");
 
-                    if messages.is_empty() {
-                        response.set_content(format!("{ERROR_EMOJI} no snipes found"))
+                    response = response.set_content(if_else!(
+                        snipes.is_empty(),
+                        format!("{ERROR_EMOJI} no snipes found"),
+                        format!(
+                            "latest {} for <#{}>:",
+                            plural!(
+                                if_else!(input.get_bool_arg("list")?, snipes.len(), 1),
+                                if_else!(input.get_bool_arg("edit")?, "edit snipe", "snipe")
+                            ),
+                            channel_id
+                        )
+                    ));
+
+                    if snipes.is_empty() {
+                        response
                     } else if input.get_bool_arg("list")? {
                         response.add_file(File::new(
                             "snipes.txt",
-                            messages
+                            snipes
                                 .into_iter()
                                 .map(|message| {
                                     format!(
-                                        "From {} at {}:\n\n{}",
+                                        "{} ({}) at {}:\n\n{}",
                                         twilight_user_to_tag!(message.author),
+                                        message.author.id,
                                         DateTime::parse_from_rfc3339(
                                             &message.timestamp.iso_8601().to_string(),
                                         )
@@ -97,22 +111,17 @@ pub fn get_command() -> Command {
                                 .join("\n\n"),
                         ))
                     } else {
-                        let message = &messages[messages.len() - 1];
+                        let snipe = &snipes[snipes.len() - 1];
 
                         response.add_embed(
                             Embed::new()
-                                .set_title(format!(
-                                    "Latest {}snipe for <#{}>",
-                                    if_else!(input.get_bool_arg("edit")?, "edit ", ""),
-                                    channel_id
-                                ))
                                 .set_footer(
-                                    twilight_user_to_tag!(message.author),
-                                    input.user.avatar_url("png", 64),
+                                    twilight_user_to_tag!(snipe.author),
+                                    snipe.author.avatar_url("png", 64),
                                 )
-                                .set_description(stringify_message!(&message))
+                                .set_description(stringify_message!(&snipe))
                                 .set_timestamp(DateTime::parse_from_rfc3339(
-                                    &message.timestamp.iso_8601().to_string(),
+                                    &snipe.timestamp.iso_8601().to_string(),
                                 )?),
                         )
                     }

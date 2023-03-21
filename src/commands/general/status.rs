@@ -17,13 +17,13 @@ pub fn get_command() -> Command {
 
                 res.send_message(
                     vec![
-                        ["Uptime".into(), format_timestamp!(process.start_time())],
+                        ["uptime".into(), format_timestamp!(process.start_time())],
                         [
-                            "Memory".into(),
+                            "memory".into(),
                             format!("{} MB", process.memory() / 1024 / 1024),
                         ],
                         [
-                            "Virtual Memory".into(),
+                            "virtual memory".into(),
                             format!("{} MB", process.virtual_memory() / 1024 / 1024),
                         ],
                     ]

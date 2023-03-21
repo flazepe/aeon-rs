@@ -7,6 +7,7 @@ use slashook::{
         users::User,
     },
 };
+use twilight_model::user::User as TwilightUser;
 
 pub trait ArgGetters {
     fn get_string_arg(&self, arg: &str) -> Result<String>;
@@ -89,6 +90,24 @@ impl ArgGetters for CommandInput {
             .context("could not get arg")?
             .as_attachment()
             .context("could not convert arg to Attachment")?)
+    }
+}
+
+pub trait AvatarURL {
+    fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String>;
+}
+
+impl AvatarURL for TwilightUser {
+    fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String> {
+        self.avatar.as_ref().map(|a| {
+            format!(
+                "https://cdn.discordapp.com/avatars/{}/{}.{}?size={}",
+                self.id,
+                a,
+                format.to_string(),
+                size.to_string()
+            )
+        })
     }
 }
 
