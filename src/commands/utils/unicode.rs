@@ -30,7 +30,7 @@ pub fn get_command() -> Command {
 					},
 				],
 			},
-		]
+		],
 	)]
     async fn unicode(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref().unwrap_or("") {

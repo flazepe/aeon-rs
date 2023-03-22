@@ -38,7 +38,7 @@ pub fn get_command() -> Command {
                     },
                 ],
             },
-        ]
+        ],
     )]
     fn steam(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref() {
