@@ -36,7 +36,7 @@ pub fn get_command() -> Command {
                 .await?;
         }
 
-        match SauceNAOSearch::query(&url).await {
+        match SauceNAOSearch::query(url).await {
             Ok(saucenao_search) => {
                 res.send_message(saucenao_search.format()).await?;
             }

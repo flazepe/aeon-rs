@@ -2,6 +2,7 @@ use crate::{constants::*, *};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::get;
+use std::fmt::Display;
 use unicode_names2::name as get_unicode_name;
 
 pub struct UnicodeCharacter {
@@ -15,7 +16,7 @@ pub struct UnicodeCharacters {
 }
 
 impl UnicodeCharacter {
-    pub async fn get(name: &str) -> Result<Self> {
+    pub async fn get<T: Display>(name: T) -> Result<Self> {
         let document = Document::from(
             &get(format!("https://symbl.cc/en/search/?q={name}"))
                 .await?
@@ -64,10 +65,10 @@ impl UnicodeCharacter {
 }
 
 impl UnicodeCharacters {
-    pub fn get(string: &str) -> Self {
+    pub fn get<T: ToString>(string: T) -> Self {
         let mut unicode_characters: Vec<UnicodeCharacter> = vec![];
 
-        for character in string.chars() {
+        for character in string.to_string().chars() {
             let codepoint = format!("U+{:04X}", character as u32);
 
             if unicode_characters

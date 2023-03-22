@@ -66,9 +66,10 @@ pub struct GoogleDNS {
 }
 
 impl GoogleDNS {
-    pub async fn query(record_type: &str, domain: &str) -> Result<Self> {
-        let record_type = record_type.to_uppercase();
+    pub async fn query<T: ToString>(record_type: T, domain: T) -> Result<Self> {
+        let record_type = record_type.to_string().to_uppercase();
         let domain = domain
+            .to_string()
             .to_lowercase()
             .replace("http://", "")
             .replace("https://", "");

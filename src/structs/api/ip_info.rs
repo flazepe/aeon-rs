@@ -24,10 +24,10 @@ pub struct IPInfo {
 }
 
 impl IPInfo {
-    pub async fn get(ip: &str) -> Result<Self> {
+    pub async fn get<T: ToString>(ip: T) -> Result<Self> {
         let res = get(format!(
             "https://ipinfo.io/{}/json",
-            ip.replace(['/', '?'], "")
+            ip.to_string().replace(['/', '?'], "")
         ))
         .await?;
 

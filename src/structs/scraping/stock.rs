@@ -2,6 +2,7 @@ use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::get;
 use slashook::structs::embeds::Embed;
+use std::fmt::Display;
 
 struct YahooFinanceLookupAttributes {
     href: String,
@@ -18,7 +19,7 @@ pub struct Stock {
 }
 
 impl Stock {
-    pub async fn get(ticker: &str) -> Result<Self> {
+    pub async fn get<T: Display>(ticker: T) -> Result<Self> {
         let attributes = {
             let document = Document::from(
                 &get(format!(

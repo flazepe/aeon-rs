@@ -9,8 +9,8 @@ pub fn get_command() -> Command {
     )]
     fn snipe_message_reactions(input: CommandInput, res: CommandResponder) {
         match ReactionSnipes::new(
-            &input.guild_id,
-            &input.target_message.context("missing target message")?.id,
+            input.guild_id,
+            input.target_message.context("missing target message")?.id,
         )
         .to_response()
         {

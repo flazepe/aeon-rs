@@ -35,9 +35,9 @@ pub fn get_command() -> Command {
         }
 
         match ExchangeRateConversion::get(
-            &input.get_f64_arg("amount")?,
-            &input.get_string_arg("from-currency")?,
-            &input.get_string_arg("to-currency")?,
+            input.get_f64_arg("amount")?,
+            input.get_string_arg("from-currency")?,
+            input.get_string_arg("to-currency")?,
         )
         .await
         {

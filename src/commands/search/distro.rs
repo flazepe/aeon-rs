@@ -15,7 +15,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn distro(input: CommandInput, res: CommandResponder) {
-        match Distro::get(&input.get_string_arg("distro")?).await {
+        match Distro::get(input.get_string_arg("distro")?).await {
             Ok(distro) => {
                 res.send_message(distro.format()).await?;
             }

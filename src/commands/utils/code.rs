@@ -61,7 +61,7 @@ pub fn get_command() -> Command {
         }
 
         if input.is_modal_submit() {
-            match Tio::new(&programming_language, &input.get_string_arg("code")?)
+            match Tio::new(programming_language, input.get_string_arg("code")?)
                 .run()
                 .await
             {

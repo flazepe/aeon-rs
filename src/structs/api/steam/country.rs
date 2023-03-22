@@ -7,9 +7,9 @@ pub struct SteamCountry<'a> {
 }
 
 impl<'a> SteamCountry<'a> {
-    pub fn get(country_code: &str) -> Option<&Self> {
+    pub fn get<T: ToString>(country_code: T) -> Option<&'a Self> {
         STEAM_COUNTRIES
             .iter()
-            .find(|country| country.code == country_code)
+            .find(|country| country.code == country_code.to_string())
     }
 }

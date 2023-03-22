@@ -33,11 +33,11 @@ pub fn get_command() -> Command {
         }
 
         match GoogleTranslate::translate(
-            &input.get_string_arg("text")?,
-            &input
+            input.get_string_arg("text")?,
+            input
                 .get_string_arg("from-language")
                 .unwrap_or("auto".into()),
-            &input.get_string_arg("to-language").unwrap_or("en".into()),
+            input.get_string_arg("to-language").unwrap_or("en".into()),
         )
         .await
         {

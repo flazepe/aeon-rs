@@ -90,7 +90,7 @@ struct GetPlayerSummariesEndpoint {
 }
 
 impl SteamUser {
-    pub async fn get(user: &str) -> Result<Self> {
+    pub async fn get<T: ToString>(user: T) -> Result<Self> {
         let mut user = user.to_string();
 
         if !user.chars().into_iter().all(|char| char.is_numeric()) {

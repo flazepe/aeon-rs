@@ -59,17 +59,13 @@ pub fn get_command() -> Command {
         match input.subcommand.as_deref().unwrap_or("") {
             "message" => {
                 match Snipes::new(
-                    &and_then_or!(
+                    and_then_or!(
                         input.get_channel_arg("channel"),
-                        |channel| Ok(channel.id.to_string()),
-                        input
-                            .channel_id
-                            .as_ref()
-                            .context("missing channel_id")?
-                            .to_string()
+                        |channel| Ok(&channel.id),
+                        input.channel_id.as_ref().context("missing channel_id")?
                     ),
-                    &input.get_bool_arg("edit")?,
-                    &input.get_bool_arg("list")?,
+                    input.get_bool_arg("edit")?,
+                    input.get_bool_arg("list")?,
                 )
                 .to_response()
                 {
@@ -84,7 +80,7 @@ pub fn get_command() -> Command {
             "reaction" => {
                 let message = input.get_string_arg("message")?;
 
-                match ReactionSnipes::new(&input.guild_id, message.split("/").last().unwrap_or(""))
+                match ReactionSnipes::new(input.guild_id, message.split("/").last().unwrap_or(""))
                     .to_response()
                 {
                     Ok(response) => {

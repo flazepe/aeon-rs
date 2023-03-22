@@ -34,7 +34,7 @@ pub fn get_command() -> Command {
 	)]
     async fn unicode(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref().unwrap_or("") {
-            "search" => match UnicodeCharacter::get(&input.get_string_arg("query")?).await {
+            "search" => match UnicodeCharacter::get(input.get_string_arg("query")?).await {
                 Ok(unicode_character) => {
                     res.send_message(unicode_character.format()).await?;
                 }
@@ -43,7 +43,7 @@ pub fn get_command() -> Command {
                 }
             },
             "list" => {
-                res.send_message(UnicodeCharacters::get(&input.get_string_arg("text")?).format())
+                res.send_message(UnicodeCharacters::get(input.get_string_arg("text")?).format())
                     .await?
             }
             _ => {}

@@ -3,6 +3,7 @@ use anyhow::{bail, Result};
 use reqwest::get;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 pub struct SauceNAOHeader {
@@ -39,7 +40,7 @@ pub struct SauceNAOSearch {
 }
 
 impl SauceNAOSearch {
-    pub async fn query(url: &str) -> Result<Self> {
+    pub async fn query<T: Display>(url: T) -> Result<Self> {
         let search = get(format!(
             "https://saucenao.com/search.php?api_key={}&output_type=2&url={url}",
             CONFIG.api.saucenao_key

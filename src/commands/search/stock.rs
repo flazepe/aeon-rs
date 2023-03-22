@@ -18,7 +18,7 @@ pub fn get_command() -> Command {
         // We have to defer since scraping this takes a bit of time
         res.defer(false).await?;
 
-        match Stock::get(&input.get_string_arg("ticker")?).await {
+        match Stock::get(input.get_string_arg("ticker")?).await {
             Ok(stock) => {
                 res.send_message(stock.format()).await?;
             }

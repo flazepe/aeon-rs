@@ -12,7 +12,7 @@ pub struct Snipes {
 }
 
 impl Snipes {
-    pub fn new(channel_id: &str, is_edit: &bool, send_list: &bool) -> Self {
+    pub fn new<T: ToString>(channel_id: T, is_edit: bool, send_list: bool) -> Self {
         Self {
             channel_id: channel_id.to_string(),
             is_edit: is_edit.clone(),
@@ -91,7 +91,7 @@ pub struct ReactionSnipes {
 }
 
 impl ReactionSnipes {
-    pub fn new(guild_id: &Option<String>, message_id: &str) -> Self {
+    pub fn new<T: ToString>(guild_id: Option<String>, message_id: T) -> Self {
         Self {
             guild_id: guild_id.clone(),
             message_id: message_id.to_string(),

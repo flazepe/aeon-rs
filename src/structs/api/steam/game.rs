@@ -6,7 +6,7 @@ use slashook::structs::embeds::Embed;
 pub struct SteamGame {}
 
 impl SteamGame {
-    pub async fn get(game: &str) -> Result<Self> {
+    pub async fn get<T: ToString>(game: T) -> Result<Self> {
         Ok(Self {})
     }
 

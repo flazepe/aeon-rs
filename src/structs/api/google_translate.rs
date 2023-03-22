@@ -23,7 +23,15 @@ pub struct GoogleTranslate {
 }
 
 impl GoogleTranslate {
-    pub async fn translate(text: &str, from_language: &str, to_language: &str) -> Result<Self> {
+    pub async fn translate<T: ToString, U: ToString, V: ToString>(
+        text: T,
+        from_language: U,
+        to_language: V,
+    ) -> Result<Self> {
+        let text = text.to_string();
+        let from_language = from_language.to_string();
+        let to_language = to_language.to_string();
+
         if text.is_empty() {
             bail!("text is empty");
         }

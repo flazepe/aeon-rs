@@ -2,6 +2,7 @@ use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::get;
 use slashook::structs::embeds::Embed;
+use std::fmt::Display;
 
 pub struct Distro {
     pub name: String,
@@ -16,11 +17,10 @@ pub struct Distro {
 }
 
 impl Distro {
-    pub async fn get(name: &str) -> Result<Self> {
+    pub async fn get<T: Display>(name: T) -> Result<Self> {
         let document = Document::from(
             &get(format!(
-                "https://distrowatch.com/table.php?distribution={}",
-                name,
+                "https://distrowatch.com/table.php?distribution={name}"
             ))
             .await?
             .text()

@@ -7,86 +7,87 @@ use slashook::{
         users::User,
     },
 };
+use std::fmt::Display;
 use twilight_model::user::User as TwilightUser;
 
 pub trait ArgGetters {
-    fn get_string_arg(&self, arg: &str) -> Result<String>;
-    fn get_i64_arg(&self, arg: &str) -> Result<i64>;
-    fn get_bool_arg(&self, arg: &str) -> Result<bool>;
-    fn get_user_arg(&self, arg: &str) -> Result<&User>;
-    fn get_channel_arg(&self, arg: &str) -> Result<&Channel>;
-    fn get_role_arg(&self, arg: &str) -> Result<&Role>;
-    fn get_f64_arg(&self, arg: &str) -> Result<f64>;
-    fn get_attachment_arg(&self, arg: &str) -> Result<&Attachment>;
+    fn get_string_arg<T: ToString>(&self, arg: T) -> Result<String>;
+    fn get_i64_arg<T: ToString>(&self, arg: T) -> Result<i64>;
+    fn get_bool_arg<T: ToString>(&self, arg: T) -> Result<bool>;
+    fn get_user_arg<T: ToString>(&self, arg: T) -> Result<&User>;
+    fn get_channel_arg<T: ToString>(&self, arg: T) -> Result<&Channel>;
+    fn get_role_arg<T: ToString>(&self, arg: T) -> Result<&Role>;
+    fn get_f64_arg<T: ToString>(&self, arg: T) -> Result<f64>;
+    fn get_attachment_arg<T: ToString>(&self, arg: T) -> Result<&Attachment>;
 }
 
 impl ArgGetters for CommandInput {
-    fn get_string_arg(&self, arg: &str) -> Result<String> {
+    fn get_string_arg<T: ToString>(&self, arg: T) -> Result<String> {
         Ok(self
             .args
-            .get(arg)
+            .get(&arg.to_string())
             .context("could not get arg")?
             .as_string()
             .context("could not convert arg to String")?)
     }
 
-    fn get_i64_arg(&self, arg: &str) -> Result<i64> {
+    fn get_i64_arg<T: ToString>(&self, arg: T) -> Result<i64> {
         Ok(self
             .args
-            .get(arg)
+            .get(&arg.to_string())
             .context("could not get arg")?
             .as_i64()
             .context("could not convert arg to i64")?)
     }
 
-    fn get_bool_arg(&self, arg: &str) -> Result<bool> {
+    fn get_bool_arg<T: ToString>(&self, arg: T) -> Result<bool> {
         Ok(self
             .args
-            .get(arg)
+            .get(&arg.to_string())
             .and_then(|arg| arg.as_bool())
             .unwrap_or(false))
     }
 
-    fn get_user_arg(&self, arg: &str) -> Result<&User> {
+    fn get_user_arg<T: ToString>(&self, arg: T) -> Result<&User> {
         Ok(self
             .args
-            .get(arg)
+            .get(&arg.to_string())
             .context("could not get arg")?
             .as_user()
             .context("could not convert arg to User")?)
     }
 
-    fn get_channel_arg(&self, arg: &str) -> Result<&Channel> {
+    fn get_channel_arg<T: ToString>(&self, arg: T) -> Result<&Channel> {
         Ok(self
             .args
-            .get(arg)
+            .get(&arg.to_string())
             .context("could not get arg")?
             .as_channel()
             .context("could not convert arg to Channel")?)
     }
 
-    fn get_role_arg(&self, arg: &str) -> Result<&Role> {
+    fn get_role_arg<T: ToString>(&self, arg: T) -> Result<&Role> {
         Ok(self
             .args
-            .get(arg)
+            .get(&arg.to_string())
             .context("could not get arg")?
             .as_role()
             .context("could not convert arg to Role")?)
     }
 
-    fn get_f64_arg(&self, arg: &str) -> Result<f64> {
+    fn get_f64_arg<T: ToString>(&self, arg: T) -> Result<f64> {
         Ok(self
             .args
-            .get(arg)
+            .get(&arg.to_string())
             .context("could not get arg")?
             .as_f64()
             .context("could not convert arg to f64")?)
     }
 
-    fn get_attachment_arg(&self, arg: &str) -> Result<&Attachment> {
+    fn get_attachment_arg<T: ToString>(&self, arg: T) -> Result<&Attachment> {
         Ok(self
             .args
-            .get(arg)
+            .get(&arg.to_string())
             .context("could not get arg")?
             .as_attachment()
             .context("could not convert arg to Attachment")?)
@@ -94,18 +95,15 @@ impl ArgGetters for CommandInput {
 }
 
 pub trait AvatarURL {
-    fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String>;
+    fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String>;
 }
 
 impl AvatarURL for TwilightUser {
-    fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String> {
+    fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String> {
         self.avatar.as_ref().map(|a| {
             format!(
-                "https://cdn.discordapp.com/avatars/{}/{}.{}?size={}",
-                self.id,
-                a,
-                format.to_string(),
-                size.to_string()
+                "https://cdn.discordapp.com/avatars/{}/{a}.{format}?size={size}",
+                self.id
             )
         })
     }
