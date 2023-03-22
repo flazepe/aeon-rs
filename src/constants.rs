@@ -22,6 +22,17 @@ pub static CACHE: Lazy<Mutex<Cache>> = Lazy::new(|| {
 pub static CONFIG: Lazy<Config> =
     Lazy::new(|| from_str(&read_to_string("config.toml").unwrap()).unwrap());
 
+pub static MONGODB: AsyncOnceCell<MongoDBClient> = AsyncOnceCell::new();
+
+// 365.2425 days
+pub static SECS_PER_YEAR: u64 = 31_556_952;
+// 30.436875 days
+pub static SECS_PER_MONTH: u64 = 2_629_746;
+pub static SECS_PER_WEEK: u64 = 604_800;
+pub static SECS_PER_DAY: u64 = 86_400;
+pub static SECS_PER_HOUR: u64 = 3_600;
+pub static SECS_PER_MIN: u64 = 60;
+
 pub static CONTROL_CHARACTERS: [[&str; 2]; 32] = [
     ["0", "NULL"],
     ["1", "START OF HEADING"],
@@ -353,8 +364,6 @@ pub static GOOGLE_TRANSLATE_LANGUAGES: [[&str; 2]; 105] = [
     ["yo", "Yoruba"],
     ["zu", "Zulu"],
 ];
-
-pub static MONGODB: AsyncOnceCell<MongoDBClient> = AsyncOnceCell::new();
 
 pub static STEAM_COUNTRIES: Lazy<[SteamCountry; 236]> = Lazy::new(|| {
     [

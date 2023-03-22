@@ -1,9 +1,10 @@
 use crate::{constants::*, traits::*, *};
 use anyhow::{bail, Result};
-use slashook::chrono::DateTime;
-use slashook::commands::MessageResponse;
-use slashook::structs::embeds::Embed;
-use slashook::structs::utils::File;
+use slashook::{
+    chrono::DateTime,
+    commands::MessageResponse,
+    structs::{embeds::Embed, utils::File},
+};
 
 pub struct Snipes {
     pub channel_id: String,

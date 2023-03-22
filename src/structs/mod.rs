@@ -1,6 +1,7 @@
 pub mod api;
 pub mod client;
 pub mod config;
+pub mod duration;
 pub mod gateway;
 pub mod scraping;
 pub mod snipe;

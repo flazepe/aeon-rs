@@ -141,7 +141,7 @@ macro_rules! plural {
         let mut subject = $subject.to_string();
 
         if $amount != 1 {
-            if subject.ends_with('y') {
+            if subject.ends_with("ny") {
                 subject = format!(
                     "{}ies",
                     subject.chars().take(subject.len() - 1).collect::<String>()
@@ -151,7 +151,7 @@ macro_rules! plural {
             }
         }
 
-        &format!("{} {subject}", $amount)
+        format!("{} {subject}", $amount)
     }};
 }
 
