@@ -92,12 +92,12 @@ impl Snipes {
 }
 
 pub struct ReactionSnipes {
-    pub guild_id: Option<String>,
+    pub guild_id: String,
     pub message_id: String,
 }
 
 impl ReactionSnipes {
-    pub fn new<T: ToString>(guild_id: Option<String>, message_id: T) -> Self {
+    pub fn new<T: ToString>(guild_id: String, message_id: T) -> Self {
         Self {
             guild_id: guild_id.clone(),
             message_id: message_id.to_string(),
@@ -108,11 +108,7 @@ impl ReactionSnipes {
         let empty_vec = vec![];
         let reaction_snipes = CACHE.reaction_snipes.lock().unwrap();
         let reaction_snipes = reaction_snipes
-            .get(&format!(
-                "{}/{}",
-                self.guild_id.unwrap_or("".into()),
-                self.message_id
-            ))
+            .get(&format!("{}/{}", self.guild_id, self.message_id))
             .unwrap_or(&empty_vec);
 
         if reaction_snipes.is_empty() {

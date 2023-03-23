@@ -3,6 +3,10 @@ use twilight_model::gateway::payload::incoming::MessageUpdate;
 
 impl EventHandler {
     pub fn on_message_update(message: Box<MessageUpdate>) {
+        if message.guild_id.is_none() {
+            return;
+        }
+
         let mut channels = CACHE.channels.lock().unwrap();
         let channel_id = message.channel_id.to_string();
 
