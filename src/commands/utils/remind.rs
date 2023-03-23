@@ -5,7 +5,7 @@ use crate::{
     *,
 };
 use futures::stream::TryStreamExt;
-use mongodb::bson::{doc, oid::ObjectId, to_document};
+use mongodb::bson::{doc, oid::ObjectId};
 use slashook::{
     command,
     commands::*,
