@@ -1,4 +1,4 @@
-use crate::constants::*;
+use crate::statics::steam::*;
 
 pub struct SteamCountry<'a> {
     pub code: &'a str,

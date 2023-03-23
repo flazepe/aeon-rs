@@ -1,3 +1,4 @@
+use crate::statics::colors::*;
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::get;
@@ -89,6 +90,8 @@ impl Stock {
 
     pub fn format(self) -> Embed {
         Embed::new()
+            .set_color(PRIMARY_COLOR)
+            .unwrap_or_default()
             .set_title(self.name)
             .set_url(self.url)
             .set_description(format!(

@@ -1,4 +1,8 @@
-use crate::{constants::*, structs::duration::*, traits::*};
+use crate::{
+    statics::{duration::*, emojis::*},
+    structs::duration::*,
+    traits::*,
+};
 use anyhow::Context;
 use serde_json::json;
 use slashook::{

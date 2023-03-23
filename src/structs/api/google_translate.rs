@@ -1,4 +1,7 @@
-use crate::{constants::*, *};
+use crate::{
+    statics::{colors::*, google_translate_languages::*},
+    *,
+};
 use anyhow::{bail, Context, Result};
 use reqwest::get;
 use serde::Deserialize;
@@ -73,6 +76,8 @@ impl GoogleTranslate {
 
     pub fn format(self) -> Embed {
         Embed::new()
+            .set_color(PRIMARY_COLOR)
+            .unwrap_or_default()
             .set_title(format!("{} to {}", self.from_language, self.to_language))
             .set_description(self.translation)
     }

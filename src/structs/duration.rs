@@ -1,4 +1,4 @@
-use crate::{constants::*, *};
+use crate::{statics::duration::*, *};
 use anyhow::Result;
 use parse_duration::parse;
 use std::fmt::{Display, Formatter, Result as FmtResult};

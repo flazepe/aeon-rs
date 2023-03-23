@@ -1,4 +1,9 @@
-use crate::{constants::*, structs::api::exchange_rate::*, traits::*, *};
+use crate::{
+    statics::{currencies::*, emojis::*},
+    structs::api::exchange_rate::*,
+    traits::*,
+    *,
+};
 use anyhow::Context;
 use slashook::{command, commands::*, structs::interactions::*};
 

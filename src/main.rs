@@ -1,11 +1,11 @@
 mod commands;
-mod constants;
 mod macros;
+mod statics;
 mod structs;
 mod traits;
 
 use crate::{
-    constants::*,
+    statics::*,
     structs::{client::AeonClient, gateway::client::GatewayClient},
 };
 use anyhow::Result;
@@ -26,13 +26,17 @@ async fn main() -> Result<()> {
             .database("aeon")
         })
         .await;
+    println!("[DATABASE] Connected to MongoDB");
 
     // Spawn gateway client
     spawn(GatewayClient::new().create_shards());
+    println!("[GATEWAY] Spawned gateway client");
 
     let mut client = AeonClient::new();
 
     client.register_commands().await?;
+    println!("[CLIENT] Registered commands");
+
     client.start().await;
 
     Ok(())

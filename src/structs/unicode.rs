@@ -1,4 +1,4 @@
-use crate::{constants::*, *};
+use crate::{statics::unicode::*, *};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::get;

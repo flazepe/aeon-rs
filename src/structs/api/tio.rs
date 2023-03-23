@@ -1,4 +1,7 @@
-use crate::{constants::*, *};
+use crate::{
+    statics::{colors::*, tio_programming_languages::*},
+    *,
+};
 use anyhow::{Context, Result};
 use flate2::{write::*, Compression};
 use reqwest::Client;
@@ -91,6 +94,8 @@ impl Tio {
 
     pub fn format(self) -> Embed {
         Embed::new()
+            .set_color(PRIMARY_COLOR)
+            .unwrap_or_default()
             .set_title(self.programming_language)
             .set_description(format!(
                 "```\n{}```",

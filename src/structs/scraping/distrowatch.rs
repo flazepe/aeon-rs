@@ -1,3 +1,4 @@
+use crate::statics::colors::*;
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::get;
@@ -58,6 +59,8 @@ impl Distro {
 
     pub fn format(self) -> Embed {
         Embed::new()
+            .set_color(PRIMARY_COLOR)
+            .unwrap_or_default()
             .add_field("Name", self.name, true)
             .add_field("Type", self.distro_type, true)
             .add_field("Architecture", self.architecture, true)

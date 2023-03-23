@@ -1,4 +1,8 @@
-use crate::{constants::*, traits::*, *};
+use crate::{
+    statics::{colors::*, *},
+    traits::*,
+    *,
+};
 use anyhow::{bail, Result};
 use slashook::{
     chrono::DateTime,
@@ -71,11 +75,12 @@ impl Snipes {
 
             response = response.add_embed(
                 Embed::new()
+                    .set_color(PRIMARY_COLOR)?
+                    .set_description(stringify_message!(&snipe))
                     .set_footer(
                         twilight_user_to_tag!(snipe.author),
                         snipe.author.avatar_url("png", 64),
                     )
-                    .set_description(stringify_message!(&snipe))
                     .set_timestamp(DateTime::parse_from_rfc3339(
                         &snipe.timestamp.iso_8601().to_string(),
                     )?),
@@ -120,6 +125,10 @@ impl ReactionSnipes {
             plural!(reaction_snipes.len(), "reaction snipe"),
             self.message_id
         ))
-        .add_embed(Embed::new().set_description(reaction_snipes.join("\n\n"))))
+        .add_embed(
+            Embed::new()
+                .set_color(PRIMARY_COLOR)?
+                .set_description(reaction_snipes.join("\n\n")),
+        ))
     }
 }

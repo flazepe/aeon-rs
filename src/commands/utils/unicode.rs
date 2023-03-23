@@ -1,4 +1,4 @@
-use crate::{constants::*, structs::unicode::*, traits::*};
+use crate::{statics::emojis::*, structs::unicode::*, traits::*};
 use slashook::{command, commands::*, structs::interactions::*};
 
 pub fn get_command() -> Command {

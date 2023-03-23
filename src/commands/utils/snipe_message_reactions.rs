@@ -1,4 +1,4 @@
-use crate::{constants::*, structs::snipe::ReactionSnipes};
+use crate::{statics::emojis::*, structs::snipe::ReactionSnipes};
 use anyhow::Context;
 use slashook::{command, commands::*, structs::interactions::*};
 

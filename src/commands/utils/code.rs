@@ -1,4 +1,9 @@
-use crate::{constants::*, structs::api::tio::*, traits::*, *};
+use crate::{
+    statics::{emojis::*, tio_programming_languages::*},
+    structs::api::tio::*,
+    traits::*,
+    *,
+};
 use anyhow::Context;
 use slashook::{
     command,

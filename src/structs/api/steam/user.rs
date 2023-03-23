@@ -1,5 +1,5 @@
 use crate::{
-    constants::*,
+    statics::{colors::*, steam::*},
     structs::api::steam::{country::*, user_bans::*, user_vanity::*},
     *,
 };
@@ -129,6 +129,8 @@ impl SteamUser {
             .to_string();
 
         let mut embed = Embed::new()
+            .set_color(PRIMARY_COLOR)
+            .unwrap_or_default()
             .set_thumbnail(self.avatar_full)
             .set_title(self.real_name.unwrap_or(self.persona_name))
             .set_url(self.profile_url)

@@ -1,4 +1,9 @@
-use crate::{constants::*, structs::api::google_translate::*, traits::*, *};
+use crate::{
+    statics::{emojis::*, google_translate_languages::*},
+    structs::api::google_translate::*,
+    traits::*,
+    *,
+};
 use anyhow::Context;
 use slashook::{command, commands::*, structs::interactions::*};
 

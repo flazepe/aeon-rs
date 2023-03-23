@@ -1,3 +1,4 @@
+use crate::statics::colors::*;
 use anyhow::Result;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
@@ -11,6 +12,9 @@ impl SteamGame {
     }
 
     pub fn format(self) -> Embed {
-        Embed::new().set_description("TODO")
+        Embed::new()
+            .set_color(PRIMARY_COLOR)
+            .unwrap_or_default()
+            .set_description("TODO")
     }
 }

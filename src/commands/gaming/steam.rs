@@ -1,5 +1,5 @@
 use crate::{
-    constants::*,
+    statics::emojis::*,
     structs::api::steam::{game::*, user::*},
     traits::*,
 };

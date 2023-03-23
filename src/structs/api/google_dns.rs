@@ -1,4 +1,7 @@
-use crate::{constants::*, *};
+use crate::{
+    statics::{colors::*, dns_codes::*},
+    *,
+};
 use anyhow::{bail, Result};
 use reqwest::get;
 use serde::Deserialize;
@@ -115,6 +118,8 @@ impl GoogleDNS {
 
     pub fn format(self) -> Embed {
         Embed::new()
+            .set_color(PRIMARY_COLOR)
+            .unwrap_or_default()
             .set_title(format!("{} records for {}", self.record_type, self.domain))
             .set_description(format!(
                 "{}```diff\n{}```",

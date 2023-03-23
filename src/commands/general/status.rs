@@ -1,4 +1,4 @@
-use crate::{constants::*, *};
+use crate::{statics::emojis::*, *};
 use anyhow::Context;
 use slashook::commands::{CommandInput, CommandResponder};
 use slashook::{command, commands::Command};
