@@ -51,20 +51,13 @@ impl Reminders {
                 if SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() >= reminder.timestamp {
                     match self.handle(&reminder).await {
                         Ok(()) => {
+                            self.reminders
+                                .delete_one(doc! { "_id": reminder._id }, None)
+                                .await?;
+
                             if reminder.interval > 0 {
                                 reminder.timestamp = reminder.timestamp + reminder.interval;
-
-                                self.reminders
-                                    .update_one(
-                                        doc! { "_id": reminder._id },
-                                        to_document(&reminder)?,
-                                        None,
-                                    )
-                                    .await?;
-                            } else {
-                                self.reminders
-                                    .delete_one(doc! { "_id": reminder._id }, None)
-                                    .await?;
+                                self.reminders.insert_one(&reminder, None).await?;
                             }
                         }
                         Err(error) => {
