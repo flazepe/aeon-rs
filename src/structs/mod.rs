@@ -3,6 +3,7 @@ pub mod client;
 pub mod config;
 pub mod duration;
 pub mod gateway;
+pub mod reminders;
 pub mod scraping;
 pub mod snipe;
 pub mod unicode;

@@ -11,6 +11,7 @@ use crate::{
 use anyhow::Result;
 use mongodb::{options::ClientOptions as MongoDBClientOptions, Client as MongoDBClient};
 use slashook::main;
+use structs::reminders::Reminders;
 use tokio::spawn;
 
 #[main]
@@ -27,6 +28,10 @@ async fn main() -> Result<()> {
         })
         .await;
     println!("[DATABASE] Connected to MongoDB");
+
+    // Reminders
+    spawn(Reminders::new().poll());
+    println!("[REMINDERS] Started polling reminders");
 
     // Spawn gateway client
     spawn(GatewayClient::new().create_shards());

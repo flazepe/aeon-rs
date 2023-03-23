@@ -2,6 +2,7 @@ pub mod code;
 pub mod convert_currency;
 pub mod dns;
 pub mod ip;
+pub mod remind;
 pub mod sauce;
 pub mod snipe;
 pub mod snipe_message_reactions;
@@ -19,6 +20,7 @@ pub fn get_commands() -> Vec<Command> {
         code::get_command(),
         dns::get_command(),
         ip::get_command(),
+        remind::get_command(),
         sauce::get_command(),
         snipe::get_command(),
         snipe_message_reactions::get_command(),
