@@ -32,7 +32,7 @@ pub fn get_command() -> Command {
                         name = "reminder",
                         description = "The reminder",
                         option_type = InteractionOptionType::STRING,
-						max_length = 300,
+						max_length = 200,
                     },
                     {
                         name = "interval",
@@ -66,12 +66,12 @@ pub fn get_command() -> Command {
         ],
     )]
     fn remind(input: CommandInput, res: CommandResponder) {
-        res.defer(false).await?;
-
         // Snooze
         if input.custom_id == Some("time".into()) {
             return set_reminder(&input, &res, true).await?;
-        };
+        }
+
+        res.defer(false).await?;
 
         let reminders = MONGODB.get().unwrap().collection::<Reminder>("reminders");
 
@@ -89,9 +89,10 @@ pub fn get_command() -> Command {
 
                     while let Some(reminder) = cursor.try_next().await? {
                         entries.push(format!(
-                            "{}. {}\n{}{}",
+                            "{}. [{}](https://discord.com/channels/{})\n{}{}",
                             entries.len() + 1,
                             reminder.reminder,
+                            reminder.url,
                             format_timestamp!(reminder.timestamp),
                             if_else!(
                                 reminder.interval > 0,
@@ -159,6 +160,17 @@ pub async fn set_reminder(
     res: &CommandResponder,
     snooze: bool,
 ) -> Result<()> {
+    if snooze && input.user.id != input.message.as_ref().unwrap().author.id {
+        res.defer(true).await?;
+
+        res.send_message(format!("{ERROR_EMOJI} This isn't your reminder."))
+            .await?;
+
+        return Ok(());
+    } else {
+        res.defer(false).await?;
+    }
+
     let reminders = MONGODB.get().unwrap().collection::<Reminder>("reminders");
 
     if reminders
@@ -228,27 +240,17 @@ pub async fn set_reminder(
             &Reminder {
                 _id: ObjectId::new(),
                 user_id: input.user.id.to_string(),
-                url: {
-                    let guild_id = and_then_or!(
-                        input.guild_id.as_ref(),
-                        |guild_id| Some(guild_id.to_string()),
-                        "".into()
-                    );
-
-                    if !dm && !guild_id.is_empty() {
-                        Some(format!(
-                            "{guild_id}/{}/{}",
-                            input.channel_id.as_ref().unwrap(),
-                            res.get_original_message().await?.id
-                        ))
-                    } else {
-                        None
-                    }
-                },
+                url: format!(
+                    "{}/{}/{}",
+                    input.guild_id.as_ref().unwrap_or(&"@me".into()),
+                    input.channel_id.as_ref().unwrap(),
+                    res.get_original_message().await?.id
+                ),
                 timestamp: (SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs()
                     + time.total_secs),
                 interval: interval.total_secs,
                 reminder: reminder.to_string(),
+                dm,
             },
             None,
         )

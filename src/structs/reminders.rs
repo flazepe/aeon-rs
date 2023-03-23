@@ -20,14 +20,15 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct Reminder {
     pub _id: ObjectId,
     pub user_id: String,
-    pub url: Option<String>,
+    pub url: String,
     pub timestamp: u64,
     pub interval: u64,
     pub reminder: String,
+    pub dm: bool,
 }
 
 pub struct Reminders {
@@ -72,14 +73,10 @@ impl Reminders {
     }
 
     async fn handle(&self, reminder: &Reminder) -> Result<()> {
-        let mut message_url = String::from("https://discord.com");
-
         Message::create(
             &self.rest,
-            if let Some(url) = reminder.url.as_ref() {
-                message_url += &format!("/channels/{url}");
-                url.split("/").skip(1).next().unwrap().to_string()
-            } else {
+            // If the reminder should be DM'd but was created inside a guild channel, we have to create a new DM channel
+            if reminder.dm && !reminder.url.contains("@me") {
                 match self
                     .rest
                     .post::<Channel, _>(
@@ -105,17 +102,20 @@ impl Reminders {
                         bail!("Could not create DM channel.");
                     }
                 }
+            } else {
+                // Else, just grab channel ID from the URL
+                reminder.url.split("/").skip(1).next().unwrap().to_string()
             },
             MessageResponse::from(if_else!(
-                reminder.url.is_some(),
-                format!("<@{}>", reminder.user_id),
-                "".into()
+                reminder.dm,
+                "".into(),
+                format!("<@{}>", reminder.user_id)
             ))
             .add_embed(
                 Embed::new()
                     .set_color(NOTICE_COLOR)?
                     .set_title("Reminder")
-                    .set_url(message_url)
+                    .set_url(format!("https://discord.com/channels/{}", reminder.url))
                     .set_description(&reminder.reminder),
             )
             .set_components(
