@@ -68,7 +68,15 @@ pub fn get_command() -> Command {
     fn remind(input: CommandInput, res: CommandResponder) {
         // Snooze
         if input.custom_id == Some("time".into()) {
-            return set_reminder(&input, &res, true).await?;
+            if input.user.id == input.message.as_ref().unwrap().author.id {
+                res.defer(false).await?;
+                return set_reminder(&input, &res, true).await?;
+            } else {
+                res.defer(true).await?;
+                return res
+                    .send_message(format!("{ERROR_EMOJI} This isn't your reminder."))
+                    .await?;
+            }
         }
 
         res.defer(false).await?;
@@ -160,17 +168,6 @@ pub async fn set_reminder(
     res: &CommandResponder,
     snooze: bool,
 ) -> Result<()> {
-    if snooze && input.user.id != input.message.as_ref().unwrap().author.id {
-        res.defer(true).await?;
-
-        res.send_message(format!("{ERROR_EMOJI} This isn't your reminder."))
-            .await?;
-
-        return Ok(());
-    } else {
-        res.defer(false).await?;
-    }
-
     let reminders = MONGODB.get().unwrap().collection::<Reminder>("reminders");
 
     if reminders
