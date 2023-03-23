@@ -15,14 +15,12 @@ use once_cell::sync::Lazy;
 use std::{collections::HashMap, fs::read_to_string, sync::Mutex};
 use toml::from_str;
 
-pub static CACHE: Lazy<Mutex<Cache>> = Lazy::new(|| {
-    Mutex::new(Cache {
-        channels: HashMap::new(),
-        snipes: HashMap::new(),
-        edit_snipes: HashMap::new(),
-        reaction_snipes: HashMap::new(),
-        last_tio_programming_languages: HashMap::new(),
-    })
+pub static CACHE: Lazy<Cache> = Lazy::new(|| Cache {
+    channels: Mutex::new(HashMap::new()),
+    snipes: Mutex::new(HashMap::new()),
+    edit_snipes: Mutex::new(HashMap::new()),
+    reaction_snipes: Mutex::new(HashMap::new()),
+    last_tio_programming_languages: Mutex::new(HashMap::new()),
 });
 
 pub static CONFIG: Lazy<Config> =

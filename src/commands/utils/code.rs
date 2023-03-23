@@ -37,12 +37,13 @@ pub fn get_command() -> Command {
         }
 
         let programming_language = {
-            let cache = CACHE.lock()?;
-
             input
                 .get_string_arg("programming-language")
                 .unwrap_or(and_then_or!(
-                    cache.last_tio_programming_languages.get(&input.user.id),
+                    CACHE
+                        .last_tio_programming_languages
+                        .lock()?
+                        .get(&input.user.id),
                     |programming_language| Some(programming_language.to_string()),
                     "".into()
                 ))
@@ -58,10 +59,9 @@ pub fn get_command() -> Command {
 
         // Set user's last programming language
         {
-            let mut cache = CACHE.lock()?;
-
-            cache
+            CACHE
                 .last_tio_programming_languages
+                .lock()?
                 .insert(input.user.id.clone(), programming_language.clone());
         }
 

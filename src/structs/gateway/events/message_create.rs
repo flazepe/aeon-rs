@@ -5,8 +5,7 @@ impl EventHandler {
     pub fn on_message_create(message: Box<MessageCreate>) {
         let message = message.0;
 
-        let mut cache = CACHE.lock().unwrap();
-        let channels = &mut cache.channels;
+        let mut channels = CACHE.channels.lock().unwrap();
         let channel_id = message.channel_id.to_string();
 
         if !channels.contains_key(&channel_id) {

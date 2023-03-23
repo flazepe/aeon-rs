@@ -26,11 +26,11 @@ impl Snipes {
     }
 
     pub fn to_response(&self) -> Result<MessageResponse> {
-        let cache = CACHE.lock().unwrap();
         let empty_vec = vec![];
-        let snipes = if_else!(self.is_edit, &cache.edit_snipes, &cache.snipes)
-            .get(&self.channel_id)
-            .unwrap_or(&empty_vec);
+        let snipes = if_else!(self.is_edit, &CACHE.edit_snipes, &CACHE.snipes)
+            .lock()
+            .unwrap();
+        let snipes = snipes.get(&self.channel_id).unwrap_or(&empty_vec);
 
         if snipes.is_empty() {
             bail!("No snipes found.");
@@ -105,10 +105,9 @@ impl ReactionSnipes {
     }
 
     pub fn to_response(self) -> Result<MessageResponse> {
-        let cache = CACHE.lock().unwrap();
         let empty_vec = vec![];
-        let reaction_snipes = cache
-            .reaction_snipes
+        let reaction_snipes = CACHE.reaction_snipes.lock().unwrap();
+        let reaction_snipes = reaction_snipes
             .get(&format!(
                 "{}/{}",
                 self.guild_id.unwrap_or("".into()),
