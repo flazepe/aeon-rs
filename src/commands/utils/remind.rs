@@ -223,13 +223,9 @@ pub async fn set_reminder(
     ))
     .await?;
 
-    // This dumb to_document() only returns a Document so we need an untyped collection
-    MONGODB
-        .get()
-        .unwrap()
-        .collection("reminders")
+    reminders
         .insert_one(
-            to_document(&Reminder {
+            &Reminder {
                 _id: ObjectId::new(),
                 user_id: input.user.id.to_string(),
                 url: {
@@ -253,7 +249,7 @@ pub async fn set_reminder(
                     + time.total_secs),
                 interval: interval.total_secs,
                 reminder: reminder.to_string(),
-            })?,
+            },
             None,
         )
         .await?;
