@@ -177,20 +177,20 @@ pub async fn set_reminder(
     let mut reminder = input
         .get_string_arg("reminder")
         .unwrap_or("Do something".into());
-    let time;
+    let time = if_else!(
+        snooze,
+        input.values.as_ref().unwrap()[0].to_string(),
+        input.get_string_arg("time")?
+    );
     let interval = input.get_string_arg("interval").unwrap_or("".into());
-    let mut dm = input.get_bool_arg("dm")?;
+    let dm = input.guild_id.is_none() || input.get_bool_arg("dm")?;
 
     if snooze {
         if let Some(parsed_reminder) =
             || -> Option<&String> { input.message.as_ref()?.embeds.get(0)?.description.as_ref() }()
         {
             reminder = parsed_reminder.to_string();
-        }
-        time = input.values.as_ref().unwrap()[0].to_string();
-        dm = input.guild_id.is_none();
-    } else {
-        time = input.get_string_arg("time")?;
+        };
     }
 
     let time = Duration::new().parse(time).unwrap_or(Duration::new());
