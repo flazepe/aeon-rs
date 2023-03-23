@@ -1,5 +1,4 @@
 use crate::{statics::emojis::*, structs::snipe::*, traits::*, *};
-use anyhow::Context;
 use slashook::{
     command,
     commands::*,
@@ -62,7 +61,7 @@ pub fn get_command() -> Command {
                     and_then_or!(
                         input.get_channel_arg("channel"),
                         |channel| Ok(&channel.id),
-                        input.channel_id.as_ref().context("missing channel_id")?
+                        input.channel_id.as_ref().unwrap()
                     ),
                     input.get_bool_arg("edit")?,
                     input.get_bool_arg("list")?,

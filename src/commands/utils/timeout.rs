@@ -3,7 +3,6 @@ use crate::{
     structs::duration::*,
     traits::*,
 };
-use anyhow::Context;
 use serde_json::json;
 use slashook::{
     chrono::{Duration as ChronoDuration, Utc},
@@ -58,7 +57,7 @@ pub fn get_command() -> Command {
                     if duration.total_secs < 30 || duration.total_secs > SECS_PER_DAY * 28 {
                         return res
                             .send_message(format!(
-                                "{ERROR_EMOJI} time cannot be under 30 seconds or over 28 days"
+                                "{ERROR_EMOJI} Time cannot be under 30 seconds or over 28 days."
                             ))
                             .await?;
                     }
@@ -68,7 +67,7 @@ pub fn get_command() -> Command {
                     match input
                         .rest
                         .patch::<GuildMember, _>(
-                            format!("guilds/{}/members/{}", input.guild_id.as_ref().context("missing guild ID")?, &user.id),
+                            format!("guilds/{}/members/{}", input.guild_id.as_ref().unwrap(), &user.id),
                             json!({
                                 "communication_disabled_until": (Utc::now()
                                     + ChronoDuration::seconds(duration.total_secs as i64)).to_rfc3339()
@@ -77,7 +76,7 @@ pub fn get_command() -> Command {
                         .await
                     {
                         Ok(_) => {
-							res.send_message(format!("set timeout for <@{}> for {duration}", user.id)).await?;
+							res.send_message(format!("{SUCCESS_EMOJI} Set timeout for {} for {duration}.", user.mention())).await?;
 						}
                         Err(error) => {
                             res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
@@ -96,7 +95,7 @@ pub fn get_command() -> Command {
                     .patch::<GuildMember, _>(
                         format!(
                             "guilds/{}/members/{}",
-                            input.guild_id.as_ref().context("missing guild ID")?,
+                            input.guild_id.as_ref().unwrap(),
                             &user.id
                         ),
                         json!({ "communication_disabled_until": null }),
@@ -104,8 +103,11 @@ pub fn get_command() -> Command {
                     .await
                 {
                     Ok(_) => {
-                        res.send_message(format!("removed timeout for <@{}>", user.id))
-                            .await?;
+                        res.send_message(format!(
+                            "{SUCCESS_EMOJI} Removed timeout for <@{}>.",
+                            user.id
+                        ))
+                        .await?;
                     }
                     Err(error) => {
                         res.send_message(format!("{ERROR_EMOJI} {error}")).await?;

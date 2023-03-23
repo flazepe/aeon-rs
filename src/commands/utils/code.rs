@@ -51,7 +51,7 @@ pub fn get_command() -> Command {
         if programming_language.is_empty() {
             return res
                 .send_message(format!(
-                    "{ERROR_EMOJI} please provide a valid programming language"
+                    "{ERROR_EMOJI} Please provide a programming language."
                 ))
                 .await?;
         }

@@ -31,7 +31,7 @@ pub fn get_command() -> Command {
         if url.is_empty() {
             return res
                 .send_message(format!(
-                    "{ERROR_EMOJI} please provide an image URL or attachment"
+                    "{ERROR_EMOJI} Please provide an image URL or attachment."
                 ))
                 .await?;
         }

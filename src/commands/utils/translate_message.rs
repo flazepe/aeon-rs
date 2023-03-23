@@ -1,5 +1,4 @@
 use crate::{statics::emojis::*, structs::api::google_translate::*, *};
-use anyhow::Context;
 use slashook::{command, commands::*, structs::interactions::*};
 
 pub fn get_command() -> Command {
@@ -9,13 +8,7 @@ pub fn get_command() -> Command {
 	)]
     async fn translate_message(input: CommandInput, res: CommandResponder) {
         match GoogleTranslate::translate(
-            stringify_message!(
-                input
-                    .target_message
-                    .as_ref()
-                    .context("missing target message")?,
-                vec![]
-            ),
+            stringify_message!(input.target_message.as_ref().unwrap(), vec![]),
             "auto",
             "en",
         )

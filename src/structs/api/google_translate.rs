@@ -20,48 +20,47 @@ pub struct GoogleTranslateResponse {
 }
 
 pub struct GoogleTranslate {
-    pub from_language: String,
-    pub to_language: String,
+    pub origin_language: String,
+    pub target_language: String,
     pub translation: String,
 }
 
 impl GoogleTranslate {
     pub async fn translate<T: ToString, U: ToString, V: ToString>(
         text: T,
-        from_language: U,
-        to_language: V,
+        origin_language: U,
+        target_language: V,
     ) -> Result<Self> {
         let text = text.to_string();
-        let from_language = from_language.to_string();
-        let to_language = to_language.to_string();
+        let origin_language = origin_language.to_string();
+        let target_language = target_language.to_string();
 
         if text.is_empty() {
-            bail!("text is empty");
+            bail!("Text is empty.");
         }
 
-        let from_language = GOOGLE_TRANSLATE_LANGUAGES
+        let origin_language = GOOGLE_TRANSLATE_LANGUAGES
             .iter()
-            .find(|[language, _]| language == &from_language.to_lowercase())
-            .context("invalid from_language")?;
+            .find(|[language, _]| language == &origin_language.to_lowercase())
+            .context("Invalid origin language.")?;
 
-        let to_language = GOOGLE_TRANSLATE_LANGUAGES
+        let target_language = GOOGLE_TRANSLATE_LANGUAGES
             .iter()
-            .find(|[language, _]| language == &to_language.to_lowercase())
-            .context("invalid to_language.")?;
+            .find(|[language, _]| language == &target_language.to_lowercase())
+            .context("Invalid target language.")?;
 
-        let google_translate_response  = get(format!("https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&dt=t&sl={}&tl={}&q={text}", from_language[0], to_language[0])).await?.json::<GoogleTranslateResponse>().await?;
-
-        let detected_language = GOOGLE_TRANSLATE_LANGUAGES
-            .iter()
-            .find(|[language, _]| language == &google_translate_response.src)
-            .context("unexpected language code from API")?[1];
+        let google_translate_response  = get(format!("https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&dt=t&sl={}&tl={}&q={text}", origin_language[0], target_language[0])).await?.json::<GoogleTranslateResponse>().await?;
 
         Ok(Self {
-            from_language: format!(
-                "{detected_language}{}",
-                if_else!(from_language[0] == "auto", " (detected)", "")
+            origin_language: format!(
+                "{}{}",
+                GOOGLE_TRANSLATE_LANGUAGES
+                    .iter()
+                    .find(|[language, _]| language == &google_translate_response.src)
+                    .context("Unexpected language code from API.")?[1],
+                if_else!(origin_language[0] == "auto", " (detected)", "")
             ),
-            to_language: to_language[1].to_string(),
+            target_language: target_language[1].to_string(),
             translation: google_translate_response
                 .sentences
                 .into_iter()
@@ -78,7 +77,10 @@ impl GoogleTranslate {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_title(format!("{} to {}", self.from_language, self.to_language))
+            .set_title(format!(
+                "{} to {}",
+                self.origin_language, self.target_language
+            ))
             .set_description(self.translation)
     }
 }

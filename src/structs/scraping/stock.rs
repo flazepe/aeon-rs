@@ -34,21 +34,21 @@ impl Stock {
             let selection = &document.select("td a");
 
             if selection.nodes().is_empty() {
-                bail!("ticker not found");
+                bail!("Ticker not found.");
             }
 
             YahooFinanceLookupAttributes {
                 href: selection
                     .attr("href")
-                    .context("missing href attr")?
+                    .context("Missing href attr.")?
                     .to_string(),
                 title: selection
                     .attr("title")
-                    .context("missing title attr")?
+                    .context("Missing title attr.")?
                     .to_string(),
                 data_symbol: selection
                     .attr("data-symbol")
-                    .context("missing data-symbol attr")?
+                    .context("Missing data-symbol attr.")?
                     .to_string(),
             }
         };
@@ -69,7 +69,7 @@ impl Stock {
                 .text()
                 .split(" ")
                 .last()
-                .context("could not get currency")?
+                .context("Could not get currency.")?
                 .to_string(),
             price: document
                 .select("#quote-header-info [data-field=\"regularMarketPrice\"]")

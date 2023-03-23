@@ -40,7 +40,7 @@ impl Tio {
                         .contains(&self.programming_language)
                     || entry.alias.contains(&self.programming_language.as_str())
             })
-            .context("invalid programming language")?;
+            .context("Invalid programming language.")?;
 
         // Set to real programming language name
         self.programming_language = programming_language.name.to_string();
@@ -100,7 +100,7 @@ impl Tio {
             .set_description(format!(
                 "```\n{}```",
                 self.result
-                    .unwrap_or("<no output>".into())
+                    .unwrap_or("No output.".into())
                     .chars()
                     .take(3993)
                     .collect::<String>()

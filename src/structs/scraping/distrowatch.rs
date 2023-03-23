@@ -31,7 +31,7 @@ impl Distro {
         let name = document.select("td.TablesTitle h1").text();
 
         if name.is_empty() {
-            bail!("distribution not found");
+            bail!("Distribution not found.");
         }
 
         let get_table_nth_child = |n: u8| -> Result<String> {
@@ -40,7 +40,7 @@ impl Distro {
                 .text()
                 .split(":")
                 .last()
-                .context(format!("could not get table nth child value for {n}"))?
+                .context(format!("Could not get table nth child value for {n}."))?
                 .to_string())
         };
 

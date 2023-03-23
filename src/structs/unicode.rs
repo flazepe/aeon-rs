@@ -27,7 +27,7 @@ impl UnicodeCharacter {
         let name = document.select("h2").first().text().trim().to_string();
 
         if name.is_empty() {
-            bail!("unicode character not found");
+            bail!("Unicode character not found.");
         }
 
         let character = document
@@ -41,7 +41,7 @@ impl UnicodeCharacter {
         Ok(Self {
             codepoint: format!(
                 "`U+{:04X}`",
-                character.chars().next().context("empty string")? as u32,
+                character.chars().next().context("Empty string provided.")? as u32,
             ),
             name,
             character,

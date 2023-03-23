@@ -1,5 +1,4 @@
 use crate::{statics::emojis::*, structs::snipe::ReactionSnipes};
-use anyhow::Context;
 use slashook::{command, commands::*, structs::interactions::*};
 
 pub fn get_command() -> Command {
@@ -8,12 +7,7 @@ pub fn get_command() -> Command {
         command_type = ApplicationCommandType::MESSAGE,
     )]
     fn snipe_message_reactions(input: CommandInput, res: CommandResponder) {
-        match ReactionSnipes::new(
-            input.guild_id,
-            input.target_message.context("missing target message")?.id,
-        )
-        .to_response()
-        {
+        match ReactionSnipes::new(input.guild_id, input.target_message.unwrap().id).to_response() {
             Ok(response) => {
                 res.send_message(response).await?;
             }

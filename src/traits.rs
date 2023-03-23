@@ -26,18 +26,18 @@ impl ArgGetters for CommandInput {
         Ok(self
             .args
             .get(&arg.to_string())
-            .context("could not get arg")?
+            .context("Could not get arg.")?
             .as_string()
-            .context("could not convert arg to String")?)
+            .context("Could not convert arg to String.")?)
     }
 
     fn get_i64_arg<T: ToString>(&self, arg: T) -> Result<i64> {
         Ok(self
             .args
             .get(&arg.to_string())
-            .context("could not get arg")?
+            .context("Could not get arg.")?
             .as_i64()
-            .context("could not convert arg to i64")?)
+            .context("Could not convert arg to i64.")?)
     }
 
     fn get_bool_arg<T: ToString>(&self, arg: T) -> Result<bool> {
@@ -52,45 +52,45 @@ impl ArgGetters for CommandInput {
         Ok(self
             .args
             .get(&arg.to_string())
-            .context("could not get arg")?
+            .context("Could not get arg.")?
             .as_user()
-            .context("could not convert arg to User")?)
+            .context("Could not convert arg to User.")?)
     }
 
     fn get_channel_arg<T: ToString>(&self, arg: T) -> Result<&Channel> {
         Ok(self
             .args
             .get(&arg.to_string())
-            .context("could not get arg")?
+            .context("Could not get arg.")?
             .as_channel()
-            .context("could not convert arg to Channel")?)
+            .context("Could not convert arg to Channel.")?)
     }
 
     fn get_role_arg<T: ToString>(&self, arg: T) -> Result<&Role> {
         Ok(self
             .args
             .get(&arg.to_string())
-            .context("could not get arg")?
+            .context("Could not get arg.")?
             .as_role()
-            .context("could not convert arg to Role")?)
+            .context("Could not convert arg to Role.")?)
     }
 
     fn get_f64_arg<T: ToString>(&self, arg: T) -> Result<f64> {
         Ok(self
             .args
             .get(&arg.to_string())
-            .context("could not get arg")?
+            .context("Could not get arg.")?
             .as_f64()
-            .context("could not convert arg to f64")?)
+            .context("Could not convert arg to f64.")?)
     }
 
     fn get_attachment_arg<T: ToString>(&self, arg: T) -> Result<&Attachment> {
         Ok(self
             .args
             .get(&arg.to_string())
-            .context("could not get arg")?
+            .context("Could not get arg.")?
             .as_attachment()
-            .context("could not convert arg to Attachment")?)
+            .context("Could not convert arg to Attachment.")?)
     }
 }
 

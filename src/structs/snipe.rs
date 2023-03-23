@@ -33,11 +33,11 @@ impl Snipes {
             .unwrap_or(&empty_vec);
 
         if snipes.is_empty() {
-            bail!("no snipes found");
+            bail!("No snipes found.");
         }
 
         let mut response = MessageResponse::from(format!(
-            "last {} for <#{}>:",
+            "Last {} for <#{}>:",
             plural!(
                 if_else!(self.send_list, snipes.len(), 1),
                 if_else!(self.is_edit, "edit snipe", "snipe")
@@ -117,11 +117,11 @@ impl ReactionSnipes {
             .unwrap_or(&empty_vec);
 
         if reaction_snipes.is_empty() {
-            bail!("no reaction snipes found");
+            bail!("No reaction snipes found.");
         }
 
         Ok(MessageResponse::from(format!(
-            "last {} for `{}`:",
+            "Last {} for `{}`:",
             plural!(reaction_snipes.len(), "reaction snipe"),
             self.message_id
         ))

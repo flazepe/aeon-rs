@@ -9,39 +9,38 @@ struct ExchangeRateConversionResponse {
 }
 
 pub struct ExchangeRateConversion {
-    pub from_currency: String,
-    pub from_amount: f64,
-    pub to_currency: String,
-    pub to_amount: f64,
+    pub origin_currency: String,
+    pub amount: f64,
+    pub target_currency: String,
+    pub conversion: f64,
 }
 
 impl ExchangeRateConversion {
     pub async fn get<T: ToString, U: ToString>(
-        from_amount: f64,
-        from_currency: T,
-        to_currency: U,
+        amount: f64,
+        origin_currency: T,
+        target_currency: U,
     ) -> Result<Self> {
-        let from_currency = from_currency.to_string();
+        let origin_currency = origin_currency.to_string();
+        let target_currency = target_currency.to_string();
 
-        let from_currency = CURRENCIES
+        let origin_currency = CURRENCIES
             .iter()
-            .find(|[currency, _]| currency == &from_currency)
-            .context("invalid from_currency")?;
+            .find(|[currency, _]| currency == &origin_currency)
+            .context("Invalid origin currency.")?;
 
-        let to_currency = to_currency.to_string();
-
-        let to_currency = CURRENCIES
+        let target_currency = CURRENCIES
             .iter()
-            .find(|[currency, _]| currency == &to_currency)
-            .context("invalid to_currency.")?;
+            .find(|[currency, _]| currency == &target_currency)
+            .context("Invalid target currency.")?;
 
         Ok(Self {
-            from_currency: format!("{} ({})", from_currency[1], from_currency[0]),
-            from_amount: from_amount.clone(),
-            to_currency: format!("{} ({})", to_currency[1], to_currency[0]),
-            to_amount: (get(format!(
-                "https://api.exchangerate.host/convert?amount={from_amount}&from={}&to={}",
-                from_currency[0], to_currency[0]
+            origin_currency: format!("{} ({})", origin_currency[1], origin_currency[0]),
+            amount: amount.clone(),
+            target_currency: format!("{} ({})", target_currency[1], target_currency[0]),
+            conversion: (get(format!(
+                "https://api.exchangerate.host/convert?amount={amount}&from={}&to={}",
+                origin_currency[0], target_currency[0]
             ))
             .await?
             .json::<ExchangeRateConversionResponse>()
@@ -52,8 +51,8 @@ impl ExchangeRateConversion {
 
     pub fn format(self) -> String {
         format!(
-            "{} {} = {:.3} {}",
-            self.from_amount, self.from_currency, self.to_amount, self.to_currency
+            "{} {} = {:.3} {}.",
+            self.amount, self.origin_currency, self.conversion, self.target_currency
         )
     }
 }
