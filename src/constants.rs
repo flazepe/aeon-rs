@@ -4,7 +4,7 @@ use crate::structs::{
     gateway::cache::Cache,
 };
 use async_once_cell::OnceCell as AsyncOnceCell;
-use mongodb::Client as MongoDBClient;
+use mongodb::Database;
 use once_cell::sync::Lazy;
 use std::{collections::HashMap, fs::read_to_string, sync::Mutex};
 use toml::from_str;
@@ -22,7 +22,7 @@ pub static CACHE: Lazy<Mutex<Cache>> = Lazy::new(|| {
 pub static CONFIG: Lazy<Config> =
     Lazy::new(|| from_str(&read_to_string("config.toml").unwrap()).unwrap());
 
-pub static MONGODB: AsyncOnceCell<MongoDBClient> = AsyncOnceCell::new();
+pub static MONGODB: AsyncOnceCell<Database> = AsyncOnceCell::new();
 
 // 365.2425 days
 pub static SECS_PER_YEAR: u64 = 31_556_952;
@@ -32,6 +32,9 @@ pub static SECS_PER_WEEK: u64 = 604_800;
 pub static SECS_PER_DAY: u64 = 86_400;
 pub static SECS_PER_HOUR: u64 = 3_600;
 pub static SECS_PER_MIN: u64 = 60;
+
+pub static ERROR_EMOJI: &str = "<:error:841838403821633569>";
+pub static SUCCESS_EMOJI: &str = "<:success:841838404479352872>";
 
 pub static CONTROL_CHARACTERS: [[&str; 2]; 32] = [
     ["0", "NULL"],
@@ -254,8 +257,6 @@ pub static DNS_CODES: [[&str; 2]; 10] = [
     ["NOTAUTH", "Server not authoritative for the zone."],
     ["NOTZONE", "Name not in zone."],
 ];
-
-pub static ERROR_EMOJI: &str = "<:error:841838403821633569>";
 
 pub static GOOGLE_TRANSLATE_LANGUAGES: [[&str; 2]; 105] = [
     ["auto", "Automatic"],

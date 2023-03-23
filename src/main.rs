@@ -23,6 +23,7 @@ async fn main() -> Result<()> {
                     .unwrap(),
             )
             .unwrap()
+            .database("aeon")
         })
         .await;
 
