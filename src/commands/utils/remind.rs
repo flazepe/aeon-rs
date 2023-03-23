@@ -69,7 +69,7 @@ pub fn get_command() -> Command {
         res.defer(false).await?;
 
         // Snooze
-        if input.custom_id.is_some() {
+        if input.custom_id == Some("time".into()) {
             return set_reminder(&input, &res, true).await?;
         };
 

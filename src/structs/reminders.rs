@@ -98,7 +98,6 @@ impl Reminders {
                     Ok(channel) => channel.id,
                     Err(error) => {
                         let error = error.to_string();
-                        println!("{}", error);
 
                         if reminder.interval > 0
                             && ["Invalid Recipient(s)", "Missing Access", "Unknown Channel"]
@@ -122,7 +121,7 @@ impl Reminders {
             .add_embed(
                 Embed::new()
                     .set_color(NOTICE_COLOR)?
-                    .set_title("reminder")
+                    .set_title("Reminder")
                     .set_url(message_url)
                     .set_description(&reminder.reminder),
             )
