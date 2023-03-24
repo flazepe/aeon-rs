@@ -2,10 +2,10 @@ use crate::{
     statics::{colors::*, CONFIG, MONGODB},
     *,
 };
-use anyhow::{bail, Context, Result};
+use anyhow::bail;
 use futures::stream::TryStreamExt;
 use mongodb::{
-    bson::{doc, oid::ObjectId, to_document},
+    bson::{doc, oid::ObjectId},
     Collection,
 };
 use serde::{Deserialize, Serialize};
