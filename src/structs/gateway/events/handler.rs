@@ -5,7 +5,7 @@ static EXCLUDED_EVENTS: [&str; 2] = ["GatewayHeartbeatAck", "GuildCreate"];
 pub struct EventHandler {}
 
 impl EventHandler {
-    pub fn handle(shard: ShardRef, event: Event) {
+    pub fn handle(event: Event, shard: ShardRef) {
         let event_name = format!("{:?}", event.kind());
 
         if !EXCLUDED_EVENTS.contains(&event_name.as_str()) {
