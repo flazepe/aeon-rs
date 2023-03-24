@@ -19,13 +19,13 @@ pub fn get_command() -> Command {
 				required = true,
 			},
 			{
-				name = "to-language",
+				name = "target-language",
 				description = "The language to translate the text to",
 				option_type = InteractionOptionType::STRING,
 				autocomplete = true,
 			},
 			{
-				name = "from-language",
+				name = "origin-language",
 				description = "The text's origin language",
 				option_type = InteractionOptionType::STRING,
 				autocomplete = true,
@@ -40,9 +40,11 @@ pub fn get_command() -> Command {
         match GoogleTranslate::translate(
             input.get_string_arg("text")?,
             input
-                .get_string_arg("from-language")
+                .get_string_arg("origin-language")
                 .unwrap_or("auto".into()),
-            input.get_string_arg("to-language").unwrap_or("en".into()),
+            input
+                .get_string_arg("target-language")
+                .unwrap_or("en".into()),
         )
         .await
         {

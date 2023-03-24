@@ -19,14 +19,14 @@ pub fn get_command() -> Command {
                 required = true,
             },
             {
-                name = "from-currency",
+                name = "origin-currency",
                 description = "The origin currency, e.g. GBP, NOK, USD",
                 option_type = InteractionOptionType::STRING,
                 autocomplete = true,
                 required = true,
             },
             {
-                name = "to-currency",
+                name = "target-currency",
                 description = "The currency to convert the amount to, e.g. GBP, NOK, USD",
                 option_type = InteractionOptionType::STRING,
                 autocomplete = true,
@@ -41,8 +41,8 @@ pub fn get_command() -> Command {
 
         match ExchangeRateConversion::get(
             input.get_f64_arg("amount")?,
-            input.get_string_arg("from-currency")?,
-            input.get_string_arg("to-currency")?,
+            input.get_string_arg("origin-currency")?,
+            input.get_string_arg("target-currency")?,
         )
         .await
         {
