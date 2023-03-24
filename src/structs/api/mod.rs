@@ -5,3 +5,4 @@ pub mod ip_info;
 pub mod saucenao;
 pub mod steam;
 pub mod tio;
+pub mod virtualearth;

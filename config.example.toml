@@ -10,3 +10,4 @@ mongodb_uri = "mongodb_uri"
 [api]
 saucenao_key = "saucenao_key"
 steam_key = "steam_key"
+virtualearth_key = "virtualearth_key"

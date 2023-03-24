@@ -24,4 +24,5 @@ pub struct DBConfig {
 pub struct APIConfig {
     pub saucenao_key: String,
     pub steam_key: String,
+    pub virtualearth_key: String,
 }
