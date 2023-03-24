@@ -57,8 +57,8 @@ pub fn get_command() -> Command {
                     {
                         name = "entry",
                         description = "The reminder entry. Can be provided by using the list subcommand",
-                        option_type = InteractionOptionType::INTEGER,
-						min_value = 1.0,
+                        option_type = InteractionOptionType::STRING,
+                        autocomplete = true,
                         required = true,
                     },
                 ],
@@ -89,15 +89,16 @@ pub fn get_command() -> Command {
             }
         }
 
-        res.defer(false).await?;
-
         let reminders = MONGODB.get().unwrap().collection::<Reminder>("reminders");
 
         match input.subcommand.as_deref().unwrap_or("") {
             "set" => {
+                res.defer(false).await?;
                 set_reminder(&input, &res, false).await?;
             }
             "list" => {
+                res.defer(false).await?;
+
                 let mut cursor = reminders
                     .find(doc! { "user_id": input.user.id.to_string() }, None)
                     .await?;
@@ -140,7 +141,7 @@ pub fn get_command() -> Command {
                     .find(doc! { "user_id": input.user.id.to_string() }, None)
                     .await?;
 
-                match {
+                let entries = {
                     let mut entries = vec![];
 
                     while let Some(reminder) = cursor.try_next().await? {
@@ -148,9 +149,31 @@ pub fn get_command() -> Command {
                     }
 
                     entries
+                };
+
+                if input.is_autocomplete() {
+                    return res
+                        .autocomplete(
+                            entries
+                                .iter()
+                                .enumerate()
+                                .map(|(index, entry)| {
+                                    ApplicationCommandOptionChoice::new(
+                                        format!("{}. {}", index + 1, entry.reminder)
+                                            .chars()
+                                            .take(100)
+                                            .collect::<String>(),
+                                        (index + 1).to_string(),
+                                    )
+                                })
+                                .collect::<Vec<ApplicationCommandOptionChoice>>(),
+                        )
+                        .await?;
                 }
-                .get(input.get_i64_arg("entry")? as usize - 1)
-                {
+
+                res.defer(false).await?;
+
+                match entries.get(input.get_string_arg("entry")?.parse::<usize>()? - 1) {
                     Some(entry) => {
                         reminders
                             .delete_one(doc! { "_id": entry._id }, None)
