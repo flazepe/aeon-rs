@@ -3,10 +3,6 @@ use twilight_model::gateway::payload::incoming::MessageDeleteBulk;
 
 impl EventHandler {
     pub fn on_message_delete_bulk(data: MessageDeleteBulk) {
-        if data.guild_id.is_none() {
-            return;
-        }
-
         let channel_id = data.channel_id.to_string();
 
         if let Some(messages) = CACHE.channels.lock().unwrap().get_mut(&channel_id) {

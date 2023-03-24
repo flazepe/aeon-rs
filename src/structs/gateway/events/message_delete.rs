@@ -3,10 +3,6 @@ use twilight_model::gateway::payload::incoming::MessageDelete;
 
 impl EventHandler {
     pub fn on_message_delete(message: MessageDelete) {
-        if message.guild_id.is_none() {
-            return;
-        }
-
         let mut channels = CACHE.channels.lock().unwrap();
         let channel_id = message.channel_id.to_string();
 

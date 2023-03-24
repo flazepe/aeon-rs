@@ -5,10 +5,6 @@ impl EventHandler {
     pub fn on_message_create(message: Box<MessageCreate>) {
         let message = message.0;
 
-        if message.guild_id.is_none() {
-            return;
-        }
-
         let mut channels = CACHE.channels.lock().unwrap();
         let channel_id = message.channel_id.to_string();
 
