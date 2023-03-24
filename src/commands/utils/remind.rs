@@ -68,16 +68,16 @@ pub fn get_command() -> Command {
     fn remind(input: CommandInput, res: CommandResponder) {
         // Snooze
         if input.custom_id == Some("time".into()) {
-            if input.user.id
-                == input
-                    .message
-                    .as_ref()
-                    .unwrap()
-                    .interaction
-                    .as_ref()
-                    .unwrap()
-                    .user
-                    .id
+            let message = input.message.as_ref().unwrap();
+
+            if input.guild_id.is_none()
+                || input.user.id
+                    == message
+                        .content
+                        .chars()
+                        .skip(2)
+                        .take(message.content.len() - 3)
+                        .collect::<String>()
             {
                 res.defer(false).await?;
                 return set_reminder(&input, &res, true).await?;
