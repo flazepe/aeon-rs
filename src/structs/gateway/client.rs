@@ -38,8 +38,8 @@ impl GatewayClient {
         while let Some((shard, event)) = stream.next().await {
             match event {
                 Ok(event) => EventHandler::handle(shard, event),
-                Err(source) => {
-                    if source.is_fatal() {
+                Err(error) => {
+                    if error.is_fatal() {
                         break;
                     }
                 }
