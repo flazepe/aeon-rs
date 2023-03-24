@@ -68,7 +68,17 @@ pub fn get_command() -> Command {
     fn remind(input: CommandInput, res: CommandResponder) {
         // Snooze
         if input.custom_id == Some("time".into()) {
-            if input.user.id == input.message.as_ref().unwrap().author.id {
+            if input.user.id
+                == input
+                    .message
+                    .as_ref()
+                    .unwrap()
+                    .interaction
+                    .as_ref()
+                    .unwrap()
+                    .user
+                    .id
+            {
                 res.defer(false).await?;
                 return set_reminder(&input, &res, true).await?;
             } else {
