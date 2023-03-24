@@ -1,8 +1,7 @@
-use crate::statics::{colors::*, CONFIG};
+use crate::statics::CONFIG;
 use anyhow::{bail, Result};
 use reqwest::get;
 use serde::Deserialize;
-use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
 #[derive(Deserialize)]
