@@ -39,7 +39,10 @@ async fn main() -> Result<()> {
 
     let mut client = AeonClient::new();
 
-    client.register_commands().await?;
+    if let Err(error) = client.register_commands().await {
+        return Ok(println!("[CLIENT] Error registering commands: {error}"));
+    }
+
     println!("[CLIENT] Registered commands");
 
     client.start().await;
