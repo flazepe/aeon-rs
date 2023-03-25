@@ -8,15 +8,14 @@ impl EventHandler {
         if let Some(messages) = CACHE.channels.lock().unwrap().get_mut(&channel_id) {
             let mut deleted_messages = vec![];
 
-            for index in messages
-                .iter()
-                .enumerate()
-                .map(|(index, message)| (index, message))
-                .filter(|(_, message)| data.ids.contains(&message.id))
-                .map(|(index, _)| index)
-                .collect::<Vec<usize>>()
-            {
-                deleted_messages.push(messages.remove(index));
+            for id in data.ids {
+                if let Some((index, _)) = messages
+                    .iter()
+                    .enumerate()
+                    .find(|(_, message)| message.id == id)
+                {
+                    deleted_messages.push(messages.remove(index));
+                }
             }
 
             let mut snipe_channels = CACHE.snipes.lock().unwrap();
