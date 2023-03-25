@@ -46,24 +46,32 @@ impl Reminders {
 
     pub async fn poll(self) -> Result<()> {
         loop {
-            let mut cursor = self.reminders.find(doc! {}, None).await?;
+            let mut cursor = self
+                .reminders
+                .find(
+                    doc! {
+                        "timestamp": {
+                            "$lte": SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64
+                        }
+                    },
+                    None,
+                )
+                .await?;
 
             while let Some(mut reminder) = cursor.try_next().await? {
-                if SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() >= reminder.timestamp {
-                    match self.handle(&reminder).await {
-                        Ok(()) => {
-                            self.reminders
-                                .delete_one(doc! { "_id": reminder._id }, None)
-                                .await?;
+                match self.handle(&reminder).await {
+                    Ok(()) => {
+                        self.reminders
+                            .delete_one(doc! { "_id": reminder._id }, None)
+                            .await?;
 
-                            if reminder.interval > 0 {
-                                reminder.timestamp = reminder.timestamp + reminder.interval;
-                                self.reminders.insert_one(&reminder, None).await?;
-                            }
+                        if reminder.interval > 0 {
+                            reminder.timestamp = reminder.timestamp + reminder.interval;
+                            self.reminders.insert_one(&reminder, None).await?;
                         }
-                        Err(error) => {
-                            println!("{error}");
-                        }
+                    }
+                    Err(error) => {
+                        println!("{error}");
                     }
                 }
             }
