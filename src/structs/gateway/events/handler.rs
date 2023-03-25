@@ -1,6 +1,13 @@
 use twilight_gateway::{stream::ShardRef, Event};
 
-static EXCLUDED_EVENTS: [&str; 2] = ["GatewayHeartbeatAck", "GuildCreate"];
+static EXCLUDED_EVENTS: [&str; 6] = [
+    "GatewayHeartbeatAck",
+    "GuildCreate",
+    "MessageCreate",
+    "MessageDelete",
+    "MessageDeleteBulk",
+    "MessageUpdate",
+];
 
 pub struct EventHandler {}
 
