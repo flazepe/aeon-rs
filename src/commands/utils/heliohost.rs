@@ -62,7 +62,7 @@ pub fn get_command() -> Command {
             },
         ],
     )]
-    fn snipe(input: CommandInput, res: CommandResponder) {
+    fn heliohost(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref().unwrap_or("") {
             "signups" => {
                 res.send_message("TODO").await?;
@@ -102,5 +102,5 @@ pub fn get_command() -> Command {
         }
     }
 
-    snipe
+    heliohost
 }
