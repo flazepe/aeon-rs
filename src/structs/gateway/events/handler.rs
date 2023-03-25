@@ -1,24 +1,9 @@
 use twilight_gateway::{stream::ShardRef, Event};
 
-static EXCLUDED_EVENTS: [&str; 6] = [
-    "GatewayHeartbeatAck",
-    "GuildCreate",
-    "MessageCreate",
-    "MessageDelete",
-    "MessageDeleteBulk",
-    "MessageUpdate",
-];
-
 pub struct EventHandler {}
 
 impl EventHandler {
-    pub fn handle(event: Event, shard: ShardRef) {
-        let event_name = format!("{:?}", event.kind());
-
-        if !EXCLUDED_EVENTS.contains(&event_name.as_str()) {
-            println!("[EVENT] [SHARD {}] {event_name}", shard.id());
-        }
-
+    pub fn handle(event: Event, _shard: ShardRef) {
         match event {
             Event::MessageCreate(message) => EventHandler::on_message_create(message),
             Event::MessageDelete(message) => EventHandler::on_message_delete(message),
