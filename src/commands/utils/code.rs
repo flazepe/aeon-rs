@@ -36,6 +36,8 @@ pub fn get_command() -> Command {
             );
         }
 
+        res.defer(false).await?;
+
         let programming_language = {
             input
                 .get_string_arg("programming-language")
