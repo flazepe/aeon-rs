@@ -1,6 +1,7 @@
 pub mod code;
 pub mod convert_currency;
 pub mod dns;
+pub mod heliohost;
 pub mod ip;
 pub mod remind;
 pub mod sauce;
@@ -19,6 +20,7 @@ pub fn get_commands() -> Vec<Command> {
         convert_currency::get_command(),
         code::get_command(),
         dns::get_command(),
+        heliohost::get_command(),
         ip::get_command(),
         remind::get_command(),
         sauce::get_command(),
