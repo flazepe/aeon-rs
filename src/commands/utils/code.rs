@@ -36,8 +36,6 @@ pub fn get_command() -> Command {
             );
         }
 
-        res.defer(false).await?;
-
         let programming_language = {
             input
                 .get_string_arg("programming-language")
@@ -68,6 +66,8 @@ pub fn get_command() -> Command {
         }
 
         if input.is_modal_submit() {
+            res.defer(false).await?;
+
             match Tio::new(programming_language, input.get_string_arg("code")?)
                 .run()
                 .await
