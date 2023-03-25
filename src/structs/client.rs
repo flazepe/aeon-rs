@@ -13,6 +13,7 @@ impl AeonClient {
                 bot_token: Some(String::from(&CONFIG.bot.token)),
                 client_id: Some(String::from(&CONFIG.bot.client_id)),
                 public_key: String::from(&CONFIG.bot.public_key),
+                port: 2931,
                 ..Default::default()
             }),
         }
