@@ -36,18 +36,11 @@ impl Snipes {
             bail!("No snipes found.");
         }
 
-        let mut response = MessageResponse::from(format!(
-            "Last {} for <#{}>:",
-            plural!(
-                if_else!(self.send_list, snipes.len(), 1),
-                if_else!(self.is_edit, "edit snipe", "snipe")
-            ),
-            self.channel_id
-        ));
+        let mut response = MessageResponse::from("");
 
         if self.send_list {
             response = response.add_file(File::new(
-                "snipes.txt",
+                format!("{}snipes.txt", if_else!(self.is_edit, "edit-", "")),
                 snipes
                     .into_iter()
                     .map(|message| {
