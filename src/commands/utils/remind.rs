@@ -250,6 +250,15 @@ pub async fn set_reminder(
         return Ok(());
     }
 
+    if interval.total_secs > 0 && !dm {
+        res.send_message(format!(
+            "{ERROR_EMOJI} Intervals are only supported for DMs."
+        ))
+        .await?;
+
+        return Ok(());
+    }
+
     res.send_message(format!(
         "{SUCCESS_EMOJI} I will remind you about \"{reminder}\" in {time}{}. Make sure I {}.",
         if_else!(
