@@ -10,8 +10,9 @@ impl EventHandler {
 
             for index in messages
                 .iter()
-                .filter(|message| data.ids.contains(&message.id))
                 .enumerate()
+                .map(|(index, message)| (index, message))
+                .filter(|(_, message)| data.ids.contains(&message.id))
                 .map(|(index, _)| index)
                 .collect::<Vec<usize>>()
             {
