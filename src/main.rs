@@ -41,9 +41,9 @@ async fn main() -> Result<()> {
 
     if let Err(error) = client.register_commands().await {
         println!("[CLIENT] Error registering commands: {error}");
+    } else {
+        println!("[CLIENT] Registered commands");
     }
-
-    println!("[CLIENT] Registered commands");
 
     client.start().await;
 
