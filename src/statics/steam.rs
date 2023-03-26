@@ -1,4 +1,4 @@
-use crate::structs::api::steam::country::*;
+use crate::structs::api::steam::country::SteamCountry;
 use once_cell::sync::Lazy;
 
 pub static STEAM_COUNTRIES: Lazy<[SteamCountry; 236]> = Lazy::new(|| {

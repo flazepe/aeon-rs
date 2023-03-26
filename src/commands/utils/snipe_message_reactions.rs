@@ -1,5 +1,9 @@
-use crate::{statics::emojis::*, structs::snipe::ReactionSnipes};
-use slashook::{command, commands::*, structs::interactions::*};
+use crate::{statics::emojis::ERROR_EMOJI, structs::snipes::ReactionSnipes};
+use slashook::{
+    command,
+    commands::{Command, CommandInput, CommandResponder},
+    structs::interactions::ApplicationCommandType,
+};
 
 pub fn get_command() -> Command {
     #[command(
@@ -7,7 +11,7 @@ pub fn get_command() -> Command {
         command_type = ApplicationCommandType::MESSAGE,
         dm_permission = false,
     )]
-    fn snipe_message_reactions(input: CommandInput, res: CommandResponder) {
+    async fn snipe_message_reactions(input: CommandInput, res: CommandResponder) {
         match ReactionSnipes::new(input.guild_id.unwrap(), input.target_message.unwrap().id).to_response() {
             Ok(response) => {
                 res.send_message(response).await?;

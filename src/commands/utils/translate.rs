@@ -1,11 +1,15 @@
 use crate::{
-    statics::{emojis::*, google_translate_languages::*},
-    structs::api::google_translate::*,
-    traits::*,
-    *,
+    macros::kv_autocomplete,
+    statics::{emojis::ERROR_EMOJI, google_translate_languages::GOOGLE_TRANSLATE_LANGUAGES},
+    structs::api::google_translate::GoogleTranslate,
+    traits::ArgGetters,
 };
 use anyhow::Context;
-use slashook::{command, commands::*, structs::interactions::*};
+use slashook::{
+    command,
+    commands::{Command, CommandInput, CommandResponder},
+    structs::interactions::InteractionOptionType,
+};
 
 pub fn get_command() -> Command {
     #[command(

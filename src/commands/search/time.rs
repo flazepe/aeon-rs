@@ -1,5 +1,9 @@
-use crate::{statics::emojis::*, structs::api::virtualearth::*, traits::*};
-use slashook::{command, commands::*, structs::interactions::*};
+use crate::{statics::emojis::ERROR_EMOJI, structs::api::virtualearth::TimeZoneLocation, traits::ArgGetters};
+use slashook::{
+    command,
+    commands::{Command, CommandInput, CommandResponder},
+    structs::interactions::InteractionOptionType,
+};
 
 pub fn get_command() -> Command {
     #[command(
@@ -14,7 +18,7 @@ pub fn get_command() -> Command {
 			},
 		],
 	)]
-    fn time(input: CommandInput, res: CommandResponder) {
+    async fn time(input: CommandInput, res: CommandResponder) {
         match TimeZoneLocation::get(input.get_string_arg("location")?).await {
             Ok(timezone) => {
                 res.send_message(timezone.format()).await?;

@@ -1,5 +1,9 @@
-use crate::{statics::emojis::*, structs::api::google_dns::*, traits::*};
-use slashook::{command, commands::*, structs::interactions::*};
+use crate::{statics::emojis::ERROR_EMOJI, structs::api::google_dns::GoogleDNS, traits::ArgGetters};
+use slashook::{
+    command,
+    commands::{Command, CommandInput, CommandResponder},
+    structs::interactions::InteractionOptionType,
+};
 
 pub fn get_command() -> Command {
     #[command(
@@ -20,7 +24,7 @@ pub fn get_command() -> Command {
             },
         ],
     )]
-    fn dns(input: CommandInput, res: CommandResponder) {
+    async fn dns(input: CommandInput, res: CommandResponder) {
         match GoogleDNS::query(input.get_string_arg("type")?, input.get_string_arg("url")?).await {
             Ok(records) => {
                 res.send_message(records.format()).await?;

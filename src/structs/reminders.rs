@@ -1,8 +1,8 @@
 use crate::{
-    statics::{colors::*, CONFIG, MONGODB},
-    *,
+    macros::if_else,
+    statics::{colors::NOTICE_COLOR, CONFIG, MONGODB},
 };
-use anyhow::bail;
+use anyhow::{bail, Result};
 use futures::stream::TryStreamExt;
 use mongodb::{
     bson::{doc, oid::ObjectId},
@@ -13,7 +13,11 @@ use serde_json::json;
 use slashook::{
     commands::MessageResponse,
     rest::Rest,
-    structs::{channels::*, components::*, embeds::Embed},
+    structs::{
+        channels::{Channel, Message},
+        components::{Components, SelectMenu, SelectMenuType, SelectOption},
+        embeds::Embed,
+    },
 };
 use std::{
     thread::sleep,

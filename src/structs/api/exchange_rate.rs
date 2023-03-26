@@ -1,4 +1,4 @@
-use crate::statics::currencies::*;
+use crate::statics::currencies::CURRENCIES;
 use anyhow::{Context, Result};
 use reqwest::get;
 use serde::Deserialize;

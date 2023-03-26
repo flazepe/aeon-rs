@@ -1,6 +1,6 @@
 use crate::{
-    statics::{colors::*, emojis::*},
-    *,
+    macros::format_timestamp,
+    statics::{colors::PRIMARY_COLOR, emojis::ERROR_EMOJI},
 };
 use anyhow::Context;
 use slashook::commands::{CommandInput, CommandResponder};

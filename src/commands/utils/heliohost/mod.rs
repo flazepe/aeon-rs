@@ -1,7 +1,13 @@
-use crate::{statics::emojis::*, traits::*, *};
-use nipper::Document;
-use reqwest::get;
-use slashook::{command, commands::*, structs::interactions::*};
+pub mod load;
+pub mod signups;
+pub mod status;
+pub mod uptime;
+
+use slashook::{
+    command,
+    commands::{Command, CommandInput, CommandResponder},
+    structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
+};
 
 pub fn get_command() -> Command {
     #[command(
@@ -65,55 +71,10 @@ pub fn get_command() -> Command {
     )]
     async fn heliohost(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref().unwrap_or("") {
-            "signups" => {
-                res.send_message("TODO").await?;
-            },
-            "status" => {
-                let user = input.get_string_arg("user")?;
-                let url = format!("https://heliohost.org/status/?u={user}");
-
-                res.send_message({
-                    let document = Document::from(&get(&url).await?.text().await?);
-
-                    let status = document.select("#page-content p").first().text();
-                    let status = status.trim();
-
-                    if_else!(
-                        status.is_empty() || status.contains("no account"),
-                        format!("{ERROR_EMOJI} Account not found."),
-                        format!("[{user}]({url})\n{status}")
-                    )
-                })
-                .await?;
-            },
-            "load" => {
-                let server = input.get_string_arg("server")?;
-
-                res.send_message(format!(
-                    "{}'s load is `{}`.",
-                    server,
-                    get(format!("https://heliohost.org/load/load_{server}.html").to_lowercase())
-                        .await?
-                        .text()
-                        .await?
-                        .trim()
-                ))
-                .await?;
-            },
-            "uptime" => {
-                let server = input.get_string_arg("server")?;
-
-                res.send_message(format!(
-                    "{}'s uptime is `{}`.",
-                    server,
-                    get(format!("https://heliohost.org/load/uptime_{server}.html").to_lowercase())
-                        .await?
-                        .text()
-                        .await?
-                        .trim()
-                ))
-                .await?;
-            },
+            "signups" => signups::run(input, res).await?,
+            "status" => status::run(input, res).await?,
+            "load" => load::run(input, res).await?,
+            "uptime" => uptime::run(input, res).await?,
             _ => {},
         }
     }

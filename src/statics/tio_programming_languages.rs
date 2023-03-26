@@ -1,4 +1,4 @@
-use crate::structs::api::tio::*;
+use crate::structs::api::tio::TioProgrammingLanguage;
 
 pub static TIO_PROGRAMMING_LANGUAGES: [TioProgrammingLanguage; 681] = [
     TioProgrammingLanguage {

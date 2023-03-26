@@ -1,5 +1,11 @@
-use crate::{statics::emojis::*, structs::api::saucenao::*, traits::*, *};
-use slashook::{command, commands::*, structs::interactions::*};
+use crate::{
+    macros::and_then_or, statics::emojis::ERROR_EMOJI, structs::api::saucenao::SauceNAOSearch, traits::ArgGetters,
+};
+use slashook::{
+    command,
+    commands::{Command, CommandInput, CommandResponder},
+    structs::interactions::InteractionOptionType,
+};
 
 pub fn get_command() -> Command {
     #[command(

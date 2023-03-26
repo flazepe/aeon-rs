@@ -1,4 +1,4 @@
-use crate::statics::colors::*;
+use crate::statics::colors::PRIMARY_COLOR;
 use anyhow::Result;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;

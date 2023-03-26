@@ -1,7 +1,7 @@
 use crate::{
-    statics::{colors::*, steam::*},
-    structs::api::steam::{country::*, user_bans::*, user_vanity::*},
-    *,
+    macros::{and_then_or, format_timestamp, if_else, plural, yes_no},
+    statics::{colors::PRIMARY_COLOR, steam::STEAM_USER_STATES, CONFIG},
+    structs::api::steam::{country::SteamCountry, user_bans::SteamUserBans, user_vanity::SteamUserVanity},
 };
 use anyhow::{Context, Result};
 use reqwest::get;

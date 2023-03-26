@@ -1,8 +1,10 @@
-use crate::{statics::emojis::*, structs::snipe::*, traits::*, *};
+pub mod message;
+pub mod reaction;
+
 use slashook::{
     command,
-    commands::*,
-    structs::{channels::*, interactions::*},
+    commands::{Command, CommandInput, CommandResponder},
+    structs::{channels::ChannelType, interactions::InteractionOptionType},
 };
 
 pub fn get_command() -> Command {
@@ -55,42 +57,10 @@ pub fn get_command() -> Command {
             },
         ],
     )]
-    fn snipe(input: CommandInput, res: CommandResponder) {
+    async fn snipe(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref().unwrap_or("") {
-            "message" => {
-                match Snipes::new(
-                    and_then_or!(
-                        input.get_channel_arg("channel"),
-                        |channel| Ok(&channel.id),
-                        input.channel_id.as_ref().unwrap()
-                    ),
-                    input.get_bool_arg("edit")?,
-                    input.get_bool_arg("list")?,
-                )
-                .to_response()
-                {
-                    Ok(response) => {
-                        res.send_message(response).await?;
-                    },
-                    Err(error) => {
-                        res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                    },
-                }
-            },
-            "reaction" => {
-                let message = input.get_string_arg("message")?;
-
-                match ReactionSnipes::new(input.guild_id.unwrap(), message.split("/").last().unwrap_or(""))
-                    .to_response()
-                {
-                    Ok(response) => {
-                        res.send_message(response).await?;
-                    },
-                    Err(error) => {
-                        res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                    },
-                }
-            },
+            "message" => message::run(input, res).await?,
+            "reaction" => reaction::run(input, res).await?,
             _ => {},
         }
     }

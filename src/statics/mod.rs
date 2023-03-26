@@ -8,7 +8,7 @@ pub mod steam;
 pub mod tio_programming_languages;
 pub mod unicode;
 
-use crate::structs::{config::*, gateway::cache::Cache};
+use crate::structs::{config::Config, gateway::cache::Cache};
 use async_once_cell::OnceCell as AsyncOnceCell;
 use mongodb::Database;
 use once_cell::sync::Lazy;

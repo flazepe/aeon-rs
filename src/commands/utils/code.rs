@@ -1,14 +1,17 @@
 use crate::{
-    statics::{emojis::*, tio_programming_languages::*},
-    structs::api::tio::*,
-    traits::*,
-    *,
+    macros::{and_then_or, kv_autocomplete},
+    statics::{emojis::ERROR_EMOJI, tio_programming_languages::TIO_PROGRAMMING_LANGUAGES, CACHE},
+    structs::api::tio::Tio,
+    traits::ArgGetters,
 };
 use anyhow::Context;
 use slashook::{
     command,
-    commands::*,
-    structs::{components::*, interactions::*},
+    commands::{Command, CommandInput, CommandResponder, Modal},
+    structs::{
+        components::{Components, TextInput, TextInputStyle},
+        interactions::InteractionOptionType,
+    },
 };
 
 pub fn get_command() -> Command {
@@ -24,7 +27,7 @@ pub fn get_command() -> Command {
             },
         ],
     )]
-    fn code(input: CommandInput, res: CommandResponder) {
+    async fn code(input: CommandInput, res: CommandResponder) {
         if input.is_autocomplete() {
             kv_autocomplete!(
                 input,

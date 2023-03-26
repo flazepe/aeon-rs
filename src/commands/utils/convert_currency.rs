@@ -1,11 +1,15 @@
 use crate::{
-    statics::{currencies::*, emojis::*},
-    structs::api::exchange_rate::*,
-    traits::*,
-    *,
+    macros::kv_autocomplete,
+    statics::{currencies::CURRENCIES, emojis::ERROR_EMOJI},
+    structs::api::exchange_rate::ExchangeRateConversion,
+    traits::ArgGetters,
 };
 use anyhow::Context;
-use slashook::{command, commands::*, structs::interactions::*};
+use slashook::{
+    command,
+    commands::{Command, CommandInput, CommandResponder},
+    structs::interactions::InteractionOptionType,
+};
 
 pub fn get_command() -> Command {
     #[command(

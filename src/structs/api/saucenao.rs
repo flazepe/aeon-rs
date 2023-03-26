@@ -1,6 +1,6 @@
 use crate::{
-    statics::{colors::*, *},
-    *,
+    macros::{and_then_or, if_else},
+    statics::{colors::PRIMARY_COLOR, CONFIG},
 };
 use anyhow::{bail, Result};
 use reqwest::get;

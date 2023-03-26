@@ -1,4 +1,8 @@
-use crate::{statics::*, structs::gateway::events::handler::EventHandler, *};
+use crate::{
+    macros::{format_timestamp, if_else},
+    statics::CACHE,
+    structs::gateway::events::handler::EventHandler,
+};
 use std::time::{SystemTime, UNIX_EPOCH};
 use twilight_model::{channel::message::ReactionType, gateway::payload::incoming::ReactionRemove};
 

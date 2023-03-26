@@ -1,4 +1,4 @@
-use crate::{commands::get_commands, statics::*};
+use crate::{commands::get_commands, statics::CONFIG};
 use anyhow::Result;
 use slashook::{Client as SlashookClient, Config as SlashookConfig};
 

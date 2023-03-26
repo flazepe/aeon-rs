@@ -1,5 +1,9 @@
-use crate::{stringify_message, structs::unicode::*};
-use slashook::{command, commands::*, structs::interactions::*};
+use crate::{macros::stringify_message, structs::unicode::UnicodeCharacters};
+use slashook::{
+    command,
+    commands::{Command, CommandInput, CommandResponder},
+    structs::interactions::ApplicationCommandType,
+};
 
 pub fn get_command() -> Command {
     #[command(

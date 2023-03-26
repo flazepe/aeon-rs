@@ -5,5 +5,5 @@ pub mod duration;
 pub mod gateway;
 pub mod reminders;
 pub mod scraping;
-pub mod snipe;
+pub mod snipes;
 pub mod unicode;

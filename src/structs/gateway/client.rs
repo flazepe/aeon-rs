@@ -1,4 +1,4 @@
-use crate::{statics::*, structs::gateway::events::handler::EventHandler};
+use crate::{statics::CONFIG, structs::gateway::events::handler::EventHandler};
 use anyhow::Result;
 use futures::StreamExt;
 use twilight_gateway::{

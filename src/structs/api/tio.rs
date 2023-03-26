@@ -1,12 +1,15 @@
 use crate::{
-    statics::{colors::*, tio_programming_languages::*},
-    *,
+    macros::if_else,
+    statics::{colors::PRIMARY_COLOR, tio_programming_languages::TIO_PROGRAMMING_LANGUAGES},
 };
 use anyhow::{Context, Result};
-use flate2::{write::*, Compression};
+use flate2::{
+    write::{DeflateEncoder, GzDecoder},
+    Compression,
+};
 use reqwest::Client;
 use slashook::structs::embeds::Embed;
-use std::io::prelude::*;
+use std::io::Write;
 
 pub struct TioProgrammingLanguage<'a> {
     pub name: &'a str,

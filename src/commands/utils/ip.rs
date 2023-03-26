@@ -1,5 +1,9 @@
-use crate::{statics::emojis::*, structs::api::ip_info::*, traits::*};
-use slashook::{command, commands::*, structs::interactions::*};
+use crate::{statics::emojis::ERROR_EMOJI, structs::api::ip_info::IPInfo, traits::ArgGetters};
+use slashook::{
+    command,
+    commands::{Command, CommandInput, CommandResponder},
+    structs::interactions::InteractionOptionType,
+};
 
 pub fn get_command() -> Command {
     #[command(

@@ -5,7 +5,7 @@ mod structs;
 mod traits;
 
 use crate::{
-    statics::*,
+    statics::{CONFIG, MONGODB},
     structs::{client::AeonClient, gateway::client::GatewayClient},
 };
 use anyhow::Result;

@@ -1,7 +1,7 @@
 use crate::{
-    statics::{colors::*, *},
-    traits::*,
-    *,
+    macros::{if_else, plural, stringify_message, twilight_user_to_tag},
+    statics::{colors::PRIMARY_COLOR, CACHE},
+    traits::AvatarURL,
 };
 use anyhow::{bail, Result};
 use slashook::{
@@ -20,8 +20,8 @@ impl Snipes {
     pub fn new<T: ToString>(channel_id: T, is_edit: bool, send_list: bool) -> Self {
         Self {
             channel_id: channel_id.to_string(),
-            is_edit: is_edit.clone(),
-            send_list: send_list.clone(),
+            is_edit,
+            send_list,
         }
     }
 
@@ -81,9 +81,9 @@ pub struct ReactionSnipes {
 }
 
 impl ReactionSnipes {
-    pub fn new<T: ToString>(guild_id: String, message_id: T) -> Self {
+    pub fn new<T: ToString, U: ToString>(guild_id: T, message_id: U) -> Self {
         Self {
-            guild_id: guild_id.clone(),
+            guild_id: guild_id.to_string(),
             message_id: message_id.to_string(),
         }
     }

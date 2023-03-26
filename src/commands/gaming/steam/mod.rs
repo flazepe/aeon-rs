@@ -1,12 +1,10 @@
-use crate::{
-    statics::emojis::*,
-    structs::api::steam::{game::*, user::*},
-    traits::*,
-};
+pub mod game;
+pub mod user;
+
 use slashook::{command, commands::Command};
 use slashook::{
     commands::{CommandInput, CommandResponder},
-    structs::interactions::*,
+    structs::interactions::InteractionOptionType,
 };
 
 pub fn get_command() -> Command {
@@ -40,24 +38,10 @@ pub fn get_command() -> Command {
             },
         ],
     )]
-    fn steam(input: CommandInput, res: CommandResponder) {
-        match input.subcommand.as_deref() {
-            Some("game") => match SteamGame::get(input.get_string_arg("game")?).await {
-                Ok(game) => {
-                    res.send_message(game.format()).await?;
-                },
-                Err(error) => {
-                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                },
-            },
-            Some("user") => match SteamUser::get(input.get_string_arg("user")?).await {
-                Ok(user) => {
-                    res.send_message(user.format()).await?;
-                },
-                Err(error) => {
-                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                },
-            },
+    async fn steam(input: CommandInput, res: CommandResponder) {
+        match input.subcommand.as_deref().unwrap_or("") {
+            "game" => game::run(input, res).await?,
+            "user" => user::run(input, res).await?,
             _ => {},
         }
     }

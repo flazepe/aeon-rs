@@ -1,5 +1,11 @@
-use crate::{statics::emojis::*, structs::unicode::*, traits::*};
-use slashook::{command, commands::*, structs::interactions::*};
+pub mod list;
+pub mod search;
+
+use slashook::{
+    command,
+    commands::{Command, CommandInput, CommandResponder},
+    structs::interactions::InteractionOptionType,
+};
 
 pub fn get_command() -> Command {
     #[command(
@@ -34,18 +40,8 @@ pub fn get_command() -> Command {
 	)]
     async fn unicode(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref().unwrap_or("") {
-            "search" => match UnicodeCharacter::get(input.get_string_arg("query")?).await {
-                Ok(unicode_character) => {
-                    res.send_message(unicode_character.format()).await?;
-                },
-                Err(error) => {
-                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                },
-            },
-            "list" => {
-                res.send_message(UnicodeCharacters::get(input.get_string_arg("text")?).format())
-                    .await?
-            },
+            "search" => search::run(input, res).await?,
+            "list" => list::run(input, res).await?,
             _ => {},
         }
     }

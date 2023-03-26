@@ -1,4 +1,4 @@
-use crate::statics::*;
+use crate::statics::CONFIG;
 use anyhow::{Context, Result};
 use reqwest::get;
 use serde::Deserialize;
