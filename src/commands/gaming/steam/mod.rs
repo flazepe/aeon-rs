@@ -1,5 +1,5 @@
-pub mod game;
-pub mod user;
+mod game;
+mod user;
 
 use slashook::{command, commands::Command};
 use slashook::{

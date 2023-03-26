@@ -1,6 +1,6 @@
-pub mod distro;
-pub mod stock;
-pub mod time;
+mod distro;
+mod stock;
+mod time;
 
 use slashook::commands::Command;
 

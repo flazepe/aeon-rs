@@ -1,5 +1,5 @@
-pub mod source;
-pub mod status;
+mod source;
+mod status;
 
 use slashook::commands::Command;
 

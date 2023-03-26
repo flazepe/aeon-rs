@@ -1,7 +1,7 @@
-pub mod gaming;
-pub mod general;
-pub mod search;
-pub mod utils;
+mod gaming;
+mod general;
+mod search;
+mod utils;
 
 use slashook::commands::Command;
 

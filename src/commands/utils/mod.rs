@@ -1,17 +1,17 @@
-pub mod code;
-pub mod convert_currency;
-pub mod dns;
-pub mod heliohost;
-pub mod ip;
-pub mod remind;
-pub mod sauce;
-pub mod snipe;
-pub mod snipe_message_reactions;
-pub mod timeout;
-pub mod translate;
-pub mod translate_message;
-pub mod unicode;
-pub mod unicode_message;
+mod code;
+mod convert_currency;
+mod dns;
+mod heliohost;
+mod ip;
+mod remind;
+mod sauce;
+mod snipe;
+mod snipe_message_reactions;
+mod timeout;
+mod translate;
+mod translate_message;
+mod unicode;
+mod unicode_message;
 
 use slashook::commands::Command;
 

@@ -1,7 +1,7 @@
-pub mod delete;
-pub mod list;
-pub mod set;
-pub mod snooze;
+mod delete;
+mod list;
+mod set;
+mod snooze;
 
 use slashook::{
     command,

@@ -1,7 +1,7 @@
-pub mod load;
-pub mod signups;
-pub mod status;
-pub mod uptime;
+mod load;
+mod signups;
+mod status;
+mod uptime;
 
 use slashook::{
     command,

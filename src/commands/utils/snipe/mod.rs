@@ -1,5 +1,5 @@
-pub mod message;
-pub mod reaction;
+mod message;
+mod reaction;
 
 use slashook::{
     command,

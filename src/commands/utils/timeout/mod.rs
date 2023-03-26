@@ -1,5 +1,5 @@
-pub mod remove;
-pub mod set;
+mod remove;
+mod set;
 
 use slashook::{
     command,

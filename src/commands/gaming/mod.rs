@@ -1,4 +1,4 @@
-pub mod steam;
+mod steam;
 
 use slashook::commands::Command;
 

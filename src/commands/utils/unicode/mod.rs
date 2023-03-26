@@ -1,5 +1,5 @@
-pub mod list;
-pub mod search;
+mod list;
+mod search;
 
 use slashook::{
     command,
