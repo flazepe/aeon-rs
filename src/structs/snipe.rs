@@ -53,7 +53,7 @@ impl Snipes {
                                 .to_rfc2822(),
                             stringify_message!(&message)
                                 .split("\n")
-                                .map(|line| format!("\t{line}"))
+                                .map(|line| format!("\t{}", if_else!(line.is_empty(), "<empty>", line)))
                                 .collect::<Vec<String>>()
                                 .join("\n")
                         )
