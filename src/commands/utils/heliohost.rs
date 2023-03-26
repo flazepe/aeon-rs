@@ -1,4 +1,5 @@
 use crate::{statics::emojis::*, traits::*, *};
+use nipper::Document;
 use reqwest::get;
 use slashook::{command, commands::*, structs::interactions::*};
 
@@ -62,13 +63,28 @@ pub fn get_command() -> Command {
             },
         ],
     )]
-    fn heliohost(input: CommandInput, res: CommandResponder) {
+    async fn heliohost(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref().unwrap_or("") {
             "signups" => {
                 res.send_message("TODO").await?;
             }
             "status" => {
-                res.send_message("TODO").await?;
+                let user = input.get_string_arg("user")?;
+                let url = format!("https://heliohost.org/status/?u={user}");
+
+                res.send_message({
+                    let document = Document::from(&get(&url).await?.text().await?);
+
+                    let status = document.select("#page-content p").first().text();
+                    let status = status.trim();
+
+                    if_else!(
+                        status.is_empty() || status.contains("no account"),
+                        format!("{ERROR_EMOJI} Account not found."),
+                        format!("[{user}]({url})\n{status}")
+                    )
+                })
+                .await?;
             }
             "load" => {
                 let server = input.get_string_arg("server")?;
