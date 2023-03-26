@@ -49,7 +49,13 @@ impl GoogleTranslate {
             .find(|[language, _]| language == &target_language.to_lowercase())
             .context("Invalid target language.")?;
 
-        let google_translate_response  = get(format!("https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&dt=t&sl={}&tl={}&q={text}", origin_language[0], target_language[0])).await?.json::<GoogleTranslateResponse>().await?;
+        let google_translate_response = get(format!(
+            "https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&dt=t&sl={}&tl={}&q={text}",
+            origin_language[0], target_language[0]
+        ))
+        .await?
+        .json::<GoogleTranslateResponse>()
+        .await?;
 
         Ok(Self {
             origin_language: format!(
@@ -77,10 +83,7 @@ impl GoogleTranslate {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_title(format!(
-                "{} to {}",
-                self.origin_language, self.target_language
-            ))
+            .set_title(format!("{} to {}", self.origin_language, self.target_language))
             .set_description(self.translation)
     }
 }

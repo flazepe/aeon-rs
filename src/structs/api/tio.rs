@@ -34,10 +34,7 @@ impl Tio {
             .iter()
             .find(|entry| {
                 entry.id == &self.programming_language
-                    || entry
-                        .name
-                        .to_lowercase()
-                        .contains(&self.programming_language)
+                    || entry.name.to_lowercase().contains(&self.programming_language)
                     || entry.alias.contains(&self.programming_language.as_str())
             })
             .context("Invalid programming language.")?;

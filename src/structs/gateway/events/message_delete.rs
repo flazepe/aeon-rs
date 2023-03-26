@@ -26,10 +26,7 @@ impl EventHandler {
                 channels.insert(channel_id.clone(), vec![]);
             }
 
-            channels
-                .get_mut(&channel_id)
-                .unwrap()
-                .push_limited(message, 50);
+            channels.get_mut(&channel_id).unwrap().push_limited(message, 50);
         }
     }
 }

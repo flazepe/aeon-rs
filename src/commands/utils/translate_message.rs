@@ -16,10 +16,10 @@ pub fn get_command() -> Command {
         {
             Ok(translation) => {
                 res.send_message(translation.format()).await?;
-            }
+            },
             Err(error) => {
                 res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-            }
+            },
         }
     }
 

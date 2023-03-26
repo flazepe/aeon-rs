@@ -9,11 +9,7 @@ impl EventHandler {
             let mut deleted_messages = vec![];
 
             for id in data.ids {
-                if let Some((index, _)) = messages
-                    .iter()
-                    .enumerate()
-                    .find(|(_, message)| message.id == id)
-                {
+                if let Some((index, _)) = messages.iter().enumerate().find(|(_, message)| message.id == id) {
                     deleted_messages.push(messages.remove(index));
                 }
             }

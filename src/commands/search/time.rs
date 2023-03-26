@@ -18,10 +18,10 @@ pub fn get_command() -> Command {
         match TimeZoneLocation::get(input.get_string_arg("location")?).await {
             Ok(timezone) => {
                 res.send_message(timezone.format()).await?;
-            }
+            },
             Err(error) => {
                 res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-            }
+            },
         };
     }
 

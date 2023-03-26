@@ -19,30 +19,25 @@ pub fn get_command() -> Command {
 		],
 	)]
     async fn sauce(input: CommandInput, res: CommandResponder) {
-        let url = input
-            .get_string_arg("image-url")
-            .ok()
-            .unwrap_or(and_then_or!(
-                input.get_attachment_arg("image-attachment"),
-                |attachment| Ok(attachment.url.to_string()),
-                "".into()
-            ));
+        let url = input.get_string_arg("image-url").ok().unwrap_or(and_then_or!(
+            input.get_attachment_arg("image-attachment"),
+            |attachment| Ok(attachment.url.to_string()),
+            "".into()
+        ));
 
         if url.is_empty() {
             return res
-                .send_message(format!(
-                    "{ERROR_EMOJI} Please provide an image URL or attachment."
-                ))
+                .send_message(format!("{ERROR_EMOJI} Please provide an image URL or attachment."))
                 .await?;
         }
 
         match SauceNAOSearch::query(url).await {
             Ok(saucenao_search) => {
                 res.send_message(saucenao_search.format()).await?;
-            }
+            },
             Err(error) => {
                 res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-            }
+            },
         };
     }
 

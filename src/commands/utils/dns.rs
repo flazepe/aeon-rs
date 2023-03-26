@@ -24,10 +24,10 @@ pub fn get_command() -> Command {
         match GoogleDNS::query(input.get_string_arg("type")?, input.get_string_arg("url")?).await {
             Ok(records) => {
                 res.send_message(records.format()).await?;
-            }
+            },
             Err(error) => {
                 res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-            }
+            },
         };
     }
 

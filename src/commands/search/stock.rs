@@ -21,10 +21,10 @@ pub fn get_command() -> Command {
         match Stock::get(input.get_string_arg("ticker")?).await {
             Ok(stock) => {
                 res.send_message(stock.format()).await?;
-            }
+            },
             Err(error) => {
                 res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-            }
+            },
         };
     }
 

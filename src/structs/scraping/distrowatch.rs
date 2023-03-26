@@ -20,12 +20,10 @@ pub struct Distro {
 impl Distro {
     pub async fn get<T: Display>(name: T) -> Result<Self> {
         let document = Document::from(
-            &get(format!(
-                "https://distrowatch.com/table.php?distribution={name}"
-            ))
-            .await?
-            .text()
-            .await?,
+            &get(format!("https://distrowatch.com/table.php?distribution={name}"))
+                .await?
+                .text()
+                .await?,
         );
 
         let name = document.select("td.TablesTitle h1").text();

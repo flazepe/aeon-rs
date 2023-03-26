@@ -13,9 +13,7 @@ macro_rules! kv_autocomplete {
             .autocomplete(
                 $kv_array
                     .iter()
-                    .filter(|[k, v]| {
-                        k.to_lowercase().contains(&value) || v.to_lowercase().contains(&value)
-                    })
+                    .filter(|[k, v]| k.to_lowercase().contains(&value) || v.to_lowercase().contains(&value))
                     .map(|[k, v]| ApplicationCommandOptionChoice::new(v, k.to_string()))
                     .take(25)
                     .collect(),
@@ -142,10 +140,7 @@ macro_rules! plural {
 
         if $amount != 1 {
             if subject.ends_with("ny") {
-                subject = format!(
-                    "{}ies",
-                    subject.chars().take(subject.len() - 1).collect::<String>()
-                );
+                subject = format!("{}ies", subject.chars().take(subject.len() - 1).collect::<String>());
             } else {
                 subject = format!("{}s", subject);
             }

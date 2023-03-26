@@ -80,9 +80,10 @@ impl UnicodeCharacters {
 
             let mut name = String::from("UNKNOWN");
 
-            if let Some(character_name) = CONTROL_CHARACTERS.iter().find(|[control_character, _]| {
-                control_character == &format!("{:X}", character as u32)
-            }) {
+            if let Some(character_name) = CONTROL_CHARACTERS
+                .iter()
+                .find(|[control_character, _]| control_character == &format!("{:X}", character as u32))
+            {
                 name = character_name[1].to_string();
             }
 

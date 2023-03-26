@@ -95,7 +95,7 @@ pub fn get_command() -> Command {
             "set" => {
                 res.defer(false).await?;
                 set_reminder(&input, &res, false).await?;
-            }
+            },
             "list" => {
                 res.defer(false).await?;
 
@@ -126,8 +126,7 @@ pub fn get_command() -> Command {
 
                 if_else!(
                     entries.is_empty(),
-                    res.send_message(format!("{ERROR_EMOJI} No reminders found."))
-                        .await?,
+                    res.send_message(format!("{ERROR_EMOJI} No reminders found.")).await?,
                     res.send_message(
                         Embed::new()
                             .set_color(PRIMARY_COLOR)?
@@ -135,7 +134,7 @@ pub fn get_command() -> Command {
                     )
                     .await?
                 );
-            }
+            },
             "delete" => {
                 let mut cursor = reminders
                     .find(doc! { "user_id": input.user.id.to_string() }, None)
@@ -175,32 +174,24 @@ pub fn get_command() -> Command {
 
                 match entries.get(input.get_string_arg("entry")?.parse::<usize>()? - 1) {
                     Some(entry) => {
-                        reminders
-                            .delete_one(doc! { "_id": entry._id }, None)
-                            .await?;
+                        reminders.delete_one(doc! { "_id": entry._id }, None).await?;
 
                         res.send_message(format!("{SUCCESS_EMOJI} Gone.")).await?
-                    }
+                    },
                     None => {
-                        res.send_message(format!(
-                            "{ERROR_EMOJI} Invalid entry. Make sure it's a valid number."
-                        ))
-                        .await?
-                    }
+                        res.send_message(format!("{ERROR_EMOJI} Invalid entry. Make sure it's a valid number."))
+                            .await?
+                    },
                 }
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 
     remind
 }
 
-pub async fn set_reminder(
-    input: &CommandInput,
-    res: &CommandResponder,
-    snooze: bool,
-) -> Result<()> {
+pub async fn set_reminder(input: &CommandInput, res: &CommandResponder, snooze: bool) -> Result<()> {
     let reminders = MONGODB.get().unwrap().collection::<Reminder>("reminders");
 
     if reminders
@@ -208,17 +199,13 @@ pub async fn set_reminder(
         .await?
         >= 10
     {
-        res.send_message(format!(
-            "{ERROR_EMOJI} You can only have up to 10 reminders."
-        ))
-        .await?;
+        res.send_message(format!("{ERROR_EMOJI} You can only have up to 10 reminders."))
+            .await?;
 
         return Ok(());
     };
 
-    let mut reminder = input
-        .get_string_arg("reminder")
-        .unwrap_or("Do something".into());
+    let mut reminder = input.get_string_arg("reminder").unwrap_or("Do something".into());
     let time = if_else!(
         snooze,
         input.values.as_ref().unwrap()[0].to_string(),
@@ -239,8 +226,7 @@ pub async fn set_reminder(
     let interval = Duration::new().parse(interval).unwrap_or(Duration::new());
 
     if (time.total_secs < 30 || time.total_secs > SECS_PER_MONTH * 12)
-        || (interval.total_secs > 0
-            && (interval.total_secs < 30 || interval.total_secs > SECS_PER_MONTH * 12))
+        || (interval.total_secs > 0 && (interval.total_secs < 30 || interval.total_secs > SECS_PER_MONTH * 12))
     {
         res.send_message(format!(
             "{ERROR_EMOJI} Time or interval cannot be under 30 seconds or over a year."
@@ -251,10 +237,8 @@ pub async fn set_reminder(
     }
 
     if interval.total_secs > 0 && !dm {
-        res.send_message(format!(
-            "{ERROR_EMOJI} Intervals are only supported for DMs."
-        ))
-        .await?;
+        res.send_message(format!("{ERROR_EMOJI} Intervals are only supported for DMs."))
+            .await?;
 
         return Ok(());
     }
@@ -266,11 +250,7 @@ pub async fn set_reminder(
             format!(" and every {interval} after that"),
             "".into()
         ),
-        if_else!(
-            dm,
-            "can DM you",
-            "have the View Channel and Send Messages permission"
-        )
+        if_else!(dm, "can DM you", "have the View Channel and Send Messages permission")
     ))
     .await?;
 
@@ -285,8 +265,7 @@ pub async fn set_reminder(
                     input.channel_id.as_ref().unwrap(),
                     res.get_original_message().await?.id
                 ),
-                timestamp: (SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs()
-                    + time.total_secs),
+                timestamp: (SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + time.total_secs),
                 interval: interval.total_secs,
                 reminder: reminder.to_string(),
                 dm,

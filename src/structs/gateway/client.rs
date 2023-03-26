@@ -23,10 +23,7 @@ impl GatewayClient {
             &self.client,
             TwilightConfig::new(
                 CONFIG.bot.token.clone(),
-                Intents::GUILDS
-                    | Intents::GUILD_MESSAGE_REACTIONS
-                    | Intents::GUILD_MESSAGES
-                    | Intents::MESSAGE_CONTENT,
+                Intents::GUILDS | Intents::GUILD_MESSAGE_REACTIONS | Intents::GUILD_MESSAGES | Intents::MESSAGE_CONTENT,
             ),
             |_, builder| builder.build(),
         )
@@ -42,7 +39,7 @@ impl GatewayClient {
                     if error.is_fatal() {
                         break;
                     }
-                }
+                },
             };
         }
 

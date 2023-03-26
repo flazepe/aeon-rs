@@ -45,20 +45,18 @@ impl Snipes {
                     .into_iter()
                     .map(|message| {
                         format!(
-							"{} ({}) at {}:\n\n{}",
-							twilight_user_to_tag!(message.author),
-							message.author.id,
-							DateTime::parse_from_rfc3339(
-								&message.timestamp.iso_8601().to_string(),
-							)
-							.unwrap()
-							.to_rfc2822(),
-							stringify_message!(&message)
-								.split("\n")
-								.map(|line| format!("\t{line}"))
-								.collect::<Vec<String>>()
-								.join("\n")
-						)
+                            "{} ({}) at {}:\n\n{}",
+                            twilight_user_to_tag!(message.author),
+                            message.author.id,
+                            DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string(),)
+                                .unwrap()
+                                .to_rfc2822(),
+                            stringify_message!(&message)
+                                .split("\n")
+                                .map(|line| format!("\t{line}"))
+                                .collect::<Vec<String>>()
+                                .join("\n")
+                        )
                     })
                     .collect::<Vec<String>>()
                     .join("\n\n"),
@@ -71,13 +69,8 @@ impl Snipes {
             Embed::new()
                 .set_color(PRIMARY_COLOR)?
                 .set_description(stringify_message!(&snipe))
-                .set_footer(
-                    twilight_user_to_tag!(snipe.author),
-                    snipe.author.avatar_url("png", 64),
-                )
-                .set_timestamp(DateTime::parse_from_rfc3339(
-                    &snipe.timestamp.iso_8601().to_string(),
-                )?),
+                .set_footer(twilight_user_to_tag!(snipe.author), snipe.author.avatar_url("png", 64))
+                .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?),
         ));
     }
 }

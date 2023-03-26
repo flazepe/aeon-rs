@@ -37,23 +37,16 @@ pub fn get_command() -> Command {
         }
 
         let programming_language = {
-            input
-                .get_string_arg("programming-language")
-                .unwrap_or(and_then_or!(
-                    CACHE
-                        .last_tio_programming_languages
-                        .lock()?
-                        .get(&input.user.id),
-                    |programming_language| Some(programming_language.to_string()),
-                    "".into()
-                ))
+            input.get_string_arg("programming-language").unwrap_or(and_then_or!(
+                CACHE.last_tio_programming_languages.lock()?.get(&input.user.id),
+                |programming_language| Some(programming_language.to_string()),
+                "".into()
+            ))
         };
 
         if programming_language.is_empty() {
             return res
-                .send_message(format!(
-                    "{ERROR_EMOJI} Please provide a programming language."
-                ))
+                .send_message(format!("{ERROR_EMOJI} Please provide a programming language."))
                 .await?;
         }
 
@@ -74,10 +67,10 @@ pub fn get_command() -> Command {
             {
                 Ok(tio) => {
                     res.send_message(tio.format()).await?;
-                }
+                },
                 Err(error) => {
                     res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                }
+                },
             }
         } else {
             res.open_modal(

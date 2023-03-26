@@ -67,7 +67,7 @@ pub fn get_command() -> Command {
         match input.subcommand.as_deref().unwrap_or("") {
             "signups" => {
                 res.send_message("TODO").await?;
-            }
+            },
             "status" => {
                 let user = input.get_string_arg("user")?;
                 let url = format!("https://heliohost.org/status/?u={user}");
@@ -85,7 +85,7 @@ pub fn get_command() -> Command {
                     )
                 })
                 .await?;
-            }
+            },
             "load" => {
                 let server = input.get_string_arg("server")?;
 
@@ -99,7 +99,7 @@ pub fn get_command() -> Command {
                         .trim()
                 ))
                 .await?;
-            }
+            },
             "uptime" => {
                 let server = input.get_string_arg("server")?;
 
@@ -113,8 +113,8 @@ pub fn get_command() -> Command {
                         .trim()
                 ))
                 .await?;
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 

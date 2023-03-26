@@ -16,17 +16,13 @@ pub struct ExchangeRateConversion {
 }
 
 impl ExchangeRateConversion {
-    pub async fn get<T: ToString, U: ToString>(
-        amount: f64,
-        origin_currency: T,
-        target_currency: U,
-    ) -> Result<Self> {
+    pub async fn get<T: ToString, U: ToString>(amount: f64, origin_currency: T, target_currency: U) -> Result<Self> {
         let origin_currency = origin_currency.to_string();
         let target_currency = target_currency.to_string();
 
         let origin_currency = CURRENCIES
             .iter()
-            .find(|[currency, _]| currency == &origin_currency)
+            .find(|[currency, ..]| currency == &origin_currency)
             .context("Invalid origin currency.")?;
 
         let target_currency = CURRENCIES

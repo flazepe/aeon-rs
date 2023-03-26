@@ -76,16 +76,20 @@ pub fn get_command() -> Command {
                         .await
                     {
                         Ok(_) => {
-							res.send_message(format!("{SUCCESS_EMOJI} Set timeout for {} for {duration}.", user.mention())).await?;
-						}
+                            res.send_message(format!(
+                                "{SUCCESS_EMOJI} Set timeout for {} for {duration}.",
+                                user.mention()
+                            ))
+                            .await?;
+                        },
                         Err(error) => {
                             res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                        }
+                        },
                     }
-                }
+                },
                 Err(error) => {
                     res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                }
+                },
             },
             "remove" => {
                 let user = input.get_user_arg("member")?;
@@ -93,28 +97,21 @@ pub fn get_command() -> Command {
                 match input
                     .rest
                     .patch::<GuildMember, _>(
-                        format!(
-                            "guilds/{}/members/{}",
-                            input.guild_id.as_ref().unwrap(),
-                            &user.id
-                        ),
+                        format!("guilds/{}/members/{}", input.guild_id.as_ref().unwrap(), &user.id),
                         json!({ "communication_disabled_until": null }),
                     )
                     .await
                 {
                     Ok(_) => {
-                        res.send_message(format!(
-                            "{SUCCESS_EMOJI} Removed timeout for <@{}>.",
-                            user.id
-                        ))
-                        .await?;
-                    }
+                        res.send_message(format!("{SUCCESS_EMOJI} Removed timeout for <@{}>.", user.id))
+                            .await?;
+                    },
                     Err(error) => {
                         res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                    }
+                    },
                 }
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 

@@ -39,21 +39,17 @@ pub fn get_command() -> Command {
 
         match GoogleTranslate::translate(
             input.get_string_arg("text")?,
-            input
-                .get_string_arg("origin-language")
-                .unwrap_or("auto".into()),
-            input
-                .get_string_arg("target-language")
-                .unwrap_or("en".into()),
+            input.get_string_arg("origin-language").unwrap_or("auto".into()),
+            input.get_string_arg("target-language").unwrap_or("en".into()),
         )
         .await
         {
             Ok(translation) => {
                 res.send_message(translation.format()).await?;
-            }
+            },
             Err(error) => {
                 res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-            }
+            },
         }
     }
 

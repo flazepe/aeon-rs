@@ -45,20 +45,20 @@ pub fn get_command() -> Command {
             Some("game") => match SteamGame::get(input.get_string_arg("game")?).await {
                 Ok(game) => {
                     res.send_message(game.format()).await?;
-                }
+                },
                 Err(error) => {
                     res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                }
+                },
             },
             Some("user") => match SteamUser::get(input.get_string_arg("user")?).await {
                 Ok(user) => {
                     res.send_message(user.format()).await?;
-                }
+                },
                 Err(error) => {
                     res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                }
+                },
             },
-            _ => {}
+            _ => {},
         }
     }
 

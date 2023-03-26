@@ -37,16 +37,16 @@ pub fn get_command() -> Command {
             "search" => match UnicodeCharacter::get(input.get_string_arg("query")?).await {
                 Ok(unicode_character) => {
                     res.send_message(unicode_character.format()).await?;
-                }
+                },
                 Err(error) => {
                     res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                }
+                },
             },
             "list" => {
                 res.send_message(UnicodeCharacters::get(input.get_string_arg("text")?).format())
                     .await?
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 

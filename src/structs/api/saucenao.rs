@@ -99,9 +99,7 @@ impl SauceNAOSearch {
                                         Some(part) => format!(
                                             "{} {}",
                                             if_else!(
-                                                part.chars()
-                                                    .into_iter()
-                                                    .all(|char| char.is_numeric()),
+                                                part.chars().into_iter().all(|char| char.is_numeric()),
                                                 "Episode",
                                                 ""
                                             ),

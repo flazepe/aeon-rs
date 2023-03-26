@@ -20,9 +20,9 @@ struct ResolveVanityURLEndpoint {
 impl SteamUserVanity {
     pub async fn get<T: Display>(player: T) -> Result<String> {
         Ok(get(format!(
-			"http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={}&vanityurl={player}",
+            "http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={}&vanityurl={player}",
             CONFIG.api.steam_key
-		))
+        ))
         .await?
         .json::<ResolveVanityURLEndpoint>()
         .await?

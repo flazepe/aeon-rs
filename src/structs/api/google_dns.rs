@@ -77,10 +77,7 @@ impl GoogleDNS {
             .replace("http://", "")
             .replace("https://", "");
 
-        let res = get(format!(
-            "https://dns.google/resolve?type={record_type}&name={domain}"
-        ))
-        .await?;
+        let res = get(format!("https://dns.google/resolve?type={record_type}&name={domain}")).await?;
 
         if res.status() != 200 {
             bail!("Invalid record type.");
@@ -99,10 +96,7 @@ impl GoogleDNS {
             ));
         }
 
-        let records = dns_response
-            .answer
-            .or(dns_response.authority)
-            .unwrap_or(vec![]);
+        let records = dns_response.answer.or(dns_response.authority).unwrap_or(vec![]);
 
         if records.is_empty() {
             bail!("No DNS records found.")

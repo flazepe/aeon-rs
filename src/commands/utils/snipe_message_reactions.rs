@@ -8,15 +8,13 @@ pub fn get_command() -> Command {
         dm_permission = false,
     )]
     fn snipe_message_reactions(input: CommandInput, res: CommandResponder) {
-        match ReactionSnipes::new(input.guild_id.unwrap(), input.target_message.unwrap().id)
-            .to_response()
-        {
+        match ReactionSnipes::new(input.guild_id.unwrap(), input.target_message.unwrap().id).to_response() {
             Ok(response) => {
                 res.send_message(response).await?;
-            }
+            },
             Err(error) => {
                 res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-            }
+            },
         }
     }
 

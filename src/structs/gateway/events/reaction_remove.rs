@@ -27,15 +27,12 @@ impl EventHandler {
                             id,
                             if_else!(animated, "gif", "png")
                         )
-                    }
+                    },
                     ReactionType::Unicode { name } => {
                         name
-                    }
+                    },
                 },
-                format_timestamp!(SystemTime::now()
-                    .duration_since(UNIX_EPOCH)
-                    .unwrap()
-                    .as_secs())
+                format_timestamp!(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs())
             ));
 
             // Limit

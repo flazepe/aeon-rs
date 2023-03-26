@@ -18,10 +18,7 @@ pub fn get_command() -> Command {
                 res.send_message(
                     vec![
                         ["uptime".into(), format_timestamp!(process.start_time())],
-                        [
-                            "memory".into(),
-                            format!("{} MB", process.memory() / 1024 / 1024),
-                        ],
+                        ["memory".into(), format!("{} MB", process.memory() / 1024 / 1024)],
                         [
                             "virtual memory".into(),
                             format!("{} MB", process.virtual_memory() / 1024 / 1024),
@@ -33,10 +30,10 @@ pub fn get_command() -> Command {
                     .join("\n"),
                 )
                 .await?;
-            }
+            },
             Err(error) => {
                 res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-            }
+            },
         }
     }
 

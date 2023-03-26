@@ -61,18 +61,16 @@ impl Reminders {
             while let Some(mut reminder) = cursor.try_next().await? {
                 match self.handle(&reminder).await {
                     Ok(()) => {
-                        self.reminders
-                            .delete_one(doc! { "_id": reminder._id }, None)
-                            .await?;
+                        self.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
 
                         if reminder.interval > 0 {
                             reminder.timestamp = reminder.timestamp + reminder.interval;
                             self.reminders.insert_one(&reminder, None).await?;
                         }
-                    }
+                    },
                     Err(error) => {
                         println!("{error}");
-                    }
+                    },
                 }
             }
 
@@ -87,10 +85,7 @@ impl Reminders {
             if reminder.dm && !reminder.url.contains("@me") {
                 match self
                     .rest
-                    .post::<Channel, _>(
-                        "users/@me/channels".into(),
-                        json!({ "recipient_id": reminder.user_id }),
-                    )
+                    .post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": reminder.user_id }))
                     .await
                 {
                     Ok(channel) => channel.id,
@@ -102,45 +97,39 @@ impl Reminders {
                                 .iter()
                                 .any(|message| error.contains(message))
                         {
-                            self.reminders
-                                .delete_one(doc! { "_id": reminder._id }, None)
-                                .await?;
+                            self.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
                         }
 
                         bail!("Could not create DM channel.");
-                    }
+                    },
                 }
             } else {
                 // Else, just grab channel ID from the URL
                 reminder.url.split("/").skip(1).next().unwrap().to_string()
             },
-            MessageResponse::from(if_else!(
-                reminder.dm,
-                "".into(),
-                format!("<@{}>", reminder.user_id)
-            ))
-            .add_embed(
-                Embed::new()
-                    .set_color(NOTICE_COLOR)?
-                    .set_title("Reminder")
-                    .set_url(format!("https://discord.com/channels/{}", reminder.url))
-                    .set_description(&reminder.reminder),
-            )
-            .set_components(
-                Components::new().add_select_menu(
-                    SelectMenu::new(SelectMenuType::STRING)
-                        .set_id("remind", "time")
-                        .set_placeholder("Snooze")
-                        .add_option(SelectOption::new("5 minutes", "5m"))
-                        .add_option(SelectOption::new("15 minutes", "15m"))
-                        .add_option(SelectOption::new("30 minutes", "30m"))
-                        .add_option(SelectOption::new("1 hour", "1h"))
-                        .add_option(SelectOption::new("3 hours", "3h"))
-                        .add_option(SelectOption::new("6 hours", "6h"))
-                        .add_option(SelectOption::new("12 hours", "12h"))
-                        .add_option(SelectOption::new("24 hours", "24h")),
+            MessageResponse::from(if_else!(reminder.dm, "".into(), format!("<@{}>", reminder.user_id)))
+                .add_embed(
+                    Embed::new()
+                        .set_color(NOTICE_COLOR)?
+                        .set_title("Reminder")
+                        .set_url(format!("https://discord.com/channels/{}", reminder.url))
+                        .set_description(&reminder.reminder),
+                )
+                .set_components(
+                    Components::new().add_select_menu(
+                        SelectMenu::new(SelectMenuType::STRING)
+                            .set_id("remind", "time")
+                            .set_placeholder("Snooze")
+                            .add_option(SelectOption::new("5 minutes", "5m"))
+                            .add_option(SelectOption::new("15 minutes", "15m"))
+                            .add_option(SelectOption::new("30 minutes", "30m"))
+                            .add_option(SelectOption::new("1 hour", "1h"))
+                            .add_option(SelectOption::new("3 hours", "3h"))
+                            .add_option(SelectOption::new("6 hours", "6h"))
+                            .add_option(SelectOption::new("12 hours", "12h"))
+                            .add_option(SelectOption::new("24 hours", "24h")),
+                    ),
                 ),
-            ),
         )
         .await?;
 

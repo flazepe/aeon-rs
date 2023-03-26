@@ -530,11 +530,7 @@ pub static STEAM_COUNTRIES: Lazy<[SteamCountry; 236]> = Lazy::new(|| {
         SteamCountry {
             code: "GL",
             name: "Greenland",
-            states: &[
-                ["03", "Vestgronland"],
-                ["02", "Ostgronland"],
-                ["01", "Nordgronland"],
-            ],
+            states: &[["03", "Vestgronland"], ["02", "Ostgronland"], ["01", "Nordgronland"]],
         },
         SteamCountry {
             code: "SD",
@@ -642,12 +638,7 @@ pub static STEAM_COUNTRIES: Lazy<[SteamCountry; 236]> = Lazy::new(|| {
         SteamCountry {
             code: "FM",
             name: "Micronesia",
-            states: &[
-                ["04", "Yap"],
-                ["03", "Chuuk"],
-                ["02", "Pohnpei"],
-                ["01", "Kosrae"],
-            ],
+            states: &[["04", "Yap"], ["03", "Chuuk"], ["02", "Pohnpei"], ["01", "Kosrae"]],
         },
         SteamCountry {
             code: "RE",
@@ -1122,11 +1113,7 @@ pub static STEAM_COUNTRIES: Lazy<[SteamCountry; 236]> = Lazy::new(|| {
         SteamCountry {
             code: "LU",
             name: "Luxembourg",
-            states: &[
-                ["03", "Luxembourg"],
-                ["02", "Grevenmacher"],
-                ["01", "Diekirch"],
-            ],
+            states: &[["03", "Luxembourg"], ["02", "Grevenmacher"], ["01", "Diekirch"]],
         },
         SteamCountry {
             code: "AW",
@@ -1680,10 +1667,7 @@ pub static STEAM_COUNTRIES: Lazy<[SteamCountry; 236]> = Lazy::new(|| {
         SteamCountry {
             code: "BA",
             name: "Bosnia and Herzegovina",
-            states: &[
-                ["02", "Republika Srpska"],
-                ["01", "Federation of Bosnia and Herzego"],
-            ],
+            states: &[["02", "Republika Srpska"], ["01", "Federation of Bosnia and Herzego"]],
         },
         SteamCountry {
             code: "NU",
@@ -2260,11 +2244,7 @@ pub static STEAM_COUNTRIES: Lazy<[SteamCountry; 236]> = Lazy::new(|| {
         SteamCountry {
             code: "SH",
             name: "St. Helena",
-            states: &[
-                ["03", "Tristan da Cunha"],
-                ["02", "Saint Helena"],
-                ["01", "Ascension"],
-            ],
+            states: &[["03", "Tristan da Cunha"], ["02", "Saint Helena"], ["01", "Ascension"]],
         },
         SteamCountry {
             code: "VI",
@@ -3844,11 +3824,7 @@ pub static STEAM_COUNTRIES: Lazy<[SteamCountry; 236]> = Lazy::new(|| {
         SteamCountry {
             code: "MC",
             name: "Monaco",
-            states: &[
-                ["03", "Monte-Carlo"],
-                ["02", "Monaco"],
-                ["01", "La Condamine"],
-            ],
+            states: &[["03", "Monte-Carlo"], ["02", "Monaco"], ["01", "La Condamine"]],
         },
         SteamCountry {
             code: "PA",
@@ -4113,11 +4089,7 @@ pub static STEAM_COUNTRIES: Lazy<[SteamCountry; 236]> = Lazy::new(|| {
         SteamCountry {
             code: "TJ",
             name: "Tajikistan",
-            states: &[
-                ["03", "Sughd"],
-                ["02", "Khatlon"],
-                ["01", "Kuhistoni Badakhshon"],
-            ],
+            states: &[["03", "Sughd"], ["02", "Khatlon"], ["01", "Kuhistoni Badakhshon"]],
         },
         SteamCountry {
             code: "UA",

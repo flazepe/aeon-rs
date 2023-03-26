@@ -23,12 +23,10 @@ impl Stock {
     pub async fn get<T: Display>(ticker: T) -> Result<Self> {
         let attributes = {
             let document = Document::from(
-                &get(format!(
-                    "https://finance.yahoo.com/lookup/equity?s={ticker}"
-                ))
-                .await?
-                .text()
-                .await?,
+                &get(format!("https://finance.yahoo.com/lookup/equity?s={ticker}"))
+                    .await?
+                    .text()
+                    .await?,
             );
 
             let selection = &document.select("td a");
@@ -38,14 +36,8 @@ impl Stock {
             }
 
             YahooFinanceLookupAttributes {
-                href: selection
-                    .attr("href")
-                    .context("Missing href attr.")?
-                    .to_string(),
-                title: selection
-                    .attr("title")
-                    .context("Missing title attr.")?
-                    .to_string(),
+                href: selection.attr("href").context("Missing href attr.")?.to_string(),
+                title: selection.attr("title").context("Missing title attr.")?.to_string(),
                 data_symbol: selection
                     .attr("data-symbol")
                     .context("Missing data-symbol attr.")?
@@ -94,9 +86,6 @@ impl Stock {
             .unwrap_or_default()
             .set_title(self.name)
             .set_url(self.url)
-            .set_description(format!(
-                "```diff\n{} {}\n{}```",
-                self.currency, self.price, self.diff
-            ))
+            .set_description(format!("```diff\n{} {}\n{}```", self.currency, self.price, self.diff))
     }
 }

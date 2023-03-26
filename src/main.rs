@@ -18,31 +18,27 @@ use tokio::spawn;
 async fn main() -> Result<()> {
     MONGODB
         .get_or_init(async {
-            MongoDBClient::with_options(
-                MongoDBClientOptions::parse(&CONFIG.db.mongodb_uri)
-                    .await
-                    .unwrap(),
-            )
-            .unwrap()
-            .database("aeon")
+            MongoDBClient::with_options(MongoDBClientOptions::parse(&CONFIG.db.mongodb_uri).await.unwrap())
+                .unwrap()
+                .database("aeon")
         })
         .await;
-    println!("[DATABASE] Connected to MongoDB");
+    println!("[DATABASE] Connected to MongoDB.");
 
     // Reminders
     spawn(Reminders::new().poll());
-    println!("[REMINDERS] Started polling reminders");
+    println!("[REMINDERS] Started polling reminders.");
 
     // Spawn gateway client
     spawn(GatewayClient::new().create_shards());
-    println!("[GATEWAY] Spawned gateway client");
+    println!("[GATEWAY] Spawned gateway client.");
 
     let mut client = AeonClient::new();
 
     if let Err(error) = client.register_commands().await {
-        println!("[CLIENT] Error registering commands: {error}");
+        println!("[CLIENT] An error occurred while registering commands: {error}");
     } else {
-        println!("[CLIENT] Registered commands");
+        println!("[CLIENT] Registered commands.");
     }
 
     client.start().await;

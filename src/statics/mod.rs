@@ -23,7 +23,6 @@ pub static CACHE: Lazy<Cache> = Lazy::new(|| Cache {
     last_tio_programming_languages: Mutex::new(HashMap::new()),
 });
 
-pub static CONFIG: Lazy<Config> =
-    Lazy::new(|| from_str(&read_to_string("config.toml").unwrap()).unwrap());
+pub static CONFIG: Lazy<Config> = Lazy::new(|| from_str(&read_to_string("config.toml").unwrap()).unwrap());
 
 pub static MONGODB: AsyncOnceCell<Database> = AsyncOnceCell::new();

@@ -18,10 +18,10 @@ pub fn get_command() -> Command {
         match Distro::get(input.get_string_arg("distro")?).await {
             Ok(distro) => {
                 res.send_message(distro.format()).await?;
-            }
+            },
             Err(error) => {
                 res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-            }
+            },
         };
     }
 

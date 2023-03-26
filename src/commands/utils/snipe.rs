@@ -71,30 +71,27 @@ pub fn get_command() -> Command {
                 {
                     Ok(response) => {
                         res.send_message(response).await?;
-                    }
+                    },
                     Err(error) => {
                         res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                    }
+                    },
                 }
-            }
+            },
             "reaction" => {
                 let message = input.get_string_arg("message")?;
 
-                match ReactionSnipes::new(
-                    input.guild_id.unwrap(),
-                    message.split("/").last().unwrap_or(""),
-                )
-                .to_response()
+                match ReactionSnipes::new(input.guild_id.unwrap(), message.split("/").last().unwrap_or(""))
+                    .to_response()
                 {
                     Ok(response) => {
                         res.send_message(response).await?;
-                    }
+                    },
                     Err(error) => {
                         res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                    }
+                    },
                 }
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 
