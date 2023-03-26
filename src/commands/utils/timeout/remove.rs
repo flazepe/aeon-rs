@@ -21,7 +21,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         .await
     {
         Ok(_) => {
-            res.send_message(format!("{SUCCESS_EMOJI} Removed timeout for <@{}>.", user.id))
+            res.send_message(format!("{SUCCESS_EMOJI} Removed timeout for {}.", user.mention()))
                 .await?;
         },
         Err(error) => {
