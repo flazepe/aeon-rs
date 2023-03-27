@@ -71,7 +71,7 @@ impl Reminders {
                         self.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
 
                         if reminder.interval > 0 {
-                            // Make sure that the timestamp isn't behind the current timestamp
+                            // To prevent spam, while loop is needed to ensure that the new timestamp isn't behind the current timestamp
                             while reminder.timestamp <= current_timestamp {
                                 reminder.timestamp += reminder.interval;
                             }
