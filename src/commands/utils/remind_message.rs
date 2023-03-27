@@ -1,4 +1,4 @@
-use crate::macros::{add_reminder_select_options, if_else};
+use crate::macros::add_reminder_select_options;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder, MessageResponse},
