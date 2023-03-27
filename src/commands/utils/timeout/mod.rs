@@ -15,6 +15,18 @@ pub fn get_command() -> Command {
 		dm_permission = false,
 		subcommands = [
 			{
+				name = "remove",
+				description = "Removes a member's timeout.",
+				options = [
+					{
+						name = "member",
+						description = "The member",
+						option_type = InteractionOptionType::USER,
+						required = true,
+					},
+				],
+			},
+			{
 				name = "set",
 				description = "Sets a member's timeout.",
 				options = [
@@ -32,24 +44,12 @@ pub fn get_command() -> Command {
 					},
 				],
 			},
-			{
-				name = "remove",
-				description = "Removes a member's timeout.",
-				options = [
-					{
-						name = "member",
-						description = "The member",
-						option_type = InteractionOptionType::USER,
-						required = true,
-					},
-				],
-			},
 		],
 	)]
     async fn timeout(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref().unwrap_or("") {
-            "set" => set::run(input, res).await?,
             "remove" => remove::run(input, res).await?,
+            "set" => set::run(input, res).await?,
             _ => {},
         }
     }

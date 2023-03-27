@@ -14,6 +14,23 @@ pub fn get_command() -> Command {
         name = "remind",
         description = "Manages your reminders.",
         subcommands = [
+			{
+                name = "delete",
+                description = "Deletes a reminder.",
+                options = [
+                    {
+                        name = "entry",
+                        description = "The reminder entry. Can be provided by using the list subcommand",
+                        option_type = InteractionOptionType::STRING,
+                        autocomplete = true,
+                        required = true,
+                    },
+                ],
+            },
+            {
+                name = "list",
+                description = "Sends the reminder list.",
+            },
             {
                 name = "set",
                 description = "Sets a reminder.",
@@ -42,23 +59,6 @@ pub fn get_command() -> Command {
                     },
                 ],
             },
-            {
-                name = "list",
-                description = "Sends the reminder list.",
-            },
-			{
-                name = "delete",
-                description = "Deletes a reminder.",
-                options = [
-                    {
-                        name = "entry",
-                        description = "The reminder entry. Can be provided by using the list subcommand",
-                        option_type = InteractionOptionType::STRING,
-                        autocomplete = true,
-                        required = true,
-                    },
-                ],
-            },
         ],
     )]
     async fn remind(input: CommandInput, res: CommandResponder) {
@@ -68,9 +68,9 @@ pub fn get_command() -> Command {
         }
 
         match input.subcommand.as_deref().unwrap_or("") {
-            "set" => set::run(input, res, false).await?,
-            "list" => list::run(input, res).await?,
             "delete" => delete::run(input, res).await?,
+            "list" => list::run(input, res).await?,
+            "set" => set::run(input, res, false).await?,
             _ => {},
         }
     }

@@ -13,18 +13,6 @@ pub fn get_command() -> Command {
 		description = "Does operations with unicode.",
 		subcommands = [
 			{
-				name = "search",
-				description = "Searches for a unicode emoji via query.",
-				options = [
-					{
-						name = "query",
-						description = "The query",
-						option_type = InteractionOptionType::STRING,
-						required = true,
-					},
-				],
-			},
-			{
 				name = "list",
 				description = "Lists unicodes from a text.",
 				options = [
@@ -36,12 +24,24 @@ pub fn get_command() -> Command {
 					},
 				],
 			},
+			{
+				name = "search",
+				description = "Searches for a unicode emoji via query.",
+				options = [
+					{
+						name = "query",
+						description = "The query",
+						option_type = InteractionOptionType::STRING,
+						required = true,
+					},
+				],
+			},
 		],
 	)]
     async fn unicode(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref().unwrap_or("") {
-            "search" => search::run(input, res).await?,
             "list" => list::run(input, res).await?,
+            "search" => search::run(input, res).await?,
             _ => {},
         }
     }
