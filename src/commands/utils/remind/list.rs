@@ -14,30 +14,28 @@ use slashook::{
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let reminders = MONGODB.get().unwrap().collection::<Reminder>("reminders");
 
-    let mut cursor = reminders
+    let entries = reminders
         .find(doc! { "user_id": input.user.id.to_string() }, None)
-        .await?;
-
-    let entries = {
-        let mut entries = vec![];
-
-        while let Some(reminder) = cursor.try_next().await? {
-            entries.push(format!(
+        .await?
+        .try_collect::<Vec<Reminder>>()
+        .await?
+        .iter()
+        .enumerate()
+        .map(|(index, reminder)| {
+            format!(
                 "{}. [{}](https://discord.com/channels/{})\n{}{}",
-                entries.len() + 1,
+                index + 1,
                 reminder.reminder,
                 reminder.url,
                 format_timestamp!(reminder.timestamp),
                 if_else!(
                     reminder.interval > 0,
-                    format!(" (every {})", Duration::new().parse(reminder.interval)?),
+                    format!(" (every {})", Duration::new().parse(reminder.interval).unwrap()),
                     "".into()
                 )
-            ));
-        }
-
-        entries
-    };
+            )
+        })
+        .collect::<Vec<String>>();
 
     if_else!(
         entries.is_empty(),

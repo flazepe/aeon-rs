@@ -17,19 +17,11 @@ use slashook::{
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let reminders = MONGODB.get().unwrap().collection::<Reminder>("reminders");
 
-    let mut cursor = reminders
+    let entries = reminders
         .find(doc! { "user_id": input.user.id.to_string() }, None)
+        .await?
+        .try_collect::<Vec<Reminder>>()
         .await?;
-
-    let entries = {
-        let mut entries = vec![];
-
-        while let Some(reminder) = cursor.try_next().await? {
-            entries.push(reminder);
-        }
-
-        entries
-    };
 
     if input.is_autocomplete() {
         res.autocomplete(

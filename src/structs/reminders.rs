@@ -50,7 +50,7 @@ impl Reminders {
 
     pub async fn poll(self) -> Result<()> {
         loop {
-            let mut cursor = self
+            for mut reminder in self
                 .reminders
                 .find(
                     doc! {
@@ -60,9 +60,10 @@ impl Reminders {
                     },
                     None,
                 )
-                .await?;
-
-            while let Some(mut reminder) = cursor.try_next().await? {
+                .await?
+                .try_collect::<Vec<Reminder>>()
+                .await?
+            {
                 match self.handle(&reminder).await {
                     Ok(()) => {
                         self.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
