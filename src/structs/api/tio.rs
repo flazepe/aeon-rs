@@ -1,5 +1,5 @@
 use crate::{
-    macros::{hastebin, if_else},
+    macros::{and_then_or, hastebin, if_else},
     statics::{colors::PRIMARY_COLOR, tio_programming_languages::TIO_PROGRAMMING_LANGUAGES},
 };
 use anyhow::{Context, Result};
@@ -21,7 +21,7 @@ pub struct Tio {
     pub programming_language: String,
     pub code: String,
     pub result: Option<String>,
-    pub result_url: String,
+    pub result_url: Option<String>,
     pub input_url: String,
 }
 
@@ -31,7 +31,7 @@ impl Tio {
             programming_language: programming_language.to_string().to_lowercase(),
             code: code.to_string(),
             result: None,
-            result_url: String::from(""),
+            result_url: None,
             input_url: String::from(""),
         }
     }
@@ -94,7 +94,11 @@ impl Tio {
         let result = result.replace(&result.chars().take(16).collect::<String>(), "");
 
         self.result = Some(result.clone());
-        self.result_url = hastebin!(result);
+
+        if result.len() > 3900 {
+            self.result_url = Some(hastebin!(result));
+        }
+
         self.input_url = hastebin!(self.code);
 
         Ok(self)
@@ -107,8 +111,12 @@ impl Tio {
             .set_title(self.programming_language)
             .set_url(self.input_url)
             .set_description(format!(
-                "[Full Result]({})```\n{}```",
-                self.result_url,
+                "{}```\n{}```",
+                and_then_or!(
+                    self.result_url,
+                    |result_url| Some(format!("[Full Result]({result_url})")),
+                    "".into()
+                ),
                 self.result
                     .unwrap_or("No output.".into())
                     .chars()
