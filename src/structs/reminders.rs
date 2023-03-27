@@ -50,12 +50,14 @@ impl Reminders {
 
     pub async fn poll(self) -> Result<()> {
         loop {
+            let current_timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+
             for mut reminder in self
                 .reminders
                 .find(
                     doc! {
                         "timestamp": {
-                            "$lte": SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64
+                            "$lte": current_timestamp as i64
                         }
                     },
                     None,
@@ -69,7 +71,11 @@ impl Reminders {
                         self.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
 
                         if reminder.interval > 0 {
-                            reminder.timestamp = reminder.timestamp + reminder.interval;
+                            // Make sure that the timestamp isn't behind the current timestamp
+                            while reminder.timestamp <= current_timestamp {
+                                reminder.timestamp += reminder.interval;
+                            }
+
                             self.reminders.insert_one(&reminder, None).await?;
                         }
                     },
