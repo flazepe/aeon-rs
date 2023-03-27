@@ -5,12 +5,10 @@ use serde::Deserialize;
 use std::fmt::Display;
 
 #[derive(Deserialize)]
+#[serde(rename_all = "PascalCase")]
 pub struct SteamUserBans {
     #[serde(rename = "SteamId")]
     pub id: String,
-
-    #[serde(rename = "CommunityBanned")]
-    pub community_banned: bool,
 
     #[serde(rename = "VACBanned")]
     pub vac_banned: bool,
@@ -18,14 +16,12 @@ pub struct SteamUserBans {
     #[serde(rename = "NumberOfVACBans")]
     pub vac_bans: u64,
 
-    #[serde(rename = "DaysSinceLastBan")]
-    pub days_since_last_ban: u64,
-
     #[serde(rename = "NumberOfGameBans")]
     pub game_bans: u64,
 
-    #[serde(rename = "EconomyBan")]
+    pub days_since_last_ban: u64,
     pub economy_ban: String,
+    pub community_banned: bool,
 }
 
 #[derive(Deserialize)]
