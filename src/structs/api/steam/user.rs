@@ -85,8 +85,8 @@ struct SteamUsers {
 }
 
 #[derive(Deserialize)]
-struct GetPlayerSummariesEndpoint {
-    response: SteamUsers,
+struct SteamResponse<T> {
+    response: T,
 }
 
 impl SteamUser {
@@ -102,7 +102,7 @@ impl SteamUser {
             CONFIG.api.steam_key
         ))
         .await?
-        .json::<GetPlayerSummariesEndpoint>()
+        .json::<SteamResponse<SteamUsers>>()
         .await?
         .response
         .players

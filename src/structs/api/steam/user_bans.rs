@@ -25,8 +25,8 @@ pub struct SteamUserBans {
 }
 
 #[derive(Deserialize)]
-struct GetPlayerBansEndpoint {
-    players: Vec<SteamUserBans>,
+struct SteamResponse<T> {
+    players: Vec<T>,
 }
 
 impl SteamUserBans {
@@ -36,7 +36,7 @@ impl SteamUserBans {
             CONFIG.api.steam_key
         ))
         .await?
-        .json::<GetPlayerBansEndpoint>()
+        .json::<SteamResponse<SteamUserBans>>()
         .await?
         .players
         .into_iter()

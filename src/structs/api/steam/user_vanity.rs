@@ -13,8 +13,8 @@ pub struct SteamUserVanity {
 }
 
 #[derive(Deserialize)]
-struct ResolveVanityURLEndpoint {
-    response: SteamUserVanity,
+struct SteamResponse<T> {
+    response: T,
 }
 
 impl SteamUserVanity {
@@ -24,7 +24,7 @@ impl SteamUserVanity {
             CONFIG.api.steam_key
         ))
         .await?
-        .json::<ResolveVanityURLEndpoint>()
+        .json::<SteamResponse<SteamUserVanity>>()
         .await?
         .response
         .id
