@@ -105,9 +105,9 @@ impl Tio {
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
             .set_title(self.programming_language)
+            .set_url(self.input_url)
             .set_description(format!(
-                "[Input]({}) - [Full Result]({})```\n{}```",
-                self.input_url,
+                "[Full Result]({})```\n{}```",
                 self.result_url,
                 self.result
                     .unwrap_or("No output.".into())
