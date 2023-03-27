@@ -4,6 +4,7 @@ mod dns;
 mod heliohost;
 mod ip;
 mod remind;
+mod remind_message;
 mod sauce;
 mod snipe;
 mod snipe_message_reactions;
@@ -23,6 +24,7 @@ pub fn get_commands() -> Vec<Command> {
         heliohost::get_command(),
         ip::get_command(),
         remind::get_command(),
+        remind_message::get_command(),
         sauce::get_command(),
         snipe::get_command(),
         snipe_message_reactions::get_command(),

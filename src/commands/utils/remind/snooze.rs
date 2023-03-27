@@ -15,7 +15,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 .collect::<String>()
     {
         true => {
-            set::run(input, res, true).await?;
+            set::run(input, res).await?;
         },
         false => {
             res.defer(true).await?;

@@ -62,15 +62,23 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn remind(input: CommandInput, res: CommandResponder) {
-        // Snooze
-        if input.custom_id == Some("time".into()) {
-            return snooze::run(input, res).await?;
+        if input.custom_id.is_some() {
+            res.delete_original_message().await?;
+
+            // Snooze
+            if input.custom_id == Some("snooze".into()) {
+                return snooze::run(input, res).await?;
+            } else {
+                // Message reminder
+
+                return set::run(input, res).await?;
+            }
         }
 
         match input.subcommand.as_deref().unwrap_or("") {
             "delete" => delete::run(input, res).await?,
             "list" => list::run(input, res).await?,
-            "set" => set::run(input, res, false).await?,
+            "set" => set::run(input, res).await?,
             _ => {},
         }
     }

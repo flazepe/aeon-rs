@@ -1,3 +1,17 @@
+macro_rules! add_reminder_select_options {
+    ($select_menu:expr) => {
+        $select_menu
+            .add_option(slashook::structs::components::SelectOption::new("5 minutes", "5m"))
+            .add_option(slashook::structs::components::SelectOption::new("15 minutes", "15m"))
+            .add_option(slashook::structs::components::SelectOption::new("30 minutes", "30m"))
+            .add_option(slashook::structs::components::SelectOption::new("1 hour", "1h"))
+            .add_option(slashook::structs::components::SelectOption::new("3 hours", "3h"))
+            .add_option(slashook::structs::components::SelectOption::new("6 hours", "6h"))
+            .add_option(slashook::structs::components::SelectOption::new("12 hours", "12h"))
+            .add_option(slashook::structs::components::SelectOption::new("24 hours", "24h"))
+    };
+}
+
 macro_rules! and_then_or {
     ($expr:expr, $and_then:expr, $else:expr) => {
         $expr.and_then($and_then).unwrap_or($else)
@@ -166,6 +180,7 @@ macro_rules! yes_no {
     };
 }
 
+pub(crate) use add_reminder_select_options;
 pub(crate) use and_then_or;
 pub(crate) use escape_markdown;
 pub(crate) use format_timestamp;

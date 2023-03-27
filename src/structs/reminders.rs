@@ -1,5 +1,5 @@
 use crate::{
-    macros::if_else,
+    macros::{add_reminder_select_options, if_else},
     statics::{colors::NOTICE_COLOR, CONFIG, MONGODB},
 };
 use anyhow::{bail, Result};
@@ -15,7 +15,7 @@ use slashook::{
     rest::Rest,
     structs::{
         channels::{Channel, Message},
-        components::{Components, SelectMenu, SelectMenuType, SelectOption},
+        components::{Components, SelectMenu, SelectMenuType},
         embeds::Embed,
     },
 };
@@ -98,17 +98,9 @@ impl Reminders {
         if reminder.interval == 0 {
             response = response.set_components(
                 Components::new().add_select_menu(
-                    SelectMenu::new(SelectMenuType::STRING)
-                        .set_id("remind", "time")
-                        .set_placeholder("Snooze")
-                        .add_option(SelectOption::new("5 minutes", "5m"))
-                        .add_option(SelectOption::new("15 minutes", "15m"))
-                        .add_option(SelectOption::new("30 minutes", "30m"))
-                        .add_option(SelectOption::new("1 hour", "1h"))
-                        .add_option(SelectOption::new("3 hours", "3h"))
-                        .add_option(SelectOption::new("6 hours", "6h"))
-                        .add_option(SelectOption::new("12 hours", "12h"))
-                        .add_option(SelectOption::new("24 hours", "24h")),
+                    add_reminder_select_options!(SelectMenu::new(SelectMenuType::STRING))
+                        .set_id("remind", "snooze")
+                        .set_placeholder("Snooze"),
                 ),
             );
         }
