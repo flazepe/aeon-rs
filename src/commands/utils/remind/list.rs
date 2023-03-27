@@ -12,6 +12,8 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    res.defer(false).await?;
+
     let reminders = MONGODB.get().unwrap().collection::<Reminder>("reminders");
 
     let entries = reminders
