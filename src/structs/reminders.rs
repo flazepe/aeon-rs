@@ -90,6 +90,33 @@ impl Reminders {
     }
 
     async fn handle(&self, reminder: &Reminder) -> Result<()> {
+        let mut response = MessageResponse::from(if_else!(reminder.dm, "".into(), format!("<@{}>", reminder.user_id)))
+            .add_embed(
+                Embed::new()
+                    .set_color(NOTICE_COLOR)?
+                    .set_title("Reminder")
+                    .set_url(format!("https://discord.com/channels/{}", reminder.url))
+                    .set_description(&reminder.reminder),
+            );
+
+        if reminder.interval == 0 {
+            response = response.set_components(
+                Components::new().add_select_menu(
+                    SelectMenu::new(SelectMenuType::STRING)
+                        .set_id("remind", "time")
+                        .set_placeholder("Snooze")
+                        .add_option(SelectOption::new("5 minutes", "5m"))
+                        .add_option(SelectOption::new("15 minutes", "15m"))
+                        .add_option(SelectOption::new("30 minutes", "30m"))
+                        .add_option(SelectOption::new("1 hour", "1h"))
+                        .add_option(SelectOption::new("3 hours", "3h"))
+                        .add_option(SelectOption::new("6 hours", "6h"))
+                        .add_option(SelectOption::new("12 hours", "12h"))
+                        .add_option(SelectOption::new("24 hours", "24h")),
+                ),
+            )
+        }
+
         Message::create(
             &self.rest,
             // If the reminder should be DM'd but was created inside a guild channel, we have to create a new DM channel
@@ -118,29 +145,7 @@ impl Reminders {
                 // Else, just grab channel ID from the URL
                 reminder.url.split("/").skip(1).next().unwrap().to_string()
             },
-            MessageResponse::from(if_else!(reminder.dm, "".into(), format!("<@{}>", reminder.user_id)))
-                .add_embed(
-                    Embed::new()
-                        .set_color(NOTICE_COLOR)?
-                        .set_title("Reminder")
-                        .set_url(format!("https://discord.com/channels/{}", reminder.url))
-                        .set_description(&reminder.reminder),
-                )
-                .set_components(
-                    Components::new().add_select_menu(
-                        SelectMenu::new(SelectMenuType::STRING)
-                            .set_id("remind", "time")
-                            .set_placeholder("Snooze")
-                            .add_option(SelectOption::new("5 minutes", "5m"))
-                            .add_option(SelectOption::new("15 minutes", "15m"))
-                            .add_option(SelectOption::new("30 minutes", "30m"))
-                            .add_option(SelectOption::new("1 hour", "1h"))
-                            .add_option(SelectOption::new("3 hours", "3h"))
-                            .add_option(SelectOption::new("6 hours", "6h"))
-                            .add_option(SelectOption::new("12 hours", "12h"))
-                            .add_option(SelectOption::new("24 hours", "24h")),
-                    ),
-                ),
+            response,
         )
         .await?;
 
