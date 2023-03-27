@@ -1,5 +1,5 @@
 use crate::{
-    macros::if_else,
+    macros::{hastebin, if_else},
     statics::{colors::PRIMARY_COLOR, tio_programming_languages::TIO_PROGRAMMING_LANGUAGES},
 };
 use anyhow::{Context, Result};
@@ -21,6 +21,8 @@ pub struct Tio {
     pub programming_language: String,
     pub code: String,
     pub result: Option<String>,
+    pub result_url: String,
+    pub input_url: String,
 }
 
 impl Tio {
@@ -29,6 +31,8 @@ impl Tio {
             programming_language: programming_language.to_string().to_lowercase(),
             code: code.to_string(),
             result: None,
+            result_url: String::from(""),
+            input_url: String::from(""),
         }
     }
 
@@ -87,7 +91,11 @@ impl Tio {
         )?;
 
         let result = String::from_utf8(result)?;
-        self.result = Some(result.replace(&result.chars().take(16).collect::<String>(), ""));
+        let result = result.replace(&result.chars().take(16).collect::<String>(), "");
+
+        self.result = Some(result.clone());
+        self.result_url = hastebin!(result);
+        self.input_url = hastebin!(self.code);
 
         Ok(self)
     }
@@ -98,11 +106,13 @@ impl Tio {
             .unwrap_or_default()
             .set_title(self.programming_language)
             .set_description(format!(
-                "```\n{}```",
+                "[Input]({}) - [Full Result]({})```\n{}```",
+                self.input_url,
+                self.result_url,
                 self.result
                     .unwrap_or("No output.".into())
                     .chars()
-                    .take(3993)
+                    .take(3900)
                     .collect::<String>()
             ))
     }
