@@ -110,7 +110,7 @@ impl Reminders {
                         .add_option(SelectOption::new("12 hours", "12h"))
                         .add_option(SelectOption::new("24 hours", "24h")),
                 ),
-            )
+            );
         }
 
         Message::create(
