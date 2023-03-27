@@ -54,14 +54,7 @@ impl Reminders {
 
             for mut reminder in self
                 .reminders
-                .find(
-                    doc! {
-                        "timestamp": {
-                            "$lte": current_timestamp as i64
-                        }
-                    },
-                    None,
-                )
+                .find(doc! { "timestamp": { "$lte": current_timestamp as i64 } }, None)
                 .await?
                 .try_collect::<Vec<Reminder>>()
                 .await?
@@ -80,7 +73,10 @@ impl Reminders {
                         }
                     },
                     Err(error) => {
-                        println!("{error}");
+                        println!(
+                            "[REMINDERS] An error occurred while handling reminder {}: {error}",
+                            reminder._id
+                        );
                     },
                 }
             }
