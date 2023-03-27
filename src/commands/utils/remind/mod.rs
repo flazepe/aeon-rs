@@ -63,13 +63,12 @@ pub fn get_command() -> Command {
     )]
     async fn remind(input: CommandInput, res: CommandResponder) {
         if input.custom_id.is_some() {
-            res.delete_original_message().await?;
-
             // Snooze
             if input.custom_id == Some("snooze".into()) {
                 return snooze::run(input, res).await?;
             } else {
                 // Message reminder
+                res.delete_original_message().await?;
                 return set::run(input, res).await?;
             }
         }
