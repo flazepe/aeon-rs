@@ -36,6 +36,22 @@ macro_rules! format_timestamp {
     }};
 }
 
+macro_rules! hastebin {
+    ($text:expr) => {{
+        let domain = "https://paste.pythondiscord.com";
+
+        let json = reqwest::Client::new()
+            .post(format!("{domain}/documents"))
+            .body($text.to_string())
+            .send()
+            .await?
+            .json::<serde_json::Value>()
+            .await?;
+
+        format!("{domain}/raw/{}", json["key"].as_str().unwrap_or(""))
+    }};
+}
+
 macro_rules! if_else {
     ($condition:expr, $true:expr, $false:expr) => {
         if $condition {
@@ -153,6 +169,7 @@ macro_rules! yes_no {
 pub(crate) use and_then_or;
 pub(crate) use escape_markdown;
 pub(crate) use format_timestamp;
+pub(crate) use hastebin;
 pub(crate) use if_else;
 pub(crate) use kv_autocomplete;
 pub(crate) use plural;
