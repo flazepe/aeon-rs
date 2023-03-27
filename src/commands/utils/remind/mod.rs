@@ -68,7 +68,6 @@ pub fn get_command() -> Command {
                 return snooze::run(input, res).await?;
             } else {
                 // Message reminder
-                res.delete_original_message().await?;
                 return set::run(input, res).await?;
             }
         }
