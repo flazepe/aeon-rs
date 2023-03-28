@@ -2,7 +2,7 @@ use crate::{
     macros::{add_reminder_select_options, if_else},
     statics::{colors::NOTICE_COLOR, CONFIG, MONGODB},
 };
-use anyhow::{bail, Result};
+use anyhow::Result;
 use futures::stream::TryStreamExt;
 use mongodb::{
     bson::{doc, oid::ObjectId},
