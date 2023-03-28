@@ -87,7 +87,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     );
 
     // For older snooze messages
-    if url.contains('/') {
+    if !url.contains('/') {
         res.send_message(format!("{ERROR_EMOJI} Unsupported message.")).await?;
         return Ok(());
     }
