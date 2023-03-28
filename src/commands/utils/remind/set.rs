@@ -95,11 +95,11 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         .insert_one(
             &Reminder {
                 _id: ObjectId::new(),
-                user_id: input.user.id.to_string(),
-                url,
+                user_id: input.user.id.clone(),
+                url: url.clone(),
                 timestamp: (SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + time.total_secs),
                 interval: interval.total_secs,
-                reminder: reminder.to_string(),
+                reminder: reminder.clone(),
                 dm,
             },
             None,
