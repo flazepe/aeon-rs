@@ -1,3 +1,4 @@
+pub mod anilist;
 pub mod exchange_rate;
 pub mod google_dns;
 pub mod google_translate;

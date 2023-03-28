@@ -1,3 +1,4 @@
+pub mod anilist;
 pub mod colors;
 pub mod currencies;
 pub mod dns_codes;
