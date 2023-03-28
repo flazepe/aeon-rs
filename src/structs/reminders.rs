@@ -73,10 +73,24 @@ impl Reminders {
                         }
                     },
                     Err(error) => {
+                        let error = error.to_string();
+
                         println!(
                             "[REMINDERS] An error occurred while handling reminder {}: {error}",
                             reminder._id
                         );
+
+                        if let Some(fatal_error) = ["Invalid Recipient(s)", "Missing Access", "Unknown Channel"]
+                            .iter()
+                            .find(|message| error.contains(&message.to_string()))
+                        {
+                            self.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
+
+                            println!(
+                                "[REMINDERS] Deleted reminder {} due to fatal error \"{fatal_error}\".",
+                                reminder._id
+                            );
+                        }
                     },
                 }
             }
@@ -109,7 +123,10 @@ impl Reminders {
             &self.rest,
             if reminder.dm && !reminder.url.contains("@me") {
                 // If the reminder should be DM'd but was created inside a guild channel, we have to create a new DM channel
-                self.create_dm_channel(reminder).await?.id
+                self.rest
+                    .post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": reminder.user_id }))
+                    .await?
+                    .id
             } else {
                 // Else, just grab channel ID from the URL
                 reminder.url.split("/").skip(1).next().unwrap().to_string()
@@ -119,28 +136,5 @@ impl Reminders {
         .await?;
 
         Ok(())
-    }
-
-    async fn create_dm_channel(&self, reminder: &Reminder) -> Result<Channel> {
-        match self
-            .rest
-            .post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": reminder.user_id }))
-            .await
-        {
-            Ok(channel) => Ok(channel),
-            Err(error) => {
-                let error = error.to_string();
-
-                if reminder.interval > 0
-                    && ["Invalid Recipient(s)", "Missing Access", "Unknown Channel"]
-                        .iter()
-                        .any(|message| error.contains(message))
-                {
-                    self.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
-                }
-
-                bail!("Could not create DM channel.");
-            },
-        }
     }
 }
