@@ -14,7 +14,7 @@ use slashook::commands::{CommandInput, CommandResponder};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    res.defer(false).await?;
+    res.defer(input.values.is_some()).await?;
 
     let reminders = MONGODB.get().unwrap().collection::<Reminder>("reminders");
 
@@ -75,21 +75,16 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         reminder
     };
 
-    let url = {
-        let empty_string = String::new();
-        let custom_id = input.custom_id.as_ref().unwrap_or(&empty_string);
-
-        if_else!(
-            custom_id.contains('/'),
-            custom_id.to_string(),
-            format!(
-                "{}/{}/{}",
-                input.guild_id.as_ref().unwrap_or(&"@me".into()),
-                input.channel_id.as_ref().unwrap(),
-                res.get_original_message().await?.id
-            )
+    let url = and_then_or!(
+        input.custom_id.as_ref(),
+        |custom_id| Some(custom_id.to_string()),
+        format!(
+            "{}/{}/{}",
+            input.guild_id.as_ref().unwrap_or(&"@me".into()),
+            input.channel_id.as_ref().unwrap(),
+            res.get_original_message().await?.id
         )
-    };
+    );
 
     reminders
         .insert_one(
@@ -114,8 +109,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             "".into()
         ),
         if_else!(dm, "can DM you", "have the View Channel and Send Messages permission")
-    ))
-    .await?;
+    )).await?;
 
     Ok(())
 }
