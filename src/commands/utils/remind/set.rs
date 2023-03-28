@@ -91,17 +91,6 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         )
     };
 
-    res.send_message(format!(
-        "{SUCCESS_EMOJI} I will remind you about [{reminder}](<https://discord.com/channels/{url}>) in {time}{}. Make sure I {}.",
-        if_else!(
-            interval.total_secs > 0,
-            format!(" and every {interval} after that"),
-            "".into()
-        ),
-        if_else!(dm, "can DM you", "have the View Channel and Send Messages permission")
-    ))
-    .await?;
-
     reminders
         .insert_one(
             &Reminder {
@@ -116,6 +105,17 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             None,
         )
         .await?;
+
+    res.send_message(format!(
+        "{SUCCESS_EMOJI} I will remind you about [{reminder}](<https://discord.com/channels/{url}>) in {time}{}. Make sure I {}.",
+        if_else!(
+            interval.total_secs > 0,
+            format!(" and every {interval} after that"),
+            "".into()
+        ),
+        if_else!(dm, "can DM you", "have the View Channel and Send Messages permission")
+    ))
+    .await?;
 
     Ok(())
 }
