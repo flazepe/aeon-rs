@@ -44,6 +44,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         return Ok(());
     }
 
+    res.defer(true).await?;
+
     match entries.get(input.get_string_arg("entry")?.parse::<usize>()? - 1) {
         Some(entry) => {
             reminders.delete_one(doc! { "_id": entry._id }, None).await?;
