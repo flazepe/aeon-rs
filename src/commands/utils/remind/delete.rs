@@ -46,8 +46,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     match entries.get(input.get_string_arg("entry")?.parse::<usize>()? - 1) {
         Some(entry) => {
-            res.send_message(format!("{SUCCESS_EMOJI} Gone.")).await?;
             reminders.delete_one(doc! { "_id": entry._id }, None).await?;
+            res.send_message(format!("{SUCCESS_EMOJI} Gone.")).await?;
         },
         None => {
             res.send_message(format!("{ERROR_EMOJI} Invalid entry. Make sure it's a valid number."))
