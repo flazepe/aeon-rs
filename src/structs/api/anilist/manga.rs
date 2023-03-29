@@ -41,6 +41,7 @@ pub struct AniListManga {
     pub description: Option<String>,
     pub characters: AniListEdges<AniListMangaCharacter>,
     pub relations: AniListEdges<AniListRelation>,
+    pub updated_at: u64,
 }
 
 impl AniList {
