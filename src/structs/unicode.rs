@@ -14,10 +14,6 @@ pub struct UnicodeCharacter {
     pub character: String,
 }
 
-pub struct UnicodeCharacters {
-    pub unicode_characters: Vec<UnicodeCharacter>,
-}
-
 impl UnicodeCharacter {
     pub async fn get<T: Display>(name: T) -> Result<Self> {
         let document = Document::from(
@@ -65,6 +61,10 @@ impl UnicodeCharacter {
             )
         )
     }
+}
+
+pub struct UnicodeCharacters {
+    pub unicode_characters: Vec<UnicodeCharacter>,
 }
 
 impl UnicodeCharacters {
