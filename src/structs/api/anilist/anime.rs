@@ -2,9 +2,9 @@ use crate::{
     statics::anilist::ANILIST_ANIME_FIELDS,
     structs::api::anilist::{
         components::{
-            AniListAiringSchedule, AniListCoverImage, AniListEdges, AniListExternalLink, AniListFuzzyDate,
-            AniListMediaPageResponse, AniListMediaResponse, AniListNodes, AniListRanking, AniListRelation,
-            AniListStudio, AniListTitle, AniListTrailer,
+            AniListAiringSchedule, AniListCharacter, AniListCoverImage, AniListEdges, AniListExternalLink,
+            AniListFuzzyDate, AniListMediaPageResponse, AniListMediaResponse, AniListNodes, AniListRanking,
+            AniListRelation, AniListStudio, AniListTitle, AniListTrailer,
         },
         AniList,
     },
@@ -44,6 +44,7 @@ pub struct AniListAnime {
     pub favourites: u64,
     pub description: Option<String>,
     pub studios: AniListNodes<AniListStudio>,
+    pub characters: AniListEdges<AniListCharacter>,
     pub relations: AniListEdges<AniListRelation>,
 }
 

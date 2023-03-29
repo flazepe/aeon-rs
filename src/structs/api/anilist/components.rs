@@ -100,6 +100,40 @@ pub struct AniListStudio {
 }
 
 #[derive(Deserialize)]
+pub struct AniListName {
+    pub full: String,
+}
+
+#[derive(Deserialize)]
+pub struct AniListImage {
+    pub large: String,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AniListCharacterNode {
+    pub name: AniListName,
+    pub image: AniListImage,
+    pub site_url: String,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AniListCharacterVoiceActor {
+    pub name: AniListName,
+    pub language_v2: String,
+    pub site_url: String,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AniListCharacter {
+    pub node: AniListCharacterNode,
+    pub role: String,
+    pub voice_actors: Vec<AniListCharacterVoiceActor>,
+}
+
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListRelationNode {
     pub title: AniListTitle,
