@@ -6,16 +6,16 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let message = input.message.as_ref().unwrap();
 
     match if_else!(
-        // If there is no interaction, we need to verify the user
         message.interaction.is_none(),
-        input.guild_id.is_none()
-            || input.user.id
+        // If it's a reminder (we can tell since the message attached was not executed from an interaction), we need to verify the user before snoozing
+        input.guild_id.is_none() // If it's a DM we don't need to verify (the message content would be empty anyway)
+            || input.user.id // Else, parse the ping from the message content
                 == message
                     .content
                     .chars()
                     .filter(|char| char.is_numeric())
                     .collect::<String>(),
-        // Else, it's from the ephemeral select menu
+        // Else, it's an ephemeral select menu from the message reminder command; we let it pass
         true
     ) {
         true => {
