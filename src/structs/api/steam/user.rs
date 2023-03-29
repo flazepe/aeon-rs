@@ -1,7 +1,11 @@
 use crate::{
     macros::{and_then_or, format_timestamp, if_else, plural, yes_no},
-    statics::{colors::PRIMARY_COLOR, steam::STEAM_USER_STATES, CONFIG},
-    structs::api::steam::{country::SteamCountry, user_bans::SteamUserBans, user_vanity::SteamUserVanity},
+    statics::{
+        colors::PRIMARY_COLOR,
+        steam::{STEAM_COUNTRIES, STEAM_USER_STATES},
+        CONFIG,
+    },
+    structs::api::steam::{user_bans::SteamUserBans, user_vanity::SteamUserVanity},
 };
 use anyhow::{Context, Result};
 use reqwest::get;
@@ -155,19 +159,15 @@ impl SteamUser {
             .add_field("Created", format_timestamp!(self.time_created), false)
             .add_field(
                 "Location",
-                match SteamCountry::get(&self.loc_country_code.unwrap_or("".into())) {
-                    Some(country) => format!(
+                match STEAM_COUNTRIES.get_key_value(self.loc_country_code.unwrap_or("".into()).as_str()) {
+                    Some((country_code, country)) => format!(
                         ":flag_{}: {}{}",
-                        country.code.to_lowercase(),
+                        country_code.to_lowercase(),
                         and_then_or!(
                             self.loc_state_code,
                             |state_code| Some(format!(
                                 "{}, ",
-                                country
-                                    .states
-                                    .iter()
-                                    .find(|[state, _]| state == &state_code)
-                                    .unwrap_or(&["0", "Unknown"])[1],
+                                country.states.get(state_code.as_str()).unwrap_or(&"Unknown"),
                             )),
                             "".into()
                         ),

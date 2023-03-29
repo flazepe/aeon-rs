@@ -40,18 +40,16 @@ impl GoogleTranslate {
         }
 
         let origin_language = GOOGLE_TRANSLATE_LANGUAGES
-            .iter()
-            .find(|[language, _]| language == &origin_language.to_lowercase())
+            .get_key_value(origin_language.to_lowercase().as_str())
             .context("Invalid origin language.")?;
 
         let target_language = GOOGLE_TRANSLATE_LANGUAGES
-            .iter()
-            .find(|[language, _]| language == &target_language.to_lowercase())
+            .get_key_value(target_language.to_lowercase().as_str())
             .context("Invalid target language.")?;
 
         let google_translate_response = get(format!(
             "https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&dt=t&sl={}&tl={}&q={text}",
-            origin_language[0], target_language[0]
+            origin_language.0, target_language.0
         ))
         .await?
         .json::<GoogleTranslateResponse>()
@@ -61,12 +59,11 @@ impl GoogleTranslate {
             origin_language: format!(
                 "{}{}",
                 GOOGLE_TRANSLATE_LANGUAGES
-                    .iter()
-                    .find(|[language, _]| language == &google_translate_response.src)
-                    .context("Unexpected language code from API.")?[1],
-                if_else!(origin_language[0] == "auto", " (detected)", "")
+                    .get(&google_translate_response.src.as_str())
+                    .context("Unexpected language code from API.")?,
+                if_else!(origin_language.0 == &"auto", " (detected)", "")
             ),
-            target_language: target_language[1].to_string(),
+            target_language: target_language.1.to_string(),
             translation: google_translate_response
                 .sentences
                 .into_iter()

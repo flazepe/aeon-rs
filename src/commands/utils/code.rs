@@ -13,6 +13,7 @@ use slashook::{
         interactions::InteractionOptionType,
     },
 };
+use std::collections::HashMap;
 
 pub fn get_command() -> Command {
     #[command(
@@ -32,10 +33,8 @@ pub fn get_command() -> Command {
             kv_autocomplete!(
                 input,
                 res,
-                TIO_PROGRAMMING_LANGUAGES
-                    .iter()
-                    .map(|entry| [entry.id, entry.name])
-                    .collect::<Vec<[&str; 2]>>()
+                HashMap::from_iter(TIO_PROGRAMMING_LANGUAGES.iter().map(|entry| (entry.id, entry.name)))
+                    as HashMap<&str, &str>
             );
         }
 

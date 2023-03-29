@@ -1,12 +1,17 @@
-pub static DNS_CODES: [[&str; 2]; 10] = [
-    ["NOERROR", "DNS Query completed successfully."],
-    ["FORMERR", "DNS Query Format Error."],
-    ["SERVFAIL", "Server failed to complete the DNS request."],
-    ["NXDOMAIN", "Domain name does not exist."],
-    ["NOTIMP", "Function not implemented."],
-    ["REFUSED", "The server refused to answer for the query."],
-    ["YXDOMAIN", "Name that should not exist, does exist."],
-    ["XRRSET", "RRset that should not exist, does exist."],
-    ["NOTAUTH", "Server not authoritative for the zone."],
-    ["NOTZONE", "Name not in zone."],
-];
+use once_cell::sync::Lazy;
+use std::collections::HashMap;
+
+pub static DNS_CODES: Lazy<HashMap<u64, &str>> = Lazy::new(|| {
+    HashMap::from([
+        (0, "NOERROR: DNS Query completed successfully."),
+        (1, "FORMERR: DNS Query Format Error."),
+        (2, "SERVFAIL: Server failed to complete the DNS request."),
+        (3, "NXDOMAIN: Domain name does not exist."),
+        (4, "NOTIMP: Function not implemented."),
+        (5, "REFUSED: The server refused to answer for the query."),
+        (6, "YXDOMAIN: Name that should not exist, does exist."),
+        (7, "XRRSET: RRset that should not exist, does exist."),
+        (8, "NOTAUTH: Server not authoritative for the zone."),
+        (9, "NOTZONE: Name not in zone."),
+    ])
+});

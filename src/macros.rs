@@ -77,7 +77,7 @@ macro_rules! if_else {
 }
 
 macro_rules! kv_autocomplete {
-    ($input:expr, $res:expr, $kv_array:expr) => {
+    ($input:expr, $res:expr, $hashmap:expr) => {
         let value = $input
             .args
             .get(&$input.focused.context("Missing focused arg.")?)
@@ -88,10 +88,10 @@ macro_rules! kv_autocomplete {
 
         return Ok($res
             .autocomplete(
-                $kv_array
+                $hashmap
                     .iter()
-                    .filter(|[k, v]| k.to_lowercase().contains(&value) || v.to_lowercase().contains(&value))
-                    .map(|[k, v]| {
+                    .filter(|(k, v)| k.to_lowercase().contains(&value) || v.to_lowercase().contains(&value))
+                    .map(|(k, v)| {
                         slashook::structs::interactions::ApplicationCommandOptionChoice::new(v, k.to_string())
                     })
                     .take(25)

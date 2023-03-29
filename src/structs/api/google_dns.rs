@@ -1,7 +1,4 @@
-use crate::{
-    macros::and_then_or,
-    statics::{colors::PRIMARY_COLOR, dns_codes::DNS_CODES},
-};
+use crate::statics::{colors::PRIMARY_COLOR, dns_codes::DNS_CODES};
 use anyhow::{bail, Result};
 use reqwest::get;
 use serde::Deserialize;
@@ -86,14 +83,9 @@ impl GoogleDNS {
         let dns_response = res.json::<GoogleDNSQuery>().await?;
 
         if dns_response.status != 0 {
-            bail!(and_then_or!(
-                DNS_CODES
-                    .iter()
-                    .enumerate()
-                    .find(|(index, _)| index == &(dns_response.status as usize)),
-                |entry| Some(entry.1.join(": ")),
-                "An unknown error occurred.".into()
-            ));
+            bail!(DNS_CODES
+                .get(&dns_response.status)
+                .unwrap_or(&"An unknown error occurred."));
         }
 
         let records = dns_response.answer.or(dns_response.authority).unwrap_or(vec![]);

@@ -59,7 +59,7 @@ impl UnicodeCharacter {
             if_else!(
                 CONTROL_CHARACTERS
                     .iter()
-                    .any(|[_, control_character]| control_character == &self.name),
+                    .any(|(_, control_character)| control_character == &self.name),
                 "".into(),
                 format!(" - `{}`", self.character.replace('`', "｀"))
             )
@@ -83,11 +83,8 @@ impl UnicodeCharacters {
 
             let mut name = String::from("UNKNOWN");
 
-            if let Some(character_name) = CONTROL_CHARACTERS
-                .iter()
-                .find(|[control_character, _]| control_character == &format!("{:X}", character as u32))
-            {
-                name = character_name[1].to_string();
+            if let Some(character_name) = CONTROL_CHARACTERS.get(format!("{:X}", character as u32).as_str()) {
+                name = character_name.to_string();
             }
 
             if let Some(character_name) = get_unicode_name(character) {
