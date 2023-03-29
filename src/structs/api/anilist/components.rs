@@ -134,7 +134,6 @@ pub struct AniListAnimeCharacter {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct AniListMangaCharacter {
     pub node: AniListCharacterNode,
     pub role: String,
