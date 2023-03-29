@@ -18,8 +18,6 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     // Delete message with select menu
     if let Some(message) = input.message.as_ref() {
-        println!("{} {}", message.channel_id, message.id);
-
         input
             .rest
             .delete::<()>(format!("channels/{}/messages/{}", message.channel_id, message.id))
