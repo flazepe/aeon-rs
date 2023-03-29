@@ -12,9 +12,10 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let reminders = MONGODB.get().unwrap().collection::<Reminder>("reminders");
-
-    let entries = reminders
+    let entries = MONGODB
+        .get()
+        .unwrap()
+        .collection::<Reminder>("reminders")
         .find(doc! { "user_id": input.user.id.to_string() }, None)
         .await?
         .try_collect::<Vec<Reminder>>()
