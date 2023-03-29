@@ -1,20 +1,22 @@
-use crate::{commands::utils::remind::set, macros::and_then_or, statics::emojis::ERROR_EMOJI};
+use crate::{commands::utils::remind::set, macros::if_else, statics::emojis::ERROR_EMOJI};
 use anyhow::Result;
 use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let message = input.message.as_ref().unwrap();
 
-    match and_then_or!(
-        message.interaction.as_ref(),
-        |interaction| Some(input.user.id == interaction.user.id),
+    match if_else!(
+        // If there is no interaction, we need to verify the user
+        message.interaction.is_none(),
         input.guild_id.is_none()
             || input.user.id
                 == message
                     .content
                     .chars()
                     .filter(|char| char.is_numeric())
-                    .collect::<String>()
+                    .collect::<String>(),
+        // Else, it's from the ephemeral select menu
+        true
     ) {
         true => {
             set::run(input, res).await?;

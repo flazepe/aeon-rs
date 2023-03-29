@@ -16,13 +16,15 @@ use std::time::{SystemTime, UNIX_EPOCH};
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     res.defer(input.is_string_select()).await?;
 
-    // Delete message with select menu
     if let Some(message) = input.message.as_ref() {
-        input
-            .rest
-            .delete::<()>(format!("channels/{}/messages/{}", message.channel_id, message.id))
-            .await
-            .ok();
+        // Delete snoozed reminder
+        if message.interaction.is_none() {
+            input
+                .rest
+                .delete::<()>(format!("channels/{}/messages/{}", message.channel_id, message.id))
+                .await
+                .ok();
+        }
     }
 
     let reminders = MONGODB.get().unwrap().collection::<Reminder>("reminders");
