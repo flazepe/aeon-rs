@@ -1,6 +1,6 @@
 pub static ANILIST_ANIME_FIELDS: &str = "
-	coverImage { extraLarge } bannerImage
-	countryOfOrigin title { romaji native english } format synonyms siteUrl isAdult
+	id siteUrl coverImage { extraLarge } bannerImage
+	countryOfOrigin title { romaji native english } format synonyms isAdult
 	startDate { year month day }
 	endDate { year month day }
 	status
@@ -18,6 +18,33 @@ pub static ANILIST_ANIME_FIELDS: &str = "
 			node { name { full } image { large } siteUrl }
 			role
 			voiceActors { name { full } languageV2 siteUrl }
+		}
+	}
+	relations {
+		edges {
+			relationType
+			node { title { romaji native english } format siteUrl }
+		}
+	}
+	updatedAt
+";
+
+pub static ANILIST_MANGA_FIELDS: &str = "
+	id siteUrl coverImage { extraLarge } bannerImage
+	countryOfOrigin title { romaji native english } format synonyms isAdult
+	startDate { year month day }
+	endDate { year month day }
+	status
+	chapters volumes isLicensed
+	genres source averageScore meanScore
+	externalLinks { site url }
+	rankings { rank type format allTime season year }
+	popularity favourites
+	description
+	characters(perPage: 10, sort: ROLE) {
+		edges {
+			node { name { full } image { large } siteUrl }
+			role
 		}
 	}
 	relations {

@@ -1,10 +1,9 @@
 use crate::{
-    statics::anilist::ANILIST_ANIME_FIELDS,
+    statics::anilist::ANILIST_MANGA_FIELDS,
     structs::api::anilist::{
         components::{
-            AniListAiringSchedule, AniListAnimeCharacter, AniListCoverImage, AniListEdges, AniListExternalLink,
-            AniListFuzzyDate, AniListMediaPageResponse, AniListMediaResponse, AniListNodes, AniListRanking,
-            AniListRelation, AniListStudio, AniListTitle, AniListTrailer,
+            AniListCoverImage, AniListEdges, AniListExternalLink, AniListFuzzyDate, AniListMangaCharacter,
+            AniListMediaPageResponse, AniListMediaResponse, AniListRanking, AniListRelation, AniListTitle,
         },
         AniList,
     },
@@ -15,7 +14,7 @@ use serde_json::json;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AniListAnime {
+pub struct AniListManga {
     pub id: u64,
     pub site_url: String,
     pub cover_image: AniListCoverImage,
@@ -28,13 +27,9 @@ pub struct AniListAnime {
     pub start_date: AniListFuzzyDate,
     pub end_date: AniListFuzzyDate,
     pub status: String,
-    pub airing_schedule: AniListNodes<AniListAiringSchedule>,
-    pub season: Option<String>,
-    pub season_year: Option<u64>,
-    pub trailer: Option<AniListTrailer>,
-    pub episodes: Option<u64>,
-    pub duration: Option<u64>,
-    pub hashtag: Option<String>,
+    pub chapters: Option<u64>,
+    pub volumes: Option<u64>,
+    pub is_licensed: bool,
     pub genres: Vec<String>,
     pub source: Option<String>,
     pub average_score: Option<u64>,
@@ -44,20 +39,18 @@ pub struct AniListAnime {
     pub popularity: u64,
     pub favourites: u64,
     pub description: Option<String>,
-    pub studios: AniListNodes<AniListStudio>,
-    pub characters: AniListEdges<AniListAnimeCharacter>,
+    pub characters: AniListEdges<AniListMangaCharacter>,
     pub relations: AniListEdges<AniListRelation>,
-    pub updated_at: u64,
 }
 
 impl AniList {
-    pub async fn get_anime_by_query<T: ToString>(search: T) -> Result<AniListMediaPageResponse<AniListAnime>> {
+    pub async fn get_manga_by_query<T: ToString>(search: T) -> Result<AniListMediaPageResponse<AniListManga>> {
         Ok(AniList::query(
             format!(
                 "query($search: String) {{
                     Page(perPage: 10) {{
-                        media(search: $search, type: ANIME, sort: POPULARITY_DESC) {{
-                            {ANILIST_ANIME_FIELDS}
+                        media(search: $search, type: MANGA, sort: POPULARITY_DESC) {{
+                            {ANILIST_MANGA_FIELDS}
                         }}
                     }}
                 }}"
@@ -67,12 +60,12 @@ impl AniList {
         .await?)
     }
 
-    pub async fn get_anime_by_id(id: u64) -> Result<AniListMediaResponse<AniListAnime>> {
+    pub async fn get_manga_by_id(id: u64) -> Result<AniListMediaResponse<AniListManga>> {
         Ok(AniList::query(
             format!(
                 "query($id: Int) {{
                     Media(id: $id) {{
-                        {ANILIST_ANIME_FIELDS}
+                        {ANILIST_MANGA_FIELDS}
                     }}
                 }}"
             ),

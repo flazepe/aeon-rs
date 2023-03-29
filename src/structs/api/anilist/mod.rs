@@ -1,5 +1,6 @@
-pub mod anime;
-pub mod components;
+mod anime;
+mod components;
+mod manga;
 
 use anyhow::Result;
 use reqwest::Client;
