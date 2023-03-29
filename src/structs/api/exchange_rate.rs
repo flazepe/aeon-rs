@@ -18,11 +18,11 @@ pub struct ExchangeRateConversion {
 impl ExchangeRateConversion {
     pub async fn get<T: ToString, U: ToString>(amount: f64, origin_currency: T, target_currency: U) -> Result<Self> {
         let origin_currency = CURRENCIES
-            .get_key_value(origin_currency.to_string().as_str())
+            .get_key_value(origin_currency.to_string().to_uppercase().as_str())
             .context("Invalid origin currency.")?;
 
         let target_currency = CURRENCIES
-            .get_key_value(target_currency.to_string().as_str())
+            .get_key_value(target_currency.to_string().to_uppercase().as_str())
             .context("Invalid target currency.")?;
 
         Ok(Self {
