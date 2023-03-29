@@ -51,7 +51,7 @@ pub struct AniListAnime {
 }
 
 impl AniList {
-    pub async fn get_anime_by_query<T: ToString>(search: T) -> Result<AniListMediaPageResponse<AniListAnime>> {
+    pub async fn search_anime<T: ToString>(search: T) -> Result<AniListMediaPageResponse<AniListAnime>> {
         Ok(AniList::query(
             format!(
                 "query($search: String) {{
@@ -67,7 +67,7 @@ impl AniList {
         .await?)
     }
 
-    pub async fn get_anime_by_id(id: u64) -> Result<AniListMediaResponse<AniListAnime>> {
+    pub async fn get_anime(id: u64) -> Result<AniListMediaResponse<AniListAnime>> {
         Ok(AniList::query(
             format!(
                 "query($id: Int) {{
