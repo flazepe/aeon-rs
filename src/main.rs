@@ -18,7 +18,7 @@ use tokio::spawn;
 async fn main() -> Result<()> {
     MONGODB
         .get_or_init(async {
-            MongoDBClient::with_options(MongoDBClientOptions::parse(&CONFIG.db.mongodb_uri).await.unwrap())
+            MongoDBClient::with_options(MongoDBClientOptions::parse(&CONFIG.database.mongodb_uri).await.unwrap())
                 .unwrap()
                 .database("aeon")
         })

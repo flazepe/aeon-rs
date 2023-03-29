@@ -4,7 +4,7 @@ guild_id = "guild_id"
 token = "token"
 public_key = "public_key"
 
-[db]
+[database]
 mongodb_uri = "mongodb_uri"
 
 [api]

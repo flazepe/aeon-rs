@@ -3,7 +3,7 @@ use serde::Deserialize;
 #[derive(Deserialize)]
 pub struct Config {
     pub bot: BotConfig,
-    pub db: DBConfig,
+    pub database: DatabaseConfig,
     pub api: APIConfig,
 }
 
@@ -16,7 +16,7 @@ pub struct BotConfig {
 }
 
 #[derive(Deserialize)]
-pub struct DBConfig {
+pub struct DatabaseConfig {
     pub mongodb_uri: String,
 }
 
