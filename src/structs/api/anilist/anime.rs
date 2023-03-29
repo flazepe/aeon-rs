@@ -46,6 +46,7 @@ pub struct AniListAnime {
     pub studios: AniListNodes<AniListStudio>,
     pub characters: AniListEdges<AniListCharacter>,
     pub relations: AniListEdges<AniListRelation>,
+    pub updated_at: u64,
 }
 
 impl AniList {
