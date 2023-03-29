@@ -119,7 +119,7 @@ pub struct AniListCharacterNode {
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AniListAnimeCharacterVoiceActor {
+pub struct AniListCharacterVoiceActor {
     pub name: AniListName,
     pub language_v2: String,
     pub site_url: String,
@@ -130,7 +130,7 @@ pub struct AniListAnimeCharacterVoiceActor {
 pub struct AniListAnimeCharacter {
     pub node: AniListCharacterNode,
     pub role: String,
-    pub voice_actors: Vec<AniListAnimeCharacterVoiceActor>,
+    pub voice_actors: Vec<AniListCharacterVoiceActor>,
 }
 
 #[derive(Deserialize)]
