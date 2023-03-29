@@ -1,7 +1,7 @@
 mod delete;
 mod list;
+mod select_menu;
 mod set;
-mod snooze;
 
 use slashook::{
     command,
@@ -62,14 +62,8 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn remind(input: CommandInput, res: CommandResponder) {
-        if input.custom_id.is_some() {
-            // Snooze
-            if input.custom_id == Some("snooze".into()) {
-                return snooze::run(input, res).await?;
-            } else {
-                // Message reminder
-                return set::run(input, res).await?;
-            }
+        if input.is_string_select() {
+            return select_menu::run(input, res).await?;
         }
 
         match input.subcommand.as_deref().unwrap_or("") {
