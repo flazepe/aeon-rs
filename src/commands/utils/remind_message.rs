@@ -14,10 +14,8 @@ pub fn get_command() -> Command {
 		command_type = ApplicationCommandType::MESSAGE,
 	)]
     async fn remind_message(input: CommandInput, res: CommandResponder) {
-        res.defer(true).await?;
-
         res.send_message(
-            MessageResponse::from("").set_components(
+            MessageResponse::from(
                 Components::new().add_select_menu(
                     add_reminder_select_options!(SelectMenu::new(SelectMenuType::STRING))
                         .set_id(
@@ -31,7 +29,8 @@ pub fn get_command() -> Command {
                         )
                         .set_placeholder("Select time to remind about message"),
                 ),
-            ),
+            )
+            .set_ephemeral(true),
         )
         .await?;
     }

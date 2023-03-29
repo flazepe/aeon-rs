@@ -7,13 +7,11 @@ use anyhow::Result;
 use futures::stream::TryStreamExt;
 use mongodb::bson::doc;
 use slashook::{
-    commands::{CommandInput, CommandResponder},
+    commands::{CommandInput, CommandResponder, MessageResponse},
     structs::embeds::Embed,
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    res.defer(true).await?;
-
     let reminders = MONGODB.get().unwrap().collection::<Reminder>("reminders");
 
     let entries = reminders
@@ -41,11 +39,15 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     if_else!(
         entries.is_empty(),
-        res.send_message(format!("{ERROR_EMOJI} No reminders found.")).await?,
+        res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} No reminders found.")).set_ephemeral(true))
+            .await?,
         res.send_message(
-            Embed::new()
-                .set_color(PRIMARY_COLOR)?
-                .set_description(entries.join("\n\n"))
+            MessageResponse::from(
+                Embed::new()
+                    .set_color(PRIMARY_COLOR)?
+                    .set_description(entries.join("\n\n"))
+            )
+            .set_ephemeral(true)
         )
         .await?
     );

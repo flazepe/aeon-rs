@@ -10,7 +10,7 @@ use anyhow::Result;
 use futures::stream::TryStreamExt;
 use mongodb::bson::doc;
 use slashook::{
-    commands::{CommandInput, CommandResponder},
+    commands::{CommandInput, CommandResponder, MessageResponse},
     structs::interactions::ApplicationCommandOptionChoice,
 };
 
@@ -44,16 +44,19 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         return Ok(());
     }
 
-    res.defer(true).await?;
+    let response = MessageResponse::from("").set_ephemeral(true);
 
     match entries.get(input.get_string_arg("entry")?.parse::<usize>()? - 1) {
         Some(entry) => {
             reminders.delete_one(doc! { "_id": entry._id }, None).await?;
-            res.send_message(format!("{SUCCESS_EMOJI} Gone.")).await?;
+            res.send_message(response.set_content(format!("{SUCCESS_EMOJI} Gone.")))
+                .await?;
         },
         None => {
-            res.send_message(format!("{ERROR_EMOJI} Invalid entry. Make sure it's a valid number."))
-                .await?;
+            res.send_message(
+                response.set_content(format!("{ERROR_EMOJI} Invalid entry. Make sure it's a valid number.")),
+            )
+            .await?;
         },
     }
 
