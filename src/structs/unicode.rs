@@ -109,7 +109,7 @@ impl UnicodeCharacters {
             .collect::<Vec<UnicodeCharacter>>();
 
         format!(
-            "showing first {}:\n\n{}",
+            "Showing first {}:\n\n{}",
             plural!(unicode_characters.len(), "character"),
             unicode_characters
                 .into_iter()
