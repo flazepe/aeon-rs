@@ -14,16 +14,13 @@ impl EventHandler {
                 }
             }
 
-            let mut snipe_channels = CACHE.snipes.write().unwrap();
+            let mut channels = CACHE.snipes.write().unwrap();
 
-            if !snipe_channels.contains_key(&channel_id) {
-                snipe_channels.insert(channel_id.clone(), vec![]);
+            if !channels.contains_key(&channel_id) {
+                channels.insert(channel_id.clone(), vec![]);
             }
 
-            snipe_channels
-                .get_mut(&channel_id)
-                .unwrap()
-                .append(&mut deleted_messages);
+            channels.get_mut(&channel_id).unwrap().append(&mut deleted_messages);
         }
     }
 }
