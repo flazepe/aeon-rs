@@ -70,7 +70,10 @@ impl Snipes {
             Embed::new()
                 .set_color(PRIMARY_COLOR)?
                 .set_description(stringify_message!(&snipe))
-                .set_footer(twilight_user_to_tag!(snipe.author), snipe.author.avatar_url("png", 64))
+                .set_footer(
+                    twilight_user_to_tag!(snipe.author),
+                    Some(snipe.author.display_avatar_url("png", 64)),
+                )
                 .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?),
         ));
     }

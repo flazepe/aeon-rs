@@ -96,6 +96,7 @@ impl ArgGetters for CommandInput {
 
 pub trait AvatarURL {
     fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String>;
+    fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String;
 }
 
 impl AvatarURL for TwilightUser {
@@ -106,6 +107,16 @@ impl AvatarURL for TwilightUser {
                 self.id
             )
         })
+    }
+
+    fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String {
+        match self.avatar_url(format, size) {
+            Some(avatar_url) => avatar_url,
+            None => format!(
+                "https://cdn.discordapp.com/embed/avatars/{}.png",
+                self.discriminator % 5
+            ),
+        }
     }
 }
 
