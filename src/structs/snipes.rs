@@ -40,15 +40,16 @@ impl Snipes {
 
         if self.send_list {
             return Ok(response.add_file(File::new(
-                format!("{}snipes.txt", if_else!(self.is_edit, "edit-", "")),
+                if_else!(self.is_edit, "edit-snipes.txt", "snipes.txt"),
                 snipes
                     .into_iter()
+                    .rev()
                     .map(|message| {
                         format!(
                             "{} ({}) at {}:\n\n{}",
                             twilight_user_to_tag!(message.author),
                             message.author.id,
-                            DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string(),)
+                            DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string())
                                 .unwrap()
                                 .to_rfc2822(),
                             stringify_message!(&message)
