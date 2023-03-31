@@ -29,7 +29,7 @@ pub struct AniListMediaData<T> {
     pub media: Option<T>,
 }
 
-// Others
+// Edges and nodes
 #[derive(Deserialize)]
 pub struct AniListNodes<T> {
     pub nodes: Vec<T>,
@@ -40,73 +40,19 @@ pub struct AniListEdges<T> {
     pub edges: Vec<T>,
 }
 
+// Character
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AniListCoverImage {
-    pub extra_large: String,
+pub struct AniListAnimeCharacter {
+    pub node: AniListCharacterNode,
+    pub role: String,
+    pub voice_actors: Vec<AniListCharacterVoiceActor>,
 }
 
 #[derive(Deserialize)]
-pub struct AniListTitle {
-    pub romaji: String,
-    pub native: Option<String>,
-    pub english: Option<String>,
-}
-
-#[derive(Deserialize)]
-pub struct AniListFuzzyDate {
-    pub year: Option<u64>,
-    pub month: Option<u64>,
-    pub day: Option<u64>,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AniListAiringSchedule {
-    pub time_until_airing: Option<i64>,
-}
-
-#[derive(Deserialize)]
-pub struct AniListTrailer {
-    pub id: String,
-    pub site: String,
-}
-
-#[derive(Deserialize)]
-pub struct AniListExternalLink {
-    pub site: Option<String>,
-    pub url: String,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AniListRanking {
-    pub rank: u64,
-
-    #[serde(rename = "type")]
-    pub ranking_type: Option<String>,
-
-    pub format: Option<String>,
-    pub all_time: bool,
-    pub season: Option<String>,
-    pub year: Option<u64>,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AniListStudio {
-    pub name: String,
-    pub site_url: String,
-}
-
-#[derive(Deserialize)]
-pub struct AniListName {
-    pub full: String,
-}
-
-#[derive(Deserialize)]
-pub struct AniListImage {
-    pub large: String,
+pub struct AniListMangaCharacter {
+    pub node: AniListCharacterNode,
+    pub role: String,
 }
 
 #[derive(Deserialize)]
@@ -125,18 +71,12 @@ pub struct AniListCharacterVoiceActor {
     pub site_url: String,
 }
 
+// Relation
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AniListAnimeCharacter {
-    pub node: AniListCharacterNode,
-    pub role: String,
-    pub voice_actors: Vec<AniListCharacterVoiceActor>,
-}
-
-#[derive(Deserialize)]
-pub struct AniListMangaCharacter {
-    pub node: AniListCharacterNode,
-    pub role: String,
+pub struct AniListRelation {
+    pub relation_type: String,
+    pub node: AniListRelationNode,
 }
 
 #[derive(Deserialize)]
@@ -147,9 +87,116 @@ pub struct AniListRelationNode {
     pub site_url: String,
 }
 
+// Others
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AniListRelation {
-    pub relation_type: String,
-    pub node: AniListRelationNode,
+pub struct AniListAiringSchedule {
+    pub time_until_airing: Option<i64>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AniListCoverImage {
+    pub extra_large: String,
+}
+
+#[derive(Deserialize)]
+pub struct AniListExternalLink {
+    pub site: Option<String>,
+    pub url: String,
+}
+
+#[derive(Deserialize)]
+pub struct AniListFuzzyDate {
+    pub year: Option<u64>,
+    pub month: Option<u64>,
+    pub day: Option<u64>,
+}
+
+#[derive(Deserialize)]
+pub struct AniListImage {
+    pub large: String,
+}
+
+#[derive(Deserialize)]
+pub struct AniListName {
+    pub full: String,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AniListRanking {
+    pub rank: u64,
+
+    #[serde(rename = "type")]
+    pub ranking_type: Option<AniListRankingType>,
+
+    pub format: Option<String>,
+    pub all_time: bool,
+    pub season: Option<String>,
+    pub year: Option<u64>,
+}
+
+#[derive(Deserialize)]
+pub enum AniListRankingType {
+    POPULAR,
+    RATED,
+}
+
+#[derive(Deserialize)]
+pub enum AniListSeason {
+    WINTER,
+    SPRING,
+    SUMMER,
+    FALL,
+}
+
+#[derive(Deserialize)]
+#[allow(non_camel_case_types)]
+pub enum AniListSource {
+    ORIGINAL,
+    MANGA,
+    LIGHT_NOVEL,
+    VISUAL_NOVEL,
+    VIDEO_GAME,
+    OTHER,
+    NOVEL,
+    DOUJINSHI,
+    ANIME,
+    WEB_NOVEL,
+    LIVE_ACTION,
+    GAME,
+    COMIC,
+    MULTIMEDIA_PROJECT,
+    PICTURE_BOOK,
+}
+
+#[derive(Deserialize)]
+#[allow(non_camel_case_types)]
+pub enum AniListStatus {
+    FINISHED,
+    RELEASING,
+    NOT_YET_RELEASED,
+    CANCELLED,
+    HIATUS,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AniListStudio {
+    pub name: String,
+    pub site_url: String,
+}
+
+#[derive(Deserialize)]
+pub struct AniListTitle {
+    pub romaji: String,
+    pub native: Option<String>,
+    pub english: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct AniListTrailer {
+    pub id: String,
+    pub site: String,
 }
