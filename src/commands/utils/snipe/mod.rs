@@ -24,8 +24,8 @@ pub fn get_command() -> Command {
                         channel_types = [
                             ChannelType::GUILD_TEXT,
                             ChannelType::GUILD_VOICE,
-                            ChannelType::GUILD_NEWS,
-                            ChannelType::GUILD_NEWS_THREAD,
+                            ChannelType::GUILD_ANNOUNCEMENT,
+                            ChannelType::ANNOUNCEMENT_THREAD,
                             ChannelType::GUILD_PUBLIC_THREAD,
                             ChannelType::GUILD_PRIVATE_THREAD,
                             ChannelType::GUILD_STAGE_VOICE,
