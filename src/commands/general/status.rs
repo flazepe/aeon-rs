@@ -1,6 +1,6 @@
 use crate::{
-    macros::format_timestamp,
-    statics::{colors::PRIMARY_COLOR, emojis::ERROR_EMOJI},
+    macros::{format_timestamp, plural},
+    statics::{colors::PRIMARY_COLOR, emojis::ERROR_EMOJI, CACHE},
 };
 use anyhow::Context;
 use slashook::commands::{CommandInput, CommandResponder};
@@ -26,6 +26,56 @@ pub fn get_command() -> Command {
                         .add_field(
                             "Virtual Memory",
                             format!("{} MB", process.virtual_memory() / 1024 / 1024),
+                            false,
+                        )
+                        .add_field(
+                            "Cache",
+                            {
+                                let channels = CACHE.channels.read()?;
+
+                                [
+                                    plural!(channels.len(), "channel"),
+                                    plural!(
+                                        channels
+                                            .iter()
+                                            .map(|(_, messages)| messages.len())
+                                            .reduce(|acc, cur| acc + cur)
+                                            .unwrap_or(0),
+                                        "message"
+                                    ),
+                                    plural!(
+                                        CACHE
+                                            .snipes
+                                            .read()?
+                                            .iter()
+                                            .map(|(_, messages)| messages.len())
+                                            .reduce(|acc, cur| acc + cur)
+                                            .unwrap_or(0),
+                                        "snipe"
+                                    ),
+                                    plural!(
+                                        CACHE
+                                            .edit_snipes
+                                            .read()?
+                                            .iter()
+                                            .map(|(_, messages)| messages.len())
+                                            .reduce(|acc, cur| acc + cur)
+                                            .unwrap_or(0),
+                                        "edit snipe"
+                                    ),
+                                    plural!(
+                                        CACHE
+                                            .reaction_snipes
+                                            .read()?
+                                            .iter()
+                                            .map(|(_, messages)| messages.len())
+                                            .reduce(|acc, cur| acc + cur)
+                                            .unwrap_or(0),
+                                        "reaction snipe"
+                                    ),
+                                ]
+                                .join("\n")
+                            },
                             false,
                         ),
                 )
