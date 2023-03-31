@@ -11,7 +11,7 @@ impl EventHandler {
         let reaction = reaction.0;
 
         if let Some(guild_id) = reaction.guild_id {
-            let mut messages = CACHE.reaction_snipes.lock().unwrap();
+            let mut messages = CACHE.reaction_snipes.write().unwrap();
             let key = format!("{}/{}", guild_id.to_string(), reaction.message_id);
 
             if !messages.contains_key(&key) {

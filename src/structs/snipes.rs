@@ -28,7 +28,7 @@ impl Snipes {
     pub fn to_response(&self) -> Result<MessageResponse> {
         let empty_vec = vec![];
         let snipes = if_else!(self.is_edit, &CACHE.edit_snipes, &CACHE.snipes)
-            .lock()
+            .read()
             .unwrap();
         let snipes = snipes.get(&self.channel_id).unwrap_or(&empty_vec);
 
@@ -90,7 +90,7 @@ impl ReactionSnipes {
 
     pub fn to_response(self) -> Result<MessageResponse> {
         let empty_vec = vec![];
-        let reaction_snipes = CACHE.reaction_snipes.lock().unwrap();
+        let reaction_snipes = CACHE.reaction_snipes.read().unwrap();
         let reaction_snipes = reaction_snipes
             .get(&format!("{}/{}", self.guild_id, self.message_id))
             .unwrap_or(&empty_vec);

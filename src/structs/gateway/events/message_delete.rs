@@ -3,7 +3,7 @@ use twilight_model::gateway::payload::incoming::MessageDelete;
 
 impl EventHandler {
     pub fn on_message_delete(message: MessageDelete) {
-        let mut channels = CACHE.channels.lock().unwrap();
+        let mut channels = CACHE.channels.write().unwrap();
         let channel_id = message.channel_id.to_string();
 
         if !channels.contains_key(&channel_id) {
@@ -20,7 +20,7 @@ impl EventHandler {
             let message = messages.remove(entry.0);
 
             // Snipes
-            let mut channels = CACHE.snipes.lock().unwrap();
+            let mut channels = CACHE.snipes.write().unwrap();
 
             if !channels.contains_key(&channel_id) {
                 channels.insert(channel_id.clone(), vec![]);

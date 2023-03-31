@@ -40,7 +40,7 @@ pub fn get_command() -> Command {
 
         let programming_language = {
             input.get_string_arg("programming-language").unwrap_or(and_then_or!(
-                CACHE.last_tio_programming_languages.lock()?.get(&input.user.id),
+                CACHE.last_tio_programming_languages.read()?.get(&input.user.id),
                 |programming_language| Some(programming_language.to_string()),
                 "".into()
             ))
@@ -56,7 +56,7 @@ pub fn get_command() -> Command {
         {
             CACHE
                 .last_tio_programming_languages
-                .lock()?
+                .write()?
                 .insert(input.user.id.clone(), programming_language.clone());
         }
 

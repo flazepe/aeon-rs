@@ -3,7 +3,7 @@ use twilight_model::gateway::payload::incoming::MessageUpdate;
 
 impl EventHandler {
     pub fn on_message_update(message: Box<MessageUpdate>) {
-        let mut channels = CACHE.channels.lock().unwrap();
+        let mut channels = CACHE.channels.write().unwrap();
         let channel_id = message.channel_id.to_string();
 
         if !channels.contains_key(&channel_id) {
@@ -37,7 +37,7 @@ impl EventHandler {
             old_message.pinned = message.pinned.unwrap_or(old_message.pinned);
 
             // Edit snipes
-            let mut channels = CACHE.edit_snipes.lock().unwrap();
+            let mut channels = CACHE.edit_snipes.write().unwrap();
 
             if !channels.contains_key(&channel_id) {
                 channels.insert(channel_id.clone(), vec![]);
