@@ -162,7 +162,7 @@ macro_rules! stringify_message {
 
 macro_rules! twilight_user_to_tag {
     ($user:expr) => {
-        format!("{}#{}", $user.name, $user.discriminator)
+        format!("{}#{}", $user.name, $user.discriminator())
     };
 }
 
