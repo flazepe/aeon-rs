@@ -83,7 +83,7 @@ impl TimeZoneLocation {
         let timezone = self.time_zone.remove(0);
 
         format!(
-            "It is `{} UTC {}` in `{}`.",
+            "It is `{} UTC {}` in {}.",
             timezone.converted_time.local_time.replace('T', " "),
             timezone.utc_offset,
             self.place_name
