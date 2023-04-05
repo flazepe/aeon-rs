@@ -128,7 +128,7 @@ macro_rules! stringify_message {
 
             if let Some(title) = embed.title.as_ref() {
                 text += &format!(
-                    "**[{title}](<{}>)**",
+                    "\n**[{title}](<{}>)**",
                     embed.url.as_ref().unwrap_or(&"".into())
                 );
             }
