@@ -36,8 +36,9 @@ impl Snipes {
             bail!("No snipes found.");
         }
 
-        if self.send_list {
-            return Ok(MessageResponse::from(File::new(
+        Ok(if_else!(
+            self.send_list,
+            MessageResponse::from(File::new(
                 if_else!(self.is_edit, "edit-snipes.txt", "snipes.txt"),
                 snipes
                     .into_iter()
@@ -59,21 +60,22 @@ impl Snipes {
                     })
                     .collect::<Vec<String>>()
                     .join("\n\n"),
-            )));
-        }
+            )),
+            {
+                let snipe = &snipes[snipes.len() - 1];
 
-        let snipe = &snipes[snipes.len() - 1];
-
-        return Ok(MessageResponse::from(
-            Embed::new()
-                .set_color(PRIMARY_COLOR)?
-                .set_description(stringify_message!(&snipe))
-                .set_footer(
-                    twilight_user_to_tag!(snipe.author),
-                    Some(snipe.author.display_avatar_url("png", 64)),
+                MessageResponse::from(
+                    Embed::new()
+                        .set_color(PRIMARY_COLOR)?
+                        .set_description(stringify_message!(&snipe))
+                        .set_footer(
+                            twilight_user_to_tag!(snipe.author),
+                            Some(snipe.author.display_avatar_url("png", 64)),
+                        )
+                        .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?),
                 )
-                .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?),
-        ));
+            }
+        ))
     }
 }
 
