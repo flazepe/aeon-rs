@@ -36,10 +36,8 @@ impl Snipes {
             bail!("No snipes found.");
         }
 
-        let response = MessageResponse::from("");
-
         if self.send_list {
-            return Ok(response.add_file(File::new(
+            return Ok(MessageResponse::from(File::new(
                 if_else!(self.is_edit, "edit-snipes.txt", "snipes.txt"),
                 snipes
                     .into_iter()
@@ -66,7 +64,7 @@ impl Snipes {
 
         let snipe = &snipes[snipes.len() - 1];
 
-        return Ok(response.add_embed(
+        return Ok(MessageResponse::from(
             Embed::new()
                 .set_color(PRIMARY_COLOR)?
                 .set_description(stringify_message!(&snipe))
