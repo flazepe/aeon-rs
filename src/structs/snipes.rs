@@ -38,7 +38,7 @@ impl Snipes {
 
         Ok(if_else!(
             self.send_list,
-            MessageResponse::from(File::new(
+            File::new(
                 if_else!(self.is_edit, "edit-snipes.txt", "snipes.txt"),
                 snipes
                     .into_iter()
@@ -60,20 +60,20 @@ impl Snipes {
                     })
                     .collect::<Vec<String>>()
                     .join("\n\n"),
-            )),
+            )
+            .into(),
             {
                 let snipe = &snipes[snipes.len() - 1];
 
-                MessageResponse::from(
-                    Embed::new()
-                        .set_color(PRIMARY_COLOR)?
-                        .set_description(stringify_message!(&snipe))
-                        .set_footer(
-                            twilight_user_to_tag!(snipe.author),
-                            Some(snipe.author.display_avatar_url("png", 64)),
-                        )
-                        .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?),
-                )
+                Embed::new()
+                    .set_color(PRIMARY_COLOR)?
+                    .set_description(stringify_message!(&snipe))
+                    .set_footer(
+                        twilight_user_to_tag!(snipe.author),
+                        Some(snipe.author.display_avatar_url("png", 64)),
+                    )
+                    .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?)
+                    .into()
             }
         ))
     }
