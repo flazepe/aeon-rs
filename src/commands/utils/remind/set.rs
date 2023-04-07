@@ -10,7 +10,7 @@ use crate::{
 };
 use anyhow::Result;
 use mongodb::bson::{doc, oid::ObjectId};
-use slashook::commands::{CommandInput, CommandResponder};
+use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
@@ -124,7 +124,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         )
         .await?;
 
-    res.send_message(format!(
+    res.send_message(MessageResponse::from(format!(
         "{SUCCESS_EMOJI} I will remind you about [{reminder}](<https://discord.com/channels/{url}>) in {time}{}. Make sure I {}.",
         if_else!(
             interval.total_secs > 0,
@@ -132,7 +132,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             "".into()
         ),
         if_else!(dm, "can DM you", "have the View Channel and Send Messages permission")
-    )).await?;
+    )).set_suppress_embeds(true)).await?;
 
     Ok(())
 }
