@@ -1,0 +1,1 @@
+pub static VISUAL_NOVEL_FIELDS: &str = "id,title,alttitle,titles{lang,title,latin,official,main},aliases,olang,devstatus,released,languages,platforms,image{id,url,dims,sexual,violence,votecount},length,length_minutes,length_votes,description,rating,popularity,votecount,tags{rating,spoiler,lie,id,name,aliases,description,category,searchable,applicable,vn_count}";

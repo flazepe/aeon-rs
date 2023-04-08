@@ -7,3 +7,4 @@ pub mod saucenao;
 pub mod steam;
 pub mod tio;
 pub mod virtualearth;
+pub mod vndb;

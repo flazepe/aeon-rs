@@ -8,6 +8,7 @@ pub mod google_translate_languages;
 pub mod steam;
 pub mod tio_programming_languages;
 pub mod unicode;
+pub mod vndb;
 
 use crate::structs::{config::Config, gateway::cache::Cache};
 use async_once_cell::OnceCell as AsyncOnceCell;
