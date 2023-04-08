@@ -43,8 +43,13 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     if_else!(
         input.is_string_select(),
-        res.update_message(vndb.get_character(&input.values.as_ref().unwrap()[0]).await?.format())
-            .await?,
+        res.update_message(
+            vndb.search_character(&input.values.as_ref().unwrap()[0])
+                .await?
+                .remove(0)
+                .format()
+        )
+        .await?,
         res.send_message(match vndb.search_character(input.get_string_arg("character")?).await {
             Ok(mut characters) => characters.remove(0).format(),
             Err(error) => {

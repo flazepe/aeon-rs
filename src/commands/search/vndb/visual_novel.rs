@@ -47,8 +47,9 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     if_else!(
         input.is_string_select(),
         res.update_message(
-            vndb.get_visual_novel(&input.values.as_ref().unwrap()[0])
+            vndb.search_visual_novel(&input.values.as_ref().unwrap()[0])
                 .await?
+                .remove(0)
                 .format()
         )
         .await?,

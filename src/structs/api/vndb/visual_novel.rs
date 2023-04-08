@@ -633,34 +633,24 @@ impl VndbVisualNovel {
 }
 
 impl Vndb {
-    pub async fn get_visual_novel<T: ToString>(&self, id: T) -> Result<VndbVisualNovel> {
-        let mut results = self
-            .query(
-                "vn",
-                json!({
-                    "filters": ["id", "=", id.to_string()],
-                    "fields": VISUAL_NOVEL_FIELDS
-                }),
-            )
-            .await?
-            .results;
-
-        if_else!(
-            results.is_empty(),
-            bail!("Visual novel not found."),
-            Ok(results.remove(0))
-        )
-    }
-
     pub async fn search_visual_novel<T: ToString>(&self, query: T) -> Result<Vec<VndbVisualNovel>> {
+        let query = query.to_string();
+
         let results = self
             .query(
                 "vn",
-                json!({
-                    "filters": ["search", "=", query.to_string()],
-                    "fields": VISUAL_NOVEL_FIELDS,
-                    "sort": "searchrank"
-                }),
+                if_else!(
+                    query.starts_with("v") && query.chars().skip(1).all(|char| char.is_numeric()),
+                    json!({
+                        "filters": ["id", "=", query],
+                        "fields": VISUAL_NOVEL_FIELDS
+                    }),
+                    json!({
+                        "filters": ["search", "=", query],
+                        "fields": VISUAL_NOVEL_FIELDS,
+                        "sort": "searchrank"
+                    })
+                ),
             )
             .await?
             .results;

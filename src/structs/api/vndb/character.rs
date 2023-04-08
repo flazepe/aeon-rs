@@ -269,30 +269,24 @@ impl VndbCharacter {
 }
 
 impl Vndb {
-    pub async fn get_character<T: ToString>(&self, id: T) -> Result<VndbCharacter> {
-        let mut results = self
-            .query(
-                "character",
-                json!({
-                    "filters": ["id", "=", id.to_string()],
-                    "fields": CHARACTER_FIELDS
-                }),
-            )
-            .await?
-            .results;
-
-        if_else!(results.is_empty(), bail!("Character not found."), Ok(results.remove(0)))
-    }
-
     pub async fn search_character<T: ToString>(&self, query: T) -> Result<Vec<VndbCharacter>> {
+        let query = query.to_string();
+
         let results = self
             .query(
                 "character",
-                json!({
-                    "filters": ["search", "=", query.to_string()],
-                    "fields": CHARACTER_FIELDS,
-                    "sort": "searchrank"
-                }),
+                if_else!(
+                    query.starts_with("c") && query.chars().skip(1).all(|char| char.is_numeric()),
+                    json!({
+                        "filters": ["id", "=", query],
+                        "fields": CHARACTER_FIELDS,
+                    }),
+                    json!({
+                        "filters": ["search", "=", query],
+                        "fields": CHARACTER_FIELDS,
+                        "sort": "searchrank"
+                    })
+                ),
             )
             .await?
             .results;
