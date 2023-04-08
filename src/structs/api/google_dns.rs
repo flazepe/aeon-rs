@@ -1,4 +1,7 @@
-use crate::statics::{colors::PRIMARY_COLOR, dns_codes::DNS_CODES};
+use crate::{
+    macros::if_else,
+    statics::{colors::PRIMARY_COLOR, dns_codes::DNS_CODES},
+};
 use anyhow::{bail, Result};
 use reqwest::get;
 use serde::Deserialize;
@@ -90,16 +93,16 @@ impl GoogleDNS {
 
         let records = dns_response.answer.or(dns_response.authority).unwrap_or(vec![]);
 
-        if records.is_empty() {
-            bail!("No DNS records found.")
-        }
-
-        Ok(Self {
-            domain: domain.to_string(),
-            record_type,
-            comment: dns_response.comment,
-            records,
-        })
+        if_else!(
+            records.is_empty(),
+            bail!("No DNS records found."),
+            Ok(Self {
+                domain: domain.to_string(),
+                record_type,
+                comment: dns_response.comment,
+                records,
+            })
+        )
     }
 
     pub fn format(self) -> Embed {

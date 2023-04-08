@@ -1,4 +1,4 @@
-use crate::statics::colors::PRIMARY_COLOR;
+use crate::{macros::if_else, statics::colors::PRIMARY_COLOR};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::get;
@@ -28,10 +28,6 @@ impl Distro {
 
         let name = document.select("td.TablesTitle h1").text();
 
-        if name.is_empty() {
-            bail!("Distribution not found.");
-        }
-
         let get_table_nth_child = |n: u8| -> Result<String> {
             Ok(document
                 .select(&format!("td.TablesTitle li:nth-child({n})"))
@@ -42,17 +38,21 @@ impl Distro {
                 .to_string())
         };
 
-        Ok(Self {
-            name: name.to_string(),
-            distro_type: get_table_nth_child(1)?,
-            architecture: get_table_nth_child(4)?,
-            based_on: get_table_nth_child(2)?,
-            origin: get_table_nth_child(3)?,
-            status: get_table_nth_child(7)?,
-            category: get_table_nth_child(6)?,
-            desktop: get_table_nth_child(5)?,
-            popularity: get_table_nth_child(8)?,
-        })
+        if_else!(
+            name.is_empty(),
+            bail!("Distribution not found."),
+            Ok(Self {
+                name: name.to_string(),
+                distro_type: get_table_nth_child(1)?,
+                architecture: get_table_nth_child(4)?,
+                based_on: get_table_nth_child(2)?,
+                origin: get_table_nth_child(3)?,
+                status: get_table_nth_child(7)?,
+                category: get_table_nth_child(6)?,
+                desktop: get_table_nth_child(5)?,
+                popularity: get_table_nth_child(8)?,
+            })
+        )
     }
 
     pub fn format(self) -> Embed {

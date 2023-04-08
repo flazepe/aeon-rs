@@ -32,50 +32,50 @@ impl Snipes {
             .unwrap();
         let snipes = snipes.get(&self.channel_id).unwrap_or(&empty_vec);
 
-        if snipes.is_empty() {
-            bail!("No snipes found.");
-        }
+        if_else!(
+            snipes.is_empty(),
+            bail!("No snipes found."),
+            Ok(if_else!(
+                self.send_list,
+                File::new(
+                    if_else!(self.is_edit, "edit-snipes.txt", "snipes.txt"),
+                    snipes
+                        .into_iter()
+                        .rev()
+                        .map(|message| {
+                            format!(
+                                "{} ({}) at {}:\n\n{}",
+                                twilight_user_to_tag!(message.author),
+                                message.author.id,
+                                DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string())
+                                    .unwrap()
+                                    .to_rfc2822(),
+                                stringify_message!(&message)
+                                    .split("\n")
+                                    .map(|line| format!("\t{}", if_else!(line.is_empty(), "<empty>", line)))
+                                    .collect::<Vec<String>>()
+                                    .join("\n")
+                            )
+                        })
+                        .collect::<Vec<String>>()
+                        .join("\n\n"),
+                )
+                .into(),
+                {
+                    let snipe = &snipes[snipes.len() - 1];
 
-        Ok(if_else!(
-            self.send_list,
-            File::new(
-                if_else!(self.is_edit, "edit-snipes.txt", "snipes.txt"),
-                snipes
-                    .into_iter()
-                    .rev()
-                    .map(|message| {
-                        format!(
-                            "{} ({}) at {}:\n\n{}",
-                            twilight_user_to_tag!(message.author),
-                            message.author.id,
-                            DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string())
-                                .unwrap()
-                                .to_rfc2822(),
-                            stringify_message!(&message)
-                                .split("\n")
-                                .map(|line| format!("\t{}", if_else!(line.is_empty(), "<empty>", line)))
-                                .collect::<Vec<String>>()
-                                .join("\n")
+                    Embed::new()
+                        .set_color(PRIMARY_COLOR)?
+                        .set_description(stringify_message!(&snipe))
+                        .set_footer(
+                            twilight_user_to_tag!(snipe.author),
+                            Some(snipe.author.display_avatar_url("png", 64)),
                         )
-                    })
-                    .collect::<Vec<String>>()
-                    .join("\n\n"),
-            )
-            .into(),
-            {
-                let snipe = &snipes[snipes.len() - 1];
-
-                Embed::new()
-                    .set_color(PRIMARY_COLOR)?
-                    .set_description(stringify_message!(&snipe))
-                    .set_footer(
-                        twilight_user_to_tag!(snipe.author),
-                        Some(snipe.author.display_avatar_url("png", 64)),
-                    )
-                    .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?)
-                    .into()
-            }
-        ))
+                        .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?)
+                        .into()
+                }
+            ))
+        )
     }
 }
 
