@@ -413,7 +413,7 @@ pub struct VndbImage {
     pub vote_count: u64,
 }
 
-#[derive(Debug, Deserialize_repr)]
+#[derive(Deserialize_repr)]
 #[repr(u8)]
 pub enum VndbLength {
     Unknown,
