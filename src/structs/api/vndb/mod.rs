@@ -4,7 +4,7 @@ pub mod visual_novel;
 use anyhow::Result;
 use reqwest::Client;
 use serde::{de::DeserializeOwned, Deserialize};
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::fmt::Display;
 
 #[derive(Deserialize)]
@@ -22,27 +22,15 @@ impl Vndb {
         Self { client: Client::new() }
     }
 
-    pub async fn query<T: Display, U: Display, V: DeserializeOwned>(
-        &self,
-        endpoint: T,
-        filters: Value,
-        fields: U,
-    ) -> Result<VndbResponse<V>> {
+    pub async fn query<T: Display, U: DeserializeOwned>(&self, endpoint: T, query: Value) -> Result<VndbResponse<U>> {
         Ok(self
             .client
             .post(format!("https://api.vndb.org/kana/{endpoint}"))
             .header("content-type", "application/json")
-            .body(
-                json!({
-                    "filters": filters,
-                    "fields": fields.to_string(),
-                    "sort": "searchrank"
-                })
-                .to_string(),
-            )
+            .body(query.to_string())
             .send()
             .await?
-            .json::<VndbResponse<V>>()
+            .json::<VndbResponse<U>>()
             .await?)
     }
 }
