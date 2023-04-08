@@ -1,9 +1,4 @@
-use crate::{
-    macros::{if_else, verify_component_interaction},
-    statics::emojis::ERROR_EMOJI,
-    structs::api::vndb::Vndb,
-    traits::ArgGetters,
-};
+use crate::{macros::if_else, statics::emojis::ERROR_EMOJI, structs::api::vndb::Vndb, traits::ArgGetters};
 use anyhow::Result;
 use slashook::{
     commands::{CommandInput, CommandResponder},
@@ -11,8 +6,6 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    verify_component_interaction!(input, res);
-
     let vndb = Vndb::new();
 
     if input.get_bool_arg("search")? {
