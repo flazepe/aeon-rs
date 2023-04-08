@@ -1,5 +1,5 @@
 use crate::{
-    macros::{and_then_or, format_timestamp, if_else, plural},
+    macros::{and_then_or, if_else, plural},
     statics::{colors::PRIMARY_COLOR, vndb::VISUAL_NOVEL_FIELDS},
     structs::api::vndb::Vndb,
 };
@@ -7,7 +7,7 @@ use anyhow::{bail, Result};
 use serde::Deserialize;
 use serde_json::json;
 use serde_repr::Deserialize_repr;
-use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
+use slashook::structs::embeds::Embed;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 // Enum reference: https://code.blicky.net/yorhel/vndb/src/branch/master/lib/VNDB/Types.pm
@@ -535,20 +535,6 @@ impl VndbVisualNovel {
                     .collect::<Vec<String>>()
                     .join("\n"),
             )
-            .add_field(
-                "Release Date",
-                and_then_or!(
-                    self.released,
-                    |released| Some(format_timestamp!(NaiveDateTime::parse_from_str(
-                        &format!("{released} 00:00:00"),
-                        "%Y-%m-%d %H:%M:%S"
-                    )
-                    .unwrap()
-                    .timestamp())),
-                    "N/A".into()
-                ),
-                false,
-            )
             .add_field("Popularity", format!("{:.0}%", self.popularity), true)
             .add_field(
                 "Rating",
@@ -608,6 +594,14 @@ impl VndbVisualNovel {
                     tags.join(", ")
                 },
                 false,
+            )
+            .set_footer(
+                and_then_or!(
+                    self.released,
+                    |released| Some(format!("Released {released}")),
+                    "".into()
+                ),
+                None::<String>,
             )
     }
 }
