@@ -1,4 +1,9 @@
-use crate::{macros::if_else, statics::emojis::ERROR_EMOJI, structs::api::vndb::Vndb, traits::ArgGetters};
+use crate::{
+    macros::{if_else, verify_component_interaction},
+    statics::emojis::ERROR_EMOJI,
+    structs::api::vndb::Vndb,
+    traits::ArgGetters,
+};
 use anyhow::Result;
 use slashook::{
     commands::{CommandInput, CommandResponder, MessageResponse},
@@ -6,6 +11,8 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    verify_component_interaction!(input, res);
+
     let vndb = Vndb::new();
 
     if input.get_bool_arg("search")? {
@@ -29,27 +36,24 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             );
         }
 
-        res.send_message(MessageResponse::from(Components::new().add_select_menu(select_menu)).set_ephemeral(true))
-            .await?;
+        res.send_message(Components::new().add_select_menu(select_menu)).await?;
 
         return Ok(());
     }
 
-    res.send_message(
-        if_else!(
-            input.is_string_select(),
-            vndb.get_character(&input.values.as_ref().unwrap()[0]).await?,
-            match vndb.search_character(input.get_string_arg("character")?).await {
-                Ok(mut characters) => characters.remove(0),
-                Err(error) => {
-                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                    return Ok(());
-                },
-            }
-        )
-        .format(),
-    )
-    .await?;
+    if_else!(
+        input.is_string_select(),
+        res.update_message(vndb.get_character(&input.values.as_ref().unwrap()[0]).await?.format())
+            .await?,
+        res.send_message(match vndb.search_character(input.get_string_arg("character")?).await {
+            Ok(mut characters) => characters.remove(0).format(),
+            Err(error) => {
+                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+                return Ok(());
+            },
+        })
+        .await?
+    );
 
     Ok(())
 }
