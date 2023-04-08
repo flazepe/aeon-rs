@@ -8,7 +8,7 @@ use serde::Deserialize;
 use serde_json::json;
 use serde_repr::Deserialize_repr;
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
-use std::fmt::Display;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 // Enum reference: https://code.blicky.net/yorhel/vndb/src/branch/master/lib/VNDB/Types.pm
 
@@ -29,12 +29,16 @@ pub enum VndbDevStatus {
     Cancelled,
 }
 
-impl ToString for VndbDevStatus {
-    fn to_string(&self) -> String {
-        match self {
-            VndbDevStatus::InDevelopment => "In development".into(),
-            _ => format!("{:?}", self),
-        }
+impl Display for VndbDevStatus {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        write!(
+            f,
+            "{}",
+            match self {
+                VndbDevStatus::InDevelopment => "In development".into(),
+                _ => format!("{:?}", self),
+            }
+        )
     }
 }
 
@@ -194,19 +198,22 @@ pub enum VndbLanguage {
     ChineseTraditional,
 }
 
-impl ToString for VndbLanguage {
-    fn to_string(&self) -> String {
+impl Display for VndbLanguage {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         let default = format!("{:?}", self);
 
-        match self {
-            VndbLanguage::ScottishGaelic => "Scottish Gaelic",
-            VndbLanguage::PortugueseBrazil => "Portuguese (Brazil)",
-            VndbLanguage::PortuguesePortugal => "Portuguese (Portugal)",
-            VndbLanguage::ChineseSimplified => "Chinese Simplified",
-            VndbLanguage::ChineseTraditional => "Chinese Traditional",
-            _ => default.as_str(),
-        }
-        .into()
+        write!(
+            f,
+            "{}",
+            match self {
+                VndbLanguage::ScottishGaelic => "Scottish Gaelic",
+                VndbLanguage::PortugueseBrazil => "Portuguese (Brazil)",
+                VndbLanguage::PortuguesePortugal => "Portuguese (Portugal)",
+                VndbLanguage::ChineseSimplified => "Chinese Simplified",
+                VndbLanguage::ChineseTraditional => "Chinese Traditional",
+                _ => default.as_str(),
+            }
+        )
     }
 }
 
@@ -354,50 +361,53 @@ pub enum VndbPlatform {
     Other,
 }
 
-impl ToString for VndbPlatform {
-    fn to_string(&self) -> String {
+impl Display for VndbPlatform {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         let original = format!("{:?}", self);
 
-        match self {
-            VndbPlatform::MacOS => "Mac OS",
-            VndbPlatform::TDO => "3DO",
-            VndbPlatform::IOS => "Apple iProduct",
-            VndbPlatform::BDPlayer => "Blu-ray Player",
-            VndbPlatform::DVDPlayer => "DVD Player",
-            VndbPlatform::SuperFamicom => "Super Famicom",
-            VndbPlatform::FM7 => "FM-7",
-            VndbPlatform::FM8 => "FM-8",
-            VndbPlatform::FMTowns => "FM Towns",
-            VndbPlatform::GameBoyAdvance => "Game Boy Advance",
-            VndbPlatform::GameBoyColor => "Game Boy Color",
-            VndbPlatform::NintendoDS => "Nintendo DS",
-            VndbPlatform::NintendoSwitch => "Nintendo Switch",
-            VndbPlatform::NintendoWii => "Nintendo Wii",
-            VndbPlatform::NintendoWiiU => "Nintendo Wii U",
-            VndbPlatform::Nintendo3DS => "Nintendo 3DS",
-            VndbPlatform::PC88 => "PC-88",
-            VndbPlatform::PC98 => "PC-98",
-            VndbPlatform::PCEngine => "PC Engine",
-            VndbPlatform::PCFX => "PC-FX",
-            VndbPlatform::PlayStationPortable => "PlayStation Portable",
-            VndbPlatform::PlayStation1 => "PlayStation 1",
-            VndbPlatform::PlayStation2 => "PlayStation 2",
-            VndbPlatform::PlayStation3 => "PlayStation 3",
-            VndbPlatform::PlayStation4 => "PlayStation 4",
-            VndbPlatform::PlayStation5 => "PlayStation 5",
-            VndbPlatform::PlayStationVita => "PlayStation Vita",
-            VndbPlatform::SegaMegaDrive => "Sega Mega Drive",
-            VndbPlatform::SegaMegaCD => "Sega Mega-CD",
-            VndbPlatform::SegaSaturn => "Sega Saturn",
-            VndbPlatform::SharpX1 => "Sharp X1",
-            VndbPlatform::SharpX68000 => "Sharp X68000",
-            VndbPlatform::Xbox360 => "Xbox 360",
-            VndbPlatform::XboxOne => "Xbox One",
-            VndbPlatform::XboxXS => "Xbox X/S",
-            VndbPlatform::OtherMobile => "Other (mobile)",
-            _ => original.as_str(),
-        }
-        .into()
+        write!(
+            f,
+            "{}",
+            match self {
+                VndbPlatform::MacOS => "Mac OS",
+                VndbPlatform::TDO => "3DO",
+                VndbPlatform::IOS => "Apple iProduct",
+                VndbPlatform::BDPlayer => "Blu-ray Player",
+                VndbPlatform::DVDPlayer => "DVD Player",
+                VndbPlatform::SuperFamicom => "Super Famicom",
+                VndbPlatform::FM7 => "FM-7",
+                VndbPlatform::FM8 => "FM-8",
+                VndbPlatform::FMTowns => "FM Towns",
+                VndbPlatform::GameBoyAdvance => "Game Boy Advance",
+                VndbPlatform::GameBoyColor => "Game Boy Color",
+                VndbPlatform::NintendoDS => "Nintendo DS",
+                VndbPlatform::NintendoSwitch => "Nintendo Switch",
+                VndbPlatform::NintendoWii => "Nintendo Wii",
+                VndbPlatform::NintendoWiiU => "Nintendo Wii U",
+                VndbPlatform::Nintendo3DS => "Nintendo 3DS",
+                VndbPlatform::PC88 => "PC-88",
+                VndbPlatform::PC98 => "PC-98",
+                VndbPlatform::PCEngine => "PC Engine",
+                VndbPlatform::PCFX => "PC-FX",
+                VndbPlatform::PlayStationPortable => "PlayStation Portable",
+                VndbPlatform::PlayStation1 => "PlayStation 1",
+                VndbPlatform::PlayStation2 => "PlayStation 2",
+                VndbPlatform::PlayStation3 => "PlayStation 3",
+                VndbPlatform::PlayStation4 => "PlayStation 4",
+                VndbPlatform::PlayStation5 => "PlayStation 5",
+                VndbPlatform::PlayStationVita => "PlayStation Vita",
+                VndbPlatform::SegaMegaDrive => "Sega Mega Drive",
+                VndbPlatform::SegaMegaCD => "Sega Mega-CD",
+                VndbPlatform::SegaSaturn => "Sega Saturn",
+                VndbPlatform::SharpX1 => "Sharp X1",
+                VndbPlatform::SharpX68000 => "Sharp X68000",
+                VndbPlatform::Xbox360 => "Xbox 360",
+                VndbPlatform::XboxOne => "Xbox One",
+                VndbPlatform::XboxXS => "Xbox X/S",
+                VndbPlatform::OtherMobile => "Other (mobile)",
+                _ => original.as_str(),
+            }
+        )
     }
 }
 
@@ -424,17 +434,20 @@ pub enum VndbLength {
     VeryLong,
 }
 
-impl ToString for VndbLength {
-    fn to_string(&self) -> String {
-        match self {
-            VndbLength::Unknown => "Unknown",
-            VndbLength::VeryShort => "Very short: < 2 hours",
-            VndbLength::Short => "Short: 2 - 10 hours",
-            VndbLength::Medium => "Medium: 10 - 30 hours",
-            VndbLength::Long => "Long: 30 - 50 hours",
-            VndbLength::VeryLong => "Very long: > 50 hours",
-        }
-        .into()
+impl Display for VndbLength {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        write!(
+            f,
+            "{}",
+            match self {
+                VndbLength::Unknown => "Unknown",
+                VndbLength::VeryShort => "Very short: < 2 hours",
+                VndbLength::Short => "Short: 2 - 10 hours",
+                VndbLength::Medium => "Medium: 10 - 30 hours",
+                VndbLength::Long => "Long: 30 - 50 hours",
+                VndbLength::VeryLong => "Very long: > 50 hours",
+            }
+        )
     }
 }
 
