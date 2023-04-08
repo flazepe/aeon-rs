@@ -35,7 +35,8 @@ impl Vndb {
             .body(
                 json!({
                     "filters": filters,
-                    "fields": fields.to_string()
+                    "fields": fields.to_string(),
+                    "sort": "searchrank"
                 })
                 .to_string(),
             )
