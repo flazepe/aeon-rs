@@ -145,7 +145,7 @@ impl VndbCharacter {
                     .join("\n"),
             )
             .add_field(
-                "Gender",
+                "Sex",
                 and_then_or!(
                     self.sex,
                     |(sex, spoiler_sex)| Some(format!(
