@@ -4,6 +4,7 @@ use crate::{
     structs::api::vndb::Vndb,
 };
 use anyhow::{bail, Result};
+use regex::Regex;
 use serde::Deserialize;
 use serde_json::json;
 use serde_repr::Deserialize_repr;
@@ -513,13 +514,32 @@ pub struct VndbVisualNovel {
 }
 
 impl VndbVisualNovel {
+    fn format_description(&self) -> Option<String> {
+        if let Some(description) = self.description.as_ref() {
+            let mut description = Regex::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]")
+                .unwrap()
+                .replace_all(&description, "")
+                .split("\n")
+                .map(|string| string.to_string())
+                .collect::<Vec<String>>();
+
+            while description.join("\n").len() > 1024 {
+                description.pop();
+            }
+
+            Some(description.join("\n"))
+        } else {
+            None
+        }
+    }
+
     pub fn format(self) -> Embed {
-        Embed::new()
+        let mut embed = Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
             .set_thumbnail(and_then_or!(
-                self.image,
-                |image| Some(if_else!(image.sexual > 1.0, "".into(), image.url)),
+                self.image.as_ref(),
+                |image| Some(if_else!(image.sexual > 1.0, "".into(), image.url.to_string())),
                 "".into()
             ))
             .set_title(format!(
@@ -534,7 +554,13 @@ impl VndbVisualNovel {
                     .map(|alias| format!("_{alias}_"))
                     .collect::<Vec<String>>()
                     .join("\n"),
-            )
+            );
+
+        if let Some(description) = self.format_description() {
+            embed = embed.add_field("Description", description, false);
+        }
+
+        embed
             .add_field("Popularity", format!("{:.0}%", self.popularity), true)
             .add_field(
                 "Rating",
