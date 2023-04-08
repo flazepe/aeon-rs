@@ -613,9 +613,9 @@ impl VndbVisualNovel {
 }
 
 impl Vndb {
-    pub async fn get_visual_novel<T: Display>(&self, id: T) -> Result<VndbVisualNovel> {
+    pub async fn get_visual_novel<T: ToString>(&self, id: T) -> Result<VndbVisualNovel> {
         let mut results = self
-            .query("vn", json!(["id", "=", format!("v{id}")]), VISUAL_NOVEL_FIELDS)
+            .query("vn", json!(["id", "=", id.to_string()]), VISUAL_NOVEL_FIELDS)
             .await?
             .results;
 

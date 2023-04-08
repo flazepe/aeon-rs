@@ -269,9 +269,9 @@ impl VndbCharacter {
 }
 
 impl Vndb {
-    pub async fn get_character<T: Display>(&self, id: T) -> Result<VndbCharacter> {
+    pub async fn get_character<T: ToString>(&self, id: T) -> Result<VndbCharacter> {
         let mut results = self
-            .query("character", json!(["id", "=", format!("c{id}")]), CHARACTER_FIELDS)
+            .query("character", json!(["id", "=", id.to_string()]), CHARACTER_FIELDS)
             .await?
             .results;
 
