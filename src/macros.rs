@@ -20,7 +20,7 @@ macro_rules! and_then_or {
 
 macro_rules! escape_markdown {
     ($text:expr) => {
-        regex::Regex::new(r"/\\?[*_~`]/g")
+        regex::Regex::new(r"\\?[*_~`]")
             .unwrap()
             .replace_all($text, |caps: &regex::Captures| {
                 if caps[0].starts_with("\\") {
