@@ -1,3 +1,4 @@
+pub mod character;
 pub mod visual_novel;
 
 use anyhow::Result;

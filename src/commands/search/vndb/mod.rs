@@ -1,3 +1,4 @@
+mod character;
 mod visual_novel;
 
 use slashook::{
@@ -28,11 +29,29 @@ pub fn get_command() -> Command {
                     },
                 ],
             },
+            {
+                name = "character",
+                description = "Fetches a character from Visual Novel Database.",
+                options = [
+                    {
+                        name = "character",
+                        description = "The character",
+                        option_type = InteractionOptionType::STRING,
+                        required = true,
+                    },
+					{
+                        name = "search",
+                        description = "Whether to search",
+                        option_type = InteractionOptionType::BOOLEAN,
+                    },
+                ],
+            },
         ],
     )]
     async fn vndb(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref().unwrap_or("") {
             "visual-novel" => visual_novel::run(input, res).await?,
+            "character" => character::run(input, res).await?,
             _ => {},
         }
     }
