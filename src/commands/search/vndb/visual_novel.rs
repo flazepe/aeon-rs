@@ -6,7 +6,7 @@ use crate::{
 };
 use anyhow::Result;
 use slashook::{
-    commands::{CommandInput, CommandResponder, MessageResponse},
+    commands::{CommandInput, CommandResponder},
     structs::components::{Components, SelectMenu, SelectMenuType, SelectOption},
 };
 
