@@ -1,4 +1,5 @@
 use crate::{
+    macros::if_else,
     statics::anilist::ANILIST_MANGA_FIELDS,
     structs::api::anilist::{
         components::{
@@ -9,7 +10,7 @@ use crate::{
         AniList,
     },
 };
-use anyhow::Result;
+use anyhow::{bail, Result};
 use serde::Deserialize;
 use serde_json::json;
 
@@ -46,8 +47,8 @@ pub struct AniListManga {
 }
 
 impl AniList {
-    pub async fn search_manga<T: ToString>(search: T) -> Result<AniListMediaPageResponse<AniListManga>> {
-        Ok(AniList::query(
+    pub async fn search_manga<T: ToString>(search: T) -> Result<Vec<AniListManga>> {
+        let result: AniListMediaPageResponse<AniListManga> = AniList::query(
             format!(
                 "query($search: String) {{
                     Page(perPage: 10) {{
@@ -59,11 +60,17 @@ impl AniList {
             ),
             json!({ "search": search.to_string() }),
         )
-        .await?)
+        .await?;
+
+        if_else!(
+            result.data.page.media.is_empty(),
+            bail!("Manga not found."),
+            Ok(result.data.page.media)
+        )
     }
 
-    pub async fn get_manga(id: u64) -> Result<AniListMediaResponse<AniListManga>> {
-        Ok(AniList::query(
+    pub async fn get_manga(id: u64) -> Result<AniListManga> {
+        let result: AniListMediaResponse<AniListManga> = AniList::query(
             format!(
                 "query($id: Int) {{
                     Media(id: $id) {{
@@ -73,6 +80,11 @@ impl AniList {
             ),
             json!({ "id": id }),
         )
-        .await?)
+        .await?;
+
+        match result.data.media {
+            Some(manga) => Ok(manga),
+            None => bail!("Manga not found."),
+        }
     }
 }
