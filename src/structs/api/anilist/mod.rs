@@ -36,13 +36,13 @@ impl AniList {
             .split("_")
             .map(|word| {
                 if_else!(
-                    word == "TV",
-                    word.into(),
+                    word.len() > 3,
                     format!(
                         "{}{}",
                         word.chars().next().unwrap(),
                         word.chars().skip(1).collect::<String>().to_lowercase()
-                    )
+                    ),
+                    word.into()
                 )
             })
             .collect::<Vec<String>>()
