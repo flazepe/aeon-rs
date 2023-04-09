@@ -1,4 +1,5 @@
 use crate::{
+    macros::respond_to_component_interaction,
     statics::emojis::ERROR_EMOJI,
     structs::{api::vndb::Vndb, select_menu::SelectMenu},
     traits::ArgGetters,
@@ -13,15 +14,14 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let vndb = Vndb::new();
 
     if input.is_string_select() {
-        res.update_message(
+        respond_to_component_interaction!(
+            input,
+            res,
             vndb.search_character(&input.values.as_ref().unwrap()[0])
                 .await?
                 .remove(0)
-                .format(),
-        )
-        .await?;
-
-        return Ok(());
+                .format()
+        );
     }
 
     let mut results = match vndb.search_character(input.get_string_arg("character")?).await {

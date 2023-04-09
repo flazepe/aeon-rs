@@ -1,4 +1,5 @@
 use crate::{
+    macros::respond_to_component_interaction,
     statics::emojis::ERROR_EMOJI,
     structs::{api::anilist::AniList, select_menu::SelectMenu},
     traits::ArgGetters,
@@ -11,14 +12,13 @@ use slashook::{
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     if input.is_string_select() {
-        res.update_message(
+        respond_to_component_interaction!(
+            input,
+            res,
             AniList::get_anime(input.values.unwrap()[0].parse::<u64>()?)
                 .await?
-                .format(),
-        )
-        .await?;
-
-        return Ok(());
+                .format()
+        );
     }
 
     let mut results = match AniList::search_anime(input.get_string_arg("anime")?).await {

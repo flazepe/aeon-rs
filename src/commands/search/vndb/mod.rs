@@ -1,7 +1,7 @@
 mod character;
 mod visual_novel;
 
-use crate::macros::{and_then_or, verify_component_interaction};
+use crate::macros::and_then_or;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -40,14 +40,12 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn vndb(input: CommandInput, res: CommandResponder) {
-        verify_component_interaction!(input, res);
-
         match and_then_or!(
             input.custom_id.as_deref(),
             |custom_id| Some(custom_id),
             input.subcommand.as_deref().unwrap_or("")
         ) {
-            "visual-novel" => return visual_novel::run(input, res).await?,
+            "visual-novel" => visual_novel::run(input, res).await?,
             "character" => character::run(input, res).await?,
             _ => {},
         }

@@ -117,6 +117,29 @@ macro_rules! plural {
     }};
 }
 
+macro_rules! respond_to_component_interaction {
+    ($input:expr,$res:expr,$response:expr) => {
+        if let Some(message) = $input.message.as_ref() {
+            if let Some(interaction) = message.interaction.as_ref() {
+                if $input.user.id == interaction.user.id {
+                    $res.update_message($response).await?;
+                } else {
+                    $res.send_message(
+                        slashook::commands::MessageResponse::from(format!(
+                            "{} This isn't your interaction.",
+                            crate::statics::emojis::ERROR_EMOJI
+                        ))
+                        .set_ephemeral(true),
+                    )
+                    .await?;
+                }
+
+                return Ok(());
+            }
+        }
+    };
+}
+
 macro_rules! stringify_message {
     ($message:expr $(, $empty_vec:expr)?) => {{
         let mut text = String::from(&$message.content);
@@ -166,27 +189,6 @@ macro_rules! twilight_user_to_tag {
     };
 }
 
-macro_rules! verify_component_interaction {
-    ($input:expr,$res:expr) => {
-        if let Some(message) = $input.message.as_ref() {
-            if let Some(interaction) = message.interaction.as_ref() {
-                if $input.user.id != interaction.user.id {
-                    $res.send_message(
-                        slashook::commands::MessageResponse::from(format!(
-                            "{} This isn't your interaction.",
-                            crate::statics::emojis::ERROR_EMOJI
-                        ))
-                        .set_ephemeral(true),
-                    )
-                    .await?;
-
-                    return Ok(());
-                }
-            }
-        }
-    };
-}
-
 macro_rules! yes_no {
     ($condition:expr $(, $yes:expr, $no:expr)?) => {
         {
@@ -209,7 +211,7 @@ pub(crate) use hastebin;
 pub(crate) use if_else;
 pub(crate) use kv_autocomplete;
 pub(crate) use plural;
+pub(crate) use respond_to_component_interaction;
 pub(crate) use stringify_message;
 pub(crate) use twilight_user_to_tag;
-pub(crate) use verify_component_interaction;
 pub(crate) use yes_no;
