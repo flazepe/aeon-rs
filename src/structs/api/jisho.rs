@@ -29,18 +29,16 @@ pub struct JishoSense {
     pub parts_of_speech: Vec<String>,
     pub links: Vec<JishoLink>,
     pub tags: Vec<String>,
-    // restrictions: Array<unknown>;
     pub see_also: Vec<String>,
-    // pub antonyms: Array<unknown>;
     pub source: Vec<JishoSource>,
-    pub info: Vec<String>, // pub sentences?: Vec<unknown>;
+    pub info: Vec<String>,
 }
 
 #[derive(Deserialize)]
 pub struct JishoAttribution {
     pub jmdict: bool,
     pub jmnedict: bool,
-    // pub dbpedia: String,
+    // pub dbpedia: String
 }
 
 #[derive(Deserialize)]
