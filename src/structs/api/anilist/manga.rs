@@ -143,6 +143,25 @@ impl AniListManga {
 }
 
 impl AniList {
+    pub async fn get_manga(id: u64) -> Result<AniListManga> {
+        let result: AniListMediaResponse<AniListManga> = AniList::query(
+            format!(
+                "query($id: Int) {{
+                    Media(id: $id) {{
+                        {ANILIST_MANGA_FIELDS}
+                    }}
+                }}"
+            ),
+            json!({ "id": id }),
+        )
+        .await?;
+
+        match result.data.media {
+            Some(manga) => Ok(manga),
+            None => bail!("Manga not found."),
+        }
+    }
+
     pub async fn search_manga<T: ToString>(search: T) -> Result<Vec<AniListManga>> {
         let result: AniListMediaPageResponse<AniListManga> = AniList::query(
             format!(
@@ -163,24 +182,5 @@ impl AniList {
             bail!("Manga not found."),
             Ok(result.data.page.media)
         )
-    }
-
-    pub async fn get_manga(id: u64) -> Result<AniListManga> {
-        let result: AniListMediaResponse<AniListManga> = AniList::query(
-            format!(
-                "query($id: Int) {{
-                    Media(id: $id) {{
-                        {ANILIST_MANGA_FIELDS}
-                    }}
-                }}"
-            ),
-            json!({ "id": id }),
-        )
-        .await?;
-
-        match result.data.media {
-            Some(manga) => Ok(manga),
-            None => bail!("Manga not found."),
-        }
     }
 }
