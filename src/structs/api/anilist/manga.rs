@@ -3,9 +3,9 @@ use crate::{
     statics::anilist::ANILIST_MANGA_FIELDS,
     structs::api::anilist::{
         components::{
-            AniListCoverImage, AniListEdges, AniListExternalLink, AniListFuzzyDate, AniListMangaCharacter,
-            AniListMediaPageResponse, AniListMediaResponse, AniListRanking, AniListRelation, AniListSource,
-            AniListStatus, AniListTitle,
+            AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat, AniListFuzzyDate,
+            AniListMangaCharacter, AniListMediaPageResponse, AniListMediaResponse, AniListRanking, AniListRelation,
+            AniListSource, AniListStatus, AniListTitle,
         },
         AniList,
     },
@@ -23,7 +23,7 @@ pub struct AniListManga {
     pub banner_image: Option<String>,
     pub country_of_origin: String,
     pub title: AniListTitle,
-    pub format: String,
+    pub format: AniListFormat,
     pub synonyms: Vec<String>,
     pub is_adult: bool,
     pub start_date: AniListFuzzyDate,
