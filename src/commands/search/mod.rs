@@ -1,5 +1,6 @@
 mod anilist;
 mod distro;
+mod jisho;
 mod stock;
 mod time;
 mod vndb;
@@ -10,6 +11,7 @@ pub fn get_commands() -> Vec<Command> {
     vec![
         anilist::get_command(),
         distro::get_command(),
+        jisho::get_command(),
         stock::get_command(),
         time::get_command(),
         vndb::get_command(),
