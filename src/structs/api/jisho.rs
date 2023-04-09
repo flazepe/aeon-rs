@@ -38,7 +38,7 @@ pub struct JishoSense {
 pub struct JishoAttribution {
     pub jmdict: bool,
     pub jmnedict: bool,
-    // pub dbpedia: String
+    // pub dbpedia: String,
 }
 
 #[derive(Deserialize)]
