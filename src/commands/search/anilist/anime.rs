@@ -26,8 +26,11 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 }
                 .into_iter()
                 .map(|anime| {
-                    SelectOption::new(anime.title.romaji, anime.id)
-                        .set_description(AniList::prettify_enum_value(anime.status))
+                    SelectOption::new(anime.title.romaji, anime.id).set_description(format!(
+                        "{} - {}",
+                        AniList::prettify_enum_value(anime.format),
+                        AniList::prettify_enum_value(anime.status)
+                    ))
                 })
                 .collect::<Vec<SelectOption>>(),
             )
