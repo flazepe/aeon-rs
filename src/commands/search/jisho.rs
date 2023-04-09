@@ -1,4 +1,5 @@
 use crate::{
+    macros::verify_component_interaction,
     statics::emojis::ERROR_EMOJI,
     structs::{api::jisho::JishoSearch, select_menu::SelectMenu},
     traits::ArgGetters,
@@ -23,6 +24,8 @@ pub fn get_command() -> Command {
 		],
 	)]
     async fn jisho(input: CommandInput, res: CommandResponder) {
+        verify_component_interaction!(input, res);
+
         if input.is_string_select() {
             return res
                 .update_message(JishoSearch::get(&input.values.unwrap()[0]).await?.format())
