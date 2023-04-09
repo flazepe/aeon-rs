@@ -91,10 +91,10 @@ impl AniListAnime {
                             |time| Some(time > 0),
                             false
                         )),
-                        |time| Some(format!(
+                        |node| Some(format!(
                             "\nNext episode airs <t:{}:R>",
                             SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()
-                                + time.time_until_airing.unwrap() as u64
+                                + node.time_until_airing.unwrap() as u64
                         )),
                         "".into()
                     )
