@@ -1,13 +1,12 @@
 mod anime;
 mod manga;
 
+use crate::macros::{and_then_or, verify_component_interaction};
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
-
-use crate::macros::{and_then_or, verify_component_interaction};
 
 pub fn get_command() -> Command {
     #[command(
