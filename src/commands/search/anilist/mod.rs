@@ -1,0 +1,68 @@
+mod anime;
+mod manga;
+
+use slashook::{
+    command,
+    commands::{Command, CommandInput, CommandResponder},
+    structs::interactions::InteractionOptionType,
+};
+
+use crate::macros::{and_then_or, verify_component_interaction};
+
+pub fn get_command() -> Command {
+    #[command(
+        name = "anilist",
+        description = "Fetches various resources from AniList.",
+        subcommands = [
+			{
+                name = "anime",
+                description = "Fetches an anime from AniList.",
+                options = [
+                    {
+                        name = "anime",
+                        description = "The anime",
+                        option_type = InteractionOptionType::STRING,
+                        required = true,
+                    },
+					{
+                        name = "search",
+                        description = "Whether to search",
+                        option_type = InteractionOptionType::BOOLEAN,
+                    },
+                ],
+            },
+			{
+                name = "manga",
+                description = "Fetches a manga from AniList.",
+                options = [
+                    {
+                        name = "manga",
+                        description = "The manga",
+                        option_type = InteractionOptionType::STRING,
+                        required = true,
+                    },
+					{
+                        name = "search",
+                        description = "Whether to search",
+                        option_type = InteractionOptionType::BOOLEAN,
+                    },
+                ],
+            },
+        ],
+    )]
+    async fn anilist(input: CommandInput, res: CommandResponder) {
+        verify_component_interaction!(input, res);
+
+        match and_then_or!(
+            input.custom_id.as_deref(),
+            |custom_id| Some(custom_id),
+            input.subcommand.as_deref().unwrap_or("")
+        ) {
+            "anime" => anime::run(input, res).await?,
+            "manga" => manga::run(input, res).await?,
+            _ => {},
+        }
+    }
+
+    anilist
+}
