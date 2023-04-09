@@ -37,7 +37,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             SelectMenu::new(
                 "vndb",
                 "visual-novel",
-                "Select a visual novel",
+                "View other results…",
                 results
                     .iter()
                     .map(|visual_novel| {

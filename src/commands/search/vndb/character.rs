@@ -37,7 +37,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             SelectMenu::new(
                 "vndb",
                 "character",
-                "Select a character",
+                "View other results…",
                 results
                     .iter()
                     .map(|character| {

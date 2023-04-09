@@ -34,7 +34,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             SelectMenu::new(
                 "anilist",
                 "anime",
-                "Select an anime",
+                "View other results…",
                 results
                     .iter()
                     .map(|anime| {
