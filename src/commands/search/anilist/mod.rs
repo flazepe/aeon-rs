@@ -23,11 +23,6 @@ pub fn get_command() -> Command {
                         option_type = InteractionOptionType::STRING,
                         required = true,
                     },
-					{
-                        name = "search",
-                        description = "Whether to search",
-                        option_type = InteractionOptionType::BOOLEAN,
-                    },
                 ],
             },
 			{
@@ -39,11 +34,6 @@ pub fn get_command() -> Command {
                         description = "The manga",
                         option_type = InteractionOptionType::STRING,
                         required = true,
-                    },
-					{
-                        name = "search",
-                        description = "Whether to search",
-                        option_type = InteractionOptionType::BOOLEAN,
                     },
                 ],
             },
