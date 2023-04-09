@@ -1,6 +1,6 @@
 use crate::{
-    macros::if_else,
-    statics::anilist::ANILIST_MANGA_FIELDS,
+    macros::{and_then_or, if_else, yes_no},
+    statics::{anilist::ANILIST_MANGA_FIELDS, colors::PRIMARY_COLOR},
     structs::api::anilist::{
         components::{
             AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat, AniListFuzzyDate,
@@ -13,6 +13,10 @@ use crate::{
 use anyhow::{bail, Result};
 use serde::Deserialize;
 use serde_json::json;
+use slashook::{
+    chrono::{TimeZone, Utc},
+    structs::embeds::Embed,
+};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -44,6 +48,98 @@ pub struct AniListManga {
     pub characters: AniListEdges<AniListMangaCharacter>,
     pub relations: AniListEdges<AniListRelation>,
     pub updated_at: u64,
+}
+
+impl AniListManga {
+    pub fn format(self) -> Embed {
+        Embed::new()
+            .set_color(PRIMARY_COLOR)
+            .unwrap_or_default()
+            .set_thumbnail(&self.cover_image.extra_large)
+            .set_image(self.banner_image.as_ref().unwrap_or(&"".into()))
+            .set_title(format!(
+                ":flag_{}:  {} ({})",
+                self.country_of_origin.to_lowercase(),
+                self.title.romaji,
+                AniList::prettify_enum_value(&self.format)
+            ))
+            .set_url(&self.site_url)
+            .set_description(
+                self.synonyms
+                    .iter()
+                    .map(|title| format!("_{title}_"))
+                    .collect::<Vec<String>>()
+                    .join("\n"),
+            )
+            .add_field(
+                "Published",
+                format!(
+                    "{} ({})",
+                    AniList::format_airing_date(self.start_date, self.end_date),
+                    AniList::prettify_enum_value(self.status)
+                ),
+                false,
+            )
+            .add_field(
+                "Chapters",
+                format!(
+                    "{}",
+                    and_then_or!(self.chapters, |chapters| Some(chapters.to_string()), "TBA".into()),
+                ),
+                true,
+            )
+            .add_field(
+                "Volumes",
+                format!(
+                    "{}",
+                    and_then_or!(self.volumes, |volumes| Some(volumes.to_string()), "TBA".into()),
+                ),
+                true,
+            )
+            .add_field("Licensed", yes_no!(self.is_licensed), true)
+            .add_field(
+                "Genre",
+                self.genres
+                    .iter()
+                    .map(|genre| {
+                        format!(
+                            "[{genre}](https://anilist.co/search/anime?genres={})",
+                            genre.replace(" ", "+")
+                        )
+                    })
+                    .collect::<Vec<String>>()
+                    .join(", "),
+                true,
+            )
+            .add_field(
+                "Source",
+                and_then_or!(
+                    self.source,
+                    |source| Some(AniList::prettify_enum_value(source)),
+                    "N/A".into()
+                ),
+                true,
+            )
+            .add_field(
+                "Score",
+                {
+                    let mut scores = vec![];
+
+                    if let Some(average_score) = self.average_score {
+                        scores.push(format!("Average {average_score}%"))
+                    }
+
+                    if let Some(mean_score) = self.mean_score {
+                        scores.push(format!("Mean {mean_score}%"))
+                    }
+
+                    if_else!(scores.is_empty(), "N/A".into(), scores.join("\n"))
+                },
+                true,
+            )
+            .set_footer("Last updated", None::<String>)
+            .set_timestamp(Utc.timestamp_opt(self.updated_at as i64, 0).unwrap())
+    }
 }
 
 impl AniList {
