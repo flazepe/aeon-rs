@@ -31,7 +31,7 @@ impl AniList {
             .await?)
     }
 
-    fn prettify_enum_value<T: Debug>(value: T) -> String {
+    pub fn prettify_enum_value<T: Debug>(value: T) -> String {
         format!("{:?}", value)
             .split("_")
             .map(|word| {
