@@ -1,6 +1,5 @@
 use crate::{macros::if_else, statics::colors::PRIMARY_COLOR};
 use anyhow::{bail, Result};
-use regex::Regex;
 use reqwest::get;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
