@@ -38,10 +38,10 @@ macro_rules! format_timestamp {
         let simple = format!("<t:{}:D>", $timestamp);
         let full = format!("{simple} ({duration})");
 
-        let format = "full";
-        $(format = $format;)?
+        let mut _format = "full";
+        $(_format = $format;)?
 
-        match format {
+        match _format {
             "duration" => duration,
             "simple" => simple,
             "full" => full,
