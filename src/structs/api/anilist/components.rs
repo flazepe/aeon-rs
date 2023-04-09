@@ -106,6 +106,21 @@ pub struct AniListExternalLink {
     pub url: String,
 }
 
+#[derive(Debug, Deserialize)]
+#[allow(non_camel_case_types)]
+pub enum AniListFormat {
+    TV,
+    TV_SHORT,
+    MOVIE,
+    SPECIAL,
+    OVA,
+    ONA,
+    MUSIC,
+    MANGA,
+    NOVEL,
+    ONE_SHOT,
+}
+
 #[derive(Deserialize)]
 pub struct AniListFuzzyDate {
     pub year: Option<u64>,
@@ -137,13 +152,13 @@ pub struct AniListRanking {
     pub year: Option<u64>,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub enum AniListRankingType {
     POPULAR,
     RATED,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub enum AniListSeason {
     WINTER,
     SPRING,
@@ -151,7 +166,7 @@ pub enum AniListSeason {
     FALL,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[allow(non_camel_case_types)]
 pub enum AniListSource {
     ORIGINAL,
@@ -171,7 +186,7 @@ pub enum AniListSource {
     PICTURE_BOOK,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[allow(non_camel_case_types)]
 pub enum AniListStatus {
     FINISHED,
