@@ -38,9 +38,14 @@ impl Vndb {
     }
 
     pub fn clean_bbcode<T: ToString>(string: T) -> String {
-        Regex::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]")
+        Regex::new(r"https://(.+?)/")
             .unwrap()
-            .replace_all(&string.to_string(), "")
+            .replace_all(
+                &Regex::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]")
+                    .unwrap()
+                    .replace_all(&string.to_string(), ""),
+                "<redacted>/",
+            )
             .to_string()
     }
 }
