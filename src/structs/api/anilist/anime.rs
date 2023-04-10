@@ -225,6 +225,10 @@ impl AniListAnime {
             description.join("\n")
         })
     }
+
+    pub fn format_relations(self) -> Embed {
+        AniList::format_relations(self._format(), self.relations.edges)
+    }
 }
 
 impl AniList {

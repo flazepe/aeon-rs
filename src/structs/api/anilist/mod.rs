@@ -2,14 +2,16 @@ mod anime;
 mod components;
 mod manga;
 
-use crate::macros::{format_timestamp, if_else};
-use crate::structs::api::anilist::components::AniListFuzzyDate;
+use crate::{
+    macros::{format_timestamp, if_else},
+    structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
+};
 use anyhow::Result;
 use reqwest::Client;
 use serde::de::DeserializeOwned;
 use serde_json::{json, Value};
-use slashook::chrono::NaiveDateTime;
-use std::fmt::Debug;
+use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
+use std::{collections::HashMap, fmt::Debug};
 
 pub struct AniList {}
 
@@ -76,5 +78,40 @@ impl AniList {
         }
 
         if_else!(dates.is_empty(), "TBA".into(), dates.join(" - "))
+    }
+
+    fn format_relations(mut embed: Embed, relations: Vec<AniListRelation>) -> Embed {
+        let mut categorized = HashMap::new();
+
+        for relation in relations {
+            let relation_type = AniList::prettify_enum_value(relation.relation_type);
+
+            if !categorized.contains_key(&relation_type) {
+                categorized.insert(relation_type.clone(), vec![]);
+            }
+
+            categorized.get_mut(&relation_type).unwrap().push(format!(
+                "[{}]({}) ({})",
+                relation.node.title.romaji,
+                relation.node.site_url,
+                AniList::prettify_enum_value(relation.node.format)
+            ));
+        }
+
+        for (relation_type, mut list) in categorized {
+            embed = embed.add_field(
+                relation_type,
+                {
+                    while list.join("\n").len() > 1024 {
+                        list.pop();
+                    }
+
+                    list.join("\n")
+                },
+                false,
+            );
+        }
+
+        embed
     }
 }
