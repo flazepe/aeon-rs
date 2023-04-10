@@ -1,5 +1,3 @@
-use std::time::{SystemTime, UNIX_EPOCH};
-
 use crate::{
     macros::{and_then_or, if_else},
     statics::{anilist::ANILIST_ANIME_FIELDS, colors::PRIMARY_COLOR},
@@ -20,6 +18,7 @@ use slashook::{
     chrono::{TimeZone, Utc},
     structs::embeds::Embed,
 };
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
