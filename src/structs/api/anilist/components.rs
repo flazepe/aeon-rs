@@ -75,7 +75,7 @@ pub struct AniListCharacterVoiceActor {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListRelation {
-    pub relation_type: String,
+    pub relation_type: AniListRelationType,
     pub node: AniListRelationNode,
 }
 
@@ -85,6 +85,24 @@ pub struct AniListRelationNode {
     pub title: AniListTitle,
     pub format: String,
     pub site_url: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[allow(non_camel_case_types)]
+pub enum AniListRelationType {
+    ADAPTATION,
+    PREQUEL,
+    SEQUEL,
+    PARENT,
+    SIDE_STORY,
+    CHARACTER,
+    SUMMARY,
+    ALTERNATIVE,
+    SPIN_OFF,
+    OTHER,
+    SOURCE,
+    COMPILATION,
+    CONTAINS,
 }
 
 // Others
