@@ -3,7 +3,7 @@ mod components;
 mod manga;
 
 use crate::{
-    macros::{format_timestamp, if_else},
+    macros::{and_then_or, format_timestamp, if_else},
     structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
 };
 use anyhow::Result;
@@ -91,10 +91,14 @@ impl AniList {
             }
 
             categorized.get_mut(&relation_type).unwrap().push(format!(
-                "[{}]({}) ({})",
+                "[{}]({}){}",
                 relation.node.title.romaji,
                 relation.node.site_url,
-                AniList::format_enum_value(relation.node.format)
+                and_then_or!(
+                    relation.node.format,
+                    |format| Some(format!(" ({})", AniList::format_enum_value(format))),
+                    "TBA".into()
+                )
             ));
         }
 

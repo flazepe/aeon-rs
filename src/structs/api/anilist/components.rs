@@ -91,7 +91,7 @@ pub struct AniListRelation {
 #[serde(rename_all = "camelCase")]
 pub struct AniListRelationNode {
     pub title: AniListTitle,
-    pub format: AniListFormat,
+    pub format: Option<AniListFormat>,
     pub site_url: String,
 }
 
