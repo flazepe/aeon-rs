@@ -61,7 +61,22 @@ impl VndbTag {
                     .collect::<Vec<String>>()
                     .join("\n"),
             )
-            .add_field("Description", Vndb::clean_bbcode(self.description), false)
+            .add_field(
+                "Description",
+                {
+                    let mut description = Vndb::clean_bbcode(self.description)
+                        .split("\n")
+                        .map(|string| string.to_string())
+                        .collect::<Vec<String>>();
+
+                    while description.join("\n").len() > 1024 {
+                        description.pop();
+                    }
+
+                    description.join("\n")
+                },
+                false,
+            )
             .add_field("Searchable", yes_no!(self.searchable), true)
             .add_field("Applicable", yes_no!(self.applicable), true)
             .add_field("Visual Novel Count", self.vn_count.to_string(), true)
