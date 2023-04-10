@@ -38,7 +38,9 @@ impl SelectMenu {
             }
 
             if let Some(default) = self.default.as_ref() {
-                if !default.is_empty() && option.value.contains(default) {
+                if (default.is_empty() && !option.value.contains("/"))
+                    || (!default.is_empty() && option.value.contains(default))
+                {
                     option.default = Some(true);
                 }
             }
