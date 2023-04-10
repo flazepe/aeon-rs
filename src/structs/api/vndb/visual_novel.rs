@@ -514,27 +514,8 @@ pub struct VndbVisualNovel {
 }
 
 impl VndbVisualNovel {
-    fn format_description(&self) -> Option<String> {
-        if let Some(description) = self.description.as_ref() {
-            let mut description = Regex::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]")
-                .unwrap()
-                .replace_all(&description, "")
-                .split("\n")
-                .map(|string| string.to_string())
-                .collect::<Vec<String>>();
-
-            while description.join("\n").len() > 1024 {
-                description.pop();
-            }
-
-            Some(description.join("\n"))
-        } else {
-            None
-        }
-    }
-
-    pub fn format(self) -> Embed {
-        let mut embed = Embed::new()
+    fn _format(&self) -> Embed {
+        Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
             .set_thumbnail(and_then_or!(
@@ -548,19 +529,17 @@ impl VndbVisualNovel {
                 self.dev_status.to_string(),
             ))
             .set_url(format!("https://vndb.org/{}", self.id))
+    }
+
+    pub fn format(self) -> Embed {
+        self._format()
             .set_description(
                 self.aliases
                     .iter()
                     .map(|alias| format!("_{alias}_"))
                     .collect::<Vec<String>>()
                     .join("\n"),
-            );
-
-        if let Some(description) = self.format_description() {
-            embed = embed.add_field("Description", description, false);
-        }
-
-        embed
+            )
             .add_field("Popularity", format!("{:.0}%", self.popularity), true)
             .add_field(
                 "Rating",
@@ -598,29 +577,6 @@ impl VndbVisualNovel {
                     .join(", "),
                 false,
             )
-            .add_field(
-                "Tags",
-                {
-                    let mut tags = self
-                        .tags
-                        .into_iter()
-                        .map(|tag| {
-                            format!(
-                                "[{}](https://vndb.org/{})",
-                                if_else!(tag.spoiler > 1.0, format!("||{}||", tag.name), tag.name),
-                                tag.id
-                            )
-                        })
-                        .collect::<Vec<String>>();
-
-                    while tags.join(", ").len() > 1024 {
-                        tags.pop();
-                    }
-
-                    tags.join(", ")
-                },
-                false,
-            )
             .set_footer(
                 and_then_or!(
                     self.released,
@@ -629,6 +585,45 @@ impl VndbVisualNovel {
                 ),
                 None::<String>,
             )
+    }
+
+    pub fn format_description(self) -> Embed {
+        self._format().set_description({
+            let mut description = Regex::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]")
+                .unwrap()
+                .replace_all(&self.description.as_ref().unwrap_or(&"N/A".into()), "")
+                .split("\n")
+                .map(|string| string.to_string())
+                .collect::<Vec<String>>();
+
+            while description.join("\n").len() > 4096 {
+                description.pop();
+            }
+
+            description.join("\n")
+        })
+    }
+
+    pub fn format_tags(self) -> Embed {
+        self._format().set_description({
+            let mut tags = self
+                .tags
+                .into_iter()
+                .map(|tag| {
+                    format!(
+                        "[{}](https://vndb.org/{})",
+                        if_else!(tag.spoiler > 1.0, format!("||{}||", tag.name), tag.name),
+                        tag.id
+                    )
+                })
+                .collect::<Vec<String>>();
+
+            while tags.join(", ").len() > 4096 {
+                tags.pop();
+            }
+
+            tags.join(", ")
+        })
     }
 }
 

@@ -126,17 +126,21 @@ pub struct VndbCharacter {
 }
 
 impl VndbCharacter {
-    pub fn format(self) -> Embed {
+    fn _format(&self) -> Embed {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
             .set_thumbnail(and_then_or!(
-                self.image,
-                |image| Some(if_else!(image.sexual > 1.0, "".into(), image.url)),
+                self.image.as_ref(),
+                |image| Some(if_else!(image.sexual > 1.0, "".into(), image.url.clone())),
                 "".into()
             ))
             .set_title(self.name.chars().take(256).collect::<String>())
             .set_url(format!("https://vndb.org/{}", self.id))
+    }
+
+    pub fn format(self) -> Embed {
+        self._format()
             .set_description(
                 self.aliases
                     .iter()
@@ -216,55 +220,53 @@ impl VndbCharacter {
                 and_then_or!(self.hips, |hips| Some(format!("{hips} cm")), "N/A".into()),
                 true,
             )
-            .add_field(
-                "Traits",
-                {
-                    let mut traits = self
-                        .traits
-                        .into_iter()
-                        .map(|character_trait| {
-                            format!(
-                                "[{}](https://vndb.org/{})",
-                                if_else!(
-                                    matches!(character_trait.spoiler, VndbSpoilerLevel::NonSpoiler),
-                                    character_trait.name,
-                                    format!("||{}||", character_trait.name)
-                                ),
-                                character_trait.id
-                            )
-                        })
-                        .collect::<Vec<String>>();
+    }
 
-                    while traits.join(", ").len() > 1024 {
-                        traits.pop();
-                    }
+    pub fn format_traits(self) -> Embed {
+        self._format().set_description({
+            let mut traits = self
+                .traits
+                .into_iter()
+                .map(|character_trait| {
+                    format!(
+                        "[{}](https://vndb.org/{})",
+                        if_else!(
+                            matches!(character_trait.spoiler, VndbSpoilerLevel::NonSpoiler),
+                            character_trait.name,
+                            format!("||{}||", character_trait.name)
+                        ),
+                        character_trait.id
+                    )
+                })
+                .collect::<Vec<String>>();
 
-                    traits.join(", ")
-                },
-                false,
-            )
-            .add_field(
-                "Visual Novels",
-                {
-                    let mut visual_novels = self
-                        .vns
-                        .into_iter()
-                        .map(|visual_novel| {
-                            format!(
-                                "[{}](https://vndb.org/{}) ({})",
-                                visual_novel.title, visual_novel.id, visual_novel.role
-                            )
-                        })
-                        .collect::<Vec<String>>();
+            while traits.join(", ").len() > 4096 {
+                traits.pop();
+            }
 
-                    while visual_novels.join("\n").len() > 1024 {
-                        visual_novels.pop();
-                    }
+            traits.join(", ")
+        })
+    }
 
-                    visual_novels.join("\n")
-                },
-                false,
-            )
+    pub fn format_visual_novels(self) -> Embed {
+        self._format().set_description({
+            let mut visual_novels = self
+                .vns
+                .into_iter()
+                .map(|visual_novel| {
+                    format!(
+                        "[{}](https://vndb.org/{}) ({})",
+                        visual_novel.title, visual_novel.id, visual_novel.role
+                    )
+                })
+                .collect::<Vec<String>>();
+
+            while visual_novels.join("\n").len() > 4096 {
+                visual_novels.pop();
+            }
+
+            visual_novels.join("\n")
+        })
     }
 }
 

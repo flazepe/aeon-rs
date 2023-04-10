@@ -59,7 +59,7 @@ pub struct AniListAnime {
 }
 
 impl AniListAnime {
-    pub fn format(self) -> Embed {
+    fn _format(&self) -> Embed {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
@@ -72,6 +72,10 @@ impl AniListAnime {
                 AniList::prettify_enum_value(&self.format)
             ))
             .set_url(&self.site_url)
+    }
+
+    pub fn format(self) -> Embed {
+        self._format()
             .set_description(
                 self.synonyms
                     .iter()
@@ -203,6 +207,23 @@ impl AniListAnime {
             )
             .set_footer("Last updated", None::<String>)
             .set_timestamp(Utc.timestamp_opt(self.updated_at as i64, 0).unwrap())
+    }
+
+    pub fn format_description(self) -> Embed {
+        self._format().set_description({
+            let mut description = self
+                .description
+                .unwrap_or("N/A".into())
+                .split("\n")
+                .map(|string| string.to_string())
+                .collect::<Vec<String>>();
+
+            while description.join("\n").len() > 4096 {
+                description.pop();
+            }
+
+            description.join("\n")
+        })
     }
 }
 
