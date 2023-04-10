@@ -56,10 +56,8 @@ impl AniList {
         let mut dates = vec![];
 
         for fuzzy_date in [start, end] {
-            if let Some(date) = if_else!(
-                fuzzy_date.day.is_none() || fuzzy_date.month.is_none() || fuzzy_date.year.is_none(),
-                None,
-                Some(format_timestamp!(
+            if fuzzy_date.day.is_some() && fuzzy_date.month.is_some() && fuzzy_date.year.is_some() {
+                dates.push(format_timestamp!(
                     NaiveDateTime::parse_from_str(
                         &format!(
                             "{}-{}-{} 00:00:00",
@@ -72,9 +70,7 @@ impl AniList {
                     .unwrap()
                     .timestamp(),
                     "simple"
-                ))
-            ) {
-                dates.push(date);
+                ));
             }
         }
 
