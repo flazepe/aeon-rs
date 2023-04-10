@@ -69,7 +69,7 @@ impl AniListAnime {
                 ":flag_{}:  {} ({})",
                 self.country_of_origin.to_lowercase(),
                 self.title.romaji,
-                AniList::prettify_enum_value(&self.format)
+                AniList::format_enum_value(&self.format)
             ))
             .set_url(&self.site_url)
     }
@@ -88,7 +88,7 @@ impl AniListAnime {
                 format!(
                     "{} ({}){}",
                     AniList::format_airing_date(self.start_date, self.end_date),
-                    AniList::prettify_enum_value(self.status),
+                    AniList::format_enum_value(self.status),
                     and_then_or!(
                         self.airing_schedule.nodes.iter().find(|node| and_then_or!(
                             node.time_until_airing,
@@ -113,7 +113,7 @@ impl AniListAnime {
                         self.season,
                         |season| Some(format!(
                             "{} {}",
-                            AniList::prettify_enum_value(season),
+                            AniList::format_enum_value(season),
                             self.season_year.unwrap()
                         )),
                         "TBA".into()
@@ -183,7 +183,7 @@ impl AniListAnime {
                 "Source",
                 and_then_or!(
                     self.source,
-                    |source| Some(AniList::prettify_enum_value(source)),
+                    |source| Some(AniList::format_enum_value(source)),
                     "N/A".into()
                 ),
                 true,

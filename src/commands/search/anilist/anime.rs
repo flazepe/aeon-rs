@@ -21,8 +21,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                     Ok(results) => results.into_iter().map(|result| {
                         SelectOption::new(result.title.romaji, result.id).set_description(format!(
                             "{} - {}",
-                            AniList::prettify_enum_value(result.format),
-                            AniList::prettify_enum_value(result.status)
+                            AniList::format_enum_value(result.format),
+                            AniList::format_enum_value(result.status)
                         ))
                     }),
                     Err(error) => {

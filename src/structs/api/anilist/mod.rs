@@ -33,7 +33,7 @@ impl AniList {
             .await?)
     }
 
-    pub fn prettify_enum_value<T: Debug>(value: T) -> String {
+    pub fn format_enum_value<T: Debug>(value: T) -> String {
         format!("{:?}", value)
             .split("_")
             .map(|word| {
@@ -84,7 +84,7 @@ impl AniList {
         let mut categorized = HashMap::new();
 
         for relation in relations {
-            let relation_type = AniList::prettify_enum_value(relation.relation_type);
+            let relation_type = AniList::format_enum_value(relation.relation_type);
 
             if !categorized.contains_key(&relation_type) {
                 categorized.insert(relation_type.clone(), vec![]);
@@ -94,7 +94,7 @@ impl AniList {
                 "[{}]({}) ({})",
                 relation.node.title.romaji,
                 relation.node.site_url,
-                AniList::prettify_enum_value(relation.node.format)
+                AniList::format_enum_value(relation.node.format)
             ));
         }
 
