@@ -104,7 +104,7 @@ impl JishoSearch {
                 {
                     let mut parts_of_speech = HashMap::new();
 
-                    for sense in self.senses.iter() {
+                    for sense in self.senses {
                         let part_of_speech = if_else!(
                             sense.parts_of_speech.is_empty(),
                             "Others".into(),
