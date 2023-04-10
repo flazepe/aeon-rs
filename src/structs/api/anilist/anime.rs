@@ -89,7 +89,29 @@ impl AniListAnime {
             .add_field(
                 "Aired",
                 format!(
-                    "{} ({}){}",
+                    "{}{} ({}){}",
+                    and_then_or!(
+                        self.season,
+                        |season| Some(format!(
+                            "Premiered {} {}{}\n",
+                            AniList::format_enum_value(season),
+                            self.season_year.unwrap(),
+                            and_then_or!(
+                                self.trailer,
+                                |trailer| Some(format!(
+                                    " - [Trailer]({}{})",
+                                    if_else!(
+                                        trailer.site == "youtube",
+                                        "https://www.youtube.com/watch?v=",
+                                        "https://www.dailymotion.com/video/"
+                                    ),
+                                    trailer.id
+                                )),
+                                "".into()
+                            )
+                        )),
+                        "".into()
+                    ),
                     AniList::format_airing_date(self.start_date, self.end_date),
                     AniList::format_enum_value(self.status),
                     and_then_or!(
@@ -109,32 +131,13 @@ impl AniListAnime {
                 false,
             )
             .add_field(
-                "Premiered",
-                format!(
-                    "{}{}",
-                    and_then_or!(
-                        self.season,
-                        |season| Some(format!(
-                            "{} {}",
-                            AniList::format_enum_value(season),
-                            self.season_year.unwrap()
-                        )),
-                        "TBA".into()
-                    ),
-                    and_then_or!(
-                        self.trailer,
-                        |trailer| Some(format!(
-                            " - [Trailer]({}{})",
-                            if_else!(
-                                trailer.site == "youtube",
-                                "https://www.youtube.com/watch?v=",
-                                "https://www.dailymotion.com/video/"
-                            ),
-                            trailer.id
-                        )),
-                        "".into()
-                    )
-                ),
+                "Studio",
+                self.studios
+                    .nodes
+                    .iter()
+                    .map(|studio| format!("[{}]({})", studio.name, studio.site_url))
+                    .collect::<Vec<String>>()
+                    .join(", "),
                 true,
             )
             .add_field(
