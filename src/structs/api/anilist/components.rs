@@ -45,14 +45,14 @@ pub struct AniListEdges<T> {
 #[serde(rename_all = "camelCase")]
 pub struct AniListAnimeCharacter {
     pub node: AniListCharacterNode,
-    pub role: String,
+    pub role: AniListCharacterRole,
     pub voice_actors: Vec<AniListCharacterVoiceActor>,
 }
 
 #[derive(Deserialize)]
 pub struct AniListMangaCharacter {
     pub node: AniListCharacterNode,
-    pub role: String,
+    pub role: AniListCharacterRole,
 }
 
 #[derive(Deserialize)]
@@ -61,6 +61,14 @@ pub struct AniListCharacterNode {
     pub name: AniListName,
     pub image: AniListImage,
     pub site_url: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[allow(non_camel_case_types)]
+pub enum AniListCharacterRole {
+    MAIN,
+    SUPPORTING,
+    BACKGROUND,
 }
 
 #[derive(Deserialize)]
