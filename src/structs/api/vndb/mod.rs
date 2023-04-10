@@ -1,4 +1,6 @@
 pub mod character;
+pub mod character_trait;
+pub mod tag;
 pub mod visual_novel;
 
 use anyhow::Result;
