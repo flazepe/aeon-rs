@@ -13,41 +13,67 @@ use slashook::{
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let vndb = Vndb::new();
 
-    if input.is_string_select() {
-        respond_to_component_interaction!(
-            input,
-            res,
-            vndb.search_visual_novel(&input.values.as_ref().unwrap()[0])
-                .await?
-                .remove(0)
-                .format()
-        );
+    if input.get_bool_arg("search")? {
+        res.send_message(
+            SelectMenu::new(
+                "vndb",
+                "visual-novel",
+                "Select a visual novel…",
+                match vndb.search_visual_novel(input.get_string_arg("visual-novel")?).await {
+                    Ok(results) => results
+                        .into_iter()
+                        .map(|result| SelectOption::new(result.title, result.id).set_description(result.dev_status))
+                        .collect::<Vec<SelectOption>>(),
+                    Err(error) => {
+                        res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+                        return Ok(());
+                    },
+                },
+            )
+            .to_components(),
+        )
+        .await?;
+
+        return Ok(());
     }
 
-    let mut results = match vndb.search_visual_novel(input.get_string_arg("visual-novel")?).await {
-        Ok(results) => results,
+    let (query, section): (String, String) = {
+        if input.is_string_select() {
+            let mut split = input.values.as_ref().unwrap()[0].split("/");
+            (split.next().unwrap().into(), split.next().unwrap_or("").into())
+        } else {
+            (input.get_string_arg("visual-novel")?, "".into())
+        }
+    };
+
+    let visual_novel = match vndb.search_visual_novel(query).await {
+        Ok(mut results) => results.remove(0),
         Err(error) => {
             res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
             return Ok(());
         },
     };
 
-    res.send_message(
+    respond_to_component_interaction!(
+        input,
+        res,
         MessageResponse::from(
             SelectMenu::new(
                 "vndb",
                 "visual-novel",
-                "View other results…",
-                results
-                    .iter()
-                    .map(|result| SelectOption::new(&result.title, &result.id).set_description(&result.dev_status))
-                    .collect::<Vec<SelectOption>>(),
+                "Select a section…",
+                vec![
+                    SelectOption::new("Overview", format!("{}", visual_novel.id)),
+                    SelectOption::new("Description", format!("{}/description", visual_novel.id)),
+                    SelectOption::new("Tags", format!("{}/tags", visual_novel.id)),
+                ],
             )
             .to_components(),
         )
-        .add_embed(results.remove(0).format()),
-    )
-    .await?;
-
-    Ok(())
+        .add_embed(match section.as_str() {
+            "description" => visual_novel.format_description(),
+            "tags" => visual_novel.format_tags(),
+            _ => visual_novel.format(),
+        })
+    );
 }
