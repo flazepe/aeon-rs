@@ -8,7 +8,10 @@ use serde::Deserialize;
 use serde_json::json;
 use serde_repr::Deserialize_repr;
 use slashook::structs::embeds::Embed;
-use std::fmt::{Display, Formatter, Result as FmtResult};
+use std::{
+    collections::HashMap,
+    fmt::{Display, Formatter, Result as FmtResult},
+};
 
 #[derive(Debug, Deserialize)]
 pub enum VndbBloodType {
@@ -223,29 +226,41 @@ impl VndbCharacter {
     }
 
     pub fn format_traits(self) -> Embed {
-        self._format().set_description({
-            let mut traits = self
-                .traits
-                .into_iter()
-                .map(|character_trait| {
-                    format!(
-                        "[{}](https://vndb.org/{})",
-                        if_else!(
-                            matches!(character_trait.spoiler, VndbSpoilerLevel::NonSpoiler),
-                            character_trait.name,
-                            format!("||{}||", character_trait.name)
-                        ),
-                        character_trait.id
-                    )
-                })
-                .collect::<Vec<String>>();
+        let mut categorized = HashMap::new();
 
-            while traits.join(", ").len() > 4096 {
-                traits.pop();
+        for character_trait in &self.traits {
+            if !categorized.contains_key(&character_trait.group_name) {
+                categorized.insert(character_trait.group_name.clone(), vec![]);
             }
 
-            traits.join(", ")
-        })
+            categorized.get_mut(&character_trait.group_name).unwrap().push(format!(
+                "[{}](https://vndb.org/{})",
+                if_else!(
+                    matches!(character_trait.spoiler, VndbSpoilerLevel::NonSpoiler),
+                    character_trait.name.clone(),
+                    format!("||{}||", character_trait.name)
+                ),
+                character_trait.id
+            ));
+        }
+
+        let mut embed = self._format();
+
+        for (group, mut traits) in categorized {
+            embed = embed.add_field(
+                group,
+                {
+                    while traits.join(", ").len() > 1024 {
+                        traits.pop();
+                    }
+
+                    traits.join(", ")
+                },
+                false,
+            );
+        }
+
+        embed
     }
 
     pub fn format_visual_novels(self) -> Embed {
