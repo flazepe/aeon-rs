@@ -233,14 +233,18 @@ impl VndbCharacter {
                 groups.insert(character_trait.group_name.clone(), vec![]);
             }
 
-            groups.get_mut(&character_trait.group_name).unwrap().push(format!(
-                "[{}](https://vndb.org/{})",
-                if_else!(
-                    matches!(character_trait.spoiler, VndbSpoilerLevel::NonSpoiler),
+            groups.get_mut(&character_trait.group_name).unwrap().push(if_else!(
+                matches!(character_trait.spoiler, VndbSpoilerLevel::NonSpoiler),
+                format!(
+                    "||[{}](https://vndb.org/{})||",
                     character_trait.name.clone(),
-                    format!("||{}||", character_trait.name)
+                    character_trait.id
                 ),
-                character_trait.id
+                format!(
+                    "[{}](https://vndb.org/{})",
+                    character_trait.name.clone(),
+                    character_trait.id
+                )
             ));
         }
 
