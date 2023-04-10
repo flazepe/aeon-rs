@@ -30,7 +30,7 @@ pub struct AniListAnime {
     pub banner_image: Option<String>,
     pub country_of_origin: String,
     pub title: AniListTitle,
-    pub format: AniListFormat,
+    pub format: Option<AniListFormat>,
     pub synonyms: Vec<String>,
     pub is_adult: bool,
     pub start_date: AniListFuzzyDate,
@@ -69,7 +69,11 @@ impl AniListAnime {
                 ":flag_{}:  {} ({})",
                 self.country_of_origin.to_lowercase(),
                 self.title.romaji,
-                AniList::format_enum_value(&self.format)
+                and_then_or!(
+                    self.format.as_ref(),
+                    |format| Some(AniList::format_enum_value(format)),
+                    "TBA".into()
+                )
             ))
             .set_url(&self.site_url)
     }
@@ -210,19 +214,35 @@ impl AniListAnime {
     }
 
     pub fn format_description(self) -> Embed {
+        AniList::format_description(self._format(), self.description)
+    }
+
+    pub fn format_characters(self) -> Embed {
         self._format().set_description({
-            let mut description = self
-                .description
-                .unwrap_or("N/A".into())
-                .split("\n")
-                .map(|string| string.to_string())
+            let mut characters = self
+                .characters
+                .edges
+                .iter()
+                .map(|character| {
+                    format!(
+                        "[{}]({}) ({}){}",
+                        character.node.name.full,
+                        character.node.site_url,
+                        AniList::format_enum_value(&character.role),
+                        if let Some(voice_actor) = character.voice_actors.get(0) {
+                            format!(" - voiced by [{}]({})", voice_actor.name.full, voice_actor.site_url)
+                        } else {
+                            "".into()
+                        }
+                    )
+                })
                 .collect::<Vec<String>>();
 
-            while description.join("\n").len() > 4096 {
-                description.pop();
+            while characters.join("\n").len() > 4096 {
+                characters.pop();
             }
 
-            description.join("\n")
+            characters.join("\n")
         })
     }
 

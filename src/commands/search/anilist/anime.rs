@@ -1,5 +1,5 @@
 use crate::{
-    macros::{if_else, respond_to_component_interaction},
+    macros::{and_then_or, if_else, respond_to_component_interaction},
     statics::emojis::ERROR_EMOJI,
     structs::{api::anilist::AniList, select_menu::SelectMenu},
     traits::ArgGetters,
@@ -21,7 +21,11 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                     Ok(results) => results.into_iter().map(|result| {
                         SelectOption::new(result.title.romaji, result.id).set_description(format!(
                             "{} - {}",
-                            AniList::format_enum_value(result.format),
+                            and_then_or!(
+                                result.format,
+                                |format| Some(AniList::format_enum_value(format)),
+                                "TBA".into()
+                            ),
                             AniList::format_enum_value(result.status)
                         ))
                     }),
@@ -71,6 +75,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 vec![
                     SelectOption::new("Overview", format!("{}", anime.id)),
                     SelectOption::new("Description", format!("{}/description", anime.id)),
+                    SelectOption::new("Characters", format!("{}/characters", anime.id)),
                     SelectOption::new("Relations", format!("{}/relations", anime.id)),
                 ],
             )
@@ -78,6 +83,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         )
         .add_embed(match section.as_str() {
             "description" => anime.format_description(),
+            "characters" => anime.format_characters(),
             "relations" => anime.format_relations(),
             _ => anime.format(),
         })
