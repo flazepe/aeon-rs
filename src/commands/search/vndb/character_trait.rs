@@ -40,7 +40,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 "View other results…",
                 results
                     .iter()
-                    .map(|result| SelectOption::new(&result.group_name, &result.id).set_description(&result.name))
+                    .map(|result| SelectOption::new(&result.name, &result.id).set_description(&result.group_name))
                     .collect::<Vec<SelectOption>>(),
             )
             .to_components(),
