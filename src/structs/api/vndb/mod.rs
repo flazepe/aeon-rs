@@ -4,7 +4,7 @@ pub mod tag;
 pub mod visual_novel;
 
 use anyhow::Result;
-use regex::Regex;
+use regex::{Regex, RegexBuilder};
 use reqwest::Client;
 use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
@@ -41,7 +41,9 @@ impl Vndb {
         Regex::new(r"https://(.+?)/")
             .unwrap()
             .replace_all(
-                &Regex::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]")
+                &RegexBuilder::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]")
+                    .case_insensitive(true)
+                    .build()
                     .unwrap()
                     .replace_all(&string.to_string(), ""),
                 "<redacted>/",
