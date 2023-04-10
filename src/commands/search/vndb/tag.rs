@@ -36,7 +36,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         MessageResponse::from(
             SelectMenu::new(
                 "vndb",
-                "trait",
+                "tag",
                 "View other results…",
                 results
                     .iter()
