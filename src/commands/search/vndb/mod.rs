@@ -1,4 +1,6 @@
 mod character;
+mod character_trait;
+mod tag;
 mod visual_novel;
 
 use crate::macros::and_then_or;
@@ -13,13 +15,13 @@ pub fn get_command() -> Command {
         name = "vndb",
         description = "Searches for various resources from Visual Novel Database.",
         subcommands = [
-			{
-                name = "visual-novel",
-                description = "Fetches a visual novel from Visual Novel Database.",
+            {
+                name = "character",
+                description = "Fetches a character from Visual Novel Database.",
                 options = [
                     {
-                        name = "visual-novel",
-                        description = "The visual novel",
+                        name = "character",
+                        description = "The character",
                         option_type = InteractionOptionType::STRING,
                         required = true,
                     },
@@ -31,12 +33,36 @@ pub fn get_command() -> Command {
                 ],
             },
             {
-                name = "character",
-                description = "Fetches a character from Visual Novel Database.",
+                name = "tag",
+                description = "Fetches a tag from Visual Novel Database.",
                 options = [
                     {
-                        name = "character",
-                        description = "The character",
+                        name = "tag",
+                        description = "The tag",
+                        option_type = InteractionOptionType::STRING,
+                        required = true,
+                    },
+                ],
+            },
+            {
+                name = "trait",
+                description = "Fetches a trait from Visual Novel Database.",
+                options = [
+                    {
+                        name = "trait",
+                        description = "The trait",
+                        option_type = InteractionOptionType::STRING,
+                        required = true,
+                    },
+                ],
+            },
+            {
+                name = "visual-novel",
+                description = "Fetches a visual novel from Visual Novel Database.",
+                options = [
+                    {
+                        name = "visual-novel",
+                        description = "The visual novel",
                         option_type = InteractionOptionType::STRING,
                         required = true,
                     },
@@ -55,8 +81,10 @@ pub fn get_command() -> Command {
             |custom_id| Some(custom_id),
             input.subcommand.as_deref().unwrap_or("")
         ) {
-            "visual-novel" => visual_novel::run(input, res).await?,
             "character" => character::run(input, res).await?,
+            "tag" => tag::run(input, res).await?,
+            "trait" => character_trait::run(input, res).await?,
+            "visual-novel" => visual_novel::run(input, res).await?,
             _ => {},
         }
     }
