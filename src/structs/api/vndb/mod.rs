@@ -4,6 +4,7 @@ pub mod tag;
 pub mod visual_novel;
 
 use anyhow::Result;
+use regex::Regex;
 use reqwest::Client;
 use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
@@ -34,5 +35,12 @@ impl Vndb {
             .await?
             .json::<VndbResponse<U>>()
             .await?)
+    }
+
+    pub fn clean_bbcode<T: ToString>(string: T) -> String {
+        Regex::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]")
+            .unwrap()
+            .replace_all(&string.to_string(), "")
+            .to_string()
     }
 }

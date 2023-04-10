@@ -4,7 +4,6 @@ use crate::{
     structs::api::vndb::Vndb,
 };
 use anyhow::{bail, Result};
-use regex::Regex;
 use serde::Deserialize;
 use serde_json::json;
 use serde_repr::Deserialize_repr;
@@ -589,9 +588,7 @@ impl VndbVisualNovel {
 
     pub fn format_description(self) -> Embed {
         self._format().set_description({
-            let mut description = Regex::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]")
-                .unwrap()
-                .replace_all(&self.description.as_ref().unwrap_or(&"N/A".into()), "")
+            let mut description = Vndb::clean_bbcode(self.description.as_ref().unwrap_or(&"N/A".into()))
                 .split("\n")
                 .map(|string| string.to_string())
                 .collect::<Vec<String>>();
