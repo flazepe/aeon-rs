@@ -255,10 +255,10 @@ impl AniList {
         let result: AniListMediaResponse<AniListAnime> = AniList::query(
             format!(
                 "query($id: Int) {{
-                Media(id: $id) {{
-                    {ANILIST_ANIME_FIELDS}
-                }}
-            }}"
+                    Media(id: $id) {{
+                        {ANILIST_ANIME_FIELDS}
+                    }}
+                }}"
             ),
             json!({ "id": id }),
         )
