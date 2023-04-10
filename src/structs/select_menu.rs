@@ -5,20 +5,23 @@ pub struct SelectMenu {
     pub id: String,
     pub placeholder: String,
     pub options: Vec<SelectOption>,
+    pub default: Option<String>,
 }
 
 impl SelectMenu {
-    pub fn new<T: ToString, U: ToString, V: ToString>(
+    pub fn new<T: ToString, U: ToString, V: ToString, W: ToString>(
         command: T,
         id: U,
         placeholder: V,
         options: Vec<SelectOption>,
+        default: Option<W>,
     ) -> Self {
         Self {
             command: command.to_string(),
             id: id.to_string(),
             placeholder: placeholder.to_string(),
             options,
+            default: default.map(|default| default.to_string()),
         }
     }
 
@@ -32,6 +35,12 @@ impl SelectMenu {
 
             if let Some(description) = option.description {
                 option.description = Some(description.chars().take(100).collect::<String>());
+            }
+
+            if let Some(default) = self.default.as_ref() {
+                if option.value.contains(default) {
+                    option.default = Some(true);
+                }
             }
 
             select_menu = select_menu.add_option(option);

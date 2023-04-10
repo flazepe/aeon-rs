@@ -44,6 +44,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                         SelectOption::new(result.name.to_string(), &result.id).set_description(&result.category)
                     })
                     .collect::<Vec<SelectOption>>(),
+                None::<String>,
             )
             .to_components(),
         )

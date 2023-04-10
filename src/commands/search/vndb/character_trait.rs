@@ -42,6 +42,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                     .iter()
                     .map(|result| SelectOption::new(&result.name, &result.id).set_description(&result.group_name))
                     .collect::<Vec<SelectOption>>(),
+                None::<String>,
             )
             .to_components(),
         )

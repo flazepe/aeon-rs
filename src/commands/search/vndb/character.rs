@@ -31,6 +31,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                         return Ok(());
                     },
                 },
+                None::<String>,
             )
             .to_components(),
         )
@@ -69,6 +70,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                     SelectOption::new("Traits", format!("{}/traits", character.id)),
                     SelectOption::new("Visual Novels", format!("{}/visual-novels", character.id)),
                 ],
+                Some(&section)
             )
             .to_components(),
         )

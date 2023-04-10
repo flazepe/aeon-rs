@@ -46,6 +46,7 @@ pub fn get_command() -> Command {
                         .iter()
                         .map(|result| SelectOption::new(result.format_title(), result.slug.clone()))
                         .collect::<Vec<SelectOption>>(),
+                    None::<String>,
                 )
                 .to_components(),
             )

@@ -35,6 +35,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                     },
                 }
                 .collect::<Vec<SelectOption>>(),
+                None::<String>,
             )
             .to_components(),
         )
@@ -78,6 +79,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                     SelectOption::new("Characters", format!("{}/characters", anime.id)),
                     SelectOption::new("Relations", format!("{}/relations", anime.id)),
                 ],
+                Some(&section)
             )
             .to_components(),
         )
