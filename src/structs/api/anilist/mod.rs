@@ -7,6 +7,7 @@ use crate::{
     structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
 };
 use anyhow::Result;
+use nipper::Document;
 use reqwest::Client;
 use serde::de::DeserializeOwned;
 use serde_json::{json, Value};
@@ -78,6 +79,23 @@ impl AniList {
         }
 
         if_else!(dates.is_empty(), "TBA".into(), dates.join(" - "))
+    }
+
+    pub fn format_description(embed: Embed, description: Option<String>) -> Embed {
+        embed.set_description({
+            let mut description = Document::from(&description.unwrap_or("N/A".into()))
+                .select("body")
+                .text()
+                .split("\n")
+                .map(|string| string.to_string())
+                .collect::<Vec<String>>();
+
+            while description.join("\n").len() > 4096 {
+                description.pop();
+            }
+
+            description.join("\n")
+        })
     }
 
     fn format_relations(mut embed: Embed, relations: Vec<AniListRelation>) -> Embed {
