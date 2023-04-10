@@ -226,14 +226,14 @@ impl VndbCharacter {
     }
 
     pub fn format_traits(self) -> Embed {
-        let mut categorized = HashMap::new();
+        let mut groups = HashMap::new();
 
         for character_trait in &self.traits {
-            if !categorized.contains_key(&character_trait.group_name) {
-                categorized.insert(character_trait.group_name.clone(), vec![]);
+            if !groups.contains_key(&character_trait.group_name) {
+                groups.insert(character_trait.group_name.clone(), vec![]);
             }
 
-            categorized.get_mut(&character_trait.group_name).unwrap().push(format!(
+            groups.get_mut(&character_trait.group_name).unwrap().push(format!(
                 "[{}](https://vndb.org/{})",
                 if_else!(
                     matches!(character_trait.spoiler, VndbSpoilerLevel::NonSpoiler),
@@ -246,9 +246,9 @@ impl VndbCharacter {
 
         let mut embed = self._format();
 
-        for (group, mut traits) in categorized {
+        for (group_name, mut traits) in groups {
             embed = embed.add_field(
-                group,
+                group_name,
                 {
                     while traits.join(", ").len() > 1024 {
                         traits.pop();
