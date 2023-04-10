@@ -133,10 +133,12 @@ macro_rules! respond_to_component_interaction {
                     )
                     .await?;
                 }
-
-                return Ok(());
             }
+        } else {
+            $res.send_message($response).await?;
         }
+
+        return Ok(());
     };
 }
 
