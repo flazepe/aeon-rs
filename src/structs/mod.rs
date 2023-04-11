@@ -7,4 +7,5 @@ pub mod reminders;
 pub mod scraping;
 pub mod select_menu;
 pub mod snipes;
+pub mod stringified_message;
 pub mod unicode;

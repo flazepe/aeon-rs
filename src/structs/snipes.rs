@@ -1,6 +1,7 @@
 use crate::{
-    macros::{if_else, plural, stringify_message, twilight_user_to_tag},
+    macros::{if_else, plural, twilight_user_to_tag},
     statics::{colors::PRIMARY_COLOR, CACHE},
+    structs::stringified_message::StringifiedMessage,
     traits::AvatarURL,
 };
 use anyhow::{bail, Result};
@@ -50,7 +51,8 @@ impl Snipes {
                                 DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string())
                                     .unwrap()
                                     .to_rfc2822(),
-                                stringify_message!(&message)
+                                StringifiedMessage::from(message.clone())
+                                    .to_string()
                                     .split("\n")
                                     .map(|line| format!("\t{}", if_else!(line.is_empty(), "<empty>", line)))
                                     .collect::<Vec<String>>()
@@ -66,7 +68,7 @@ impl Snipes {
 
                     Embed::new()
                         .set_color(PRIMARY_COLOR)?
-                        .set_description(stringify_message!(&snipe))
+                        .set_description(StringifiedMessage::from(snipe.clone()))
                         .set_footer(
                             twilight_user_to_tag!(snipe.author),
                             Some(snipe.author.display_avatar_url("png", 64)),

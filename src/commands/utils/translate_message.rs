@@ -1,4 +1,7 @@
-use crate::{macros::stringify_message, statics::emojis::ERROR_EMOJI, structs::api::google_translate::GoogleTranslate};
+use crate::{
+    statics::emojis::ERROR_EMOJI,
+    structs::{api::google_translate::GoogleTranslate, stringified_message::StringifiedMessage},
+};
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -11,13 +14,7 @@ pub fn get_command() -> Command {
 		command_type = ApplicationCommandType::MESSAGE,
 	)]
     async fn translate_message(input: CommandInput, res: CommandResponder) {
-        match GoogleTranslate::translate(
-            stringify_message!(input.target_message.as_ref().unwrap(), vec![]),
-            "auto",
-            "en",
-        )
-        .await
-        {
+        match GoogleTranslate::translate(StringifiedMessage::from(input.target_message.unwrap()), "auto", "en").await {
             Ok(translation) => {
                 res.send_message(translation.format()).await?;
             },

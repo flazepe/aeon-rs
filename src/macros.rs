@@ -142,49 +142,6 @@ macro_rules! respond_to_component_interaction {
     };
 }
 
-macro_rules! stringify_message {
-    ($message:expr $(, $empty_vec:expr)?) => {{
-        let mut text = String::from(&$message.content);
-
-        for embed in &$message.embeds {
-            if let Some(author) = embed.author.as_ref() {
-                text += &format!("\n**{}**", crate::macros::escape_markdown!(&author.name));
-            }
-
-            if let Some(title) = embed.title.as_ref() {
-                text += &format!(
-                    "\n**[{title}](<{}>)**",
-                    embed.url.as_ref().unwrap_or(&"".into())
-                );
-            }
-
-            if let Some(description) = embed.description.as_ref() {
-                text += &format!("\n{description}");
-            }
-
-            text += &embed
-                .fields
-                $(.as_ref().unwrap_or(&$empty_vec))?
-                .iter()
-                .map(|field| {
-                    format!(
-                        "\n**{}**\n{}",
-                        crate::macros::escape_markdown!(field.name.trim()),
-                        field.value
-                    )
-                })
-                .collect::<Vec<String>>()
-                .join("");
-
-            if let Some(footer) = embed.footer.as_ref() {
-                text += &format!("\n**{}**", crate::macros::escape_markdown!(&footer.text));
-            }
-        }
-
-        &text.trim().to_string()
-    }};
-}
-
 macro_rules! twilight_user_to_tag {
     ($user:expr) => {
         format!("{}#{}", $user.name, $user.discriminator())
@@ -214,6 +171,5 @@ pub(crate) use if_else;
 pub(crate) use kv_autocomplete;
 pub(crate) use plural;
 pub(crate) use respond_to_component_interaction;
-pub(crate) use stringify_message;
 pub(crate) use twilight_user_to_tag;
 pub(crate) use yes_no;
