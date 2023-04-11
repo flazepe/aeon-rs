@@ -1,6 +1,6 @@
 # aeon-rs
 
-[Aeon](https://aeon.js.org/) Discord bot written in Rust using [slashook](https://github.com/tonkku107/slashook).
+[Aeon Discord bot](https://aeon.js.org/) written in Rust using [slashook](https://github.com/tonkku107/slashook).
 
 # Invite
 
