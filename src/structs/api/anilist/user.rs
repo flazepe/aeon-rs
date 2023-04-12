@@ -1,5 +1,5 @@
 use crate::{
-    functions::{format_timestamp, if_else_option, TimestampFormat},
+    functions::{format_timestamp, if_else_option, limit_string, TimestampFormat},
     statics::{anilist::ANILIST_USER_FIELDS, colors::PRIMARY_COLOR},
     structs::api::anilist::{
         components::{AniListCharacterNode, AniListFormat, AniListImage, AniListNodes, AniListResponse, AniListTitle},
@@ -117,26 +117,13 @@ impl AniListUser {
     }
 
     pub fn format_about(self) -> Embed {
-        self._format().set_description({
-            let mut description = self
-                .about
-                .unwrap_or("".into())
-                .split("\n")
-                .map(|str| str.to_string())
-                .collect::<Vec<String>>();
-
-            while description.join("\n").len() > 4096 {
-                description.pop();
-            }
-
-            description.join("\n")
-        })
+        self._format()
+            .set_description(limit_string(self.about.unwrap_or("".into()), "\n", 4096))
     }
 
     pub fn format_favorite_anime(self) -> Embed {
-        self._format().set_description({
-            let mut description = self
-                .favorites
+        self._format().set_description(limit_string(
+            self.favorites
                 .anime
                 .nodes
                 .iter()
@@ -152,20 +139,16 @@ impl AniListUser {
                         )
                     )
                 })
-                .collect::<Vec<String>>();
-
-            while description.join("\n").len() > 4096 {
-                description.pop();
-            }
-
-            description.join("\n")
-        })
+                .collect::<Vec<String>>()
+                .join("\n"),
+            "\n",
+            4096,
+        ))
     }
 
     pub fn format_favorite_manga(self) -> Embed {
-        self._format().set_description({
-            let mut description = self
-                .favorites
+        self._format().set_description(limit_string(
+            self.favorites
                 .manga
                 .nodes
                 .iter()
@@ -181,50 +164,39 @@ impl AniListUser {
                         )
                     )
                 })
-                .collect::<Vec<String>>();
-
-            while description.join("\n").len() > 4096 {
-                description.pop();
-            }
-
-            description.join("\n")
-        })
+                .collect::<Vec<String>>()
+                .join("\n"),
+            "\n",
+            4096,
+        ))
     }
 
     pub fn format_favorite_characters(self) -> Embed {
-        self._format().set_description({
-            let mut description = self
-                .favorites
+        self._format().set_description(limit_string(
+            self.favorites
                 .characters
                 .nodes
                 .iter()
                 .map(|character| format!("[{}]({})", character.name.full, character.site_url))
-                .collect::<Vec<String>>();
-
-            while description.join("\n").len() > 4096 {
-                description.pop();
-            }
-
-            description.join("\n")
-        })
+                .collect::<Vec<String>>()
+                .join("\n"),
+            "\n",
+            4096,
+        ))
     }
 
     pub fn format_favorite_staff(self) -> Embed {
-        self._format().set_description({
-            let mut description = self
-                .favorites
+        self._format().set_description(limit_string(
+            self.favorites
                 .staff
                 .nodes
                 .iter()
                 .map(|staff| format!("[{}]({})", staff.name.full, staff.site_url))
-                .collect::<Vec<String>>();
-
-            while description.join("\n").len() > 4096 {
-                description.pop();
-            }
-
-            description.join("\n")
-        })
+                .collect::<Vec<String>>()
+                .join("\n"),
+            "\n",
+            4096,
+        ))
     }
 }
 

@@ -1,5 +1,5 @@
 use crate::{
-    functions::if_else_option,
+    functions::{if_else_option, limit_string},
     macros::{if_else, plural},
     statics::{colors::PRIMARY_COLOR, vndb::VISUAL_NOVEL_FIELDS},
     structs::api::vndb::Vndb,
@@ -584,24 +584,20 @@ impl VndbVisualNovel {
     }
 
     pub fn format_description(self) -> Embed {
-        self._format().set_description({
-            let mut description = Vndb::clean_bbcode(self.description.as_ref().unwrap_or(&"N/A".into()))
+        self._format().set_description(limit_string(
+            Vndb::clean_bbcode(self.description.as_ref().unwrap_or(&"N/A".into()))
                 .split("\n")
                 .map(|str| str.to_string())
-                .collect::<Vec<String>>();
-
-            while description.join("\n").len() > 4096 {
-                description.pop();
-            }
-
-            description.join("\n")
-        })
+                .collect::<Vec<String>>()
+                .join("\n"),
+            "\n",
+            4096,
+        ))
     }
 
     pub fn format_tags(self) -> Embed {
-        self._format().set_description({
-            let mut tags = self
-                .tags
+        self._format().set_description(limit_string(
+            self.tags
                 .into_iter()
                 .map(|tag| {
                     format!(
@@ -610,14 +606,11 @@ impl VndbVisualNovel {
                         tag.id
                     )
                 })
-                .collect::<Vec<String>>();
-
-            while tags.join(", ").len() > 4096 {
-                tags.pop();
-            }
-
-            tags.join(", ")
-        })
+                .collect::<Vec<String>>()
+                .join(", "),
+            ", ",
+            4096,
+        ))
     }
 }
 

@@ -1,4 +1,5 @@
 use crate::{
+    functions::limit_string,
     macros::{if_else, yes_no},
     statics::{colors::PRIMARY_COLOR, vndb::TRAIT_FIELDS},
     structs::api::vndb::Vndb,
@@ -37,18 +38,7 @@ impl VndbTrait {
             )
             .add_field(
                 "Description",
-                {
-                    let mut description = Vndb::clean_bbcode(self.description)
-                        .split("\n")
-                        .map(|str| str.to_string())
-                        .collect::<Vec<String>>();
-
-                    while description.join("\n").len() > 1024 {
-                        description.pop();
-                    }
-
-                    description.join("\n")
-                },
+                limit_string(Vndb::clean_bbcode(self.description), "\n", 1024),
                 false,
             )
             .add_field("Searchable", yes_no!(self.searchable), true)

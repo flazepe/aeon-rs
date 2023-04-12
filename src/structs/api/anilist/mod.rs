@@ -4,7 +4,7 @@ mod manga;
 mod user;
 
 use crate::{
-    functions::{format_timestamp, if_else_option, TimestampFormat},
+    functions::{format_timestamp, if_else_option, limit_string, TimestampFormat},
     macros::if_else,
     structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
 };
@@ -80,20 +80,17 @@ impl AniList {
     }
 
     pub fn format_description(embed: Embed, description: Option<String>) -> Embed {
-        embed.set_description({
-            let mut description = Document::from(&description.unwrap_or("N/A".into()))
+        embed.set_description(limit_string(
+            Document::from(&description.unwrap_or("N/A".into()))
                 .select("body")
                 .text()
                 .split("\n")
                 .map(|str| str.to_string())
-                .collect::<Vec<String>>();
-
-            while description.join("\n").len() > 4096 {
-                description.pop();
-            }
-
-            description.join("\n")
-        })
+                .collect::<Vec<String>>()
+                .join("\n"),
+            "\n",
+            4096,
+        ))
     }
 
     fn format_relations(mut embed: Embed, relations: Vec<AniListRelation>) -> Embed {
@@ -118,18 +115,8 @@ impl AniList {
             ));
         }
 
-        for (relation_type, mut list) in categorized {
-            embed = embed.add_field(
-                relation_type,
-                {
-                    while list.join("\n").len() > 1024 {
-                        list.pop();
-                    }
-
-                    list.join("\n")
-                },
-                false,
-            );
+        for (relation_type, list) in categorized {
+            embed = embed.add_field(relation_type, limit_string(list.join("\n"), "\n", 1024), false);
         }
 
         embed

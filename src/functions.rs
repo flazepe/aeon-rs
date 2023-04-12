@@ -108,6 +108,22 @@ pub async fn hastebin<T: ToString>(string: T) -> Result<String> {
     Ok(format!("{domain}/raw/{}", json["key"].as_str().unwrap_or("")))
 }
 
+pub fn limit_string<T: ToString, U: ToString>(string: T, delimiter: U, limit: usize) -> String {
+    let delimiter = delimiter.to_string();
+
+    let mut split = string
+        .to_string()
+        .split(&delimiter)
+        .map(|string| string.to_string())
+        .collect::<Vec<String>>();
+
+    while split.join(&delimiter).len() > limit {
+        split.pop();
+    }
+
+    split.join(&delimiter)
+}
+
 pub fn twilight_user_to_tag(user: &User) -> String {
     format!("{}#{}", user.name, user.discriminator())
 }

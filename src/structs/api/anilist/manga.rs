@@ -1,5 +1,5 @@
 use crate::{
-    functions::if_else_option,
+    functions::{if_else_option, limit_string},
     macros::{if_else, yes_no},
     statics::{anilist::ANILIST_MANGA_FIELDS, colors::PRIMARY_COLOR},
     structs::api::anilist::{
@@ -151,9 +151,8 @@ impl AniListManga {
     }
 
     pub fn format_characters(self) -> Embed {
-        self._format().set_description({
-            let mut characters = self
-                .characters
+        self._format().set_description(limit_string(
+            self.characters
                 .edges
                 .iter()
                 .map(|character| {
@@ -164,14 +163,11 @@ impl AniListManga {
                         AniList::format_enum_value(&character.role),
                     )
                 })
-                .collect::<Vec<String>>();
-
-            while characters.join("\n").len() > 4096 {
-                characters.pop();
-            }
-
-            characters.join("\n")
-        })
+                .collect::<Vec<String>>()
+                .join("\n"),
+            "\n",
+            4096,
+        ))
     }
 
     pub fn format_relations(self) -> Embed {

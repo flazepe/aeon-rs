@@ -1,5 +1,5 @@
 use crate::{
-    functions::if_else_option,
+    functions::{if_else_option, limit_string},
     macros::if_else,
     statics::{colors::PRIMARY_COLOR, vndb::CHARACTER_FIELDS},
     structs::api::vndb::{visual_novel::VndbImage, Vndb},
@@ -251,27 +251,16 @@ impl VndbCharacter {
 
         let mut embed = self._format();
 
-        for (group_name, mut traits) in groups {
-            embed = embed.add_field(
-                group_name,
-                {
-                    while traits.join(", ").len() > 1024 {
-                        traits.pop();
-                    }
-
-                    traits.join(", ")
-                },
-                false,
-            );
+        for (group_name, traits) in groups {
+            embed = embed.add_field(group_name, limit_string(traits.join(", "), ", ", 1024), false);
         }
 
         embed
     }
 
     pub fn format_visual_novels(self) -> Embed {
-        self._format().set_description({
-            let mut visual_novels = self
-                .vns
+        self._format().set_description(limit_string(
+            self.vns
                 .into_iter()
                 .map(|visual_novel| {
                     format!(
@@ -279,14 +268,11 @@ impl VndbCharacter {
                         visual_novel.title, visual_novel.id, visual_novel.role
                     )
                 })
-                .collect::<Vec<String>>();
-
-            while visual_novels.join("\n").len() > 4096 {
-                visual_novels.pop();
-            }
-
-            visual_novels.join("\n")
-        })
+                .collect::<Vec<String>>()
+                .join("\n"),
+            "\n",
+            4096,
+        ))
     }
 }
 
