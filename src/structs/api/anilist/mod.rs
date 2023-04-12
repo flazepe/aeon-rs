@@ -85,7 +85,7 @@ impl AniList {
                 .select("body")
                 .text()
                 .split("\n")
-                .map(|string| string.to_string())
+                .map(|str| str.to_string())
                 .collect::<Vec<String>>();
 
             while description.join("\n").len() > 4096 {

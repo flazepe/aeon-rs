@@ -66,7 +66,7 @@ impl VndbTag {
                 {
                     let mut description = Vndb::clean_bbcode(self.description)
                         .split("\n")
-                        .map(|string| string.to_string())
+                        .map(|str| str.to_string())
                         .collect::<Vec<String>>();
 
                     while description.join("\n").len() > 1024 {

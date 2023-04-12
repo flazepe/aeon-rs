@@ -587,7 +587,7 @@ impl VndbVisualNovel {
         self._format().set_description({
             let mut description = Vndb::clean_bbcode(self.description.as_ref().unwrap_or(&"N/A".into()))
                 .split("\n")
-                .map(|string| string.to_string())
+                .map(|str| str.to_string())
                 .collect::<Vec<String>>();
 
             while description.join("\n").len() > 4096 {

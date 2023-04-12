@@ -122,7 +122,7 @@ impl AniListUser {
                 .about
                 .unwrap_or("".into())
                 .split("\n")
-                .map(|string| string.to_string())
+                .map(|str| str.to_string())
                 .collect::<Vec<String>>();
 
             while description.join("\n").len() > 4096 {
