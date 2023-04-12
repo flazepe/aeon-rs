@@ -95,7 +95,7 @@ impl AniListUser {
             .add_field(
                 "Anime Statistics",
                 format!(
-                    "Watched {} episodes\n{} minutes spent\n{} mean score",
+                    "Watched {} episodes\n{} minutes spent\n{:.0}% mean score",
                     self.statistics.anime.episodes_watched,
                     self.statistics.anime.minutes_watched,
                     self.statistics.anime.mean_score,
@@ -105,7 +105,7 @@ impl AniListUser {
             .add_field(
                 "Manga Statistics",
                 format!(
-                    "Read {} chapters\nRead {} volumes\n{} mean score",
+                    "Read {} chapters\nRead {} volumes\n{:.0}% mean score",
                     self.statistics.manga.chapters_read,
                     self.statistics.manga.volumes_read,
                     self.statistics.manga.mean_score,
