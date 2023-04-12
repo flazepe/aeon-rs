@@ -1,7 +1,6 @@
 use crate::{
-    macros::respond_to_component_interaction,
     statics::emojis::ERROR_EMOJI,
-    structs::{api::jisho::JishoSearch, select_menu::SelectMenu},
+    structs::{api::jisho::JishoSearch, restricted_interaction::RestrictedInteraction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
 use slashook::{
@@ -25,7 +24,10 @@ pub fn get_command() -> Command {
 	)]
     async fn jisho(input: CommandInput, res: CommandResponder) {
         if input.is_string_select() {
-            respond_to_component_interaction!(input, res, JishoSearch::get(&input.values.unwrap()[0]).await?.format());
+            return RestrictedInteraction::verify(&input, &res)
+                .await?
+                .respond(JishoSearch::get(&input.values.as_ref().unwrap()[0]).await?.format())
+                .await?;
         }
 
         let mut results = match JishoSearch::search(input.get_string_arg("query")?).await {

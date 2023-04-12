@@ -1,7 +1,7 @@
 use crate::{
-    macros::{and_then_or, if_else, respond_to_component_interaction},
+    macros::{and_then_or, if_else},
     statics::emojis::ERROR_EMOJI,
-    structs::{api::anilist::AniList, select_menu::SelectMenu},
+    structs::{api::anilist::AniList, restricted_interaction::RestrictedInteraction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
 use anyhow::Result;
@@ -46,6 +46,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         return Ok(());
     }
 
+    let interaction = RestrictedInteraction::verify(&input, &res).await?;
+
     let (query, section): (String, String) = {
         if input.is_string_select() {
             let mut split = input.values.as_ref().unwrap()[0].split("/");
@@ -60,36 +62,33 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         AniList::get_manga(query.parse::<u64>()?).await?,
         match AniList::search_manga(query).await {
             Ok(mut results) => results.remove(0),
-            Err(error) => {
-                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                return Ok(());
-            },
+            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}")).await,
         }
     );
 
-    respond_to_component_interaction!(
-        input,
-        res,
-        MessageResponse::from(
-            SelectMenu::new(
-                "anilist",
-                "manga",
-                "Select a section…",
-                vec![
-                    SelectOption::new("Overview", format!("{}", manga.id)),
-                    SelectOption::new("Description", format!("{}/description", manga.id)),
-                    SelectOption::new("Characters", format!("{}/characters", manga.id)),
-                    SelectOption::new("Relations", format!("{}/relations", manga.id)),
-                ],
-                Some(&section)
+    interaction
+        .respond(
+            MessageResponse::from(
+                SelectMenu::new(
+                    "anilist",
+                    "manga",
+                    "Select a section…",
+                    vec![
+                        SelectOption::new("Overview", format!("{}", manga.id)),
+                        SelectOption::new("Description", format!("{}/description", manga.id)),
+                        SelectOption::new("Characters", format!("{}/characters", manga.id)),
+                        SelectOption::new("Relations", format!("{}/relations", manga.id)),
+                    ],
+                    Some(&section),
+                )
+                .to_components(),
             )
-            .to_components(),
+            .add_embed(match section.as_str() {
+                "description" => manga.format_description(),
+                "characters" => manga.format_characters(),
+                "relations" => manga.format_relations(),
+                _ => manga.format(),
+            }),
         )
-        .add_embed(match section.as_str() {
-            "description" => manga.format_description(),
-            "characters" => manga.format_characters(),
-            "relations" => manga.format_relations(),
-            _ => manga.format(),
-        })
-    );
+        .await
 }

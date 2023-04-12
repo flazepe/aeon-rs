@@ -1,7 +1,6 @@
 use crate::{
-    macros::respond_to_component_interaction,
     statics::emojis::ERROR_EMOJI,
-    structs::{api::vndb::Vndb, select_menu::SelectMenu},
+    structs::{api::vndb::Vndb, restricted_interaction::RestrictedInteraction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
 use anyhow::Result;
@@ -14,14 +13,15 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let vndb = Vndb::new();
 
     if input.is_string_select() {
-        respond_to_component_interaction!(
-            input,
-            res,
-            vndb.search_tag(&input.values.as_ref().unwrap()[0])
-                .await?
-                .remove(0)
-                .format()
-        );
+        return RestrictedInteraction::verify(&input, &res)
+            .await?
+            .respond(
+                vndb.search_tag(&input.values.as_ref().unwrap()[0])
+                    .await?
+                    .remove(0)
+                    .format(),
+            )
+            .await;
     }
 
     let mut results = match vndb.search_tag(input.get_string_arg("tag")?).await {

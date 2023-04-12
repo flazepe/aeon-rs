@@ -55,31 +55,6 @@ macro_rules! plural {
     }};
 }
 
-macro_rules! respond_to_component_interaction {
-    ($input:expr,$res:expr,$response:expr) => {
-        if let Some(message) = $input.message.as_ref() {
-            if let Some(interaction) = message.interaction.as_ref() {
-                if $input.user.id == interaction.user.id {
-                    $res.update_message($response).await?;
-                } else {
-                    $res.send_message(
-                        slashook::commands::MessageResponse::from(format!(
-                            "{} This isn't your interaction.",
-                            crate::statics::emojis::ERROR_EMOJI
-                        ))
-                        .set_ephemeral(true),
-                    )
-                    .await?;
-                }
-            }
-        } else {
-            $res.send_message($response).await?;
-        }
-
-        return Ok(());
-    };
-}
-
 macro_rules! yes_no {
     ($condition:expr $(, $yes:expr, $no:expr)?) => {
         {
@@ -98,5 +73,4 @@ pub(crate) use and_then_or;
 pub(crate) use if_else;
 pub(crate) use kv_autocomplete;
 pub(crate) use plural;
-pub(crate) use respond_to_component_interaction;
 pub(crate) use yes_no;
