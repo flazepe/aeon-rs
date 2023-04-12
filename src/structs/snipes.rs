@@ -1,5 +1,6 @@
 use crate::{
-    macros::{if_else, plural, twilight_user_to_tag},
+    functions::twilight_user_to_tag,
+    macros::{if_else, plural},
     statics::{colors::PRIMARY_COLOR, CACHE},
     structs::stringified_message::StringifiedMessage,
     traits::AvatarURL,
@@ -46,7 +47,7 @@ impl Snipes {
                         .map(|message| {
                             format!(
                                 "{} ({}) at {}:\n\n{}",
-                                twilight_user_to_tag!(message.author),
+                                twilight_user_to_tag(&message.author),
                                 message.author.id,
                                 DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string())
                                     .unwrap()
@@ -70,7 +71,7 @@ impl Snipes {
                         .set_color(PRIMARY_COLOR)?
                         .set_description(StringifiedMessage::from(snipe.clone()))
                         .set_footer(
-                            twilight_user_to_tag!(snipe.author),
+                            twilight_user_to_tag(&snipe.author),
                             Some(snipe.author.display_avatar_url("png", 64)),
                         )
                         .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?)

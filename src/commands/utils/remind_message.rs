@@ -1,4 +1,4 @@
-use crate::macros::add_reminder_select_options;
+use crate::functions::add_reminder_select_options;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder, MessageResponse},
@@ -17,7 +17,7 @@ pub fn get_command() -> Command {
         res.send_message(
             MessageResponse::from(
                 Components::new().add_select_menu(
-                    add_reminder_select_options!(SelectMenu::new(SelectMenuType::STRING))
+                    add_reminder_select_options(SelectMenu::new(SelectMenuType::STRING))
                         .set_id(
                             "remind",
                             format!(

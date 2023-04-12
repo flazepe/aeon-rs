@@ -1,5 +1,6 @@
 use crate::{
-    macros::{format_timestamp, plural},
+    functions::{format_timestamp, TimestampType},
+    macros::plural,
     statics::{colors::PRIMARY_COLOR, emojis::ERROR_EMOJI, CACHE},
 };
 use anyhow::Context;
@@ -21,7 +22,11 @@ pub fn get_command() -> Command {
                 res.send_message(
                     Embed::new()
                         .set_color(PRIMARY_COLOR)?
-                        .add_field("Uptime", format_timestamp!(process.start_time()), false)
+                        .add_field(
+                            "Uptime",
+                            format_timestamp(process.start_time(), TimestampType::Full),
+                            false,
+                        )
                         .add_field("Memory", format!("{} MB", process.memory() / 1024 / 1024), false)
                         .add_field(
                             "Virtual Memory",

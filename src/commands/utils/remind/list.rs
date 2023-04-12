@@ -1,5 +1,6 @@
 use crate::{
-    macros::{format_timestamp, if_else},
+    functions::{format_timestamp, TimestampType},
+    macros::if_else,
     statics::{colors::PRIMARY_COLOR, emojis::ERROR_EMOJI, MONGODB},
     structs::{duration::Duration, reminders::Reminder},
 };
@@ -28,7 +29,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 index + 1,
                 reminder.reminder,
                 reminder.url,
-                format_timestamp!(reminder.timestamp),
+                format_timestamp(reminder.timestamp, TimestampType::Full),
                 if_else!(
                     reminder.interval > 0,
                     format!(" (every {})", Duration::new().parse(reminder.interval).unwrap()),

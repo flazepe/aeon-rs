@@ -1,4 +1,4 @@
-use crate::macros::escape_markdown;
+use crate::functions::escape_markdown;
 use slashook::structs::channels::Message;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use twilight_model::channel::Message as TwilightMessage;
@@ -72,7 +72,7 @@ impl Display for StringifiedMessage {
 
         for embed in &self.embeds {
             if let Some(author_name) = embed.author_name.as_ref() {
-                text += &format!("\n**{}**", escape_markdown!(&author_name));
+                text += &format!("\n**{}**", escape_markdown(&author_name));
             }
 
             if let Some(title) = embed.title.as_ref() {
@@ -86,12 +86,12 @@ impl Display for StringifiedMessage {
             text += &embed
                 .fields
                 .iter()
-                .map(|(name, value)| format!("\n**{}**\n{}", escape_markdown!(name.trim()), value))
+                .map(|(name, value)| format!("\n**{}**\n{}", escape_markdown(name.trim()), value))
                 .collect::<Vec<String>>()
                 .join("");
 
             if let Some(footer_text) = embed.footer_text.as_ref() {
-                text += &format!("\n**{}**", escape_markdown!(&footer_text));
+                text += &format!("\n**{}**", escape_markdown(&footer_text));
             }
         }
 

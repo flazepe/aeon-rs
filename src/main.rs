@@ -1,4 +1,5 @@
 mod commands;
+mod functions;
 mod macros;
 mod statics;
 mod structs;

@@ -3,7 +3,8 @@ mod components;
 mod manga;
 
 use crate::{
-    macros::{and_then_or, format_timestamp, if_else},
+    functions::{format_timestamp, TimestampType},
+    macros::{and_then_or, if_else},
     structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
 };
 use anyhow::Result;
@@ -57,7 +58,7 @@ impl AniList {
 
         for fuzzy_date in [start, end] {
             if fuzzy_date.day.is_some() && fuzzy_date.month.is_some() && fuzzy_date.year.is_some() {
-                dates.push(format_timestamp!(
+                dates.push(format_timestamp(
                     NaiveDateTime::parse_from_str(
                         &format!(
                             "{}-{}-{} 00:00:00",
@@ -65,11 +66,11 @@ impl AniList {
                             fuzzy_date.month.unwrap(),
                             fuzzy_date.day.unwrap()
                         ),
-                        "%Y-%m-%d %H:%M:%S"
+                        "%Y-%m-%d %H:%M:%S",
                     )
                     .unwrap()
                     .timestamp(),
-                    "simple"
+                    TimestampType::Simple,
                 ));
             }
         }

@@ -1,5 +1,6 @@
 use crate::{
-    macros::{format_timestamp, if_else},
+    functions::{format_timestamp, TimestampType},
+    macros::if_else,
     statics::CACHE,
     structs::gateway::events::handler::EventHandler,
 };
@@ -36,7 +37,10 @@ impl EventHandler {
                         name
                     },
                 },
-                format_timestamp!(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs())
+                format_timestamp(
+                    SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+                    TimestampType::Full
+                )
             ));
 
             // Limit

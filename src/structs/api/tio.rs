@@ -1,5 +1,6 @@
 use crate::{
-    macros::{and_then_or, hastebin, if_else},
+    functions::hastebin,
+    macros::{and_then_or, if_else},
     statics::{colors::PRIMARY_COLOR, tio_programming_languages::TIO_PROGRAMMING_LANGUAGES},
 };
 use anyhow::{Context, Result};
@@ -96,10 +97,10 @@ impl Tio {
         self.result = Some(result.clone());
 
         if result.len() > 3900 {
-            self.result_url = Some(hastebin!(result));
+            self.result_url = Some(hastebin(result).await?);
         }
 
-        self.input_url = hastebin!(self.code);
+        self.input_url = hastebin(&self.code).await?;
 
         Ok(self)
     }

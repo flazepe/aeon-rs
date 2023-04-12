@@ -1,5 +1,6 @@
 use crate::{
-    macros::{and_then_or, format_timestamp, if_else, plural, yes_no},
+    functions::{format_timestamp, TimestampType},
+    macros::{and_then_or, if_else, plural, yes_no},
     statics::{
         colors::PRIMARY_COLOR,
         steam::{STEAM_COUNTRIES, STEAM_USER_STATES},
@@ -156,7 +157,11 @@ impl SteamUser {
                 ),
                 true,
             )
-            .add_field("Created", format_timestamp!(self.time_created), false)
+            .add_field(
+                "Created",
+                format_timestamp(self.time_created, TimestampType::Full),
+                false,
+            )
             .add_field(
                 "Location",
                 match STEAM_COUNTRIES.get_key_value(self.loc_country_code.unwrap_or("".into()).as_str()) {
