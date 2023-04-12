@@ -1,5 +1,5 @@
 use crate::{
-    functions::{format_timestamp, TimestampType},
+    functions::{format_timestamp, TimestampFormat},
     macros::plural,
     statics::{colors::PRIMARY_COLOR, emojis::ERROR_EMOJI, CACHE},
 };
@@ -24,7 +24,7 @@ pub fn get_command() -> Command {
                         .set_color(PRIMARY_COLOR)?
                         .add_field(
                             "Uptime",
-                            format_timestamp(process.start_time(), TimestampType::Full),
+                            format_timestamp(process.start_time(), TimestampFormat::Full),
                             false,
                         )
                         .add_field("Memory", format!("{} MB", process.memory() / 1024 / 1024), false)

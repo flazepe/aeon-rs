@@ -76,21 +76,21 @@ pub fn escape_markdown<T: ToString>(string: T) -> String {
         .to_string()
 }
 
-pub enum TimestampType {
+pub enum TimestampFormat {
     Simple,
     Full,
     Duration,
 }
 
-pub fn format_timestamp<T: Display>(timestamp: T, format: TimestampType) -> String {
+pub fn format_timestamp<T: Display>(timestamp: T, format: TimestampFormat) -> String {
     let duration = format!("<t:{}:R>", timestamp);
     let simple = format!("<t:{}:D>", timestamp);
     let full = format!("{simple} ({duration})");
 
     match format {
-        TimestampType::Simple => simple,
-        TimestampType::Full => full,
-        TimestampType::Duration => duration,
+        TimestampFormat::Simple => simple,
+        TimestampFormat::Full => full,
+        TimestampFormat::Duration => duration,
     }
 }
 

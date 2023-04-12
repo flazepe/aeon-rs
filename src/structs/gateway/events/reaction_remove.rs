@@ -1,5 +1,5 @@
 use crate::{
-    functions::{format_timestamp, TimestampType},
+    functions::{format_timestamp, TimestampFormat},
     macros::if_else,
     statics::CACHE,
     structs::gateway::events::handler::EventHandler,
@@ -39,7 +39,7 @@ impl EventHandler {
                 },
                 format_timestamp(
                     SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
-                    TimestampType::Full
+                    TimestampFormat::Full
                 )
             ));
 

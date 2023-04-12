@@ -1,5 +1,5 @@
 use crate::{
-    functions::{format_timestamp, if_else_option, TimestampType},
+    functions::{format_timestamp, if_else_option, TimestampFormat},
     macros::{if_else, plural, yes_no},
     statics::{
         colors::PRIMARY_COLOR,
@@ -160,7 +160,7 @@ impl SteamUser {
                 )
                 .add_field(
                     "Created",
-                    format_timestamp(self.time_created, TimestampType::Full),
+                    format_timestamp(self.time_created, TimestampFormat::Full),
                     false,
                 )
                 .add_field(
