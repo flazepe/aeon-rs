@@ -1,9 +1,10 @@
 mod anime;
 mod components;
 mod manga;
+mod user;
 
 use crate::{
-    functions::{format_timestamp, if_else_option, TimestampType},
+    functions::{format_timestamp, if_else_option, TimestampFormat},
     macros::if_else,
     structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
 };
@@ -70,7 +71,7 @@ impl AniList {
                     )
                     .unwrap()
                     .timestamp(),
-                    TimestampType::Simple,
+                    TimestampFormat::Simple,
                 ));
             }
         }
@@ -112,7 +113,7 @@ impl AniList {
                 if_else_option(
                     relation.node.format,
                     |format| format!(" ({})", AniList::format_enum_value(format)),
-                    "TBA".into()
+                    "".into()
                 )
             ));
         }

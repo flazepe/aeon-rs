@@ -6,8 +6,8 @@ use crate::{
         components::{
             AniListAiringSchedule, AniListAnimeCharacter, AniListCoverImage, AniListEdges, AniListExternalLink,
             AniListFormat, AniListFuzzyDate, AniListMediaPageResponse, AniListMediaResponse, AniListNodes,
-            AniListRanking, AniListRelation, AniListSeason, AniListSource, AniListStatus, AniListStudio, AniListTitle,
-            AniListTrailer,
+            AniListRanking, AniListRelation, AniListResponse, AniListSeason, AniListSource, AniListStatus,
+            AniListStudio, AniListTitle, AniListTrailer,
         },
         AniList,
     },
@@ -254,7 +254,7 @@ impl AniListAnime {
 
 impl AniList {
     pub async fn get_anime(id: u64) -> Result<AniListAnime> {
-        let result: AniListMediaResponse<AniListAnime> = AniList::query(
+        let result: AniListResponse<AniListMediaResponse<AniListAnime>> = AniList::query(
             format!(
                 "query($id: Int) {{
                     Media(id: $id) {{
@@ -273,7 +273,7 @@ impl AniList {
     }
 
     pub async fn search_anime<T: ToString>(search: T) -> Result<Vec<AniListAnime>> {
-        let result: AniListMediaPageResponse<AniListAnime> = AniList::query(
+        let result: AniListResponse<AniListMediaPageResponse<AniListAnime>> = AniList::query(
             format!(
                 "query($search: String) {{
                     Page(perPage: 10) {{

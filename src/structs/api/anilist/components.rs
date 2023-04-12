@@ -2,12 +2,12 @@ use serde::Deserialize;
 
 // Page queries
 #[derive(Deserialize)]
-pub struct AniListMediaPageResponse<T> {
-    pub data: AniListMediaPageData<T>,
+pub struct AniListResponse<T> {
+    pub data: T,
 }
 
 #[derive(Deserialize)]
-pub struct AniListMediaPageData<T> {
+pub struct AniListMediaPageResponse<T> {
     #[serde(rename = "Page")]
     pub page: AniListMediaPage<T>,
 }
@@ -20,11 +20,6 @@ pub struct AniListMediaPage<T> {
 // ID queries
 #[derive(Deserialize)]
 pub struct AniListMediaResponse<T> {
-    pub data: AniListMediaData<T>,
-}
-
-#[derive(Deserialize)]
-pub struct AniListMediaData<T> {
     #[serde(rename = "Media")]
     pub media: Option<T>,
 }
@@ -232,8 +227,6 @@ pub struct AniListStudio {
 #[derive(Deserialize)]
 pub struct AniListTitle {
     pub romaji: String,
-    pub native: Option<String>,
-    pub english: Option<String>,
 }
 
 #[derive(Deserialize)]
