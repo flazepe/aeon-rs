@@ -1,5 +1,4 @@
 use crate::{
-    functions::if_else_option,
     macros::if_else,
     statics::{
         duration::SECS_PER_MONTH,
@@ -42,10 +41,9 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     };
 
     let time = Duration::new()
-        .parse(if_else_option(
-            input.values.as_ref(),
+        .parse(input.values.as_ref().map_or_else(
+            || input.get_string_arg("time").unwrap_or("".into()),
             |values| values[0].to_string(),
-            input.get_string_arg("time").unwrap_or("".into()),
         ))
         .unwrap_or(Duration::new());
 
@@ -64,11 +62,10 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         return Ok(());
     }
 
-    let dm = if_else_option(
-        input.message.as_ref(),
+    let dm = input.message.as_ref().map_or_else(
+        || false,
         // DM if select menu's message was from an interaction
         |message| message.interaction.is_some(),
-        false,
     ) || input.guild_id.is_none()
         || input.get_bool_arg("dm")?;
 
@@ -93,15 +90,18 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         reminder
     };
 
-    let url = if_else_option(
-        input.custom_id.as_ref(),
+    let original_message = res.get_original_message().await?;
+
+    let url = input.custom_id.as_ref().map_or_else(
+        || {
+            format!(
+                "{}/{}/{}",
+                input.guild_id.as_ref().unwrap_or(&"@me".into()),
+                input.channel_id.as_ref().unwrap(),
+                original_message.id,
+            )
+        },
         |custom_id| custom_id.to_string(),
-        format!(
-            "{}/{}/{}",
-            input.guild_id.as_ref().unwrap_or(&"@me".into()),
-            input.channel_id.as_ref().unwrap(),
-            res.get_original_message().await?.id,
-        ),
     );
 
     // For older snooze messages

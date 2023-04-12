@@ -1,5 +1,5 @@
 use crate::{
-    functions::{if_else_option, limit_string},
+    functions::limit_string,
     macros::if_else,
     statics::{colors::PRIMARY_COLOR, vndb::CHARACTER_FIELDS},
     structs::api::vndb::{visual_novel::VndbImage, Vndb},
@@ -134,10 +134,9 @@ impl VndbCharacter {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(if_else_option(
-                self.image.as_ref(),
+            .set_thumbnail(self.image.as_ref().map_or_else(
+                || "".into(),
                 |image| if_else!(image.sexual > 1.0, "".into(), image.url.clone()),
-                "".into(),
             ))
             .set_title(self.name.chars().take(256).collect::<String>())
             .set_url(format!("https://vndb.org/{}", self.id))
@@ -154,74 +153,56 @@ impl VndbCharacter {
             )
             .add_field(
                 "Sex",
-                if_else_option(
-                    self.sex,
-                    |(sex, spoiler_sex)| {
-                        format!(
-                            "{}{}",
-                            if_else_option(sex, |sex| sex.to_string(), "N/A".into()),
-                            if_else_option(
-                                spoiler_sex,
-                                |spoiler_sex| format!(" (||actually {spoiler_sex}||)"),
-                                "".into()
-                            )
-                        )
-                    },
-                    "N/A".into(),
-                ),
+                self.sex.map_or("N/A".into(), |(sex, spoiler_sex)| {
+                    format!(
+                        "{}{}",
+                        sex.map_or("N/A".into(), |sex| sex.to_string()),
+                        spoiler_sex.map_or("".into(), |spoiler_sex| format!(" (||actually {spoiler_sex}||)"),)
+                    )
+                }),
                 true,
             )
-            .add_field(
-                "Age",
-                if_else_option(self.age, |age| age.to_string(), "N/A".into()),
-                true,
-            )
+            .add_field("Age", self.age.map_or("N/A".into(), |age| age.to_string()), true)
             .add_field(
                 "Birthday",
-                if_else_option(
-                    self.birthday,
-                    |birthday| format!("{}/{}", birthday.0, birthday.1),
-                    "N/A".into(),
-                ),
+                self.birthday
+                    .map_or("N/A".into(), |birthday| format!("{}/{}", birthday.0, birthday.1)),
                 true,
             )
             .add_field(
                 "Blood Type",
-                if_else_option(self.blood_type, |blood_type| format!("{:?}", blood_type), "N/A".into()),
+                self.blood_type
+                    .map_or("N/A".into(), |blood_type| format!("{:?}", blood_type)),
                 true,
             )
             .add_field(
                 "Height",
-                if_else_option(self.height, |height| format!("{height} cm"), "N/A".into()),
+                self.height.map_or("N/A".into(), |height| format!("{height} cm")),
                 true,
             )
             .add_field(
                 "Weight",
-                if_else_option(self.weight, |weight| format!("{weight} kg"), "N/A".into()),
+                self.weight.map_or("N/A".into(), |weight| format!("{weight} kg")),
                 true,
             )
             .add_field(
                 "Bust",
-                if_else_option(
-                    self.bust,
-                    |bust| {
-                        format!(
-                            "{bust} cm{}",
-                            if_else_option(self.cup, |cup| format!(" - Cup Size {cup}"), "".into())
-                        )
-                    },
-                    "N/A".into(),
-                ),
+                self.bust.map_or("N/A".into(), |bust| {
+                    format!(
+                        "{bust} cm{}",
+                        self.cup.map_or("".into(), |cup| format!(" - Cup Size {cup}"))
+                    )
+                }),
                 true,
             )
             .add_field(
                 "Waist",
-                if_else_option(self.waist, |waist| format!("{waist} cm"), "N/A".into()),
+                self.waist.map_or("N/A".into(), |waist| format!("{waist} cm")),
                 true,
             )
             .add_field(
                 "Hips",
-                if_else_option(self.hips, |hips| format!("{hips} cm"), "N/A".into()),
+                self.hips.map_or("N/A".into(), |hips| format!("{hips} cm")),
                 true,
             )
     }

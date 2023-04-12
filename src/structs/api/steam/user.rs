@@ -1,5 +1,5 @@
 use crate::{
-    functions::{format_timestamp, if_else_option, TimestampFormat},
+    functions::{format_timestamp, TimestampFormat},
     macros::{if_else, plural, yes_no},
     statics::{
         colors::PRIMARY_COLOR,
@@ -133,77 +133,65 @@ impl SteamUser {
             .unwrap_or("None")
             .to_string();
 
-        let mut embed =
-            Embed::new()
-                .set_color(PRIMARY_COLOR)
-                .unwrap_or_default()
-                .set_thumbnail(self.avatar_full)
-                .set_title(self.real_name.unwrap_or(self.persona_name))
-                .set_url(self.profile_url)
-                .add_field("ID", &self.id, true)
-                .add_field(
-                    "Custom ID",
-                    if_else!(self.id == vanity, "None".into(), format!("`{vanity}`")),
-                    true,
-                )
-                .add_field(
-                    "Status",
-                    if_else_option(
-                        STEAM_USER_STATES
-                            .iter()
-                            .enumerate()
-                            .find(|(index, _)| &(self.persona_state as usize) == index),
-                        |state| state.1,
-                        &"Unknown",
+        let mut embed = Embed::new()
+            .set_color(PRIMARY_COLOR)
+            .unwrap_or_default()
+            .set_thumbnail(self.avatar_full)
+            .set_title(self.real_name.unwrap_or(self.persona_name))
+            .set_url(self.profile_url)
+            .add_field("ID", &self.id, true)
+            .add_field(
+                "Custom ID",
+                if_else!(self.id == vanity, "None".into(), format!("`{vanity}`")),
+                true,
+            )
+            .add_field(
+                "Status",
+                STEAM_USER_STATES
+                    .iter()
+                    .enumerate()
+                    .find(|(index, _)| &(self.persona_state as usize) == index)
+                    .map_or(&"Unknown", |state| state.1),
+                true,
+            )
+            .add_field(
+                "Created",
+                format_timestamp(self.time_created, TimestampFormat::Full),
+                false,
+            )
+            .add_field(
+                "Location",
+                match STEAM_COUNTRIES.get_key_value(self.loc_country_code.unwrap_or("".into()).as_str()) {
+                    Some((country_code, country)) => format!(
+                        ":flag_{}: {}{}",
+                        country_code.to_lowercase(),
+                        self.loc_state_code.map_or("".into(), |state_code| format!(
+                            "{}, ",
+                            country.states.get(state_code.as_str()).unwrap_or(&"Unknown"),
+                        )),
+                        country.name
                     ),
-                    true,
-                )
-                .add_field(
-                    "Created",
-                    format_timestamp(self.time_created, TimestampFormat::Full),
-                    false,
-                )
-                .add_field(
-                    "Location",
-                    match STEAM_COUNTRIES.get_key_value(self.loc_country_code.unwrap_or("".into()).as_str()) {
-                        Some((country_code, country)) => format!(
-                            ":flag_{}: {}{}",
-                            country_code.to_lowercase(),
-                            if_else_option(
-                                self.loc_state_code,
-                                |state_code| format!(
-                                    "{}, ",
-                                    country.states.get(state_code.as_str()).unwrap_or(&"Unknown"),
-                                ),
-                                "".into()
-                            ),
-                            country.name
-                        ),
-                        None => "N/A".into(),
-                    },
-                    true,
-                )
-                .add_field(
-                    "Playing",
-                    if_else_option(
-                        self.game_extra_info,
-                        |game_extra_info| {
-                            format!(
-                                "[{}](https://store.steampowered.com/app/{}){}",
-                                game_extra_info,
-                                self.game_id.unwrap_or(0),
-                                format!("\n{}", self.game_server_ip.unwrap_or("".into())).trim()
-                            )
-                        },
-                        "None".into(),
-                    ),
-                    true,
-                )
-                .add_field(
-                    "Allows Profile Comments",
-                    yes_no!(self.comment_permission.is_some()),
-                    true,
-                );
+                    None => "N/A".into(),
+                },
+                true,
+            )
+            .add_field(
+                "Playing",
+                self.game_extra_info.map_or("None".into(), |game_extra_info| {
+                    format!(
+                        "[{}](https://store.steampowered.com/app/{}){}",
+                        game_extra_info,
+                        self.game_id.unwrap_or(0),
+                        format!("\n{}", self.game_server_ip.unwrap_or("".into())).trim()
+                    )
+                }),
+                true,
+            )
+            .add_field(
+                "Allows Profile Comments",
+                yes_no!(self.comment_permission.is_some()),
+                true,
+            );
 
         if let Some(bans) = self.bans {
             embed = embed

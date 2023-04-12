@@ -1,5 +1,5 @@
 use crate::{
-    functions::{if_else_option, limit_string},
+    functions::limit_string,
     macros::{if_else, plural},
     statics::{colors::PRIMARY_COLOR, vndb::VISUAL_NOVEL_FIELDS},
     structs::api::vndb::Vndb,
@@ -518,10 +518,9 @@ impl VndbVisualNovel {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(if_else_option(
-                self.image.as_ref(),
+            .set_thumbnail(self.image.as_ref().map_or_else(
+                || "".into(),
                 |image| if_else!(image.sexual > 1.0, "".into(), image.url.to_string()),
-                "".into(),
             ))
             .set_title(format!(
                 "{} ({})",
@@ -545,7 +544,7 @@ impl VndbVisualNovel {
                 "Rating",
                 format!(
                     "{} ({})",
-                    if_else_option(self.rating, |rating| format!("{:.0}%", rating), "N/A".into()),
+                    self.rating.map_or("N/A".into(), |rating| format!("{rating:.0}%")),
                     plural!(self.vote_count, "vote")
                 ),
                 true,
@@ -554,7 +553,7 @@ impl VndbVisualNovel {
                 "Length",
                 format!(
                     "{} ({})",
-                    if_else_option(self.length, |length| length.to_string(), "N/A".into()),
+                    self.length.map_or("N/A".into(), |length| length.to_string()),
                     plural!(self.length_votes, "vote")
                 ),
                 true,
@@ -578,7 +577,8 @@ impl VndbVisualNovel {
                 false,
             )
             .set_footer(
-                if_else_option(self.released, |released| format!("Released {released}"), "".into()),
+                self.released
+                    .map_or("".into(), |released| format!("Released {released}")),
                 None::<String>,
             )
     }

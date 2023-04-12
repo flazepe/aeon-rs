@@ -1,6 +1,4 @@
-use crate::{
-    functions::if_else_option, statics::emojis::ERROR_EMOJI, structs::api::saucenao::SauceNAOSearch, traits::ArgGetters,
-};
+use crate::{statics::emojis::ERROR_EMOJI, structs::api::saucenao::SauceNAOSearch, traits::ArgGetters};
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -25,11 +23,11 @@ pub fn get_command() -> Command {
 		],
 	)]
     async fn sauce(input: CommandInput, res: CommandResponder) {
-        let url = input.get_string_arg("image-url").ok().unwrap_or(if_else_option(
-            input.get_attachment_arg("image-attachment").ok(),
-            |attachment| attachment.url.to_string(),
-            "".into(),
-        ));
+        let url = input.get_string_arg("image-url").ok().unwrap_or(
+            input
+                .get_attachment_arg("image-attachment")
+                .map_or_else(|_| "".into(), |attachment| attachment.url.to_string()),
+        );
 
         if url.is_empty() {
             return res

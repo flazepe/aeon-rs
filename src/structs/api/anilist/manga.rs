@@ -1,5 +1,5 @@
 use crate::{
-    functions::{if_else_option, limit_string},
+    functions::limit_string,
     macros::{if_else, yes_no},
     statics::{anilist::ANILIST_MANGA_FIELDS, colors::PRIMARY_COLOR},
     structs::api::anilist::{
@@ -62,11 +62,9 @@ impl AniListManga {
                 ":flag_{}:  {} ({})",
                 self.country_of_origin.to_lowercase(),
                 self.title.romaji,
-                if_else_option(
-                    self.format.as_ref(),
-                    |format| AniList::format_enum_value(format),
-                    "TBA".into()
-                )
+                self.format
+                    .as_ref()
+                    .map_or("TBA".into(), |format| AniList::format_enum_value(format))
             ))
             .set_url(&self.site_url)
     }
@@ -93,16 +91,13 @@ impl AniListManga {
                 "Chapters",
                 format!(
                     "{}",
-                    if_else_option(self.chapters, |chapters| chapters.to_string(), "TBA".into()),
+                    self.chapters.map_or("TBA".into(), |chapters| chapters.to_string()),
                 ),
                 true,
             )
             .add_field(
                 "Volumes",
-                format!(
-                    "{}",
-                    if_else_option(self.volumes, |volumes| volumes.to_string(), "TBA".into()),
-                ),
+                format!("{}", self.volumes.map_or("TBA".into(), |volumes| volumes.to_string()),),
                 true,
             )
             .add_field("Licensed", yes_no!(self.is_licensed), true)
@@ -122,7 +117,8 @@ impl AniListManga {
             )
             .add_field(
                 "Source",
-                if_else_option(self.source, |source| AniList::format_enum_value(source), "N/A".into()),
+                self.source
+                    .map_or("N/A".into(), |source| AniList::format_enum_value(source)),
                 true,
             )
             .add_field(

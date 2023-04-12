@@ -1,5 +1,5 @@
 use crate::{
-    functions::{format_timestamp, if_else_option, limit_string, TimestampFormat},
+    functions::{format_timestamp, limit_string, TimestampFormat},
     statics::{anilist::ANILIST_USER_FIELDS, colors::PRIMARY_COLOR},
     structs::api::anilist::{
         components::{AniListCharacterNode, AniListFormat, AniListImage, AniListNodes, AniListResponse, AniListTitle},
@@ -79,7 +79,7 @@ impl AniListUser {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(if_else_option(self.avatar.as_ref(), |avatar| &avatar.large, &"".into()))
+            .set_thumbnail(self.avatar.as_ref().map_or(&"".into(), |avatar| &avatar.large))
             .set_title(&self.name)
             .set_url(&self.site_url)
     }
@@ -132,11 +132,10 @@ impl AniListUser {
                         "[{}]({}){}",
                         anime.title.romaji,
                         anime.site_url,
-                        if_else_option(
-                            anime.format.as_ref(),
-                            |format| format!(" ({})", AniList::format_enum_value(format)),
-                            "".into()
-                        )
+                        anime
+                            .format
+                            .as_ref()
+                            .map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format)))
                     )
                 })
                 .collect::<Vec<String>>()
@@ -157,11 +156,10 @@ impl AniListUser {
                         "[{}]({}){}",
                         manga.title.romaji,
                         manga.site_url,
-                        if_else_option(
-                            manga.format.as_ref(),
-                            |format| format!(" ({})", AniList::format_enum_value(format)),
-                            "".into()
-                        )
+                        manga
+                            .format
+                            .as_ref()
+                            .map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format)))
                     )
                 })
                 .collect::<Vec<String>>()

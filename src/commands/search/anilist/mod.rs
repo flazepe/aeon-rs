@@ -2,7 +2,6 @@ mod anime;
 mod manga;
 mod user;
 
-use crate::functions::if_else_option;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -63,11 +62,11 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn anilist(input: CommandInput, res: CommandResponder) {
-        match if_else_option(
-            input.custom_id.as_deref(),
-            |custom_id| custom_id,
-            input.subcommand.as_deref().unwrap_or(""),
-        ) {
+        match input
+            .custom_id
+            .as_deref()
+            .map_or(input.subcommand.as_deref().unwrap(), |custom_id| custom_id)
+        {
             "anime" => anime::run(input, res).await?,
             "manga" => manga::run(input, res).await?,
             "user" => user::run(input, res).await?,

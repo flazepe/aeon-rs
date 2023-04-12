@@ -1,5 +1,5 @@
 use crate::{
-    functions::{hashmap_autocomplete, if_else_option},
+    functions::hashmap_autocomplete,
     statics::{emojis::ERROR_EMOJI, tio_programming_languages::TIO_PROGRAMMING_LANGUAGES, CACHE},
     structs::api::tio::Tio,
     traits::ArgGetters,
@@ -40,11 +40,13 @@ pub fn get_command() -> Command {
         }
 
         let programming_language = {
-            input.get_string_arg("programming-language").unwrap_or(if_else_option(
-                CACHE.last_tio_programming_languages.read()?.get(&input.user.id),
-                |programming_language| programming_language.to_string(),
-                "".into(),
-            ))
+            input.get_string_arg("programming-language").unwrap_or(
+                CACHE
+                    .last_tio_programming_languages
+                    .read()?
+                    .get(&input.user.id)
+                    .map_or("".into(), |programming_language| programming_language.to_string()),
+            )
         };
 
         if programming_language.is_empty() {

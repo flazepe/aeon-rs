@@ -55,14 +55,6 @@ pub async fn hashmap_autocomplete<K: ToString, V: ToString>(
         .await?)
 }
 
-pub fn if_else_option<T, U, F: FnOnce(T) -> U>(option: Option<T>, if_some: F, if_none: U) -> U {
-    if let Some(option) = option {
-        if_some(option)
-    } else {
-        if_none
-    }
-}
-
 pub fn escape_markdown<T: ToString>(string: T) -> String {
     Regex::new(r"\\?[*_~`]")
         .unwrap()

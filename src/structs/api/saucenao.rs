@@ -1,5 +1,4 @@
 use crate::{
-    functions::if_else_option,
     macros::if_else,
     statics::{colors::PRIMARY_COLOR, CONFIG},
 };
@@ -75,8 +74,7 @@ impl SauceNAOSearch {
                                 } else if result.data.gelbooru_id.is_some() {
                                     title = "Gelbooru Source".into();
                                 } else {
-                                    title =
-                                        if_else_option(result.data.source.as_ref(), |source| source.into(), "".into());
+                                    title = result.data.source.as_ref().map_or("".into(), |source| source.into());
                                 }
 
                                 if_else!(title.is_empty(), "Source".into(), title)

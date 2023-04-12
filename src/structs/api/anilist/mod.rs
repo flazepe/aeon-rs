@@ -4,7 +4,7 @@ mod manga;
 mod user;
 
 use crate::{
-    functions::{format_timestamp, if_else_option, limit_string, TimestampFormat},
+    functions::{format_timestamp, limit_string, TimestampFormat},
     macros::if_else,
     structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
 };
@@ -107,11 +107,10 @@ impl AniList {
                 "[{}]({}){}",
                 relation.node.title.romaji,
                 relation.node.site_url,
-                if_else_option(
-                    relation.node.format,
-                    |format| format!(" ({})", AniList::format_enum_value(format)),
-                    "".into()
-                )
+                relation
+                    .node
+                    .format
+                    .map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format)))
             ));
         }
 

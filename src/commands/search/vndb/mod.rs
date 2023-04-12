@@ -3,7 +3,6 @@ mod character_trait;
 mod tag;
 mod visual_novel;
 
-use crate::functions::if_else_option;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -76,11 +75,11 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn vndb(input: CommandInput, res: CommandResponder) {
-        match if_else_option(
-            input.custom_id.as_deref(),
-            |custom_id| custom_id,
-            input.subcommand.as_deref().unwrap_or(""),
-        ) {
+        match input
+            .custom_id
+            .as_deref()
+            .map_or(input.subcommand.as_deref().unwrap_or(""), |custom_id| custom_id)
+        {
             "character" => character::run(input, res).await?,
             "tag" => tag::run(input, res).await?,
             "trait" => character_trait::run(input, res).await?,
