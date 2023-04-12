@@ -55,3 +55,35 @@ pub static ANILIST_MANGA_FIELDS: &str = "
 	}
 	updatedAt
 ";
+
+pub static ANILIST_USER_FIELDS: &str = "
+	id siteUrl avatar { large } name createdAt updatedAt about
+	statistics {
+		anime { episodesWatched minutesWatched meanScore }
+		manga { chaptersRead volumesRead meanScore }
+	}
+	favourites {
+		anime {
+			nodes {
+				title { romaji }
+				format siteUrl
+			}
+		}
+		manga {
+			nodes {
+				title { romaji }
+				format siteUrl
+			}
+		}
+		characters {
+			nodes {
+				name { full } image { large } siteUrl
+			}
+		}
+		staff {
+			nodes {
+				name { full } image { large } siteUrl
+			}
+		}
+	}
+";
