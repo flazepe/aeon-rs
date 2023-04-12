@@ -77,9 +77,9 @@ pub fn escape_markdown<T: ToString>(string: T) -> String {
 }
 
 pub enum TimestampFormat {
+    Duration,
     Simple,
     Full,
-    Duration,
 }
 
 pub fn format_timestamp<T: Display>(timestamp: T, format: TimestampFormat) -> String {
