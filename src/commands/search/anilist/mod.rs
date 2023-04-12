@@ -1,5 +1,6 @@
 mod anime;
 mod manga;
+mod user;
 
 use crate::functions::if_else_option;
 use slashook::{
@@ -47,6 +48,18 @@ pub fn get_command() -> Command {
                     },
                 ],
             },
+            {
+                name = "user",
+                description = "Fetches a user from AniList.",
+                options = [
+                    {
+                        name = "user",
+                        description = "The user",
+                        option_type = InteractionOptionType::STRING,
+                        required = true,
+                    }
+                ],
+            },
         ],
     )]
     async fn anilist(input: CommandInput, res: CommandResponder) {
@@ -57,6 +70,7 @@ pub fn get_command() -> Command {
         ) {
             "anime" => anime::run(input, res).await?,
             "manga" => manga::run(input, res).await?,
+            "user" => user::run(input, res).await?,
             _ => {},
         }
     }
