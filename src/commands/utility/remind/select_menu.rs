@@ -1,4 +1,4 @@
-use crate::{commands::utils::remind::set, macros::if_else, statics::emojis::ERROR_EMOJI};
+use crate::{commands::utility::remind::set, macros::if_else, statics::emojis::ERROR_EMOJI};
 use anyhow::Result;
 use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
 

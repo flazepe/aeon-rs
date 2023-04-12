@@ -1,6 +1,6 @@
 mod general;
 mod search;
-mod utils;
+mod utility;
 
 use slashook::commands::Command;
 
@@ -9,7 +9,7 @@ pub fn get_commands() -> Vec<Command> {
 
     commands.append(&mut general::get_commands());
     commands.append(&mut search::get_commands());
-    commands.append(&mut utils::get_commands());
+    commands.append(&mut utility::get_commands());
 
     commands
 }
