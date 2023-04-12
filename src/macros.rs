@@ -8,31 +8,6 @@ macro_rules! if_else {
     };
 }
 
-macro_rules! kv_autocomplete {
-    ($input:expr, $res:expr, $hashmap:expr$(,)?) => {
-        let value = $input
-            .args
-            .get(&$input.focused.context("Missing focused arg.")?)
-            .context("Could not get focused arg.")?
-            .as_string()
-            .context("Could not convert focused arg to String.")?
-            .to_lowercase();
-
-        return Ok($res
-            .autocomplete(
-                $hashmap
-                    .iter()
-                    .filter(|(k, v)| k.to_lowercase().contains(&value) || v.to_lowercase().contains(&value))
-                    .map(|(k, v)| {
-                        slashook::structs::interactions::ApplicationCommandOptionChoice::new(v, k.to_string())
-                    })
-                    .take(25)
-                    .collect(),
-            )
-            .await?);
-    };
-}
-
 macro_rules! plural {
     ($amount:expr, $subject:expr$(,)?) => {{
         let mut subject = $subject.to_string();
@@ -64,6 +39,5 @@ macro_rules! yes_no {
 }
 
 pub(crate) use if_else;
-pub(crate) use kv_autocomplete;
 pub(crate) use plural;
 pub(crate) use yes_no;

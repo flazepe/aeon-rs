@@ -1,9 +1,15 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use regex::{Captures, Regex};
 use reqwest::Client;
 use serde_json::Value;
-use slashook::structs::components::{SelectMenu, SelectOption};
-use std::fmt::Display;
+use slashook::{
+    commands::{CommandInput, CommandResponder},
+    structs::{
+        components::{SelectMenu, SelectOption},
+        interactions::ApplicationCommandOptionChoice,
+    },
+};
+use std::{collections::hash_map::Iter, fmt::Display};
 use twilight_model::user::User;
 
 pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
@@ -21,6 +27,32 @@ pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
     }
 
     select_menu
+}
+
+pub async fn hashmap_autocomplete<K: ToString, V: ToString>(
+    input: CommandInput,
+    res: CommandResponder,
+    hashmap_iter: Iter<'_, K, V>,
+) -> Result<()> {
+    let value = input
+        .args
+        .get(&input.focused.context("Missing focused arg.")?)
+        .context("Could not get focused arg.")?
+        .as_string()
+        .context("Could not convert focused arg to String.")?
+        .to_lowercase();
+
+    Ok(res
+        .autocomplete(
+            hashmap_iter
+                .filter(|(k, v)| {
+                    k.to_string().to_lowercase().contains(&value) || v.to_string().to_lowercase().contains(&value)
+                })
+                .map(|(k, v)| ApplicationCommandOptionChoice::new(v.to_string(), k.to_string()))
+                .take(25)
+                .collect(),
+        )
+        .await?)
 }
 
 pub fn if_else_option<T, U, F: FnOnce(T) -> U>(option: Option<T>, if_some: F, if_none: U) -> U {

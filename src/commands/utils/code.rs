@@ -1,11 +1,9 @@
 use crate::{
-    functions::if_else_option,
-    macros::kv_autocomplete,
+    functions::{hashmap_autocomplete, if_else_option},
     statics::{emojis::ERROR_EMOJI, tio_programming_languages::TIO_PROGRAMMING_LANGUAGES, CACHE},
     structs::api::tio::Tio,
     traits::ArgGetters,
 };
-use anyhow::Context;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder, Modal},
@@ -31,12 +29,14 @@ pub fn get_command() -> Command {
     )]
     async fn code(input: CommandInput, res: CommandResponder) {
         if input.is_autocomplete() {
-            kv_autocomplete!(
+            return hashmap_autocomplete(
                 input,
                 res,
-                HashMap::from_iter(TIO_PROGRAMMING_LANGUAGES.iter().map(|entry| (entry.id, entry.name)))
-                    as HashMap<&str, &str>,
-            );
+                (HashMap::from_iter(TIO_PROGRAMMING_LANGUAGES.iter().map(|entry| (entry.id, entry.name)))
+                    as HashMap<&str, &str>)
+                    .iter(),
+            )
+            .await?;
         }
 
         let programming_language = {

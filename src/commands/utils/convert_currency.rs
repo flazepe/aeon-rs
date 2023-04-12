@@ -1,10 +1,9 @@
 use crate::{
-    macros::kv_autocomplete,
+    functions::hashmap_autocomplete,
     statics::{currencies::CURRENCIES, emojis::ERROR_EMOJI},
     structs::api::exchange_rate::ExchangeRateConversion,
     traits::ArgGetters,
 };
-use anyhow::Context;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -40,7 +39,7 @@ pub fn get_command() -> Command {
     )]
     async fn convert_currency(input: CommandInput, res: CommandResponder) {
         if input.is_autocomplete() {
-            kv_autocomplete!(input, res, CURRENCIES);
+            return hashmap_autocomplete(input, res, CURRENCIES.iter()).await?;
         }
 
         match ExchangeRateConversion::get(

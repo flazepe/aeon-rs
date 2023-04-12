@@ -1,10 +1,9 @@
 use crate::{
-    macros::kv_autocomplete,
+    functions::hashmap_autocomplete,
     statics::{emojis::ERROR_EMOJI, google_translate_languages::GOOGLE_TRANSLATE_LANGUAGES},
     structs::api::google_translate::GoogleTranslate,
     traits::ArgGetters,
 };
-use anyhow::Context;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -38,7 +37,7 @@ pub fn get_command() -> Command {
 	)]
     async fn translate(input: CommandInput, res: CommandResponder) {
         if input.is_autocomplete() {
-            kv_autocomplete!(input, res, GOOGLE_TRANSLATE_LANGUAGES);
+            return hashmap_autocomplete(input, res, GOOGLE_TRANSLATE_LANGUAGES.iter()).await?;
         }
 
         match GoogleTranslate::translate(
