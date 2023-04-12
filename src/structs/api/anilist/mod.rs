@@ -3,8 +3,8 @@ mod components;
 mod manga;
 
 use crate::{
-    functions::{format_timestamp, TimestampType},
-    macros::{and_then_or, if_else},
+    functions::{format_timestamp, if_else_option, TimestampType},
+    macros::if_else,
     structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
 };
 use anyhow::Result;
@@ -45,8 +45,8 @@ impl AniList {
                     format!(
                         "{}{}",
                         word.chars().next().unwrap(),
-                        word.chars().skip(1).collect::<String>().to_lowercase()
-                    )
+                        word.chars().skip(1).collect::<String>().to_lowercase(),
+                    ),
                 )
             })
             .collect::<Vec<String>>()
@@ -109,9 +109,9 @@ impl AniList {
                 "[{}]({}){}",
                 relation.node.title.romaji,
                 relation.node.site_url,
-                and_then_or!(
+                if_else_option(
                     relation.node.format,
-                    |format| Some(format!(" ({})", AniList::format_enum_value(format))),
+                    |format| format!(" ({})", AniList::format_enum_value(format)),
                     "TBA".into()
                 )
             ));

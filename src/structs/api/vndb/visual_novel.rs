@@ -1,5 +1,6 @@
 use crate::{
-    macros::{and_then_or, if_else, plural},
+    functions::if_else_option,
+    macros::{if_else, plural},
     statics::{colors::PRIMARY_COLOR, vndb::VISUAL_NOVEL_FIELDS},
     structs::api::vndb::Vndb,
 };
@@ -517,10 +518,10 @@ impl VndbVisualNovel {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(and_then_or!(
+            .set_thumbnail(if_else_option(
                 self.image.as_ref(),
-                |image| Some(if_else!(image.sexual > 1.0, "".into(), image.url.to_string())),
-                "".into()
+                |image| if_else!(image.sexual > 1.0, "".into(), image.url.to_string()),
+                "".into(),
             ))
             .set_title(format!(
                 "{} ({})",
@@ -544,7 +545,7 @@ impl VndbVisualNovel {
                 "Rating",
                 format!(
                     "{} ({})",
-                    and_then_or!(self.rating, |rating| Some(format!("{:.0}%", rating)), "N/A".into()),
+                    if_else_option(self.rating, |rating| format!("{:.0}%", rating), "N/A".into()),
                     plural!(self.vote_count, "vote")
                 ),
                 true,
@@ -553,7 +554,7 @@ impl VndbVisualNovel {
                 "Length",
                 format!(
                     "{} ({})",
-                    and_then_or!(self.length, |length| Some(length.to_string()), "N/A".into()),
+                    if_else_option(self.length, |length| length.to_string(), "N/A".into()),
                     plural!(self.length_votes, "vote")
                 ),
                 true,
@@ -577,11 +578,7 @@ impl VndbVisualNovel {
                 false,
             )
             .set_footer(
-                and_then_or!(
-                    self.released,
-                    |released| Some(format!("Released {released}")),
-                    "".into()
-                ),
+                if_else_option(self.released, |released| format!("Released {released}"), "".into()),
                 None::<String>,
             )
     }
@@ -635,13 +632,13 @@ impl Vndb {
                     query.starts_with("v") && query.chars().skip(1).all(|char| char.is_numeric()),
                     json!({
                         "filters": ["id", "=", query],
-                        "fields": VISUAL_NOVEL_FIELDS
+                        "fields": VISUAL_NOVEL_FIELDS,
                     }),
                     json!({
                         "filters": ["search", "=", query],
                         "fields": VISUAL_NOVEL_FIELDS,
-                        "sort": "searchrank"
-                    })
+                        "sort": "searchrank",
+                    }),
                 ),
             )
             .await?

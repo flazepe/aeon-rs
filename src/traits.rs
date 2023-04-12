@@ -104,7 +104,7 @@ impl AvatarURL for TwilightUser {
         self.avatar.as_ref().map(|a| {
             format!(
                 "https://cdn.discordapp.com/avatars/{}/{a}.{format}?size={size}",
-                self.id
+                self.id,
             )
         })
     }
@@ -114,7 +114,7 @@ impl AvatarURL for TwilightUser {
             Some(avatar_url) => avatar_url,
             None => format!(
                 "https://cdn.discordapp.com/embed/avatars/{}.png",
-                self.discriminator % 5
+                self.discriminator % 5,
             ),
         }
     }

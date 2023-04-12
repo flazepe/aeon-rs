@@ -17,7 +17,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         if_else!(
             status.is_empty() || status.contains("no account"),
             format!("{ERROR_EMOJI} Account not found."),
-            format!("[{user}]({url})\n{status}")
+            format!("[{user}]({url})\n{status}"),
         )
     })
     .await?;

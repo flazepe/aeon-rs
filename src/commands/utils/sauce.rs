@@ -1,5 +1,5 @@
 use crate::{
-    macros::and_then_or, statics::emojis::ERROR_EMOJI, structs::api::saucenao::SauceNAOSearch, traits::ArgGetters,
+    functions::if_else_option, statics::emojis::ERROR_EMOJI, structs::api::saucenao::SauceNAOSearch, traits::ArgGetters,
 };
 use slashook::{
     command,
@@ -25,10 +25,10 @@ pub fn get_command() -> Command {
 		],
 	)]
     async fn sauce(input: CommandInput, res: CommandResponder) {
-        let url = input.get_string_arg("image-url").ok().unwrap_or(and_then_or!(
-            input.get_attachment_arg("image-attachment"),
-            |attachment| Ok(attachment.url.to_string()),
-            "".into()
+        let url = input.get_string_arg("image-url").ok().unwrap_or(if_else_option(
+            input.get_attachment_arg("image-attachment").ok(),
+            |attachment| attachment.url.to_string(),
+            "".into(),
         ));
 
         if url.is_empty() {

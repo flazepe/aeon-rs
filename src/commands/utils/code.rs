@@ -1,5 +1,6 @@
 use crate::{
-    macros::{and_then_or, kv_autocomplete},
+    functions::if_else_option,
+    macros::kv_autocomplete,
     statics::{emojis::ERROR_EMOJI, tio_programming_languages::TIO_PROGRAMMING_LANGUAGES, CACHE},
     structs::api::tio::Tio,
     traits::ArgGetters,
@@ -34,15 +35,15 @@ pub fn get_command() -> Command {
                 input,
                 res,
                 HashMap::from_iter(TIO_PROGRAMMING_LANGUAGES.iter().map(|entry| (entry.id, entry.name)))
-                    as HashMap<&str, &str>
+                    as HashMap<&str, &str>,
             );
         }
 
         let programming_language = {
-            input.get_string_arg("programming-language").unwrap_or(and_then_or!(
+            input.get_string_arg("programming-language").unwrap_or(if_else_option(
                 CACHE.last_tio_programming_languages.read()?.get(&input.user.id),
-                |programming_language| Some(programming_language.to_string()),
-                "".into()
+                |programming_language| programming_language.to_string(),
+                "".into(),
             ))
         };
 

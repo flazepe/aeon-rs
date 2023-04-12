@@ -29,7 +29,7 @@ impl Display for VndbTagCategory {
             if_else!(
                 matches!(self, VndbTagCategory::SexualContext),
                 "Sexual Content".into(),
-                format!("{:?}", self)
+                format!("{:?}", self),
             )
         )
     }
@@ -94,13 +94,13 @@ impl Vndb {
                     query.starts_with("g") && query.chars().skip(1).all(|char| char.is_numeric()),
                     json!({
                         "filters": ["id", "=", query],
-                        "fields": TAG_FIELDS
+                        "fields": TAG_FIELDS,
                     }),
                     json!({
                         "filters": ["search", "=", query],
                         "fields": TAG_FIELDS,
-                        "sort": "searchrank"
-                    })
+                        "sort": "searchrank",
+                    }),
                 ),
             )
             .await?

@@ -1,5 +1,6 @@
 use crate::{
-    macros::{and_then_or, if_else},
+    functions::if_else_option,
+    macros::if_else,
     statics::{colors::PRIMARY_COLOR, vndb::CHARACTER_FIELDS},
     structs::api::vndb::{visual_novel::VndbImage, Vndb},
 };
@@ -133,10 +134,10 @@ impl VndbCharacter {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(and_then_or!(
+            .set_thumbnail(if_else_option(
                 self.image.as_ref(),
-                |image| Some(if_else!(image.sexual > 1.0, "".into(), image.url.clone())),
-                "".into()
+                |image| if_else!(image.sexual > 1.0, "".into(), image.url.clone()),
+                "".into(),
             ))
             .set_title(self.name.chars().take(256).collect::<String>())
             .set_url(format!("https://vndb.org/{}", self.id))
@@ -153,74 +154,74 @@ impl VndbCharacter {
             )
             .add_field(
                 "Sex",
-                and_then_or!(
+                if_else_option(
                     self.sex,
-                    |(sex, spoiler_sex)| Some(format!(
-                        "{}{}",
-                        and_then_or!(sex, |sex| Some(sex.to_string()), "N/A".into()),
-                        and_then_or!(
-                            spoiler_sex,
-                            |spoiler_sex| Some(format!(" ||actually {spoiler_sex}||")),
-                            "".into()
+                    |(sex, spoiler_sex)| {
+                        format!(
+                            "{}{}",
+                            if_else_option(sex, |sex| sex.to_string(), "N/A".into()),
+                            if_else_option(
+                                spoiler_sex,
+                                |spoiler_sex| format!(" (||actually {spoiler_sex}||)"),
+                                "".into()
+                            )
                         )
-                    )),
-                    "N/A".into()
+                    },
+                    "N/A".into(),
                 ),
                 true,
             )
             .add_field(
                 "Age",
-                and_then_or!(self.age, |age| Some(age.to_string()), "N/A".into()),
+                if_else_option(self.age, |age| age.to_string(), "N/A".into()),
                 true,
             )
             .add_field(
                 "Birthday",
-                and_then_or!(
+                if_else_option(
                     self.birthday,
-                    |birthday| Some(format!("{}/{}", birthday.0, birthday.1)),
-                    "N/A".into()
+                    |birthday| format!("{}/{}", birthday.0, birthday.1),
+                    "N/A".into(),
                 ),
                 true,
             )
             .add_field(
                 "Blood Type",
-                and_then_or!(
-                    self.blood_type,
-                    |blood_type| Some(format!("{:?}", blood_type)),
-                    "N/A".into()
-                ),
+                if_else_option(self.blood_type, |blood_type| format!("{:?}", blood_type), "N/A".into()),
                 true,
             )
             .add_field(
                 "Height",
-                and_then_or!(self.height, |height| Some(format!("{height} cm")), "N/A".into()),
+                if_else_option(self.height, |height| format!("{height} cm"), "N/A".into()),
                 true,
             )
             .add_field(
                 "Weight",
-                and_then_or!(self.weight, |weight| Some(format!("{weight} kg")), "N/A".into()),
+                if_else_option(self.weight, |weight| format!("{weight} kg"), "N/A".into()),
                 true,
             )
             .add_field(
                 "Bust",
-                and_then_or!(
+                if_else_option(
                     self.bust,
-                    |bust| Some(format!(
-                        "{bust} cm{}",
-                        and_then_or!(self.cup, |cup| Some(format!(" - Cup Size {cup}")), "".into())
-                    )),
-                    "N/A".into()
+                    |bust| {
+                        format!(
+                            "{bust} cm{}",
+                            if_else_option(self.cup, |cup| format!(" - Cup Size {cup}"), "".into())
+                        )
+                    },
+                    "N/A".into(),
                 ),
                 true,
             )
             .add_field(
                 "Waist",
-                and_then_or!(self.waist, |waist| Some(format!("{waist} cm")), "N/A".into()),
+                if_else_option(self.waist, |waist| format!("{waist} cm"), "N/A".into()),
                 true,
             )
             .add_field(
                 "Hips",
-                and_then_or!(self.hips, |hips| Some(format!("{hips} cm")), "N/A".into()),
+                if_else_option(self.hips, |hips| format!("{hips} cm"), "N/A".into()),
                 true,
             )
     }
@@ -238,13 +239,13 @@ impl VndbCharacter {
                 format!(
                     "||[{}](https://vndb.org/{})||",
                     character_trait.name.clone(),
-                    character_trait.id
+                    character_trait.id,
                 ),
                 format!(
                     "[{}](https://vndb.org/{})",
                     character_trait.name.clone(),
-                    character_trait.id
-                )
+                    character_trait.id,
+                ),
             ));
         }
 
@@ -305,8 +306,8 @@ impl Vndb {
                     json!({
                         "filters": ["search", "=", query],
                         "fields": CHARACTER_FIELDS,
-                        "sort": "searchrank"
-                    })
+                        "sort": "searchrank",
+                    }),
                 ),
             )
             .await?

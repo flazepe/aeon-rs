@@ -13,7 +13,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             .await?
             .text()
             .await?
-            .trim()
+            .trim(),
     ))
     .await?;
 

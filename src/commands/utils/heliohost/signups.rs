@@ -19,8 +19,8 @@ pub async fn run(_: CommandInput, res: CommandResponder) -> Result<()> {
                 .unwrap()
                 + ChronoDuration::days(1))
             .timestamp()
-                - SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64
-        ))?
+                - SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64,
+        ))?,
     ));
 
     for (server, plan) in [("Tommy", "2"), ("Ricky", "1"), ("Johnny", "9")] {
@@ -33,7 +33,7 @@ pub async fn run(_: CommandInput, res: CommandResponder) -> Result<()> {
                     .await?
                     == "1",
                 "Open",
-                "Closed"
+                "Closed",
             ),
             true,
         );

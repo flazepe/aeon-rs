@@ -76,8 +76,8 @@ impl Snipes {
                         )
                         .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?)
                         .into()
-                }
-            ))
+                },
+            )),
         )
     }
 }

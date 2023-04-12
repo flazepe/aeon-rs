@@ -1,11 +1,5 @@
-macro_rules! and_then_or {
-    ($expr:expr, $and_then:expr, $else:expr) => {
-        $expr.and_then($and_then).unwrap_or($else)
-    };
-}
-
 macro_rules! if_else {
-    ($condition:expr, $true:expr, $false:expr) => {
+    ($condition:expr, $true:expr, $false:expr$(,)?) => {
         if $condition {
             $true
         } else {
@@ -15,7 +9,7 @@ macro_rules! if_else {
 }
 
 macro_rules! kv_autocomplete {
-    ($input:expr, $res:expr, $hashmap:expr) => {
+    ($input:expr, $res:expr, $hashmap:expr$(,)?) => {
         let value = $input
             .args
             .get(&$input.focused.context("Missing focused arg.")?)
@@ -40,7 +34,7 @@ macro_rules! kv_autocomplete {
 }
 
 macro_rules! plural {
-    ($amount:expr, $subject:expr) => {{
+    ($amount:expr, $subject:expr$(,)?) => {{
         let mut subject = $subject.to_string();
 
         if $amount != 1 {
@@ -56,7 +50,7 @@ macro_rules! plural {
 }
 
 macro_rules! yes_no {
-    ($condition:expr $(, $yes:expr, $no:expr)?) => {
+    ($condition:expr $(, $yes:expr, $no:expr)?$(,)?) => {
         {
             let _yes = "Yes";
             $(let _yes = $yes;)?
@@ -69,7 +63,6 @@ macro_rules! yes_no {
     };
 }
 
-pub(crate) use and_then_or;
 pub(crate) use if_else;
 pub(crate) use kv_autocomplete;
 pub(crate) use plural;

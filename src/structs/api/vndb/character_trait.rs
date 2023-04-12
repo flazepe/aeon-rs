@@ -68,13 +68,13 @@ impl Vndb {
                     query.starts_with("i") && query.chars().skip(1).all(|char| char.is_numeric()),
                     json!({
                         "filters": ["id", "=", query],
-                        "fields": TRAIT_FIELDS
+                        "fields": TRAIT_FIELDS,
                     }),
                     json!({
                         "filters": ["search", "=", query],
                         "fields": TRAIT_FIELDS,
-                        "sort": "searchrank"
-                    })
+                        "sort": "searchrank",
+                    }),
                 ),
             )
             .await?

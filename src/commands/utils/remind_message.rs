@@ -24,7 +24,7 @@ pub fn get_command() -> Command {
                                 "{}/{}/{}",
                                 input.guild_id.as_ref().unwrap_or(&"@me".into()),
                                 input.channel_id.as_ref().unwrap(),
-                                input.target_message.unwrap().id
+                                input.target_message.unwrap().id,
                             ),
                         )
                         .set_placeholder("Select time to remind about message"),

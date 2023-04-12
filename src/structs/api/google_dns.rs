@@ -101,7 +101,7 @@ impl GoogleDNS {
                 record_type,
                 comment: dns_response.comment,
                 records,
-            })
+            }),
         )
     }
 

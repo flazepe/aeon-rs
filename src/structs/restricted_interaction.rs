@@ -33,7 +33,7 @@ impl<'a> RestrictedInteraction<'a> {
         if_else!(
             self.input.message.is_some(),
             self.res.update_message(response).await?,
-            self.res.send_message(response).await?
+            self.res.send_message(response).await?,
         );
 
         Ok(())

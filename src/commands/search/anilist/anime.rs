@@ -1,5 +1,6 @@
 use crate::{
-    macros::{and_then_or, if_else},
+    functions::if_else_option,
+    macros::if_else,
     statics::emojis::ERROR_EMOJI,
     structs::{api::anilist::AniList, restricted_interaction::RestrictedInteraction, select_menu::SelectMenu},
     traits::ArgGetters,
@@ -21,12 +22,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                     Ok(results) => results.into_iter().map(|result| {
                         SelectOption::new(result.title.romaji, result.id).set_description(format!(
                             "{} - {}",
-                            and_then_or!(
-                                result.format,
-                                |format| Some(AniList::format_enum_value(format)),
-                                "TBA".into()
-                            ),
-                            AniList::format_enum_value(result.status)
+                            if_else_option(result.format, |format| AniList::format_enum_value(format), "TBA".into(),),
+                            AniList::format_enum_value(result.status),
                         ))
                     }),
                     Err(error) => {
@@ -61,7 +58,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         match AniList::search_anime(query).await {
             Ok(mut results) => results.remove(0),
             Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}")).await,
-        }
+        },
     );
 
     interaction

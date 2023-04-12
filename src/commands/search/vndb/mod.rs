@@ -3,7 +3,7 @@ mod character_trait;
 mod tag;
 mod visual_novel;
 
-use crate::macros::and_then_or;
+use crate::functions::if_else_option;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -76,10 +76,10 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn vndb(input: CommandInput, res: CommandResponder) {
-        match and_then_or!(
+        match if_else_option(
             input.custom_id.as_deref(),
-            |custom_id| Some(custom_id),
-            input.subcommand.as_deref().unwrap_or("")
+            |custom_id| custom_id,
+            input.subcommand.as_deref().unwrap_or(""),
         ) {
             "character" => character::run(input, res).await?,
             "tag" => tag::run(input, res).await?,

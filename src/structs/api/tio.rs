@@ -1,6 +1,6 @@
 use crate::{
-    functions::hastebin,
-    macros::{and_then_or, if_else},
+    functions::{hastebin, if_else_option},
+    macros::if_else,
     statics::{colors::PRIMARY_COLOR, tio_programming_languages::TIO_PROGRAMMING_LANGUAGES},
 };
 use anyhow::{Context, Result};
@@ -113,9 +113,9 @@ impl Tio {
             .set_url(self.input_url)
             .set_description(format!(
                 "{}```\n{}```",
-                and_then_or!(
+                if_else_option(
                     self.result_url,
-                    |result_url| Some(format!("[Full Result]({result_url})")),
+                    |result_url| format!("[Full Result]({result_url})"),
                     "".into()
                 ),
                 self.result

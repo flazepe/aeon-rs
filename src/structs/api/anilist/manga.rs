@@ -1,5 +1,6 @@
 use crate::{
-    macros::{and_then_or, if_else, yes_no},
+    functions::if_else_option,
+    macros::{if_else, yes_no},
     statics::{anilist::ANILIST_MANGA_FIELDS, colors::PRIMARY_COLOR},
     structs::api::anilist::{
         components::{
@@ -61,9 +62,9 @@ impl AniListManga {
                 ":flag_{}:  {} ({})",
                 self.country_of_origin.to_lowercase(),
                 self.title.romaji,
-                and_then_or!(
+                if_else_option(
                     self.format.as_ref(),
-                    |format| Some(AniList::format_enum_value(format)),
+                    |format| AniList::format_enum_value(format),
                     "TBA".into()
                 )
             ))
@@ -92,7 +93,7 @@ impl AniListManga {
                 "Chapters",
                 format!(
                     "{}",
-                    and_then_or!(self.chapters, |chapters| Some(chapters.to_string()), "TBA".into()),
+                    if_else_option(self.chapters, |chapters| chapters.to_string(), "TBA".into()),
                 ),
                 true,
             )
@@ -100,7 +101,7 @@ impl AniListManga {
                 "Volumes",
                 format!(
                     "{}",
-                    and_then_or!(self.volumes, |volumes| Some(volumes.to_string()), "TBA".into()),
+                    if_else_option(self.volumes, |volumes| volumes.to_string(), "TBA".into()),
                 ),
                 true,
             )
@@ -121,11 +122,7 @@ impl AniListManga {
             )
             .add_field(
                 "Source",
-                and_then_or!(
-                    self.source,
-                    |source| Some(AniList::format_enum_value(source)),
-                    "N/A".into()
-                ),
+                if_else_option(self.source, |source| AniList::format_enum_value(source), "N/A".into()),
                 true,
             )
             .add_field(
@@ -220,7 +217,7 @@ impl AniList {
         if_else!(
             result.data.page.media.is_empty(),
             bail!("Manga not found."),
-            Ok(result.data.page.media)
+            Ok(result.data.page.media),
         )
     }
 }

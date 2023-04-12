@@ -1,5 +1,6 @@
 use crate::{
-    macros::{and_then_or, if_else},
+    functions::if_else_option,
+    macros::if_else,
     statics::{anilist::ANILIST_ANIME_FIELDS, colors::PRIMARY_COLOR},
     structs::api::anilist::{
         components::{
@@ -68,9 +69,9 @@ impl AniListAnime {
                 ":flag_{}:  {} ({})",
                 self.country_of_origin.to_lowercase(),
                 self.title.romaji,
-                and_then_or!(
+                if_else_option(
                     self.format.as_ref(),
-                    |format| Some(AniList::format_enum_value(format)),
+                    |format| AniList::format_enum_value(format),
                     "TBA".into()
                 )
             ))
@@ -90,41 +91,41 @@ impl AniListAnime {
                 "Aired",
                 format!(
                     "{}{} ({}){}",
-                    and_then_or!(
+                    if_else_option(
                         self.season,
-                        |season| Some(format!(
+                        |season| format!(
                             "Premiered {} {}{}\n",
                             AniList::format_enum_value(season),
                             self.season_year.unwrap(),
-                            and_then_or!(
+                            if_else_option(
                                 self.trailer,
-                                |trailer| Some(format!(
+                                |trailer| format!(
                                     " - [Trailer]({}{})",
                                     if_else!(
                                         trailer.site == "youtube",
                                         "https://www.youtube.com/watch?v=",
-                                        "https://www.dailymotion.com/video/"
+                                        "https://www.dailymotion.com/video/",
                                     ),
                                     trailer.id
-                                )),
+                                ),
                                 "".into()
                             )
-                        )),
+                        ),
                         "".into()
                     ),
                     AniList::format_airing_date(self.start_date, self.end_date),
                     AniList::format_enum_value(self.status),
-                    and_then_or!(
-                        self.airing_schedule.nodes.iter().find(|node| and_then_or!(
+                    if_else_option(
+                        self.airing_schedule.nodes.iter().find(|node| if_else_option(
                             node.time_until_airing,
-                            |time| Some(time > 0),
+                            |time| time > 0,
                             false
                         )),
-                        |node| Some(format!(
+                        |node| format!(
                             "\nNext episode airs <t:{}:R>",
                             SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()
                                 + node.time_until_airing.unwrap() as u64
-                        )),
+                        ),
                         "".into()
                     )
                 ),
@@ -144,10 +145,10 @@ impl AniListAnime {
                 "Episodes",
                 format!(
                     "{}{}",
-                    and_then_or!(self.episodes, |episodes| Some(episodes.to_string()), "TBA".into()),
-                    and_then_or!(
+                    if_else_option(self.episodes, |episodes| episodes.to_string(), "TBA".into()),
+                    if_else_option(
                         self.duration,
-                        |duration| Some(format!(" ({duration} minutes per episode)")),
+                        |duration| format!(" ({duration} minutes per episode)"),
                         "".into()
                     )
                 ),
@@ -155,19 +156,21 @@ impl AniListAnime {
             )
             .add_field(
                 "Twitter Hashtag",
-                and_then_or!(
+                if_else_option(
                     self.hashtag,
-                    |hashtag| Some(
+                    |hashtag| {
                         hashtag
                             .split(" ")
-                            .map(|hashtag| format!(
-                                "[{hashtag}](https://twitter.com/hashtag/{})",
-                                hashtag.chars().skip(1).collect::<String>()
-                            ))
+                            .map(|hashtag| {
+                                format!(
+                                    "[{hashtag}](https://twitter.com/hashtag/{})",
+                                    hashtag.chars().skip(1).collect::<String>()
+                                )
+                            })
                             .collect::<Vec<String>>()
                             .join(", ")
-                    ),
-                    "N/A".into()
+                    },
+                    "N/A".into(),
                 ),
                 true,
             )
@@ -187,11 +190,7 @@ impl AniListAnime {
             )
             .add_field(
                 "Source",
-                and_then_or!(
-                    self.source,
-                    |source| Some(AniList::format_enum_value(source)),
-                    "N/A".into()
-                ),
+                if_else_option(self.source, |source| AniList::format_enum_value(source), "N/A".into()),
                 true,
             )
             .add_field(
@@ -291,7 +290,7 @@ impl AniList {
         if_else!(
             result.data.page.media.is_empty(),
             bail!("Anime not found."),
-            Ok(result.data.page.media)
+            Ok(result.data.page.media),
         )
     }
 }

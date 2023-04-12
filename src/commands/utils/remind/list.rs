@@ -33,8 +33,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 if_else!(
                     reminder.interval > 0,
                     format!(" (every {})", Duration::new().parse(reminder.interval).unwrap()),
-                    "".into()
-                )
+                    "".into(),
+                ),
             )
         })
         .collect::<Vec<String>>();
@@ -47,11 +47,11 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             MessageResponse::from(
                 Embed::new()
                     .set_color(PRIMARY_COLOR)?
-                    .set_description(entries.join("\n\n"))
+                    .set_description(entries.join("\n\n")),
             )
-            .set_ephemeral(true)
+            .set_ephemeral(true),
         )
-        .await?
+        .await?,
     );
 
     Ok(())

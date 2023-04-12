@@ -46,7 +46,7 @@ pub fn get_command() -> Command {
                                             .map(|(_, messages)| messages.len())
                                             .reduce(|acc, cur| acc + cur)
                                             .unwrap_or(0),
-                                        "message"
+                                        "message",
                                     ),
                                     plural!(
                                         CACHE
@@ -56,7 +56,7 @@ pub fn get_command() -> Command {
                                             .map(|(_, messages)| messages.len())
                                             .reduce(|acc, cur| acc + cur)
                                             .unwrap_or(0),
-                                        "snipe"
+                                        "snipe",
                                     ),
                                     plural!(
                                         CACHE
@@ -66,7 +66,7 @@ pub fn get_command() -> Command {
                                             .map(|(_, messages)| messages.len())
                                             .reduce(|acc, cur| acc + cur)
                                             .unwrap_or(0),
-                                        "edit snipe"
+                                        "edit snipe",
                                     ),
                                     plural!(
                                         CACHE
@@ -76,7 +76,7 @@ pub fn get_command() -> Command {
                                             .map(|(_, messages)| messages.len())
                                             .reduce(|acc, cur| acc + cur)
                                             .unwrap_or(0),
-                                        "reaction snipe"
+                                        "reaction snipe",
                                     ),
                                 ]
                                 .join("\n")

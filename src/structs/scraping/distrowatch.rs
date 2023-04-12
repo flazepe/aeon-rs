@@ -51,7 +51,7 @@ impl Distro {
                 category: get_table_nth_child(6)?,
                 desktop: get_table_nth_child(5)?,
                 popularity: get_table_nth_child(8)?,
-            })
+            }),
         )
     }
 

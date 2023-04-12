@@ -41,7 +41,7 @@ impl Stock {
                         .attr("data-symbol")
                         .context("Missing data-symbol attr.")?
                         .to_string(),
-                }
+                },
             )
         };
 

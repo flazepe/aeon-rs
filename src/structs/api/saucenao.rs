@@ -1,5 +1,6 @@
 use crate::{
-    macros::{and_then_or, if_else},
+    functions::if_else_option,
+    macros::if_else,
     statics::{colors::PRIMARY_COLOR, CONFIG},
 };
 use anyhow::{bail, Result};
@@ -74,11 +75,8 @@ impl SauceNAOSearch {
                                 } else if result.data.gelbooru_id.is_some() {
                                     title = "Gelbooru Source".into();
                                 } else {
-                                    title = and_then_or!(
-                                        result.data.source.as_ref(),
-                                        |source| Some(source.into()),
-                                        "".into()
-                                    );
+                                    title =
+                                        if_else_option(result.data.source.as_ref(), |source| source.into(), "".into());
                                 }
 
                                 if_else!(title.is_empty(), "Source".into(), title)
@@ -97,9 +95,9 @@ impl SauceNAOSearch {
                                             if_else!(
                                                 part.chars().into_iter().all(|char| char.is_numeric()),
                                                 "Episode",
-                                                ""
+                                                "",
                                             ),
-                                            part.replace('-', "").trim()
+                                            part.replace('-', "").trim(),
                                         ),
                                         None => "".into(),
                                     },

@@ -90,7 +90,7 @@ impl JishoSearch {
         if_else!(
             title == reading || reading.is_empty(),
             title,
-            format!("{title} （{reading}）")
+            format!("{title} （{reading}）"),
         )
     }
 
@@ -108,7 +108,7 @@ impl JishoSearch {
                         let part_of_speech = if_else!(
                             sense.parts_of_speech.is_empty(),
                             "Others".into(),
-                            sense.parts_of_speech.join(", ")
+                            sense.parts_of_speech.join(", "),
                         )
                         .to_lowercase();
 

@@ -1,5 +1,6 @@
 use crate::{
-    macros::{and_then_or, if_else},
+    functions::if_else_option,
+    macros::if_else,
     statics::{
         duration::SECS_PER_MONTH,
         emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
@@ -41,10 +42,10 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     };
 
     let time = Duration::new()
-        .parse(and_then_or!(
+        .parse(if_else_option(
             input.values.as_ref(),
-            |values| Some(values[0].to_string()),
-            input.get_string_arg("time").unwrap_or("".into())
+            |values| values[0].to_string(),
+            input.get_string_arg("time").unwrap_or("".into()),
         ))
         .unwrap_or(Duration::new());
 
@@ -56,18 +57,18 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         || (interval.total_secs > 0 && (interval.total_secs < 30 || interval.total_secs > SECS_PER_MONTH * 12))
     {
         res.send_message(format!(
-            "{ERROR_EMOJI} Time or interval cannot be under 30 seconds or over a year."
+            "{ERROR_EMOJI} Time or interval cannot be under 30 seconds or over a year.",
         ))
         .await?;
 
         return Ok(());
     }
 
-    let dm = and_then_or!(
+    let dm = if_else_option(
         input.message.as_ref(),
         // DM if select menu's message was from an interaction
-        |message| Some(message.interaction.is_some()),
-        false
+        |message| message.interaction.is_some(),
+        false,
     ) || input.guild_id.is_none()
         || input.get_bool_arg("dm")?;
 
@@ -92,15 +93,15 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         reminder
     };
 
-    let url = and_then_or!(
+    let url = if_else_option(
         input.custom_id.as_ref(),
-        |custom_id| Some(custom_id.to_string()),
+        |custom_id| custom_id.to_string(),
         format!(
             "{}/{}/{}",
             input.guild_id.as_ref().unwrap_or(&"@me".into()),
             input.channel_id.as_ref().unwrap(),
-            res.get_original_message().await?.id
-        )
+            res.get_original_message().await?.id,
+        ),
     );
 
     // For older snooze messages
@@ -129,9 +130,9 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         if_else!(
             interval.total_secs > 0,
             format!(" and every {interval} after that"),
-            "".into()
+            "".into(),
         ),
-        if_else!(dm, "can DM you", "have the View Channel and Send Messages permission")
+        if_else!(dm, "can DM you", "have the View Channel and Send Messages permission"),
     )).set_suppress_embeds(true)).await?;
 
     Ok(())

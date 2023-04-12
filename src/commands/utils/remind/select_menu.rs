@@ -16,7 +16,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                     .filter(|char| char.is_numeric())
                     .collect::<String>(),
         // Else, it's an ephemeral select menu from the message reminder command; we let it pass
-        true
+        true,
     ) {
         true => {
             set::run(input, res).await?;
