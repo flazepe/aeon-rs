@@ -88,9 +88,9 @@ pub fn format_timestamp<T: Display>(timestamp: T, format: TimestampFormat) -> St
     let full = format!("{simple} ({duration})");
 
     match format {
+        TimestampFormat::Duration => duration,
         TimestampFormat::Simple => simple,
         TimestampFormat::Full => full,
-        TimestampFormat::Duration => duration,
     }
 }
 
