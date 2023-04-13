@@ -5,6 +5,7 @@ pub mod ip_info;
 pub mod jisho;
 pub mod oauth;
 pub mod saucenao;
+pub mod spotify;
 pub mod steam;
 pub mod tio;
 pub mod virtualearth;

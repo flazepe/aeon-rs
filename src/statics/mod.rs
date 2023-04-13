@@ -4,6 +4,7 @@ pub mod duration;
 pub mod emojis;
 pub mod exchange_rate;
 pub mod google;
+pub mod spotify;
 pub mod steam;
 pub mod tio;
 pub mod unicode;

@@ -1,0 +1,1 @@
+pub static SPOTIFY_EMBED_COLOR: &str = "#1db954";
