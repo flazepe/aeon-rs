@@ -135,3 +135,13 @@ impl<T> LimitedVec<T> for Vec<T> {
         }
     }
 }
+
+pub trait Tag {
+    fn tag(&self) -> String;
+}
+
+impl Tag for TwilightUser {
+    fn tag(&self) -> String {
+        format!("{}#{}", self.name, self.discriminator())
+    }
+}

@@ -10,7 +10,6 @@ use slashook::{
     },
 };
 use std::{collections::hash_map::Iter, fmt::Display};
-use twilight_model::user::User;
 
 pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
     for (label, value) in [
@@ -114,8 +113,4 @@ pub fn limit_string<T: ToString, U: ToString>(string: T, delimiter: U, limit: us
     }
 
     split.join(&delimiter)
-}
-
-pub fn twilight_user_to_tag(user: &User) -> String {
-    format!("{}#{}", user.name, user.discriminator())
 }
