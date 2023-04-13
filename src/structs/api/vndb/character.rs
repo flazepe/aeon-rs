@@ -15,17 +15,11 @@ use std::{
 };
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum VndbBloodType {
-    #[serde(rename = "a")]
     A,
-
-    #[serde(rename = "b")]
     B,
-
-    #[serde(rename = "ab")]
     AB,
-
-    #[serde(rename = "o")]
     O,
 }
 
