@@ -96,6 +96,7 @@ pub struct SpotifyRestrictions {
 pub struct SpotifySimpleAlbum {
     #[serde(rename = "type")]
     pub object_type: SpotifyObjectType,
+
     pub href: String,
     pub external_urls: SpotifyExternalURLs,
     pub uri: String,
