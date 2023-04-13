@@ -1,6 +1,6 @@
 use crate::{
     statics::emojis::ERROR_EMOJI,
-    structs::{api::vndb::Vndb, restricted_interaction::RestrictedInteraction, select_menu::SelectMenu},
+    structs::{api::vndb::Vndb, component_interaction::ComponentInteraction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
 use anyhow::Result;
@@ -39,7 +39,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         return Ok(());
     }
 
-    let interaction = RestrictedInteraction::verify(&input, &res).await?;
+    let interaction = ComponentInteraction::verify(&input, &res).await?;
 
     let (query, section): (String, String) = {
         if input.is_string_select() {

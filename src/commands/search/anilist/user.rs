@@ -1,7 +1,7 @@
 use crate::{
     macros::if_else,
     statics::emojis::ERROR_EMOJI,
-    structs::{api::anilist::AniList, restricted_interaction::RestrictedInteraction, select_menu::SelectMenu},
+    structs::{api::anilist::AniList, component_interaction::ComponentInteraction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
 use anyhow::Result;
@@ -11,7 +11,7 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let interaction = RestrictedInteraction::verify(&input, &res).await?;
+    let interaction = ComponentInteraction::verify(&input, &res).await?;
 
     let (query, section): (String, String) = {
         if input.is_string_select() {

@@ -2,13 +2,13 @@ use crate::macros::if_else;
 use anyhow::{bail, Result};
 use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
 
-pub struct RestrictedInteraction<'a> {
+pub struct ComponentInteraction<'a> {
     input: &'a CommandInput,
     res: &'a CommandResponder,
 }
 
-impl<'a> RestrictedInteraction<'a> {
-    pub async fn verify(input: &'a CommandInput, res: &'a CommandResponder) -> Result<RestrictedInteraction<'a>> {
+impl<'a> ComponentInteraction<'a> {
+    pub async fn verify(input: &'a CommandInput, res: &'a CommandResponder) -> Result<ComponentInteraction<'a>> {
         if let Some(message) = input.message.as_ref() {
             if let Some(interaction) = message.interaction.as_ref() {
                 if input.user.id != interaction.user.id {
