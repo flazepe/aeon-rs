@@ -97,7 +97,7 @@ impl AniListManga {
             )
             .add_field(
                 "Volumes",
-                format!("{}", self.volumes.map_or("TBA".into(), |volumes| volumes.to_string()),),
+                format!("{}", self.volumes.map_or("TBA".into(), |volumes| volumes.to_string())),
                 true,
             )
             .add_field("Licensed", yes_no!(self.is_licensed), true)

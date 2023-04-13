@@ -25,7 +25,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                                 "{} - {}",
                                 result
                                     .format
-                                    .map_or("TBA".into(), |format| AniList::format_enum_value(format),),
+                                    .map_or("TBA".into(), |format| AniList::format_enum_value(format)),
                                 AniList::format_enum_value(result.status),
                             ))
                         })

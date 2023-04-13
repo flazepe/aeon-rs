@@ -157,7 +157,7 @@ impl VndbCharacter {
                     format!(
                         "{}{}",
                         sex.map_or("N/A".into(), |sex| sex.to_string()),
-                        spoiler_sex.map_or("".into(), |spoiler_sex| format!(" (||actually {spoiler_sex}||)"),)
+                        spoiler_sex.map_or("".into(), |spoiler_sex| format!(" (||actually {spoiler_sex}||)"))
                     )
                 }),
                 true,

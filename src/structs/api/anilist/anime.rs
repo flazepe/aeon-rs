@@ -71,7 +71,7 @@ impl AniListAnime {
                 self.title.romaji,
                 self.format
                     .as_ref()
-                    .map_or("TBA".into(), |format| AniList::format_enum_value(format),)
+                    .map_or("TBA".into(), |format| AniList::format_enum_value(format))
             ))
             .set_url(&self.site_url)
     }
