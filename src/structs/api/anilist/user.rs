@@ -1,6 +1,6 @@
 use crate::{
     functions::{format_timestamp, limit_string, TimestampFormat},
-    statics::{anilist::ANILIST_USER_FIELDS, colors::PRIMARY_COLOR},
+    statics::anilist::{ANILIST_EMBED_COLOR, ANILIST_USER_FIELDS},
     structs::api::anilist::{
         components::{AniListCharacterNode, AniListFormat, AniListImage, AniListNodes, AniListResponse, AniListTitle},
         AniList,
@@ -77,7 +77,7 @@ pub struct AniListUser {
 impl AniListUser {
     fn _format(&self) -> Embed {
         Embed::new()
-            .set_color(PRIMARY_COLOR)
+            .set_color(ANILIST_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(self.avatar.as_ref().map_or(&"".into(), |avatar| &avatar.large))
             .set_title(&self.name)

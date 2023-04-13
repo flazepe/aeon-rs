@@ -1,4 +1,4 @@
-use crate::statics::CONFIG;
+use crate::statics::{steam::STEAM_API_ENDPOINT, CONFIG};
 use anyhow::{Context, Result};
 use reqwest::get;
 use serde::Deserialize;
@@ -32,7 +32,7 @@ struct SteamResponse<T> {
 impl SteamUserBans {
     pub async fn get<T: Display>(id: T) -> Result<Self> {
         Ok(get(format!(
-            "http://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key={}&steamids={id}",
+            "{STEAM_API_ENDPOINT}/GetPlayerBans/v1/?key={}&steamids={id}",
             CONFIG.api.steam_key
         ))
         .await?

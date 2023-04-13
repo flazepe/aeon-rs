@@ -1,3 +1,5 @@
+pub static ANILIST_EMBED_COLOR: &str = "#00aaff";
+
 pub static ANILIST_ANIME_FIELDS: &str = "
 	id siteUrl coverImage { extraLarge } bannerImage
 	countryOfOrigin title { romaji native english } format synonyms isAdult

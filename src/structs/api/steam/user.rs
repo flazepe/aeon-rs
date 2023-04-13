@@ -2,8 +2,7 @@ use crate::{
     functions::{format_timestamp, TimestampFormat},
     macros::{if_else, plural, yes_no},
     statics::{
-        colors::PRIMARY_COLOR,
-        steam::{STEAM_COUNTRIES, STEAM_USER_STATES},
+        steam::{STEAM_API_ENDPOINT, STEAM_COUNTRIES, STEAM_EMBED_COLOR, STEAM_USER_STATES},
         CONFIG,
     },
     structs::api::steam::{user_bans::SteamUserBans, user_vanity::SteamUserVanity},
@@ -104,7 +103,7 @@ impl SteamUser {
         }
 
         let mut user = get(format!(
-            "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={}&steamids={user}",
+            "{STEAM_API_ENDPOINT}/GetPlayerSummaries/v0002/?key={}&steamids={user}",
             CONFIG.api.steam_key
         ))
         .await?
@@ -135,7 +134,7 @@ impl SteamUser {
             .to_string();
 
         let mut embed = Embed::new()
-            .set_color(PRIMARY_COLOR)
+            .set_color(STEAM_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(self.avatar_full)
             .set_title(self.real_name.unwrap_or(self.persona_name))

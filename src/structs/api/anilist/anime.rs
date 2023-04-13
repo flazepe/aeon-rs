@@ -1,7 +1,7 @@
 use crate::{
     functions::limit_string,
     macros::if_else,
-    statics::{anilist::ANILIST_ANIME_FIELDS, colors::PRIMARY_COLOR},
+    statics::anilist::{ANILIST_ANIME_FIELDS, ANILIST_EMBED_COLOR},
     structs::api::anilist::{
         components::{
             AniListAiringSchedule, AniListAnimeCharacter, AniListCoverImage, AniListEdges, AniListExternalLink,
@@ -61,7 +61,7 @@ pub struct AniListAnime {
 impl AniListAnime {
     fn _format(&self) -> Embed {
         Embed::new()
-            .set_color(PRIMARY_COLOR)
+            .set_color(ANILIST_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(&self.cover_image.extra_large)
             .set_image(self.banner_image.as_ref().unwrap_or(&"".into()))

@@ -1,7 +1,7 @@
 use crate::{
     functions::limit_string,
     macros::{if_else, yes_no},
-    statics::{anilist::ANILIST_MANGA_FIELDS, colors::PRIMARY_COLOR},
+    statics::anilist::{ANILIST_EMBED_COLOR, ANILIST_MANGA_FIELDS},
     structs::api::anilist::{
         components::{
             AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat, AniListFuzzyDate,
@@ -54,7 +54,7 @@ pub struct AniListManga {
 impl AniListManga {
     fn _format(&self) -> Embed {
         Embed::new()
-            .set_color(PRIMARY_COLOR)
+            .set_color(ANILIST_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(&self.cover_image.extra_large)
             .set_image(self.banner_image.as_ref().unwrap_or(&"".into()))
