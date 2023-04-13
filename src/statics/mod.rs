@@ -1,11 +1,11 @@
 pub mod anilist;
 pub mod colors;
-pub mod currencies;
 pub mod duration;
 pub mod emojis;
+pub mod exchange_rate;
 pub mod google;
 pub mod steam;
-pub mod tio_programming_languages;
+pub mod tio;
 pub mod unicode;
 pub mod vndb;
 

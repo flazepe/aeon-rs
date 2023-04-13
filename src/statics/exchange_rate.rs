@@ -1,7 +1,7 @@
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 
-pub static CURRENCIES: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
+pub static EXCHANGE_RATE_CURRENCIES: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
     HashMap::from([
         ("AED", "United Arab Emirates Dirham"),
         ("AFN", "Afghan Afghani"),

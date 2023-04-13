@@ -1,6 +1,6 @@
 use crate::{
     functions::hashmap_autocomplete,
-    statics::{emojis::ERROR_EMOJI, tio_programming_languages::TIO_PROGRAMMING_LANGUAGES, CACHE},
+    statics::{emojis::ERROR_EMOJI, tio::TIO_PROGRAMMING_LANGUAGES, CACHE},
     structs::api::tio::Tio,
     traits::ArgGetters,
 };

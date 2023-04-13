@@ -1,6 +1,6 @@
 use crate::{
     functions::hashmap_autocomplete,
-    statics::{currencies::CURRENCIES, emojis::ERROR_EMOJI},
+    statics::{emojis::ERROR_EMOJI, exchange_rate::EXCHANGE_RATE_CURRENCIES},
     structs::api::exchange_rate::ExchangeRateConversion,
     traits::ArgGetters,
 };
@@ -39,7 +39,7 @@ pub fn get_command() -> Command {
     )]
     async fn convert_currency(input: CommandInput, res: CommandResponder) {
         if input.is_autocomplete() {
-            return hashmap_autocomplete(input, res, CURRENCIES.iter()).await?;
+            return hashmap_autocomplete(input, res, EXCHANGE_RATE_CURRENCIES.iter()).await?;
         }
 
         match ExchangeRateConversion::get(

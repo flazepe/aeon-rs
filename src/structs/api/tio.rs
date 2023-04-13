@@ -1,7 +1,7 @@
 use crate::{
     functions::hastebin,
     macros::if_else,
-    statics::{colors::PRIMARY_COLOR, tio_programming_languages::TIO_PROGRAMMING_LANGUAGES},
+    statics::{colors::PRIMARY_COLOR, tio::TIO_PROGRAMMING_LANGUAGES},
 };
 use anyhow::{Context, Result};
 use flate2::{
