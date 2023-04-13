@@ -199,7 +199,7 @@ impl AniListUser {
 }
 
 impl AniList {
-    pub async fn get_user<T: ToString>(user: T) -> Result<AniListUser> {
+    pub async fn get_user<T: ToString>(name: T) -> Result<AniListUser> {
         let result: AniListResponse<AniListUserResponse> = AniList::query(
             format!(
                 "query($search: String) {{
@@ -208,7 +208,7 @@ impl AniList {
 					}}
 				}}"
             ),
-            json!({ "search": user.to_string() }),
+            json!({ "search": name.to_string() }),
         )
         .await?;
 
