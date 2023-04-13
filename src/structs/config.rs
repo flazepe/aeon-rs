@@ -23,6 +23,7 @@ pub struct DatabaseConfig {
 #[derive(Deserialize)]
 pub struct APIConfig {
     pub saucenao_key: String,
+    pub spotify_token: String,
     pub steam_key: String,
     pub virtualearth_key: String,
 }

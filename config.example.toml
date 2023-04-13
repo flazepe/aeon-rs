@@ -9,5 +9,6 @@ mongodb_uri = "mongodb_uri"
 
 [api]
 saucenao_key = "saucenao_key"
+spotify_token = "spotify_token"
 steam_key = "steam_key"
 virtualearth_key = "virtualearth_key"
