@@ -57,7 +57,7 @@ impl UnicodeCharacter {
                     .iter()
                     .any(|(_, control_character)| control_character == &self.name),
                 "".into(),
-                format!(" - `{}`", self.character.replace('`', "｀")),
+                format!(" - `{}`", self.character.replace("`", "｀")),
             )
         )
     }

@@ -95,7 +95,7 @@ impl SauceNAOSearch {
                                                 "Episode",
                                                 "",
                                             ),
-                                            part.replace('-', "").trim(),
+                                            part.replace("-", "").trim(),
                                         ),
                                         None => "".into(),
                                     },

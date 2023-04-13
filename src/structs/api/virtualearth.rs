@@ -84,7 +84,7 @@ impl TimeZoneLocation {
 
         format!(
             "It is `{} UTC {}` in {}.",
-            timezone.converted_time.local_time.replace('T', " "),
+            timezone.converted_time.local_time.replace("T", " "),
             timezone.utc_offset,
             self.place_name
         )
@@ -96,7 +96,7 @@ impl TimeZoneLocation {
             .map(|timezone| {
                 format!(
                     "`{} UTC {}` - {}",
-                    timezone.converted_time.local_time.replace('T', " "),
+                    timezone.converted_time.local_time.replace("T", " "),
                     timezone.utc_offset,
                     timezone.converted_time.time_zone_display_name
                 )

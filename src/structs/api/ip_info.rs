@@ -52,7 +52,7 @@ impl IPInfo {
                 .filter(|entry| !entry.is_empty())
                 .collect::<Vec<String>>()
                 .join(", "),
-                self.loc.unwrap_or("".into()).replace(',', ", "),
+                self.loc.unwrap_or("".into()).replace(",", ", "),
                 self.org.unwrap_or("".into()),
             ]
             .into_iter()
