@@ -1,10 +1,9 @@
 pub mod anilist;
 pub mod colors;
 pub mod currencies;
-pub mod dns_codes;
 pub mod duration;
 pub mod emojis;
-pub mod google_translate_languages;
+pub mod google;
 pub mod steam;
 pub mod tio_programming_languages;
 pub mod unicode;

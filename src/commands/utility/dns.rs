@@ -1,4 +1,4 @@
-use crate::{statics::emojis::ERROR_EMOJI, structs::api::google_dns::GoogleDNS, traits::ArgGetters};
+use crate::{statics::emojis::ERROR_EMOJI, structs::api::google::dns::GoogleDNS, traits::ArgGetters};
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},

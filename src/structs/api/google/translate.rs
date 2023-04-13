@@ -1,6 +1,6 @@
 use crate::{
     macros::if_else,
-    statics::{colors::PRIMARY_COLOR, google_translate_languages::GOOGLE_TRANSLATE_LANGUAGES},
+    statics::{colors::PRIMARY_COLOR, google::GOOGLE_TRANSLATE_LANGUAGES},
 };
 use anyhow::{bail, Context, Result};
 use reqwest::get;

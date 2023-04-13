@@ -1,7 +1,7 @@
 use crate::{
     functions::hashmap_autocomplete,
-    statics::{emojis::ERROR_EMOJI, google_translate_languages::GOOGLE_TRANSLATE_LANGUAGES},
-    structs::api::google_translate::GoogleTranslate,
+    statics::{emojis::ERROR_EMOJI, google::GOOGLE_TRANSLATE_LANGUAGES},
+    structs::api::google::translate::GoogleTranslate,
     traits::ArgGetters,
 };
 use slashook::{

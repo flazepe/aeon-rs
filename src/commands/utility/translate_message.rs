@@ -1,6 +1,6 @@
 use crate::{
     statics::emojis::ERROR_EMOJI,
-    structs::{api::google_translate::GoogleTranslate, stringified_message::StringifiedMessage},
+    structs::{api::google::translate::GoogleTranslate, stringified_message::StringifiedMessage},
 };
 use slashook::{
     command,

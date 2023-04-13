@@ -1,7 +1,6 @@
 pub mod anilist;
 pub mod exchange_rate;
-pub mod google_dns;
-pub mod google_translate;
+pub mod google;
 pub mod ip_info;
 pub mod jisho;
 pub mod saucenao;

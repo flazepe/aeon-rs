@@ -1,6 +1,6 @@
 use crate::{
     macros::if_else,
-    statics::{colors::PRIMARY_COLOR, dns_codes::DNS_CODES},
+    statics::{colors::PRIMARY_COLOR, google::GOOGLE_DNS_CODES},
 };
 use anyhow::{bail, Result};
 use reqwest::get;
@@ -79,7 +79,7 @@ impl GoogleDNS {
         let dns_response = res.json::<GoogleDNSQuery>().await?;
 
         if dns_response.status != 0 {
-            bail!(DNS_CODES
+            bail!(GOOGLE_DNS_CODES
                 .get(&dns_response.status)
                 .unwrap_or(&"An unknown error occurred."));
         }
