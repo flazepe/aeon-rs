@@ -179,15 +179,33 @@ impl SpotifyFullAlbum {
 
 impl Spotify {
     pub async fn get_album<T: Display>(id: T) -> Result<SpotifyFullAlbum> {
-        Ok(Spotify::query(format!("albums/{id}")).await?)
+        match Spotify::query(format!("albums/{id}")).await {
+            Ok(album) => Ok(album),
+            Err(_) => bail!("Album not found."),
+        }
+    }
+
+    async fn get_simple_album<T: Display>(id: T) -> Result<SpotifySimpleAlbum> {
+        match Spotify::query(format!("albums/{id}")).await {
+            Ok(album) => Ok(album),
+            Err(_) => bail!("Album not found."),
+        }
     }
 
     pub async fn search_album<T: Display>(query: T) -> Result<Vec<SpotifySimpleAlbum>> {
-        let results = Spotify::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}"))
-            .await?
-            .albums
-            .items;
+        let query = query.to_string();
 
-        if_else!(results.is_empty(), bail!("Album not found."), Ok(results))
+        if query.contains("album") {
+            Ok(vec![
+                Spotify::get_simple_album(query.split("/").last().unwrap().split("?").next().unwrap()).await?,
+            ])
+        } else {
+            let results = Spotify::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}"))
+                .await?
+                .albums
+                .items;
+
+            if_else!(results.is_empty(), bail!("Album not found."), Ok(results))
+        }
     }
 }
