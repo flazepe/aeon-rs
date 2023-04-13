@@ -29,8 +29,8 @@ pub struct GoogleDNSQuestion {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "PascalCase")]
 pub struct GoogleDNSQuery {
-    #[serde(rename = "Status")]
     pub status: u64,
 
     #[serde(rename = "TC")]
@@ -48,16 +48,9 @@ pub struct GoogleDNSQuery {
     #[serde(rename = "CD")]
     pub cd: bool,
 
-    #[serde(rename = "Question")]
     pub question: Vec<GoogleDNSQuestion>,
-
-    #[serde(rename = "Answer")]
     pub answer: Option<Vec<GoogleDNSRecord>>,
-
-    #[serde(rename = "Authority")]
     pub authority: Option<Vec<GoogleDNSRecord>>,
-
-    #[serde(rename = "Comment")]
     pub comment: Option<String>,
 }
 

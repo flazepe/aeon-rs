@@ -13,7 +13,8 @@ use reqwest::get;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 
-#[derive(Deserialize)]
+#[derive(Deserialize)] // Can't use `rename_all = "lowercase"` because it doesn't remove underscores
+#[serde(rename_all = "lowercase")]
 pub struct SteamUser {
     #[serde(rename = "steamid")]
     pub id: String,

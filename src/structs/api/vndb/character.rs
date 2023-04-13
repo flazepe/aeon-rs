@@ -48,17 +48,11 @@ impl Display for VndbSex {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum VndbCharacterRole {
-    #[serde(rename = "main")]
     Main,
-
-    #[serde(rename = "primary")]
     Primary,
-
-    #[serde(rename = "side")]
     Side,
-
-    #[serde(rename = "appears")]
     Appears,
 }
 
