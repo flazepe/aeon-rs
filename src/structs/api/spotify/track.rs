@@ -107,31 +107,39 @@ impl SpotifyFullTrack {
         let mut embed = self._format();
 
         if let Some(audio_features) = self.audio_features {
-            let pitch_notation = SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize];
+            let pitch_notation = if_else!(
+                audio_features.key == -1,
+                None,
+                Some(SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize])
+            );
 
             embed = embed
                 .add_field(
                     "Key",
-                    format!(
-                        "{} {}",
-                        pitch_notation,
-                        if_else!(audio_features.mode == 0, "Minor", "Major"),
-                    ),
+                    pitch_notation.map_or("N/A".into(), |pitch_notation| {
+                        format!(
+                            "{} {}",
+                            pitch_notation,
+                            if_else!(audio_features.mode == 0, "Minor", "Major"),
+                        )
+                    }),
                     true,
                 )
                 .add_field(
                     "Camelot",
-                    format!(
-                        "{}{}",
-                        SPOTIFY_CAMELOT
-                            .iter()
-                            .enumerate()
-                            .find(|(_, entry)| entry[audio_features.mode as usize] == pitch_notation)
-                            .unwrap()
-                            .0
-                            + 1,
-                        if_else!(audio_features.mode == 0, "A", "B")
-                    ),
+                    pitch_notation.map_or("N/A".into(), |pitch_notation| {
+                        format!(
+                            "{}{}",
+                            SPOTIFY_CAMELOT
+                                .iter()
+                                .enumerate()
+                                .find(|(_, entry)| entry[audio_features.mode as usize] == pitch_notation)
+                                .unwrap()
+                                .0
+                                + 1,
+                            if_else!(audio_features.mode == 0, "A", "B")
+                        )
+                    }),
                     true,
                 )
                 .add_field("Tempo", format!("{:.0} BPM", audio_features.tempo), true)
