@@ -95,15 +95,15 @@ struct SteamResponse<T> {
 }
 
 impl SteamUser {
-    pub async fn get<T: ToString>(user: T) -> Result<Self> {
-        let mut user = user.to_string();
+    pub async fn get<T: ToString>(id: T) -> Result<Self> {
+        let mut id = id.to_string();
 
-        if !user.chars().into_iter().all(|char| char.is_numeric()) {
-            user = SteamUserVanity::get(&user).await?;
+        if !id.chars().into_iter().all(|char| char.is_numeric()) {
+            id = SteamUserVanity::get(&id).await?;
         }
 
         let mut user = get(format!(
-            "{STEAM_API_ENDPOINT}/GetPlayerSummaries/v0002/?key={}&steamids={user}",
+            "{STEAM_API_ENDPOINT}/GetPlayerSummaries/v0002/?key={}&steamids={id}",
             CONFIG.api.steam_key
         ))
         .await?
