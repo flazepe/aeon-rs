@@ -57,7 +57,7 @@ pub struct SteamUser {
     pub primary_clan_id: Option<String>,
 
     #[serde(rename = "timecreated")]
-    pub time_created: u64,
+    pub time_created: Option<u64>,
 
     #[serde(rename = "personastateflags")]
     pub persona_state_flags: u64,
@@ -156,7 +156,9 @@ impl SteamUser {
             )
             .add_field(
                 "Created",
-                format_timestamp(self.time_created, TimestampFormat::Full),
+                self.time_created.map_or("N/A".into(), |time_created| {
+                    format_timestamp(time_created, TimestampFormat::Full)
+                }),
                 false,
             )
             .add_field(
