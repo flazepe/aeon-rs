@@ -66,7 +66,7 @@ impl AniListAnime {
             .set_thumbnail(&self.cover_image.extra_large)
             .set_image(self.banner_image.as_ref().unwrap_or(&"".into()))
             .set_title(format!(
-                ":flag_{}:  {} ({})",
+                ":flag_{}: {} ({})",
                 self.country_of_origin.to_lowercase(),
                 self.title.romaji,
                 self.format
