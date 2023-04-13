@@ -173,7 +173,7 @@ impl AniListManga {
 
 impl AniList {
     pub async fn get_manga(id: u64) -> Result<AniListManga> {
-        let result: AniListResponse<AniListMediaResponse<AniListManga>> = AniList::query(
+        match AniList::query::<_, AniListResponse<AniListMediaResponse<AniListManga>>>(
             format!(
                 "query($id: Int) {{
                     Media(id: $id) {{
@@ -183,9 +183,10 @@ impl AniList {
             ),
             json!({ "id": id }),
         )
-        .await?;
-
-        match result.data.media {
+        .await?
+        .data
+        .media
+        {
             Some(manga) => Ok(manga),
             None => bail!("Manga not found."),
         }

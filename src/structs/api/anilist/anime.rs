@@ -242,7 +242,7 @@ impl AniListAnime {
 
 impl AniList {
     pub async fn get_anime(id: u64) -> Result<AniListAnime> {
-        let result: AniListResponse<AniListMediaResponse<AniListAnime>> = AniList::query(
+        match AniList::query::<_, AniListResponse<AniListMediaResponse<AniListAnime>>>(
             format!(
                 "query($id: Int) {{
                     Media(id: $id) {{
@@ -252,9 +252,10 @@ impl AniList {
             ),
             json!({ "id": id }),
         )
-        .await?;
-
-        match result.data.media {
+        .await?
+        .data
+        .media
+        {
             Some(anime) => Ok(anime),
             None => bail!("Anime not found."),
         }

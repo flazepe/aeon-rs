@@ -200,7 +200,7 @@ impl AniListUser {
 
 impl AniList {
     pub async fn get_user<T: ToString>(name: T) -> Result<AniListUser> {
-        let result: AniListResponse<AniListUserResponse> = AniList::query(
+        match AniList::query::<_, AniListResponse<AniListUserResponse>>(
             format!(
                 "query($search: String) {{
 					User(name: $search) {{
@@ -210,9 +210,10 @@ impl AniList {
             ),
             json!({ "search": name.to_string() }),
         )
-        .await?;
-
-        match result.data.user {
+        .await?
+        .data
+        .user
+        {
             Some(user) => Ok(user),
             None => bail!("User not found."),
         }
