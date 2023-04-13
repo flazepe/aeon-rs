@@ -60,7 +60,7 @@ pub struct SteamUser {
     pub time_created: Option<u64>,
 
     #[serde(rename = "personastateflags")]
-    pub persona_state_flags: u64,
+    pub persona_state_flags: Option<u64>,
 
     #[serde(rename = "loccountrycode")]
     pub loc_country_code: Option<String>,
