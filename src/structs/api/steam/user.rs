@@ -54,7 +54,7 @@ pub struct SteamUser {
     pub real_name: Option<String>,
 
     #[serde(rename = "primaryclanid")]
-    pub primary_clan_id: String,
+    pub primary_clan_id: Option<String>,
 
     #[serde(rename = "timecreated")]
     pub time_created: u64,
