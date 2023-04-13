@@ -2,12 +2,12 @@ use crate::{
     macros::if_else,
     statics::{
         emojis::{EXPLICIT_EMOJI, FIRE_EMOJI},
-        spotify::SPOTIFY_EMBED_COLOR,
+        spotify::{SPOTIFY_CAMELOT, SPOTIFY_EMBED_COLOR, SPOTIFY_PITCH_NOTATIONS},
     },
     structs::api::spotify::{
         components::{
-            SpotifyExternalIDs, SpotifyExternalURLs, SpotifyItems, SpotifyRestrictions, SpotifySimpleAlbum,
-            SpotifySimpleArtist, SpotifyTrackLink,
+            SpotifyAudioFeatures, SpotifyExternalIDs, SpotifyExternalURLs, SpotifyItems, SpotifyRestrictions,
+            SpotifySimpleAlbum, SpotifySimpleArtist, SpotifyTrackLink,
         },
         Spotify,
     },
@@ -43,12 +43,19 @@ pub struct SpotifyFullTrack {
 
     // Extra fields
     pub album: SpotifySimpleAlbum,
+    pub audio_features: Option<SpotifyAudioFeatures>, // Unofficial
     pub external_ids: SpotifyExternalIDs,
     pub popularity: u64,
     pub is_local: Option<bool>,
 }
 
 impl SpotifyFullTrack {
+    pub async fn get_audio_features(mut self) -> Result<Self> {
+        self.audio_features = Spotify::query(format!("audio-features/{}", self.id)).await?;
+
+        Ok(self)
+    }
+
     fn _format(&self) -> Embed {
         Embed::new()
             .set_color(SPOTIFY_EMBED_COLOR)
@@ -94,6 +101,68 @@ impl SpotifyFullTrack {
             )
             .add_field("Popularity", format!("{FIRE_EMOJI} {}%", self.popularity), false)
             .set_image(Spotify::generate_scannable(&self.uri))
+    }
+
+    pub fn format_audio_features(self) -> Embed {
+        let mut embed = self._format();
+
+        if let Some(audio_features) = self.audio_features {
+            let pitch_notation = SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize];
+
+            embed = embed
+                .add_field(
+                    "Key",
+                    format!(
+                        "{} {}",
+                        pitch_notation,
+                        if_else!(audio_features.mode == 0, "Minor", "Major"),
+                    ),
+                    true,
+                )
+                .add_field(
+                    "Camelot",
+                    format!(
+                        "{}{}",
+                        SPOTIFY_CAMELOT
+                            .iter()
+                            .enumerate()
+                            .find(|(_, entry)| entry[audio_features.mode as usize] == pitch_notation)
+                            .unwrap()
+                            .0
+                            + 1,
+                        if_else!(audio_features.mode == 0, "A", "B")
+                    ),
+                    true,
+                )
+                .add_field("Tempo", format!("{:.0} BPM", audio_features.tempo), true)
+                .add_field("Time Signature", format!("{} / 4", audio_features.time_signature), true)
+                .add_field("Loudness", format!("{:.1} dB", audio_features.loudness), true)
+                .add_field("Valence", format!("{:.0}%", audio_features.valence * 100.0), true)
+                .add_field(
+                    "Danceability",
+                    format!("{:.0}%", audio_features.danceability * 100.0),
+                    true,
+                )
+                .add_field("Energy", format!("{:.0}%", audio_features.energy * 100.0), true)
+                .add_field(
+                    "Speechiness",
+                    format!("{:.0}%", audio_features.speechiness * 100.0),
+                    true,
+                )
+                .add_field(
+                    "Acousticness",
+                    format!("{:.0}%", audio_features.acousticness * 100.0),
+                    true,
+                )
+                .add_field(
+                    "Instrumentalness",
+                    format!("{:.0}%", audio_features.instrumentalness * 100.0),
+                    true,
+                )
+                .add_field("Liveness", format!("{:.0}%", audio_features.liveness * 100.0), true);
+        }
+
+        embed
     }
 
     pub fn format_supported_countries(self) -> Embed {

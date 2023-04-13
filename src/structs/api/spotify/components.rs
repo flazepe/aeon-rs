@@ -18,6 +18,31 @@ pub enum SpotifyAlbumType {
 }
 
 #[derive(Deserialize)]
+pub struct SpotifyAudioFeatures {
+    pub acousticness: f64,
+    pub analysis_url: String,
+    pub danceability: f64,
+    pub duration_ms: u64,
+    pub energy: f64,
+    pub id: String,
+    pub instrumentalness: f64,
+    pub key: u64,
+    pub liveness: f64,
+    pub loudness: f64,
+    pub mode: u64,
+    pub speechiness: f64,
+    pub tempo: f64,
+    pub time_signature: u64,
+    pub track_href: String,
+
+    #[serde(rename = "type")]
+    pub object_type: SpotifyObjectType,
+
+    pub uri: String,
+    pub valence: f64,
+}
+
+#[derive(Deserialize)]
 pub struct SpotifyCopyright {
     pub text: String,
 
@@ -59,13 +84,14 @@ pub struct SpotifyItems<T> {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum SpotifyObjectType {
     Artist,
     Playlist,
     Album,
     Show,
     Episode,
+    AudioFeatures,
 }
 
 #[derive(Deserialize)]
@@ -152,7 +178,7 @@ pub struct SpotifyTrackLink {
     pub id: String,
 
     #[serde(rename = "type")]
-    pub link_type: String, // it's always "track"
+    pub object_type: SpotifyObjectType,
 
     pub uri: String,
 }
