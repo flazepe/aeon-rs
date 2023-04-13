@@ -21,9 +21,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 match vndb.search_character(input.get_string_arg("character")?).await {
                     Ok(results) => results
                         .into_iter()
-                        .map(|mut result| {
-                            SelectOption::new(result.name, result.id).set_description(result.vns.remove(0).title)
-                        })
+                        .map(|result| SelectOption::new(result.name, result.id).set_description(&result.vns[0].title))
                         .collect::<Vec<SelectOption>>(),
                     Err(error) => {
                         res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
