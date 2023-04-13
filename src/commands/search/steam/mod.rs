@@ -1,9 +1,9 @@
 mod game;
 mod user;
 
-use slashook::{command, commands::Command};
 use slashook::{
-    commands::{CommandInput, CommandResponder},
+    command,
+    commands::{Command, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 

@@ -1,5 +1,7 @@
-use slashook::commands::{CommandInput, CommandResponder};
-use slashook::{command, commands::Command};
+use slashook::{
+    command,
+    commands::{Command, CommandInput, CommandResponder},
+};
 
 pub fn get_command() -> Command {
     #[command(name = "source", description = "Sends my source.")]

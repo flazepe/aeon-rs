@@ -4,9 +4,11 @@ use crate::{
     statics::{colors::PRIMARY_COLOR, emojis::ERROR_EMOJI, CACHE},
 };
 use anyhow::Context;
-use slashook::commands::{CommandInput, CommandResponder};
-use slashook::structs::embeds::Embed;
-use slashook::{command, commands::Command};
+use slashook::{
+    command,
+    commands::{Command, CommandInput, CommandResponder},
+    structs::embeds::Embed,
+};
 use sysinfo::{get_current_pid, ProcessExt, System, SystemExt};
 
 pub fn get_command() -> Command {
