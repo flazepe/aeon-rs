@@ -78,7 +78,7 @@ pub fn get_command() -> Command {
         match input
             .custom_id
             .as_deref()
-            .map_or(input.subcommand.as_deref().unwrap_or(""), |custom_id| custom_id)
+            .map_or_else(|| input.subcommand.as_deref().unwrap_or(""), |custom_id| custom_id)
         {
             "character" => character::run(input, res).await?,
             "tag" => tag::run(input, res).await?,
