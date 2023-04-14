@@ -62,7 +62,7 @@ impl SpotifyFullAlbum {
             .set_color(SPOTIFY_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(self.images.get(0).map_or(&"".into(), |image| &image.url))
-            .set_title(&self.name)
+            .set_title(if_else!(self.name.is_empty(), "N/A".into(), self.name.clone()))
             .set_url(&self.external_urls.spotify)
     }
 
