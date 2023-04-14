@@ -385,7 +385,7 @@ impl Steam {
     pub async fn search_game<T: Display>(query: T) -> Result<Vec<SteamSearchResult>> {
         let document = Document::from(
             &get(format!(
-                "https://store.steampowered.com/search/results?category1=998&term={query}" // category1=998 is games and softwares only
+                "https://store.steampowered.com/search/results?category1=998&term={query}" // category1=998 is games only
             ))
             .await?
             .text()
