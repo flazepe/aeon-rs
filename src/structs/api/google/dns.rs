@@ -1,12 +1,16 @@
 use crate::{
     macros::if_else,
-    statics::{colors::PRIMARY_COLOR, google::GOOGLE_DNS_CODES},
+    statics::{
+        colors::PRIMARY_COLOR,
+        google::{GOOGLE_DNS_CODES, GOOGLE_DNS_RECORD_TYPES},
+    },
     structs::api::google::Google,
 };
 use anyhow::{bail, Result};
 use reqwest::get;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 pub struct GoogleDNSRecord {
@@ -81,8 +85,13 @@ impl GoogleDNS {
 }
 
 impl Google {
-    pub async fn query_dns<T: ToString>(record_type: T, domain: T) -> Result<GoogleDNS> {
-        let record_type = record_type.to_string().to_uppercase();
+    pub async fn query_dns<T: Display>(record_type: T, domain: T) -> Result<GoogleDNS> {
+        let record_type = record_type.to_string();
+
+        if !GOOGLE_DNS_RECORD_TYPES.contains(&record_type.as_str()) {
+            bail!("Invalid record type.");
+        }
+
         let domain = domain
             .to_string()
             .to_lowercase()
@@ -90,10 +99,6 @@ impl Google {
             .replace("https://", "");
 
         let res = get(format!("https://dns.google/resolve?type={record_type}&name={domain}")).await?;
-
-        if res.status() != 200 {
-            bail!("Invalid record type.");
-        }
 
         let dns_response = res.json::<GoogleDNSQuery>().await?;
 

@@ -1,6 +1,11 @@
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 
+pub static GOOGLE_DNS_RECORD_TYPES: [&str; 20] = [
+    "A", "AAAA", "ALIAS", "CAA", "CNAME", "DNSKEY", "DS", "HTTPS", "IPSECKEY", "MX", "NAPTR", "NS", "PTR", "SOA",
+    "SPF", "SRV", "SSHFP", "SVCB", "TLSA", "TXT",
+];
+
 pub static GOOGLE_DNS_CODES: Lazy<HashMap<u64, &str>> = Lazy::new(|| {
     HashMap::from([
         (0, "NOERROR: DNS Query completed successfully."),

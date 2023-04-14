@@ -1,10 +1,11 @@
 mod dns;
 mod translate;
 
+use crate::statics::google::GOOGLE_DNS_RECORD_TYPES;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
-    structs::interactions::InteractionOptionType,
+    structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
 };
 
 pub fn get_command() -> Command {
@@ -20,11 +21,15 @@ pub fn get_command() -> Command {
 						name = "type",
 						description = "The record type, such as A, AAAA, MX, NS, PTR, etc.",
 						option_type = InteractionOptionType::STRING,
+						choices = GOOGLE_DNS_RECORD_TYPES
+							.iter()
+							.map(|record_type| ApplicationCommandOptionChoice::new(record_type, record_type.to_string()))
+							.collect::<Vec<ApplicationCommandOptionChoice>>(),
 						required = true,
 					},
 					{
-						name = "url",
-						description = "The URL",
+						name = "domain",
+						description = "The domain",
 						option_type = InteractionOptionType::STRING,
 						required = true,
 					},
