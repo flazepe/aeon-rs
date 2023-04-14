@@ -85,7 +85,7 @@ impl SpotifyFullAlbum {
                 if_else!(
                     matches!(self.release_date_precision, SpotifyReleaseDatePrecision::Day),
                     format_timestamp(
-                        NaiveDateTime::parse_from_str(&format!("{} 00:00:00", self.release_date), "%Y-%m-%d %H:%M:%S")
+                        NaiveDateTime::parse_from_str(&format!("{} 00:00", self.release_date), "%F %R")
                             .unwrap()
                             .timestamp(),
                         TimestampFormat::Full

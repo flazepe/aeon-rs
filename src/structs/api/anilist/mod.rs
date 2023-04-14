@@ -62,12 +62,12 @@ impl AniList {
                 dates.push(format_timestamp(
                     NaiveDateTime::parse_from_str(
                         &format!(
-                            "{}-{}-{} 00:00:00",
+                            "{}-{}-{} 00:00",
                             fuzzy_date.year.unwrap(),
                             fuzzy_date.month.unwrap(),
                             fuzzy_date.day.unwrap()
                         ),
-                        "%Y-%m-%d %H:%M:%S",
+                        "%F %R",
                     )
                     .unwrap()
                     .timestamp(),
