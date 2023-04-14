@@ -44,17 +44,13 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                         "{SUCCESS_EMOJI} Set timeout for {} for {duration}.",
                         user.mention()
                     ))
-                    .await?;
+                    .await?
                 },
-                Err(error) => {
-                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                },
+                Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
             }
         },
-        Err(error) => {
-            res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-        },
-    }
+        Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
+    };
 
     Ok(())
 }

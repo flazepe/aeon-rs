@@ -49,12 +49,8 @@ pub fn get_command() -> Command {
         )
         .await
         {
-            Ok(exchange_rate_conversion) => {
-                res.send_message(exchange_rate_conversion.format()).await?;
-            },
-            Err(error) => {
-                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-            },
+            Ok(exchange_rate_conversion) => res.send_message(exchange_rate_conversion.format()).await?,
+            Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
         };
     }
 

@@ -51,7 +51,7 @@ pub fn get_command() -> Command {
             "remove" => remove::run(input, res).await?,
             "set" => set::run(input, res).await?,
             _ => {},
-        }
+        };
     }
 
     timeout

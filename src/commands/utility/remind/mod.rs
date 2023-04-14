@@ -71,7 +71,7 @@ pub fn get_command() -> Command {
             "list" => list::run(input, res).await?,
             "set" => set::run(input, res).await?,
             _ => {},
-        }
+        };
     }
 
     remind

@@ -62,7 +62,7 @@ pub fn get_command() -> Command {
             "message" => message::run(input, res).await?,
             "reaction" => reaction::run(input, res).await?,
             _ => {},
-        }
+        };
     }
 
     snipe

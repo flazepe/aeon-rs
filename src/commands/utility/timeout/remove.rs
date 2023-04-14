@@ -22,12 +22,10 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     {
         Ok(_) => {
             res.send_message(format!("{SUCCESS_EMOJI} Removed timeout for {}.", user.mention()))
-                .await?;
+                .await?
         },
-        Err(error) => {
-            res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-        },
-    }
+        Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
+    };
 
     Ok(())
 }

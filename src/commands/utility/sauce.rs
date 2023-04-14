@@ -26,7 +26,7 @@ pub fn get_command() -> Command {
         let url = input.get_string_arg("image-url").ok().unwrap_or(
             input
                 .get_attachment_arg("image-attachment")
-                .map_or_else(|_| "".into(), |attachment| attachment.url.to_string()),
+                .map_or("".into(), |attachment| attachment.url.to_string()),
         );
 
         if url.is_empty() {
@@ -36,12 +36,8 @@ pub fn get_command() -> Command {
         }
 
         match SauceNAOSearch::query(url).await {
-            Ok(saucenao_search) => {
-                res.send_message(saucenao_search.format()).await?;
-            },
-            Err(error) => {
-                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-            },
+            Ok(saucenao_search) => res.send_message(saucenao_search.format()).await?,
+            Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
         };
     }
 

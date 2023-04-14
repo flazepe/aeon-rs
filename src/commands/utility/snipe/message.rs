@@ -12,13 +12,9 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     )
     .to_response()
     {
-        Ok(response) => {
-            res.send_message(response).await?;
-        },
-        Err(error) => {
-            res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-        },
-    }
+        Ok(response) => res.send_message(response).await?,
+        Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
+    };
 
     Ok(())
 }

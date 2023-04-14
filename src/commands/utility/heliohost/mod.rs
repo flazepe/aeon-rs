@@ -76,7 +76,7 @@ pub fn get_command() -> Command {
             "status" => status::run(input, res).await?,
             "uptime" => uptime::run(input, res).await?,
             _ => {},
-        }
+        };
     }
 
     heliohost

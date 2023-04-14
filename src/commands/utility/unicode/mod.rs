@@ -43,7 +43,7 @@ pub fn get_command() -> Command {
             "list" => list::run(input, res).await?,
             "search" => search::run(input, res).await?,
             _ => {},
-        }
+        };
     }
 
     unicode

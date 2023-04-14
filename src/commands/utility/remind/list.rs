@@ -39,20 +39,19 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         })
         .collect::<Vec<String>>();
 
-    if_else!(
-        entries.is_empty(),
-        res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} No reminders found.")).set_ephemeral(true))
-            .await?,
-        res.send_message(
+    res.send_message(
+        if_else!(
+            entries.is_empty(),
+            MessageResponse::from(format!("{ERROR_EMOJI} No reminders found.")),
             MessageResponse::from(
                 Embed::new()
                     .set_color(PRIMARY_COLOR)?
-                    .set_description(entries.join("\n\n")),
+                    .set_description(entries.join("\n\n"))
             )
-            .set_ephemeral(true),
         )
-        .await?,
-    );
+        .set_ephemeral(true),
+    )
+    .await?;
 
     Ok(())
 }

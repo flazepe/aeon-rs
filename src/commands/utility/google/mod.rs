@@ -61,7 +61,7 @@ pub fn get_command() -> Command {
             "dns" => dns::run(input, res).await?,
             "translate" => translate::run(input, res).await?,
             _ => {},
-        }
+        };
     }
 
     remind

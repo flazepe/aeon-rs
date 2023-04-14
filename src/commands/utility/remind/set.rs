@@ -62,8 +62,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         return Ok(());
     }
 
-    let dm = input.message.as_ref().map_or_else(
-        || false,
+    let dm = input.message.as_ref().map_or(
+        false,
         // DM if select menu's message was from an interaction
         |message| message.interaction.is_some(),
     ) || input.guild_id.is_none()
@@ -79,7 +79,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let reminder = {
         let mut reminder = input.get_string_arg("reminder").unwrap_or("Do something".into());
 
-        if input.values.is_some() {
+        if input.is_string_select() {
             if let Some(parsed_reminder) =
                 || -> Option<&String> { input.message.as_ref()?.embeds.get(0)?.description.as_ref() }()
             {
