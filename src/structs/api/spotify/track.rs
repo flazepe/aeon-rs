@@ -71,6 +71,7 @@ impl SpotifyFullTrack {
 
     pub fn format(self) -> Embed {
         self._format()
+            .set_image(Spotify::generate_scannable(&self.uri))
             .add_field(
                 "Artist",
                 self.artists
@@ -100,7 +101,6 @@ impl SpotifyFullTrack {
                 false,
             )
             .add_field("Popularity", format!("{FIRE_EMOJI} {}%", self.popularity), false)
-            .set_image(Spotify::generate_scannable(&self.uri))
     }
 
     pub fn format_audio_features(self) -> Embed {

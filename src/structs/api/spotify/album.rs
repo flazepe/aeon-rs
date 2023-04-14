@@ -68,6 +68,7 @@ impl SpotifyFullAlbum {
 
     pub fn format(self) -> Embed {
         self._format()
+            .set_image(Spotify::generate_scannable(&self.uri))
             .add_field(
                 "Artist",
                 self.artists
@@ -133,7 +134,6 @@ impl SpotifyFullAlbum {
                     .join("\n"),
                 false,
             )
-            .set_image(Spotify::generate_scannable(&self.uri))
     }
 
     pub fn format_tracks(self) -> Embed {
