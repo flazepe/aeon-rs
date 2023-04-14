@@ -6,6 +6,10 @@ use twilight_gateway::{
     Config as TwilightConfig, Intents,
 };
 use twilight_http::Client as TwilightClient;
+use twilight_model::gateway::{
+    payload::outgoing::{identify::IdentifyProperties, update_presence::UpdatePresencePayload},
+    presence::Status,
+};
 
 pub struct GatewayClient {
     client: TwilightClient,
@@ -21,10 +25,16 @@ impl GatewayClient {
     pub async fn create_shards(self) -> Result<()> {
         let mut shards = create_recommended(
             &self.client,
-            TwilightConfig::new(
+            TwilightConfig::builder(
                 CONFIG.bot.token.clone(),
                 Intents::GUILDS | Intents::GUILD_MESSAGE_REACTIONS | Intents::GUILD_MESSAGES | Intents::MESSAGE_CONTENT,
-            ),
+            )
+            .identify_properties(IdentifyProperties {
+                browser: "Discord Android".into(),
+                device: "Google Pixel 7 Pro".into(),
+                os: "Android 14".into(),
+            })
+            .build(),
             |_, builder| builder.build(),
         )
         .await?
