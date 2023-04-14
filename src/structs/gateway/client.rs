@@ -6,10 +6,7 @@ use twilight_gateway::{
     Config as TwilightConfig, Intents,
 };
 use twilight_http::Client as TwilightClient;
-use twilight_model::gateway::{
-    payload::outgoing::{identify::IdentifyProperties, update_presence::UpdatePresencePayload},
-    presence::Status,
-};
+use twilight_model::gateway::payload::outgoing::identify::IdentifyProperties;
 
 pub struct GatewayClient {
     client: TwilightClient,
