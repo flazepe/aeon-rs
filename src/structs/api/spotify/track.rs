@@ -173,7 +173,7 @@ impl SpotifyFullTrack {
         embed
     }
 
-    pub fn format_supported_countries(self) -> Embed {
+    pub fn format_available_countries(self) -> Embed {
         self._format().set_description(
             self.available_markets
                 .unwrap_or(vec![])

@@ -66,7 +66,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                     vec![
                         SelectOption::new("Overview", format!("{}", album.id)),
                         SelectOption::new("Songs", format!("{}/songs", album.id)),
-                        SelectOption::new("Supported Countries", format!("{}/supported-countries", album.id)),
+                        SelectOption::new("Available Countries", format!("{}/available-countries", album.id)),
                     ],
                     Some(&section),
                 )
@@ -74,7 +74,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             )
             .add_embed(match section.as_str() {
                 "songs" => album.format_tracks(),
-                "supported-countries" => album.format_supported_countries(),
+                "available-countries" => album.format_available_countries(),
                 _ => album.format(),
             }),
         )
