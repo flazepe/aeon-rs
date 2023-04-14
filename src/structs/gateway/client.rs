@@ -26,11 +26,11 @@ impl GatewayClient {
                 CONFIG.bot.token.clone(),
                 Intents::GUILDS | Intents::GUILD_MESSAGE_REACTIONS | Intents::GUILD_MESSAGES | Intents::MESSAGE_CONTENT,
             )
-            .identify_properties(IdentifyProperties {
-                browser: "Discord Android".into(),
-                device: "Google Pixel 7 Pro".into(),
-                os: "Android 14".into(),
-            })
+            .identify_properties(IdentifyProperties::new(
+                "Discord Android",
+                "Google Pixel 7 Pro",
+                "Android 14",
+            ))
             .build(),
             |_, builder| builder.build(),
         )
