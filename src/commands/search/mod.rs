@@ -1,5 +1,5 @@
 mod anilist;
-mod distro;
+mod distrowatch;
 mod jisho;
 mod spotify;
 mod steam;
@@ -12,7 +12,7 @@ use slashook::commands::Command;
 pub fn get_commands() -> Vec<Command> {
     vec![
         anilist::get_command(),
-        distro::get_command(),
+        distrowatch::get_command(),
         jisho::get_command(),
         spotify::get_command(),
         steam::get_command(),

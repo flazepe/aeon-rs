@@ -7,8 +7,8 @@ use slashook::{
 
 pub fn get_command() -> Command {
     #[command(
-        name = "distro",
-        description = "Fetches a distribution information.",
+        name = "distrowatch",
+        description = "Fetches a distribution from distrowatch.",
         options = [
             {
                 name = "distro",
