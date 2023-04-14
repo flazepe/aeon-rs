@@ -7,9 +7,10 @@ A Discord bot written in Rust using [Slashook](https://github.com/tonkku107/slas
 ### Search
 
 -   [AniList](https://anilist.co/) anime, manga, and user lookup
--   Distro lookup
+-   [Distrowatch](https://distrowatch.com/) distribution lookup
 -   [Jisho](https://jisho.org/) dictionary lookup
--   [Steam](https://steamcommunity.com/) user lookup
+-   [Spotify](https://open.spotify.com/) song and album lookup
+-   [Steam](https://steamcommunity.com/) user and game lookup
 -   Stock lookup
 -   Time and date lookup for any location
 -   [vndb](https://vndb.org/) visual novels, characters, tags, and traits lookup
