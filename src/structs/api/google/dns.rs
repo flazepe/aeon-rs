@@ -1,6 +1,7 @@
 use crate::{
     macros::if_else,
     statics::{colors::PRIMARY_COLOR, google::GOOGLE_DNS_CODES},
+    structs::api::google::Google,
 };
 use anyhow::{bail, Result};
 use reqwest::get;
@@ -62,7 +63,25 @@ pub struct GoogleDNS {
 }
 
 impl GoogleDNS {
-    pub async fn query<T: ToString>(record_type: T, domain: T) -> Result<Self> {
+    pub fn format(self) -> Embed {
+        Embed::new()
+            .set_color(PRIMARY_COLOR)
+            .unwrap_or_default()
+            .set_title(format!("{} records for {}", self.record_type, self.domain))
+            .set_description(format!(
+                "{}```diff\n{}```",
+                self.comment.unwrap_or("".into()),
+                self.records
+                    .iter()
+                    .map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl))
+                    .collect::<Vec<String>>()
+                    .join("\n")
+            ))
+    }
+}
+
+impl Google {
+    pub async fn query_dns<T: ToString>(record_type: T, domain: T) -> Result<GoogleDNS> {
         let record_type = record_type.to_string().to_uppercase();
         let domain = domain
             .to_string()
@@ -89,28 +108,12 @@ impl GoogleDNS {
         if_else!(
             records.is_empty(),
             bail!("No DNS records found."),
-            Ok(Self {
+            Ok(GoogleDNS {
                 domain: domain.to_string(),
                 record_type,
                 comment: dns_response.comment,
                 records,
             }),
         )
-    }
-
-    pub fn format(self) -> Embed {
-        Embed::new()
-            .set_color(PRIMARY_COLOR)
-            .unwrap_or_default()
-            .set_title(format!("{} records for {}", self.record_type, self.domain))
-            .set_description(format!(
-                "{}```diff\n{}```",
-                self.comment.unwrap_or("".into()),
-                self.records
-                    .iter()
-                    .map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl))
-                    .collect::<Vec<String>>()
-                    .join("\n")
-            ))
     }
 }

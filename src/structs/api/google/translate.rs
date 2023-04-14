@@ -1,6 +1,7 @@
 use crate::{
     macros::if_else,
     statics::{colors::PRIMARY_COLOR, google::GOOGLE_TRANSLATE_LANGUAGES},
+    structs::api::google::Google,
 };
 use anyhow::{bail, Context, Result};
 use reqwest::get;
@@ -19,18 +20,28 @@ pub struct GoogleTranslateResponse {
     pub src: String,
 }
 
-pub struct GoogleTranslate {
+pub struct GoogleTranslateTranslation {
     pub origin_language: String,
     pub target_language: String,
     pub translation: String,
 }
 
-impl GoogleTranslate {
+impl GoogleTranslateTranslation {
+    pub fn format(self) -> Embed {
+        Embed::new()
+            .set_color(PRIMARY_COLOR)
+            .unwrap_or_default()
+            .set_title(format!("{} to {}", self.origin_language, self.target_language))
+            .set_description(self.translation)
+    }
+}
+
+impl Google {
     pub async fn translate<T: ToString, U: ToString, V: ToString>(
         text: T,
         origin_language: U,
         target_language: V,
-    ) -> Result<Self> {
+    ) -> Result<GoogleTranslateTranslation> {
         let text = text.to_string();
         let origin_language = origin_language.to_string();
         let target_language = target_language.to_string();
@@ -55,7 +66,7 @@ impl GoogleTranslate {
         .json::<GoogleTranslateResponse>()
         .await?;
 
-        Ok(Self {
+        Ok(GoogleTranslateTranslation {
             origin_language: format!(
                 "{}{}",
                 GOOGLE_TRANSLATE_LANGUAGES
@@ -74,13 +85,5 @@ impl GoogleTranslate {
                 .take(4000)
                 .collect::<String>(),
         })
-    }
-
-    pub fn format(self) -> Embed {
-        Embed::new()
-            .set_color(PRIMARY_COLOR)
-            .unwrap_or_default()
-            .set_title(format!("{} to {}", self.origin_language, self.target_language))
-            .set_description(self.translation)
     }
 }
