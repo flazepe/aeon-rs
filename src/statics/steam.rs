@@ -2,8 +2,6 @@ use crate::structs::api::steam::country::SteamCountry;
 use std::collections::HashMap;
 use once_cell::sync::Lazy;
 
-pub static STEAM_API_ENDPOINT: &str = "http://api.steampowered.com/ISteamUser";
-
 pub static STEAM_EMBED_COLOR: &str = "#377096";
 
 pub static STEAM_COUNTRIES: Lazy<HashMap<&str, SteamCountry>> = Lazy::new(|| HashMap::from([

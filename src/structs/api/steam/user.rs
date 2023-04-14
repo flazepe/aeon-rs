@@ -1,14 +1,10 @@
 use crate::{
     functions::{format_timestamp, TimestampFormat},
     macros::{if_else, plural, yes_no},
-    statics::{
-        steam::{STEAM_API_ENDPOINT, STEAM_COUNTRIES, STEAM_EMBED_COLOR, STEAM_USER_STATES},
-        CONFIG,
-    },
-    structs::api::steam::{user_bans::SteamUserBans, user_vanity::SteamUserVanity},
+    statics::steam::{STEAM_COUNTRIES, STEAM_EMBED_COLOR, STEAM_USER_STATES},
+    structs::api::steam::{user_bans::SteamUserBans, Steam},
 };
 use anyhow::{Context, Result};
-use reqwest::get;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 
@@ -84,43 +80,7 @@ pub struct SteamUser {
     pub bans: Option<SteamUserBans>,
 }
 
-#[derive(Deserialize)]
-struct SteamUsers {
-    players: Vec<SteamUser>,
-}
-
-#[derive(Deserialize)]
-struct SteamResponse<T> {
-    response: T,
-}
-
 impl SteamUser {
-    pub async fn get<T: ToString>(id: T) -> Result<Self> {
-        let mut id = id.to_string();
-
-        if !id.chars().into_iter().all(|char| char.is_numeric()) {
-            id = SteamUserVanity::get(&id).await?;
-        }
-
-        let mut user = get(format!(
-            "{STEAM_API_ENDPOINT}/GetPlayerSummaries/v0002/?key={}&steamids={id}",
-            CONFIG.api.steam_key
-        ))
-        .await?
-        .json::<SteamResponse<SteamUsers>>()
-        .await?
-        .response
-        .players
-        .into_iter()
-        .next()
-        .context("User not found.")?;
-
-        // Get user bans
-        user.bans = SteamUserBans::get(&user.id).await.ok();
-
-        Ok(user)
-    }
-
     pub fn format(self) -> Embed {
         let mut vanity = self.profile_url.clone();
 
@@ -212,5 +172,38 @@ impl SteamUser {
         }
 
         embed
+    }
+}
+
+#[derive(Deserialize)]
+struct SteamUsers {
+    players: Vec<SteamUser>,
+}
+
+#[derive(Deserialize)]
+struct SteamUsersResponse {
+    response: SteamUsers,
+}
+
+impl Steam {
+    pub async fn get_user<T: ToString>(id: T) -> Result<SteamUser> {
+        let mut id = id.to_string();
+
+        if !id.chars().into_iter().all(|char| char.is_numeric()) {
+            id = Steam::get_user_vanity(&id).await?;
+        }
+
+        let mut user = Steam::query::<_, _, SteamUsersResponse>("GetPlayerSummaries/v0002/", format!("steamids={id}"))
+            .await?
+            .response
+            .players
+            .into_iter()
+            .next()
+            .context("User not found.")?;
+
+        // Get user bans
+        user.bans = Steam::get_user_bans(&user.id).await.ok();
+
+        Ok(user)
     }
 }

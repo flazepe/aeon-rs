@@ -1,6 +1,5 @@
-use crate::statics::{steam::STEAM_API_ENDPOINT, CONFIG};
+use crate::structs::api::steam::Steam;
 use anyhow::{Context, Result};
-use reqwest::get;
 use serde::Deserialize;
 use std::fmt::Display;
 
@@ -13,21 +12,18 @@ pub struct SteamUserVanity {
 }
 
 #[derive(Deserialize)]
-struct SteamResponse<T> {
-    response: T,
+struct SteamUserVanityResponse {
+    response: SteamUserVanity,
 }
 
-impl SteamUserVanity {
-    pub async fn get<T: Display>(player: T) -> Result<String> {
-        Ok(get(format!(
-            "{STEAM_API_ENDPOINT}/ResolveVanityURL/v0001/?key={}&vanityurl={player}",
-            CONFIG.api.steam_key
-        ))
-        .await?
-        .json::<SteamResponse<SteamUserVanity>>()
-        .await?
-        .response
-        .id
-        .context("Invalid user vanity.")?)
+impl Steam {
+    pub async fn get_user_vanity<T: Display>(player: T) -> Result<String> {
+        Ok(
+            Steam::query::<_, _, SteamUserVanityResponse>("ResolveVanityURL/v0001/", format!("vanityurl={player}"))
+                .await?
+                .response
+                .id
+                .context("Invalid user vanity.")?,
+        )
     }
 }

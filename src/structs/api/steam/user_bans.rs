@@ -1,6 +1,5 @@
-use crate::statics::{steam::STEAM_API_ENDPOINT, CONFIG};
+use crate::structs::api::steam::Steam;
 use anyhow::{Context, Result};
-use reqwest::get;
 use serde::Deserialize;
 use std::fmt::Display;
 
@@ -25,22 +24,19 @@ pub struct SteamUserBans {
 }
 
 #[derive(Deserialize)]
-struct SteamResponse<T> {
-    players: Vec<T>,
+struct SteamUserBansResponse {
+    players: Vec<SteamUserBans>,
 }
 
-impl SteamUserBans {
-    pub async fn get<T: Display>(id: T) -> Result<Self> {
-        Ok(get(format!(
-            "{STEAM_API_ENDPOINT}/GetPlayerBans/v1/?key={}&steamids={id}",
-            CONFIG.api.steam_key
-        ))
-        .await?
-        .json::<SteamResponse<SteamUserBans>>()
-        .await?
-        .players
-        .into_iter()
-        .next()
-        .context("User not found.")?)
+impl Steam {
+    pub async fn get_user_bans<T: Display>(id: T) -> Result<SteamUserBans> {
+        Ok(
+            Steam::query::<_, _, SteamUserBansResponse>("GetPlayerBans/v1/", format!("steamids={id}"))
+                .await?
+                .players
+                .into_iter()
+                .next()
+                .context("User not found.")?,
+        )
     }
 }
