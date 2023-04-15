@@ -518,10 +518,9 @@ impl VndbVisualNovel {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.image.as_ref().map_or_else(
-                || "".into(),
-                |image| if_else!(image.sexual > 1.0, "".into(), image.url.to_string()),
-            ))
+            .set_thumbnail(self.image.as_ref().map_or("".into(), |image| {
+                if_else!(image.sexual > 1.0, "".into(), image.url.to_string())
+            }))
             .set_title(format!(
                 "{} ({})",
                 self.title.chars().take(240).collect::<String>(),

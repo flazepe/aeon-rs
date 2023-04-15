@@ -6,7 +6,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     match Snipes::new(
         input
             .get_channel_arg("channel")
-            .map_or_else(|_| input.channel_id.as_ref().unwrap(), |channel| &channel.id),
+            .map_or(input.channel_id.as_ref().unwrap(), |channel| &channel.id),
         input.get_bool_arg("edit")?,
         input.get_bool_arg("list")?,
     )

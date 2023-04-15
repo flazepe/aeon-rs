@@ -122,10 +122,9 @@ impl VndbCharacter {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.image.as_ref().map_or_else(
-                || "".into(),
-                |image| if_else!(image.sexual > 1.0, "".into(), image.url.clone()),
-            ))
+            .set_thumbnail(self.image.as_ref().map_or("".into(), |image| {
+                if_else!(image.sexual > 1.0, "".into(), image.url.clone())
+            }))
             .set_title(self.name.chars().take(256).collect::<String>())
             .set_url(format!("https://vndb.org/{}", self.id))
     }
