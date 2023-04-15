@@ -600,10 +600,10 @@ impl VndbVisualNovel {
             self.tags
                 .into_iter()
                 .map(|tag| {
-                    format!(
-                        "[{}](https://vndb.org/{})",
-                        if_else!(tag.spoiler > 1.0, format!("||{}||", tag.name), tag.name),
-                        tag.id
+                    if_else!(
+                        tag.spoiler > 1.0,
+                        format!("||[{}](https://vndb.org/{})||", tag.name, tag.id),
+                        format!("[{}](https://vndb.org/{})", tag.name, tag.id)
                     )
                 })
                 .collect::<Vec<String>>()
