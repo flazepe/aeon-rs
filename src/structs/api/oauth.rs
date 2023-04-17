@@ -62,20 +62,12 @@ impl OAuth {
     }
 
     pub async fn get_token(self) -> Result<String> {
-        let mut tokens = self
-            .oauth
-            .find(doc! { "_id": &self.name }, None)
-            .await?
-            .try_collect::<Vec<OauthToken>>()
-            .await?;
-
-        Ok(match tokens.len() > 0 {
-            true => {
-                let token = tokens.remove(0);
-                if_else!(token.expires_at > self.timestamp, token, self.generate_token().await?)
+        Ok(
+            if let Some(token) = self.oauth.find_one(doc! { "_id": &self.name }, None).await? {
+                if_else!(token.expires_at > self.timestamp, token, self.generate_token().await?).token
+            } else {
+                self.generate_token().await?.token
             },
-            false => self.generate_token().await?,
-        }
-        .token)
+        )
     }
 }
