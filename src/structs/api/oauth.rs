@@ -1,6 +1,5 @@
 use crate::{macros::if_else, statics::MONGODB};
 use anyhow::Result;
-use futures::stream::TryStreamExt;
 use mongodb::{
     bson::{doc, to_document},
     options::UpdateOptions,
