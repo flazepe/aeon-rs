@@ -70,13 +70,9 @@ pub fn get_command() -> Command {
                 .run()
                 .await
             {
-                Ok(tio) => {
-                    res.send_message(tio.format()).await?;
-                },
-                Err(error) => {
-                    res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
-                },
-            }
+                Ok(tio) => res.send_message(tio.format()).await?,
+                Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
+            };
         } else {
             res.open_modal(
                 Modal::new("code", "modal", "enter code").set_components(
