@@ -7,8 +7,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         input
             .get_channel_arg("channel")
             .map_or(input.channel_id.as_ref().unwrap(), |channel| &channel.id),
-        input.get_bool_arg("edit")?,
-        input.get_bool_arg("list")?,
+        input.get_bool_arg("edit").unwrap_or(false),
+        input.get_bool_arg("list").unwrap_or(false),
     )
     .to_response()
     {

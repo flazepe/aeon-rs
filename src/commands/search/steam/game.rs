@@ -11,7 +11,7 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    if input.get_bool_arg("search")? {
+    if input.get_bool_arg("search").unwrap_or(false) {
         res.send_message(
             SelectMenu::new(
                 "steam",

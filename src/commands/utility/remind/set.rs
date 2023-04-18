@@ -67,7 +67,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         // DM if select menu's message was from an interaction
         |message| message.interaction.is_some(),
     ) || input.guild_id.is_none()
-        || input.get_bool_arg("dm")?;
+        || input.get_bool_arg("dm").unwrap_or(false);
 
     if interval.total_secs > 0 && !dm {
         res.send_message(format!("{ERROR_EMOJI} Intervals are only supported for DMs."))

@@ -44,8 +44,9 @@ impl ArgGetters for CommandInput {
         Ok(self
             .args
             .get(&arg.to_string())
-            .and_then(|arg| arg.as_bool())
-            .unwrap_or(false))
+            .context("Could not get arg.")?
+            .as_bool()
+            .context("Could not convert arg to bool.")?)
     }
 
     fn get_user_arg<T: ToString>(&self, arg: T) -> Result<&User> {
