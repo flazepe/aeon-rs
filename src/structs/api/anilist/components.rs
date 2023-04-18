@@ -26,13 +26,13 @@ pub struct AniListMediaResponse<T> {
 
 // Edges and nodes
 #[derive(Deserialize)]
-pub struct AniListNodes<T> {
-    pub nodes: Vec<T>,
+pub struct AniListEdges<T> {
+    pub edges: Vec<T>,
 }
 
 #[derive(Deserialize)]
-pub struct AniListEdges<T> {
-    pub edges: Vec<T>,
+pub struct AniListNodes<T> {
+    pub nodes: Vec<T>,
 }
 
 // Character
