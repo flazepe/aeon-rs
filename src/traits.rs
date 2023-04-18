@@ -140,6 +140,12 @@ pub trait Tag {
     fn tag(&self) -> String;
 }
 
+impl Tag for User {
+    fn tag(&self) -> String {
+        format!("{}#{}", self.username, self.discriminator)
+    }
+}
+
 impl Tag for TwilightUser {
     fn tag(&self) -> String {
         format!("{}#{}", self.name, self.discriminator())
