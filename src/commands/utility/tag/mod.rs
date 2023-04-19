@@ -7,13 +7,13 @@ mod toggle_alias;
 mod toggle_nsfw;
 mod view;
 
-use crate::{functions::hashmap_autocomplete, structs::tags::Tags};
+use crate::structs::tags::Tags;
+use anyhow::Context;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
-    structs::interactions::InteractionOptionType,
+    structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
 };
-use std::collections::HashMap;
 
 pub fn get_command() -> Command {
     #[command(
@@ -135,22 +135,26 @@ pub fn get_command() -> Command {
     )]
     async fn tag(input: CommandInput, res: CommandResponder) {
         if input.is_autocomplete() {
-            let guild_id = input.guild_id.as_ref().unwrap().clone();
+            let value = input
+                .args
+                .get(&input.focused.context("Missing focused arg.")?)
+                .context("Could not get focused arg.")?
+                .as_string()
+                .context("Could not convert focused arg to String.")?
+                .to_lowercase();
 
-            return hashmap_autocomplete(
-                input,
-                res,
-                (HashMap::from_iter(
+            return res
+                .autocomplete(
                     Tags::new()
-                        .search(guild_id, None::<String>)
+                        .search(input.guild_id.unwrap(), None::<String>)
                         .await
                         .unwrap_or(vec![])
                         .iter()
-                        .map(|tag| (tag.name.clone(), tag.name.clone())),
-                ) as HashMap<String, String>)
-                    .iter(),
-            )
-            .await?;
+                        .filter(|tag| format!("{}{}", tag.name, tag.content).to_lowercase().contains(&value))
+                        .map(|tag| ApplicationCommandOptionChoice::new(&tag.name, tag.name.clone()))
+                        .collect::<Vec<ApplicationCommandOptionChoice>>(),
+                )
+                .await?;
         }
 
         match input
