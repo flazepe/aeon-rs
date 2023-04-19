@@ -42,23 +42,7 @@ pub fn get_command() -> Command {
             },
 			{
                 name = "create",
-                description = "Creates a new server tag.",	
-                options = [
-                    {
-                        name = "tag",
-                        description = "The tag",
-                        option_type = InteractionOptionType::STRING,
-                        max_length = 30,
-						required = true,
-                    },
-					{
-                        name = "content",
-                        description = "The tag content",
-                        option_type = InteractionOptionType::STRING,
-                        max_length = 1000,
-						required = true,
-                    },
-                ],
+                description = "Creates a new server tag.",
             },
 			{
                 name = "delete",
@@ -85,23 +69,6 @@ pub fn get_command() -> Command {
                         max_length = 30,
 						autocomplete = true,
 						required = true,
-                    },
-                    {
-                        name = "name",
-                        description = "The new tag name",
-                        option_type = InteractionOptionType::STRING,
-                        max_length = 30,
-                    },
-					{
-                        name = "content",
-                        description = "The new tag content",
-                        option_type = InteractionOptionType::STRING,
-                        max_length = 1000,
-                    },
-                    {
-                        name = "nsfw",
-                        description = "Whether the tag is NSFW",
-                        option_type = InteractionOptionType::BOOLEAN,
                     },
                 ],
             },
@@ -176,7 +143,11 @@ pub fn get_command() -> Command {
             .await?;
         }
 
-        match input.subcommand.as_deref().unwrap_or("") {
+        match input
+            .custom_id
+            .as_deref()
+            .unwrap_or_else(|| input.subcommand.as_deref().unwrap_or(""))
+        {
             "alias" => alias::run(input, res).await?,
             "create" => create::run(input, res).await?,
             "delete" => delete::run(input, res).await?,
