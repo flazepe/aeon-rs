@@ -33,7 +33,11 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         )
         .await?;
     } else {
-        match tags.get(input.get_string_arg("tag")?, input.guild_id.unwrap()).await {
+        match tags
+            .get(input.get_string_arg("tag")?, input.guild_id.unwrap())
+            .await
+            .and_then(|tag| Tags::validate_tag_modifier(tag, input.member.unwrap()))
+        {
             Ok(tag) => {
                 res.open_modal(
                     Modal::new("tag", "edit", "Edit Tag").set_components(
