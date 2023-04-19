@@ -81,9 +81,12 @@ impl Tags {
         guild_id: U,
         author_id: V,
         content: W,
-        modifier_permissions: Permissions,
+        modifier: GuildMember,
     ) -> Result<String> {
-        if !modifier_permissions.contains(Permissions::MANAGE_MESSAGES)
+        if !modifier
+            .permissions
+            .unwrap_or(Permissions::empty())
+            .contains(Permissions::MANAGE_MESSAGES)
             && author_id.to_string() != "590455379931037697".to_string()
         {
             bail!("Only members with the Manage Messages permission can create tags.");
@@ -156,28 +159,31 @@ impl Tags {
         &self,
         name: T,
         guild_id: U,
-        new_name: Option<V>,
-        content: Option<W>,
-        nsfw: Option<bool>,
+        new_name: V,
+        content: W,
         modifier: GuildMember,
     ) -> Result<String> {
         let tag = Tags::validate_tag_modifier(self.get(name, guild_id).await?, modifier)?;
 
-        if new_name.is_some() || content.is_some() || nsfw.is_some() {
-            let new_name = {
-                if let Some(new_name) = new_name {
-                    let new_name = Tags::validate_tag_name(new_name)?;
+        let name = {
+            let new_name = new_name.to_string();
 
-                    if self.get(&new_name, guild_id).await.is_ok() {
-                        bail!("Tag with that new name already exists.");
-                    }
+            if new_name.is_empty() {
+                tag.name.clone()
+            } else {
+                let new_name = Tags::validate_tag_name(new_name)?;
 
-                    new_name
-                } else {
-                    tag.name.clone()
+                if self.get(&new_name, guild_id).await.is_ok() {
+                    bail!("Tag with that new name already exists.");
                 }
-            };
 
+                new_name
+            }
+        };
+
+        let content = content.to_string();
+
+        if name != tag.name || content != tag.content {
             self.tags
                 .update_one(
                     doc! {
@@ -186,9 +192,8 @@ impl Tags {
                     },
                     doc! {
                         "$set": {
-                            "name": new_name,
-                            "content": content.map_or(tag.content, |content| content.to_string()),
-                            "nsfw": nsfw.unwrap_or(tag.nsfw),
+                            "name": name,
+                            "content": content,
                         },
                     },
                     None,
@@ -197,7 +202,7 @@ impl Tags {
 
             Ok("Edited.".into())
         } else {
-            bail!("No changes detected.")
+            bail!("No changes detected.");
         }
     }
 
@@ -251,6 +256,34 @@ impl Tags {
             format!("Added `{}` to `{}` alias.", alias, tag.name),
             format!("Removed `{}` from `{}` alias.", alias, tag.name)
         ))
+    }
+
+    pub async fn toggle_nsfw<T: ToString, U: ToString>(
+        &self,
+        name: T,
+        guild_id: U,
+        modifier: GuildMember,
+    ) -> Result<String> {
+        let tag = Tags::validate_tag_modifier(self.get(name, guild_id).await?, modifier)?;
+        let nsfw = !tag.nsfw;
+
+        self.tags
+            .update_one(
+                doc! {
+                    "name": &tag.name,
+                    "guild_id": tag.guild_id,
+                },
+                doc! {
+                    "$set": {
+                        "nsfw": nsfw,
+                        "updated_timestamp": SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64,
+                    },
+                },
+                None,
+            )
+            .await?;
+
+        Ok(format!("Set tag `{}` as {}NSFW.", tag.name, if_else!(nsfw, "", "non-")))
     }
 
     fn validate_tag_name<T: ToString>(name: T) -> Result<String> {
