@@ -146,7 +146,7 @@ impl Tags {
             .delete_one(
                 doc! {
                     "name": tag.name,
-                    "guild_id": tag.guild_id
+                    "guild_id": tag.guild_id,
                 },
                 None,
             )
@@ -188,7 +188,7 @@ impl Tags {
                 .update_one(
                     doc! {
                         "name": tag.name,
-                        "guild_id": tag.guild_id
+                        "guild_id": tag.guild_id,
                     },
                     doc! {
                         "$set": {
