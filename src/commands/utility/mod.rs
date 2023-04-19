@@ -9,6 +9,7 @@ mod remind_message;
 mod sauce;
 mod snipe;
 mod snipe_message_reactions;
+mod tag;
 mod timeout;
 mod unicode;
 mod unicode_message;
@@ -28,6 +29,7 @@ pub fn get_commands() -> Vec<Command> {
         sauce::get_command(),
         snipe::get_command(),
         snipe_message_reactions::get_command(),
+        tag::get_command(),
         timeout::get_command(),
         unicode::get_command(),
         unicode_message::get_command(),
