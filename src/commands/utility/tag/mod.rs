@@ -4,6 +4,7 @@ mod delete;
 mod edit;
 mod list;
 mod meta;
+mod nsfw;
 mod view;
 
 use crate::{functions::hashmap_autocomplete, structs::tags::Tags};
@@ -103,6 +104,20 @@ pub fn get_command() -> Command {
                 ],
             },
             {
+                name = "nsfw",
+                description = "Toggles a tag's NSFW state.",
+                options = [
+                    {
+                        name = "tag",
+                        description = "The tag",
+                        option_type = InteractionOptionType::STRING,
+                        max_length = 30,
+						autocomplete = true,
+						required = true,
+                    },
+                ],
+            },
+            {
                 name = "view",
                 description = "Sends a server tag.",
                 options = [
@@ -154,6 +169,7 @@ pub fn get_command() -> Command {
             "edit" => edit::run(input, res).await?,
             "list" => list::run(input, res).await?,
             "meta" => meta::run(input, res).await?,
+            "nsfw" => nsfw::run(input, res).await?,
             "view" => view::run(input, res).await?,
             _ => {},
         };
