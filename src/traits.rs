@@ -100,6 +100,22 @@ pub trait AvatarURL {
     fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String;
 }
 
+impl AvatarURL for User {
+    fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String> {
+        self.avatar_url(format, size)
+    }
+
+    fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String {
+        match self.avatar_url(format, size) {
+            Some(avatar_url) => avatar_url,
+            None => format!(
+                "https://cdn.discordapp.com/embed/avatars/{}.png",
+                self.discriminator.parse::<u64>().unwrap() % 5,
+            ),
+        }
+    }
+}
+
 impl AvatarURL for TwilightUser {
     fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String> {
         self.avatar.as_ref().map(|a| {
