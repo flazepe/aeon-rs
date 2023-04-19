@@ -290,6 +290,19 @@ impl Tags {
         ))
     }
 
+    pub fn validate_tag_modifier(tag: Tag, member: GuildMember) -> Result<Tag> {
+        if tag.author_id != member.user.map_or("".into(), |user| user.id)
+            && !member
+                .permissions
+                .unwrap_or(Permissions::empty())
+                .contains(Permissions::MANAGE_MESSAGES)
+        {
+            bail!("You're not the author of that tag. Only tag authors and members with the Manage Messages permission can update or delete tags.");
+        }
+
+        Ok(tag)
+    }
+
     fn validate_tag_name<T: ToString>(name: T) -> Result<String> {
         let name = name.to_string().to_lowercase();
 
@@ -303,18 +316,5 @@ impl Tags {
         }
 
         Ok(name)
-    }
-
-    fn validate_tag_modifier(tag: Tag, member: GuildMember) -> Result<Tag> {
-        if tag.author_id != member.user.map_or("".into(), |user| user.id)
-            && !member
-                .permissions
-                .unwrap_or(Permissions::empty())
-                .contains(Permissions::MANAGE_MESSAGES)
-        {
-            bail!("You're not the author of that tag. Only tag authors and members with the Manage Messages permission can update or delete tags.");
-        }
-
-        Ok(tag)
     }
 }
