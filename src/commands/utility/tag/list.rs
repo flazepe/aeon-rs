@@ -28,7 +28,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                         tags.iter()
                             .filter(|tag| {
                                 format!("{}{}", tag.name, tag.content)
-                                    .contains(&input.get_string_arg("query").unwrap_or("".into()))
+                                    .to_lowercase()
+                                    .contains(&input.get_string_arg("query").unwrap_or("".into()).to_lowercase())
                             })
                             .map(|tag| format!("`{}`", tag.name))
                             .collect::<Vec<String>>()
