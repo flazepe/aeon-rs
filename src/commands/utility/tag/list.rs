@@ -11,8 +11,8 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let author = input.get_user_arg("author").ok();
     let response = MessageResponse::from("").set_ephemeral(true);
+    let author = input.get_user_arg("author").ok();
 
     res.send_message(
         match Tags::new()

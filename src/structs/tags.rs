@@ -13,9 +13,9 @@ use std::time::{SystemTime, UNIX_EPOCH};
 pub struct Tag {
     pub _id: ObjectId,
     pub name: String,
-    pub aliases: Vec<String>,
     pub guild_id: String,
     pub author_id: String,
+    pub aliases: Vec<String>,
     pub nsfw: bool,
     pub content: String,
     pub created_timestamp: u64,

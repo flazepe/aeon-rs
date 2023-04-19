@@ -147,6 +147,11 @@ pub fn get_command() -> Command {
 						autocomplete = true,
 						required = true,
                     },
+                    {
+                        name = "raw",
+                        description = "Whether to send the raw tag content",
+                        option_type = InteractionOptionType::BOOLEAN,
+                    },
                 ],
             },
         ],

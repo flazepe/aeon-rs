@@ -1,4 +1,4 @@
-use crate::{statics::emojis::ERROR_EMOJI, structs::tags::Tags, traits::ArgGetters};
+use crate::{macros::if_else, statics::emojis::ERROR_EMOJI, structs::tags::Tags, traits::ArgGetters};
 use anyhow::Result;
 use slashook::{
     commands::{CommandInput, CommandResponder},
@@ -7,11 +7,14 @@ use slashook::{
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     match Tags::new()
-        .get(input.get_string_arg("tag")?, input.guild_id.unwrap())
+        .get(input.get_string_arg("tag")?, input.guild_id.as_ref().unwrap())
         .await
     {
         Ok(tag) => {
-            if let Some(channel) = Channel::fetch(&input.rest, input.channel_id.unwrap()).await.ok() {
+            if let Some(channel) = Channel::fetch(&input.rest, input.channel_id.as_ref().unwrap())
+                .await
+                .ok()
+            {
                 if !channel.nsfw.unwrap_or(false) && tag.nsfw {
                     res.send_message(format!("{ERROR_EMOJI} Tag is for NSFW channels only."))
                         .await?;
@@ -20,7 +23,12 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 }
             }
 
-            res.send_message(tag.content).await?
+            res.send_message(if_else!(
+                input.get_bool_arg("raw").unwrap_or(false),
+                format!("```\n{}```", tag.content.replace("`", "`\u{200b}")),
+                tag.content,
+            ))
+            .await?
         },
         Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
     };
