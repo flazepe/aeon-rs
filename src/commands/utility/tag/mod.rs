@@ -55,7 +55,7 @@ pub fn get_command() -> Command {
             },
             {
                 name = "list",
-                description = "Creates a new tag.",	
+                description = "Lists available tags.",
                 options = [
                     {
                         name = "query",
