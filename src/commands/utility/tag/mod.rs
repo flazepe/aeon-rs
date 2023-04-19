@@ -151,6 +151,7 @@ pub fn get_command() -> Command {
                         .unwrap_or(vec![])
                         .iter()
                         .filter(|tag| format!("{}{}", tag.name, tag.content).to_lowercase().contains(&value))
+                        .take(25)
                         .map(|tag| ApplicationCommandOptionChoice::new(&tag.name, tag.name.clone()))
                         .collect::<Vec<ApplicationCommandOptionChoice>>(),
                 )
