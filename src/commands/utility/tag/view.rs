@@ -1,7 +1,7 @@
 use crate::{macros::if_else, statics::emojis::ERROR_EMOJI, structs::tags::Tags, traits::ArgGetters};
 use anyhow::Result;
 use slashook::{
-    commands::{CommandInput, CommandResponder},
+    commands::{CommandInput, CommandResponder, MessageResponse},
     structs::channels::Channel,
 };
 
@@ -30,7 +30,10 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             ))
             .await?
         },
-        Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
+        Err(error) => {
+            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
+                .await?
+        },
     };
 
     Ok(())
