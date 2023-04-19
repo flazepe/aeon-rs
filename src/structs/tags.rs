@@ -243,7 +243,7 @@ impl Tags {
                 },
                 doc! {
                     "$set": {
-                        "aliases": &tag.aliases,
+                        "aliases": tag.aliases,
                         "updated_timestamp": SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64,
                     },
                 },
