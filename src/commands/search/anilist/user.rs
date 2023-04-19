@@ -11,7 +11,7 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let interaction = ComponentInteraction::verify(&input, &res).await?;
+    let Ok(interaction) = ComponentInteraction::verify(&input, &res).await else { return Ok(()); };
 
     let (query, section): (String, String) = {
         if input.is_string_select() {

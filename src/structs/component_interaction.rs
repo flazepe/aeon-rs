@@ -9,20 +9,18 @@ pub struct ComponentInteraction<'a> {
 
 impl<'a> ComponentInteraction<'a> {
     pub async fn verify(input: &'a CommandInput, res: &'a CommandResponder) -> Result<ComponentInteraction<'a>> {
-        if let Some(message) = input.message.as_ref() {
-            if let Some(interaction) = message.interaction.as_ref() {
-                if input.user.id != interaction.user.id {
-                    res.send_message(
-                        slashook::commands::MessageResponse::from(format!(
-                            "{} This isn't your interaction.",
-                            crate::statics::emojis::ERROR_EMOJI
-                        ))
-                        .set_ephemeral(true),
-                    )
-                    .await?;
+        if let Some(interaction) = input.message.as_ref().and_then(|message| message.interaction.as_ref()) {
+            if input.user.id != interaction.user.id {
+                res.send_message(
+                    MessageResponse::from(format!(
+                        "{} This isn't your interaction.",
+                        crate::statics::emojis::ERROR_EMOJI
+                    ))
+                    .set_ephemeral(true),
+                )
+                .await?;
 
-                    bail!("User is not the interaction initiator.")
-                }
+                bail!("User is not the interaction initiator.");
             }
         }
 
