@@ -18,7 +18,6 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                         .map_or(false, |channel| channel.nsfw.unwrap_or(false))
                     {
                         res.send_message(format!("{ERROR_EMOJI} NSFW channels only.")).await?;
-
                         return Ok(());
                     }
                 }
