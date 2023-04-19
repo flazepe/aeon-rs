@@ -283,7 +283,11 @@ impl Tags {
             )
             .await?;
 
-        Ok(format!("Set tag `{}` as {}NSFW.", tag.name, if_else!(nsfw, "", "non-")))
+        Ok(format!(
+            "Set tag `{}` as {}.",
+            tag.name,
+            if_else!(nsfw, "NSFW", "non-NSFW")
+        ))
     }
 
     fn validate_tag_name<T: ToString>(name: T) -> Result<String> {

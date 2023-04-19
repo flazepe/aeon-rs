@@ -1,10 +1,10 @@
-mod alias;
 mod create;
 mod delete;
 mod edit;
 mod list;
 mod meta;
-mod nsfw;
+mod toggle_alias;
+mod toggle_nsfw;
 mod view;
 
 use crate::{functions::hashmap_autocomplete, structs::tags::Tags};
@@ -22,8 +22,70 @@ pub fn get_command() -> Command {
         dm_permission = false,
         subcommands = [
 			{
-                name = "alias",
-                description = "Adds or removes an alias from a server tag.",
+                name = "create",
+                description = "Creates a new tag.",
+            },
+			{
+                name = "delete",
+                description = "Deletes a tag.",
+                options = [
+                    {
+                        name = "tag",
+                        description = "The tag",
+                        option_type = InteractionOptionType::STRING,
+                        max_length = 30,
+						autocomplete = true,
+						required = true,
+                    },
+                ],
+            },
+			{
+                name = "edit",
+                description = "Edits a tag.",	
+                options = [
+                    {
+                        name = "tag",
+                        description = "The tag",
+                        option_type = InteractionOptionType::STRING,
+                        max_length = 30,
+						autocomplete = true,
+						required = true,
+                    },
+                ],
+            },
+            {
+                name = "list",
+                description = "Creates a new tag.",	
+                options = [
+                    {
+                        name = "query",
+                        description = "The query",
+                        option_type = InteractionOptionType::STRING,
+                    },
+                    {
+                        name = "author",
+                        description = "The tag author",
+                        option_type = InteractionOptionType::USER,
+                    },
+                ],
+            },
+			{
+                name = "meta",
+                description = "Sends tag information.",
+                options = [
+                    {
+                        name = "tag",
+                        description = "The tag",
+                        option_type = InteractionOptionType::STRING,
+                        max_length = 30,
+						autocomplete = true,
+						required = true,
+                    },
+                ],
+            },
+            {
+                name = "toggle-alias",
+                description = "Adds or removes an alias from a tag.",
                 options = [
                     {
                         name = "tag",
@@ -41,70 +103,8 @@ pub fn get_command() -> Command {
                     },
                 ],
             },
-			{
-                name = "create",
-                description = "Creates a new server tag.",
-            },
-			{
-                name = "delete",
-                description = "Deletes a server tag.",
-                options = [
-                    {
-                        name = "tag",
-                        description = "The tag",
-                        option_type = InteractionOptionType::STRING,
-                        max_length = 30,
-						autocomplete = true,
-						required = true,
-                    },
-                ],
-            },
-			{
-                name = "edit",
-                description = "Edits a server tag.",	
-                options = [
-                    {
-                        name = "tag",
-                        description = "The tag",
-                        option_type = InteractionOptionType::STRING,
-                        max_length = 30,
-						autocomplete = true,
-						required = true,
-                    },
-                ],
-            },
             {
-                name = "list",
-                description = "Creates a new server tag.",	
-                options = [
-                    {
-                        name = "query",
-                        description = "The query",
-                        option_type = InteractionOptionType::STRING,
-                    },
-                    {
-                        name = "author",
-                        description = "The tag author",
-                        option_type = InteractionOptionType::USER,
-                    },
-                ],
-            },
-			{
-                name = "meta",
-                description = "Sends a server tag information.",
-                options = [
-                    {
-                        name = "tag",
-                        description = "The tag",
-                        option_type = InteractionOptionType::STRING,
-                        max_length = 30,
-						autocomplete = true,
-						required = true,
-                    },
-                ],
-            },
-            {
-                name = "nsfw",
+                name = "toggle-nsfw",
                 description = "Toggles a tag's NSFW state.",
                 options = [
                     {
@@ -119,7 +119,7 @@ pub fn get_command() -> Command {
             },
             {
                 name = "view",
-                description = "Sends a server tag.",
+                description = "Sends a tag.",
                 options = [
                     {
                         name = "tag",
@@ -128,11 +128,6 @@ pub fn get_command() -> Command {
                         max_length = 30,
 						autocomplete = true,
 						required = true,
-                    },
-                    {
-                        name = "raw",
-                        description = "Whether to send the raw tag content",
-                        option_type = InteractionOptionType::BOOLEAN,
                     },
                 ],
             },
@@ -163,13 +158,13 @@ pub fn get_command() -> Command {
             .as_deref()
             .unwrap_or_else(|| input.subcommand.as_deref().unwrap_or(""))
         {
-            "alias" => alias::run(input, res).await?,
             "create" => create::run(input, res).await?,
             "delete" => delete::run(input, res).await?,
             "edit" => edit::run(input, res).await?,
             "list" => list::run(input, res).await?,
             "meta" => meta::run(input, res).await?,
-            "nsfw" => nsfw::run(input, res).await?,
+            "toggle-alias" => toggle_alias::run(input, res).await?,
+            "toggle-nsfw" => toggle_nsfw::run(input, res).await?,
             "view" => view::run(input, res).await?,
             _ => {},
         };
