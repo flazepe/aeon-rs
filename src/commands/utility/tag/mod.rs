@@ -55,7 +55,7 @@ pub fn get_command() -> Command {
                         name = "content",
                         description = "The tag content",
                         option_type = InteractionOptionType::STRING,
-                        max_length = 1024,
+                        max_length = 1000,
 						required = true,
                     },
                 ],
@@ -96,7 +96,7 @@ pub fn get_command() -> Command {
                         name = "content",
                         description = "The new tag content",
                         option_type = InteractionOptionType::STRING,
-                        max_length = 1024,
+                        max_length = 1000,
                     },
                     {
                         name = "nsfw",
