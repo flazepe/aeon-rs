@@ -15,9 +15,9 @@ use std::io::Write;
 pub struct Tio {
     pub programming_language: String,
     pub code: String,
+    pub code_url: Option<String>,
     pub result: Option<String>,
     pub result_url: Option<String>,
-    pub input_url: Option<String>,
 }
 
 impl Tio {
@@ -25,9 +25,9 @@ impl Tio {
         Self {
             programming_language: programming_language.to_string().to_lowercase(),
             code: code.to_string(),
+            code_url: None,
             result: None,
             result_url: None,
-            input_url: None,
         }
     }
 
@@ -38,6 +38,9 @@ impl Tio {
 
         // Set to real programming language name
         self.programming_language = programming_language_name.to_string();
+
+        // Upload code to hastebin
+        self.code_url = Some(hastebin(&self.code).await?);
 
         let mut body = vec![];
 
@@ -89,8 +92,6 @@ impl Tio {
             self.result_url = Some(hastebin(result).await?);
         }
 
-        self.input_url = Some(hastebin(&self.code).await?);
-
         Ok(self)
     }
 
@@ -99,7 +100,7 @@ impl Tio {
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
             .set_title(self.programming_language)
-            .set_url(self.input_url.unwrap_or("".into()))
+            .set_url(self.code_url.unwrap_or("".into()))
             .set_description(format!(
                 "{}```\n{}```",
                 self.result_url
