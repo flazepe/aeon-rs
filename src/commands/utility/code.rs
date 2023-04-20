@@ -12,7 +12,6 @@ use slashook::{
         interactions::InteractionOptionType,
     },
 };
-use std::collections::HashMap;
 
 pub fn get_command() -> Command {
     #[command(
@@ -29,14 +28,7 @@ pub fn get_command() -> Command {
     )]
     async fn code(input: CommandInput, res: CommandResponder) {
         if input.is_autocomplete() {
-            return hashmap_autocomplete(
-                input,
-                res,
-                (HashMap::from_iter(TIO_PROGRAMMING_LANGUAGES.iter().map(|entry| (entry.id, entry.name)))
-                    as HashMap<&str, &str>)
-                    .iter(),
-            )
-            .await?;
+            return hashmap_autocomplete(input, res, TIO_PROGRAMMING_LANGUAGES.iter()).await?;
         }
 
         let programming_language = {
@@ -75,13 +67,12 @@ pub fn get_command() -> Command {
             };
         } else {
             res.open_modal(
-                Modal::new("code", "modal", "enter code").set_components(
+                Modal::new("code", "modal", "Enter Code").set_components(
                     Components::new().add_text_input(
                         TextInput::new()
-                            .set_id("code")
-                            .set_label("code")
                             .set_style(TextInputStyle::PARAGRAPH)
-                            .set_required(true),
+                            .set_id("code")
+                            .set_label("Code"),
                     ),
                 ),
             )

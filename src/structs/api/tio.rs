@@ -12,18 +12,12 @@ use reqwest::Client;
 use slashook::structs::embeds::Embed;
 use std::io::Write;
 
-pub struct TioProgrammingLanguage<'a> {
-    pub name: &'a str,
-    pub id: &'a str,
-    pub alias: &'a [&'a str],
-}
-
 pub struct Tio {
     pub programming_language: String,
     pub code: String,
     pub result: Option<String>,
     pub result_url: Option<String>,
-    pub input_url: String,
+    pub input_url: Option<String>,
 }
 
 impl Tio {
@@ -33,20 +27,17 @@ impl Tio {
             code: code.to_string(),
             result: None,
             result_url: None,
-            input_url: String::from(""),
+            input_url: None,
         }
     }
 
     pub async fn run(mut self) -> Result<Self> {
-        let programming_language = TIO_PROGRAMMING_LANGUAGES
-            .iter()
-            .find(|entry| {
-                entry.id == &self.programming_language || entry.alias.contains(&self.programming_language.as_str())
-            })
+        let (programming_language_id, programming_language_name) = TIO_PROGRAMMING_LANGUAGES
+            .get_key_value(self.programming_language.as_str())
             .context("Invalid programming language.")?;
 
         // Set to real programming language name
-        self.programming_language = programming_language.name.to_string();
+        self.programming_language = programming_language_name.to_string();
 
         let mut body = vec![];
 
@@ -54,7 +45,7 @@ impl Tio {
             format!(
                 "{}\0R",
                 [
-                    vec!["lang", "1", programming_language.id],
+                    vec!["lang", "1", programming_language_id],
                     vec!["TIO_OPTIONS", "0"],
                     vec![".code.tio", &self.code.len().to_string(), &self.code],
                     vec![".input.tio", "0"],
@@ -98,7 +89,7 @@ impl Tio {
             self.result_url = Some(hastebin(result).await?);
         }
 
-        self.input_url = hastebin(&self.code).await?;
+        self.input_url = Some(hastebin(&self.code).await?);
 
         Ok(self)
     }
@@ -108,7 +99,7 @@ impl Tio {
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
             .set_title(self.programming_language)
-            .set_url(self.input_url)
+            .set_url(self.input_url.unwrap_or("".into()))
             .set_description(format!(
                 "{}```\n{}```",
                 self.result_url
