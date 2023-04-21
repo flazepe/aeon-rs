@@ -34,9 +34,7 @@ pub struct TimeZoneLocation {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeZoneResource {
-    #[serde(rename = "__type")]
     pub __type: String,
-
     pub time_zone_at_location: Vec<TimeZoneLocation>,
 }
 
