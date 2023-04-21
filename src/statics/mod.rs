@@ -22,6 +22,7 @@ pub static CACHE: Lazy<Cache> = Lazy::new(|| Cache {
     snipes: RwLock::new(HashMap::new()),
     edit_snipes: RwLock::new(HashMap::new()),
     reaction_snipes: RwLock::new(HashMap::new()),
+    cooldowns: RwLock::new(HashMap::new()),
     last_tio_programming_languages: RwLock::new(HashMap::new()),
 });
 
