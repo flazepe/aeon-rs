@@ -18,7 +18,7 @@ impl<'a> ComponentInteraction<'a> {
             > &SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs()
         {
             res.send_message(
-                MessageResponse::from(format!("{} You are under a cooldown. Try again later.", ERROR_EMOJI))
+                MessageResponse::from(format!("{ERROR_EMOJI} You are under a cooldown. Try again later."))
                     .set_ephemeral(true),
             )
             .await?;
@@ -29,7 +29,7 @@ impl<'a> ComponentInteraction<'a> {
         if let Some(interaction) = input.message.as_ref().and_then(|message| message.interaction.as_ref()) {
             if input.user.id != interaction.user.id {
                 res.send_message(
-                    MessageResponse::from(format!("{} This isn't your interaction.", ERROR_EMOJI)).set_ephemeral(true),
+                    MessageResponse::from(format!("{ERROR_EMOJI} This isn't your interaction.")).set_ephemeral(true),
                 )
                 .await?;
 
