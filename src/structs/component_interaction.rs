@@ -1,11 +1,10 @@
-use std::time::{SystemTime, UNIX_EPOCH};
-
 use crate::{
     macros::if_else,
     statics::{emojis::ERROR_EMOJI, CACHE},
 };
 use anyhow::{bail, Result};
 use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct ComponentInteraction<'a> {
     input: &'a CommandInput,
