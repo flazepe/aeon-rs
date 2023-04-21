@@ -6,7 +6,7 @@ pub static GOOGLE_DNS_RECORD_TYPES: [&str; 19] = [
     "SOA", "SPF", "SRV", "SSHFP", "SVCB", "TLSA", "TXT",
 ];
 
-pub static GOOGLE_DNS_CODES: Lazy<HashMap<u64, &str>> = Lazy::new(|| {
+pub static GOOGLE_DNS_CODES: Lazy<HashMap<u8, &str>> = Lazy::new(|| {
     HashMap::from([
         (0, "NOERROR: DNS Query completed successfully."),
         (1, "FORMERR: DNS Query Format Error."),

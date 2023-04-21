@@ -36,7 +36,7 @@ pub struct GoogleDNSQuestion {
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct GoogleDNSQuery {
-    pub status: u64,
+    pub status: u8,
 
     #[serde(rename = "TC")]
     pub tc: bool,
