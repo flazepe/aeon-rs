@@ -7,7 +7,7 @@ use crate::{
 use anyhow::Result;
 use slashook::{
     commands::{CommandInput, CommandResponder, MessageResponse},
-    structs::components::SelectOption,
+    structs::{channels::Channel, components::SelectOption},
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
@@ -63,6 +63,15 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}")).await,
         },
     );
+
+    if manga.is_adult {
+        if !Channel::fetch(&input.rest, input.channel_id.as_ref().unwrap())
+            .await
+            .map_or(false, |channel| channel.nsfw.unwrap_or(false))
+        {
+            return interaction.respond(format!("{ERROR_EMOJI} NSFW channels only.")).await;
+        }
+    }
 
     interaction
         .respond(
