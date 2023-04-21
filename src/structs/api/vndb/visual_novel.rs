@@ -602,7 +602,7 @@ impl VndbVisualNovel {
                     if_else!(
                         tag.spoiler > 1.0,
                         format!("||[{}](https://vndb.org/{})||", tag.name, tag.id),
-                        format!("[{}](https://vndb.org/{})", tag.name, tag.id)
+                        format!("[{}](https://vndb.org/{})", tag.name, tag.id),
                     )
                 })
                 .collect::<Vec<String>>()

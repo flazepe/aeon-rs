@@ -254,7 +254,7 @@ impl Tags {
         Ok(if_else!(
             new,
             format!("Added `{}` to `{}` alias.", alias, tag.name),
-            format!("Removed `{}` from `{}` alias.", alias, tag.name)
+            format!("Removed `{}` from `{}` alias.", alias, tag.name),
         ))
     }
 

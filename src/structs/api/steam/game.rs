@@ -238,10 +238,10 @@ impl SteamGame {
                             "~~{}~~ {} ({}% off)",
                             price_overview.initial_formatted,
                             price_overview.final_formatted,
-                            price_overview.discount_percent
+                            price_overview.discount_percent,
                         ),
-                        price_overview.final_formatted
-                    ))
+                        price_overview.final_formatted,
+                    )),
                 ),
                 false,
             )

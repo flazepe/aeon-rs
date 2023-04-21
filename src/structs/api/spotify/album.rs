@@ -88,9 +88,9 @@ impl SpotifyFullAlbum {
                         NaiveDateTime::parse_from_str(&format!("{} 00:00", self.release_date), "%F %R")
                             .unwrap()
                             .timestamp(),
-                        TimestampFormat::Full
+                        TimestampFormat::Full,
                     ),
-                    self.release_date
+                    self.release_date,
                 ),
                 false,
             )
@@ -149,10 +149,10 @@ impl SpotifyFullAlbum {
                             if_else!(
                                 self.tracks.items.iter().any(|track| track.disc_number == 2),
                                 format!("{}-", track.disc_number),
-                                "".into()
+                                "".into(),
                             ),
                             track.track_number,
-                            pad_length = self.tracks.items.len().to_string().len()
+                            pad_length = self.tracks.items.len().to_string().len(),
                         ),
                         track.name,
                         track.external_urls.spotify,

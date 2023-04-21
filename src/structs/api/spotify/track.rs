@@ -110,7 +110,7 @@ impl SpotifyFullTrack {
             let pitch_notation = if_else!(
                 audio_features.key == -1,
                 None,
-                Some(SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize])
+                Some(SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize]),
             );
 
             embed = embed

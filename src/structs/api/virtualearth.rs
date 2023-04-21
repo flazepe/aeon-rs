@@ -1,4 +1,4 @@
-use crate::statics::CONFIG;
+use crate::{macros::if_else, statics::CONFIG};
 use anyhow::{bail, Result};
 use reqwest::get;
 use serde::Deserialize;
@@ -60,7 +60,7 @@ pub struct TimeZoneResponse {
 impl TimeZoneLocation {
     pub async fn get<T: Display>(location: T) -> Result<Self> {
         let timezones = &mut get(format!(
-            "https://dev.virtualearth.net/REST/v1/TimeZone/?query={location}&key={}",
+            "https://dev.virtualearth.net/REST/v1/TimeZone/?key={}&query={location}",
             CONFIG.api.virtualearth_key
         ))
         .await?
@@ -70,11 +70,11 @@ impl TimeZoneLocation {
             .resources[0]
             .time_zone_at_location;
 
-        if timezones.len() > 0 {
-            Ok(timezones.remove(0))
-        } else {
-            bail!("Location not found.");
-        }
+        if_else!(
+            timezones.len() > 0,
+            Ok(timezones.remove(0)),
+            bail!("Location not found."),
+        )
     }
 
     pub fn format(mut self) -> String {
@@ -84,7 +84,7 @@ impl TimeZoneLocation {
             "It is `{} UTC {}` in {}.",
             timezone.converted_time.local_time.replace("T", " "),
             timezone.utc_offset,
-            self.place_name
+            self.place_name,
         )
 
         /*
