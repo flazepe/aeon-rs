@@ -5,7 +5,7 @@ use crate::{
     traits::ArgGetters,
 };
 use anyhow::Result;
-use slashook::commands::{CommandInput, CommandResponder};
+use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     if input.is_autocomplete() {
@@ -20,7 +20,10 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     .await
     {
         Ok(translation) => res.send_message(translation.format()).await?,
-        Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
+        Err(error) => {
+            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
+                .await?
+        },
     };
 
     Ok(())

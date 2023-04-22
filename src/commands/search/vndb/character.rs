@@ -24,7 +24,9 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                         .map(|result| SelectOption::new(result.name, result.id).set_description(&result.vns[0].title))
                         .collect::<Vec<SelectOption>>(),
                     Err(error) => {
-                        res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+                        res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
+                            .await?;
+
                         return Ok(());
                     },
                 },

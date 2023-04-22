@@ -6,7 +6,7 @@ use crate::{
 };
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder, Modal},
+    commands::{Command, CommandInput, CommandResponder, MessageResponse, Modal},
     structs::{
         components::{Components, TextInput, TextInputStyle},
         interactions::InteractionOptionType,
@@ -62,8 +62,13 @@ pub fn get_command() -> Command {
                 .run()
                 .await
             {
-                Ok(tio) => res.send_message(tio.format()).await?,
-                Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
+                Ok(tio) => {
+                    res.send_message(tio.format()).await?;
+                },
+                Err(error) => {
+                    res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
+                        .await?;
+                },
             };
         } else {
             res.open_modal(

@@ -27,7 +27,9 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let mut results = match vndb.search_tag(input.get_string_arg("tag")?).await {
         Ok(results) => results,
         Err(error) => {
-            res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
+                .await?;
+
             return Ok(());
         },
     };

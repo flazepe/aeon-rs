@@ -6,7 +6,7 @@ use crate::{
 use anyhow::Context;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command, CommandInput, CommandResponder, MessageResponse},
     structs::embeds::Embed,
 };
 use sysinfo::{get_current_pid, ProcessExt, System, SystemExt};
@@ -89,7 +89,8 @@ pub fn get_command() -> Command {
                 .await?;
             },
             Err(error) => {
-                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+                res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
+                    .await?;
             },
         }
     }

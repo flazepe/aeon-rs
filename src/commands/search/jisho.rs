@@ -33,7 +33,9 @@ pub fn get_command() -> Command {
         let mut results = match JishoSearch::search(input.get_string_arg("query")?).await {
             Ok(results) => results,
             Err(error) => {
-                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+                res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
+                    .await?;
+
                 return Ok(());
             },
         };

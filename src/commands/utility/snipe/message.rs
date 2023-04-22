@@ -1,6 +1,6 @@
 use crate::{statics::emojis::ERROR_EMOJI, structs::snipes::Snipes, traits::ArgGetters};
 use anyhow::Result;
-use slashook::commands::{CommandInput, CommandResponder};
+use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     match Snipes::new(
@@ -13,7 +13,10 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     .to_response()
     {
         Ok(response) => res.send_message(response).await?,
-        Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
+        Err(error) => {
+            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
+                .await?
+        },
     };
 
     Ok(())

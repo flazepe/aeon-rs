@@ -5,7 +5,7 @@ use crate::{
 use anyhow::Result;
 use serde_json::json;
 use slashook::{
-    commands::{CommandInput, CommandResponder},
+    commands::{CommandInput, CommandResponder, MessageResponse},
     structs::guilds::GuildMember,
 };
 
@@ -24,7 +24,10 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             res.send_message(format!("{SUCCESS_EMOJI} Removed timeout for {}.", user.mention()))
                 .await?
         },
-        Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
+        Err(error) => {
+            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
+                .await?
+        },
     };
 
     Ok(())

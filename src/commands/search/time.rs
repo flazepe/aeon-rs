@@ -1,7 +1,7 @@
 use crate::{statics::emojis::ERROR_EMOJI, structs::api::virtualearth::TimeZoneLocation, traits::ArgGetters};
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command, CommandInput, CommandResponder, MessageResponse},
     structs::interactions::InteractionOptionType,
 };
 
@@ -24,7 +24,8 @@ pub fn get_command() -> Command {
                 res.send_message(timezone.format()).await?;
             },
             Err(error) => {
-                res.send_message(format!("{ERROR_EMOJI} {error}")).await?;
+                res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
+                    .await?;
             },
         };
     }

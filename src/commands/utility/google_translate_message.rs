@@ -4,7 +4,7 @@ use crate::{
 };
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command, CommandInput, CommandResponder, MessageResponse},
     structs::interactions::ApplicationCommandType,
 };
 
@@ -15,8 +15,13 @@ pub fn get_command() -> Command {
 	)]
     async fn translate_message(input: CommandInput, res: CommandResponder) {
         match Google::translate(StringifiedMessage::from(input.target_message.unwrap()), "auto", "en").await {
-            Ok(translation) => res.send_message(translation.format()).await?,
-            Err(error) => res.send_message(format!("{ERROR_EMOJI} {error}")).await?,
+            Ok(translation) => {
+                res.send_message(translation.format()).await?;
+            },
+            Err(error) => {
+                res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
+                    .await?;
+            },
         };
     }
 
