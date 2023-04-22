@@ -8,6 +8,7 @@ mod remind;
 mod remind_message;
 mod sauce;
 mod snipe;
+mod calculate;
 mod snipe_message_reactions;
 mod tag;
 mod timeout;
@@ -18,6 +19,7 @@ use slashook::commands::Command;
 
 pub fn get_commands() -> Vec<Command> {
     vec![
+        calculate::get_command(),
         convert_currency::get_command(),
         code::get_command(),
         google::get_command(),

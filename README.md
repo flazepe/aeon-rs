@@ -18,6 +18,7 @@ A Discord bot written in Rust using [Slashook](https://github.com/tonkku107/slas
 ### Utility
 
 -   Anime, manga, and Pixiv image source detection
+-   Calculate a mathematics expression
 -   Convert a currency to another currency
 -   DNS records lookup for a domain
 -   Execute a code in various programming languages
