@@ -54,7 +54,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         Spotify::get_album(query).await?,
         match Spotify::search_album(query).await {
             Ok(result) => Spotify::get_album(&result[0].id).await?, // Get full album
-            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}")).await,
+            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}"), true).await,
         },
     );
 
@@ -79,6 +79,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 "available-countries" => album.format_available_countries(),
                 _ => album.format(),
             }),
+            false,
         )
         .await
 }

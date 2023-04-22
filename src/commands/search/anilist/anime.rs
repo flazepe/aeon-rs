@@ -60,7 +60,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         AniList::get_anime(query.parse::<u64>()?).await?,
         match AniList::search_anime(query).await {
             Ok(mut results) => results.remove(0),
-            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}")).await,
+            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}"), true).await,
         },
     );
 
@@ -69,7 +69,9 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             .await
             .map_or(false, |channel| channel.nsfw.unwrap_or(false))
         {
-            return interaction.respond(format!("{ERROR_EMOJI} NSFW channels only.")).await;
+            return interaction
+                .respond(format!("{ERROR_EMOJI} NSFW channels only."), true)
+                .await;
         }
     }
 
@@ -96,6 +98,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 "relations" => anime.format_relations(),
                 _ => anime.format(),
             }),
+            false,
         )
         .await
 }

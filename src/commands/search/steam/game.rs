@@ -54,7 +54,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         Steam::get_game(query).await?,
         match Steam::search_game(query).await {
             Ok(results) => Steam::get_game(&results[0].id).await?,
-            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}")).await,
+            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}"), true).await,
         },
     );
 
@@ -81,6 +81,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 "featured-achievements" => game.format_featured_achievements(),
                 _ => game.format(),
             }),
+            false,
         )
         .await
 }

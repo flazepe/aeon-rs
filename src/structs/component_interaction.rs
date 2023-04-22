@@ -39,11 +39,13 @@ impl<'a> ComponentInteraction<'a> {
         Ok(Self { input, res })
     }
 
-    pub async fn respond<T: Into<MessageResponse>>(self, response: T) -> Result<()> {
+    pub async fn respond<T: Into<MessageResponse>>(self, response: T, ephemeral: bool) -> Result<()> {
         CACHE.cooldowns.write().unwrap().insert(
             self.input.user.id.clone(),
             SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + 3,
         );
+
+        let response = response.into().set_ephemeral(ephemeral);
 
         if_else!(
             self.input.message.is_some(),

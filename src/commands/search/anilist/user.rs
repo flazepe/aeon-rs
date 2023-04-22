@@ -27,7 +27,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         AniList::get_user(query).await?,
         match AniList::get_user(query).await {
             Ok(result) => result,
-            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}")).await,
+            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}"), true).await,
         },
     );
 
@@ -58,6 +58,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 "favorite-staff" => user.format_favorite_staff(),
                 _ => user.format(),
             }),
+            false,
         )
         .await
 }

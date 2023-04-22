@@ -52,7 +52,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     let visual_novel = match vndb.search_visual_novel(query).await {
         Ok(mut results) => results.remove(0),
-        Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}")).await,
+        Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}"), true).await,
     };
 
     interaction
@@ -76,6 +76,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 "tags" => visual_novel.format_tags(),
                 _ => visual_novel.format(),
             }),
+            false,
         )
         .await
 }

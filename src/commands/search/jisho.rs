@@ -26,7 +26,10 @@ pub fn get_command() -> Command {
         if input.is_string_select() {
             return ComponentInteraction::verify(&input, &res)
                 .await?
-                .respond(JishoSearch::get(&input.values.as_ref().unwrap()[0]).await?.format())
+                .respond(
+                    JishoSearch::get(&input.values.as_ref().unwrap()[0]).await?.format(),
+                    false,
+                )
                 .await?;
         }
 

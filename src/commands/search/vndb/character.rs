@@ -52,7 +52,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     let character = match vndb.search_character(query).await {
         Ok(mut results) => results.remove(0),
-        Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}")).await,
+        Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}"), true).await,
     };
 
     interaction
@@ -76,6 +76,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 "visual-novels" => character.format_visual_novels(),
                 _ => character.format(),
             }),
+            false,
         )
         .await
 }

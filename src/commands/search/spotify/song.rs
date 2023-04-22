@@ -54,7 +54,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         Spotify::get_track(query).await?,
         match Spotify::search_track(query).await {
             Ok(mut result) => result.remove(0),
-            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}")).await,
+            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}"), true).await,
         },
     );
 
@@ -79,6 +79,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 "available-countries" => track.format_available_countries(),
                 _ => track.format(),
             }),
+            false,
         )
         .await
 }

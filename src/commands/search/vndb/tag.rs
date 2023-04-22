@@ -20,6 +20,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                     .await?
                     .remove(0)
                     .format(),
+                false,
             )
             .await;
     }
