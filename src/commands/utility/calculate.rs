@@ -32,7 +32,8 @@ pub fn get_command() -> Command {
         ))
         .await?
         .text()
-        .await?;
+        .await?
+        .replace("`", "｀");
 
         res.send_message(if_else!(
             body.is_empty() || body.contains("Error"),
