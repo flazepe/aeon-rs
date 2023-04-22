@@ -34,8 +34,10 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         .await?
         >= 10
     {
-        res.send_message(format!("{ERROR_EMOJI} You can only have up to 10 reminders."))
-            .await?;
+        res.send_message(
+            MessageResponse::from(format!("{ERROR_EMOJI} You can only have up to 10 reminders.")).set_ephemeral(true),
+        )
+        .await?;
 
         return Ok(());
     };
@@ -54,9 +56,12 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     if (time.total_secs < 30 || time.total_secs > SECS_PER_MONTH * 12)
         || (interval.total_secs > 0 && (interval.total_secs < 30 || interval.total_secs > SECS_PER_MONTH * 12))
     {
-        res.send_message(format!(
-            "{ERROR_EMOJI} Time or interval cannot be under 30 seconds or over a year.",
-        ))
+        res.send_message(
+            MessageResponse::from(format!(
+                "{ERROR_EMOJI} Time or interval cannot be under 30 seconds or over a year.",
+            ))
+            .set_ephemeral(true),
+        )
         .await?;
 
         return Ok(());
@@ -70,8 +75,10 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         || input.get_bool_arg("dm").unwrap_or(false);
 
     if interval.total_secs > 0 && !dm {
-        res.send_message(format!("{ERROR_EMOJI} Intervals are only supported for DMs."))
-            .await?;
+        res.send_message(
+            MessageResponse::from(format!("{ERROR_EMOJI} Intervals are only supported for DMs.")).set_ephemeral(true),
+        )
+        .await?;
 
         return Ok(());
     }

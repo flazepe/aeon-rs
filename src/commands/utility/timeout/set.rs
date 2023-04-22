@@ -18,9 +18,12 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     match Duration::new().parse(input.get_string_arg("duration")?) {
         Ok(duration) => {
             if duration.total_secs < 30 || duration.total_secs > SECS_PER_DAY * 28 {
-                res.send_message(format!(
-                    "{ERROR_EMOJI} Time cannot be under 30 seconds or over 28 days."
-                ))
+                res.send_message(
+                    MessageResponse::from(format!(
+                        "{ERROR_EMOJI} Time cannot be under 30 seconds or over 28 days."
+                    ))
+                    .set_ephemeral(true),
+                )
                 .await?;
 
                 return Ok(());
