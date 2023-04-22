@@ -9,7 +9,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     let response = Client::new()
         .get("https://heliohost.org/status/")
-        .query(&["u", user.as_str()])
+        .query(&[("u", user.as_str())])
         .send()
         .await?;
 

@@ -30,7 +30,7 @@ pub fn get_command() -> Command {
             get(format!("http://numbersapi.com/{expression}")).await?,
             Client::new()
                 .get("https://api.mathjs.org/v4/")
-                .query(&["expr", expression.as_str()])
+                .query(&[("expr", expression.as_str())])
                 .send()
                 .await?
         )
