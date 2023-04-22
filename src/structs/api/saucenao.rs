@@ -3,10 +3,9 @@ use crate::{
     statics::{colors::PRIMARY_COLOR, CONFIG},
 };
 use anyhow::{bail, Result};
-use reqwest::get;
+use reqwest::Client;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
-use std::fmt::Display;
 
 #[derive(Deserialize)]
 pub struct SauceNAOHeader {
@@ -43,14 +42,18 @@ pub struct SauceNAOSearch {
 }
 
 impl SauceNAOSearch {
-    pub async fn query<T: Display>(url: T) -> Result<Self> {
-        let search = get(format!(
-            "https://saucenao.com/search.php?api_key={}&output_type=2&url={url}",
-            CONFIG.api.saucenao_key
-        ))
-        .await?
-        .json::<Self>()
-        .await?;
+    pub async fn query<T: ToString>(url: T) -> Result<Self> {
+        let search = Client::new()
+            .get("https://saucenao.com/search.php")
+            .query(&[
+                ("api_key", CONFIG.api.saucenao_key.as_str()),
+                ("output_type", "2"),
+                ("url", url.to_string().as_str()),
+            ])
+            .send()
+            .await?
+            .json::<Self>()
+            .await?;
 
         if_else!(search.results.is_empty(), bail!("Sauce not found."), Ok(search))
     }

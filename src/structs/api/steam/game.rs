@@ -6,11 +6,10 @@ use crate::{
 };
 use anyhow::{bail, Result};
 use nipper::Document;
-use reqwest::get;
+use reqwest::Client;
 use serde::Deserialize;
 use serde_json::{from_value, Value};
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
-use std::fmt::Display;
 
 #[derive(Deserialize)]
 pub struct SteamGameRequirements {
@@ -366,30 +365,32 @@ pub struct SteamSearchResult {
 }
 
 impl Steam {
-    pub async fn get_game<T: Display>(id: T) -> Result<SteamGame> {
-        match get(format!(
-            "https://store.steampowered.com/api/appdetails?cc=us&appids={id}"
-        ))
-        .await?
-        .json::<Value>()
-        .await?
-        .as_object_mut()
-        .unwrap()
-        .remove(&id.to_string())
+    pub async fn get_game<T: ToString>(id: T) -> Result<SteamGame> {
+        match Client::new()
+            .get("https://store.steampowered.com/api/appdetails")
+            .query(&[("cc", "us"), ("appids", id.to_string().as_str())])
+            .send()
+            .await?
+            .json::<Value>()
+            .await?
+            .as_object_mut()
+            .unwrap()
+            .remove(&id.to_string())
         {
             Some(value) => Ok(from_value::<SteamGameResponse>(value)?.data),
             None => bail!("Game not found."),
         }
     }
 
-    pub async fn search_game<T: Display>(query: T) -> Result<Vec<SteamSearchResult>> {
+    pub async fn search_game<T: ToString>(query: T) -> Result<Vec<SteamSearchResult>> {
         let document = Document::from(
-            &get(format!(
-                "https://store.steampowered.com/search/results?category1=998&term={query}" // category1=998 is games only
-            ))
-            .await?
-            .text()
-            .await?,
+            &Client::new()
+                .get("https://store.steampowered.com/search/results")
+                .query(&[("category1", "998"), ("term", query.to_string().as_str())]) // category1=998 is games only
+                .send()
+                .await?
+                .text()
+                .await?,
         );
 
         let names = document

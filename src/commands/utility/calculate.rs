@@ -3,7 +3,7 @@ use crate::{
     statics::emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
     traits::ArgGetters,
 };
-use reqwest::get;
+use reqwest::{get, Client};
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder, MessageResponse},
@@ -25,12 +25,15 @@ pub fn get_command() -> Command {
     async fn calculate(input: CommandInput, res: CommandResponder) {
         let expression = input.get_string_arg("expression")?;
 
-        let body = get(if_else!(
+        let body = if_else!(
             expression.chars().all(|char| char.is_numeric()),
-            format!("http://numbersapi.com/{expression}"),
-            format!("https://api.mathjs.org/v4/?expr={expression}")
-        ))
-        .await?
+            get(format!("http://numbersapi.com/{expression}")).await?,
+            Client::new()
+                .get("https://api.mathjs.org/v4/")
+                .query(&["expr", expression.as_str()])
+                .send()
+                .await?
+        )
         .text()
         .await?
         .replace("`", "｀")

@@ -1,6 +1,6 @@
 use crate::{macros::if_else, statics::colors::PRIMARY_COLOR};
 use anyhow::{bail, Result};
-use reqwest::get;
+use reqwest::Client;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::{collections::HashMap, fmt::Display};
@@ -59,7 +59,10 @@ pub struct JishoSearchResult {
 
 impl JishoSearch {
     pub async fn get<T: Display>(slug: T) -> Result<Self> {
-        let mut results = get(format!("https://jisho.org/api/v1/search/words?slug={slug}"))
+        let mut results = Client::new()
+            .get("https://jisho.org/api/v1/search/words")
+            .query(&[("slug", slug.to_string().as_str())])
+            .send()
             .await?
             .json::<JishoSearchResult>()
             .await?
@@ -68,8 +71,11 @@ impl JishoSearch {
         if_else!(results.is_empty(), bail!("No results found."), Ok(results.remove(0)))
     }
 
-    pub async fn search<T: Display>(query: T) -> Result<Vec<Self>> {
-        let results = get(format!("https://jisho.org/api/v1/search/words?keyword={query}"))
+    pub async fn search<T: ToString>(query: T) -> Result<Vec<Self>> {
+        let results = Client::new()
+            .get("https://jisho.org/api/v1/search/words")
+            .query(&[("keyword", query.to_string().as_str())])
+            .send()
             .await?
             .json::<JishoSearchResult>()
             .await?

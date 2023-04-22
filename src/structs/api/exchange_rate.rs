@@ -1,6 +1,6 @@
 use crate::statics::exchange_rate::EXCHANGE_RATE_CURRENCIES;
 use anyhow::{Context, Result};
-use reqwest::get;
+use reqwest::Client;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -29,13 +29,17 @@ impl ExchangeRateConversion {
             origin_currency: format!("{} ({})", origin_currency.1, origin_currency.0),
             amount: amount.clone(),
             target_currency: format!("{} ({})", target_currency.1, target_currency.0),
-            conversion: (get(format!(
-                "https://api.exchangerate.host/convert?amount={amount}&from={}&to={}",
-                origin_currency.0, target_currency.0
-            ))
-            .await?
-            .json::<ExchangeRateConversionResponse>()
-            .await?)
+            conversion: (Client::new()
+                .get("https://api.exchangerate.host/convert")
+                .query(&[
+                    ("amount", amount.to_string().as_str()),
+                    ("from", origin_currency.0.to_string().as_str()),
+                    ("to", target_currency.0.to_string().as_str()),
+                ])
+                .send()
+                .await?
+                .json::<ExchangeRateConversionResponse>()
+                .await?)
                 .result,
         })
     }

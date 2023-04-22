@@ -1,9 +1,8 @@
 use crate::{macros::if_else, statics::colors::PRIMARY_COLOR};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
-use reqwest::get;
+use reqwest::{get, Client};
 use slashook::structs::embeds::Embed;
-use std::fmt::Display;
 
 struct YahooFinanceLookupAttributes {
     href: String,
@@ -20,10 +19,13 @@ pub struct Stock {
 }
 
 impl Stock {
-    pub async fn get<T: Display>(ticker: T) -> Result<Self> {
+    pub async fn get<T: ToString>(ticker: T) -> Result<Self> {
         let attributes = {
             let document = Document::from(
-                &get(format!("https://finance.yahoo.com/lookup/equity?s={ticker}"))
+                &Client::new()
+                    .get("https://finance.yahoo.com/lookup/equity")
+                    .query(&[("s", ticker.to_string().as_str())])
+                    .send()
                     .await?
                     .text()
                     .await?,

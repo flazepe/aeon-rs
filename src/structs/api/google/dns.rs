@@ -7,10 +7,9 @@ use crate::{
     structs::api::google::Google,
 };
 use anyhow::{bail, Result};
-use reqwest::get;
+use reqwest::Client;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
-use std::fmt::Display;
 
 #[derive(Deserialize)]
 pub struct GoogleDNSRecord {
@@ -85,7 +84,7 @@ impl GoogleDNS {
 }
 
 impl Google {
-    pub async fn query_dns<T: Display>(record_type: T, domain: T) -> Result<GoogleDNS> {
+    pub async fn query_dns<T: ToString, U: ToString>(record_type: T, domain: U) -> Result<GoogleDNS> {
         let record_type = record_type.to_string();
 
         if !GOOGLE_DNS_RECORD_TYPES.contains(&record_type.as_str()) {
@@ -98,7 +97,14 @@ impl Google {
             .replace("http://", "")
             .replace("https://", "");
 
-        let res = get(format!("https://dns.google/resolve?type={record_type}&name={domain}")).await?;
+        let res = Client::new()
+            .get(format!("https://dns.google/resolve"))
+            .query(&[
+                ("type", record_type.to_string().as_str()),
+                ("name", domain.to_string().as_str()),
+            ])
+            .send()
+            .await?;
 
         let dns_response = res.json::<GoogleDNSQuery>().await?;
 

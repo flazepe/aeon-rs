@@ -1,9 +1,8 @@
 use crate::{macros::if_else, statics::colors::PRIMARY_COLOR};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
-use reqwest::get;
+use reqwest::Client;
 use slashook::structs::embeds::Embed;
-use std::fmt::Display;
 
 pub struct Distro {
     pub name: String,
@@ -18,9 +17,12 @@ pub struct Distro {
 }
 
 impl Distro {
-    pub async fn get<T: Display>(name: T) -> Result<Self> {
+    pub async fn get<T: ToString>(name: T) -> Result<Self> {
         let document = Document::from(
-            &get(format!("https://distrowatch.com/table.php?distribution={name}"))
+            &Client::new()
+                .get("https://distrowatch.com/table.php")
+                .query(&[("distribution", name.to_string().as_str())])
+                .send()
                 .await?
                 .text()
                 .await?,

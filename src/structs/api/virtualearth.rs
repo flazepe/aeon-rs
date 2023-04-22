@@ -1,8 +1,7 @@
 use crate::{macros::if_else, statics::CONFIG};
 use anyhow::{bail, Result};
-use reqwest::get;
+use reqwest::Client;
 use serde::Deserialize;
-use std::fmt::Display;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -58,15 +57,18 @@ pub struct TimeZoneResponse {
 }
 
 impl TimeZoneLocation {
-    pub async fn get<T: Display>(location: T) -> Result<Self> {
-        let timezones = &mut get(format!(
-            "https://dev.virtualearth.net/REST/v1/TimeZone/?key={}&query={location}",
-            CONFIG.api.virtualearth_key
-        ))
-        .await?
-        .json::<TimeZoneResponse>()
-        .await?
-        .resource_sets[0]
+    pub async fn get<T: ToString>(location: T) -> Result<Self> {
+        let timezones = &mut Client::new()
+            .get("https://dev.virtualearth.net/REST/v1/TimeZone/")
+            .query(&[
+                ("key", CONFIG.api.virtualearth_key.as_str()),
+                ("query", location.to_string().as_str()),
+            ])
+            .send()
+            .await?
+            .json::<TimeZoneResponse>()
+            .await?
+            .resource_sets[0]
             .resources[0]
             .time_zone_at_location;
 

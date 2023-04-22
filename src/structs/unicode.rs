@@ -4,8 +4,7 @@ use crate::{
 };
 use anyhow::{bail, Context, Result};
 use nipper::Document;
-use reqwest::get;
-use std::fmt::Display;
+use reqwest::Client;
 use unicode_names2::name as get_unicode_name;
 
 pub struct UnicodeCharacter {
@@ -15,9 +14,12 @@ pub struct UnicodeCharacter {
 }
 
 impl UnicodeCharacter {
-    pub async fn get<T: Display>(name: T) -> Result<Self> {
+    pub async fn get<T: ToString>(name: T) -> Result<Self> {
         let document = Document::from(
-            &get(format!("https://symbl.cc/en/search/?q={name}"))
+            &Client::new()
+                .get("https://symbl.cc/en/search/")
+                .query(&[("q", name.to_string().as_str())])
+                .send()
                 .await?
                 .text()
                 .await?,

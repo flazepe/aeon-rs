@@ -4,7 +4,7 @@ use crate::{
     structs::api::google::Google,
 };
 use anyhow::{bail, Context, Result};
-use reqwest::get;
+use reqwest::Client;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 
@@ -58,13 +58,20 @@ impl Google {
             .get_key_value(target_language.to_lowercase().as_str())
             .context("Invalid target language.")?;
 
-        let google_translate_response = get(format!(
-            "https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&dt=t&sl={}&tl={}&q={text}",
-            origin_language.0, target_language.0
-        ))
-        .await?
-        .json::<GoogleTranslateResponse>()
-        .await?;
+        let google_translate_response = Client::new()
+            .get("https://translate.googleapis.com/translate_a/single")
+            .query(&[
+                ("client", "gtx"),
+                ("dj", "1"),
+                ("dt", "t"),
+                ("sl", origin_language.0),
+                ("tl", target_language.0),
+                ("q", text.as_str()),
+            ])
+            .send()
+            .await?
+            .json::<GoogleTranslateResponse>()
+            .await?;
 
         Ok(GoogleTranslateTranslation {
             origin_language: format!(

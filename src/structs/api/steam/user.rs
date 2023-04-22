@@ -193,13 +193,14 @@ impl Steam {
             id = Steam::get_user_vanity(&id).await?;
         }
 
-        let mut user = Steam::query::<_, _, SteamUsersResponse>("GetPlayerSummaries/v0002/", format!("steamids={id}"))
-            .await?
-            .response
-            .players
-            .into_iter()
-            .next()
-            .context("User not found.")?;
+        let mut user =
+            Steam::query::<_, _, SteamUsersResponse>("GetPlayerSummaries/v0002/", &[("steamids", id.as_str())])
+                .await?
+                .response
+                .players
+                .into_iter()
+                .next()
+                .context("User not found.")?;
 
         // Get user bans
         user.bans = Steam::get_user_bans(&user.id).await.ok();

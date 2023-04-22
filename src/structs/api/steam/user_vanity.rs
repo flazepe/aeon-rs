@@ -1,7 +1,6 @@
 use crate::structs::api::steam::Steam;
 use anyhow::{Context, Result};
 use serde::Deserialize;
-use std::fmt::Display;
 
 #[derive(Deserialize)]
 pub struct SteamUserVanity {
@@ -17,13 +16,14 @@ struct SteamUserVanityResponse {
 }
 
 impl Steam {
-    pub async fn get_user_vanity<T: Display>(player: T) -> Result<String> {
-        Ok(
-            Steam::query::<_, _, SteamUserVanityResponse>("ResolveVanityURL/v0001/", format!("vanityurl={player}"))
-                .await?
-                .response
-                .id
-                .context("Invalid user vanity.")?,
+    pub async fn get_user_vanity<T: ToString>(player: T) -> Result<String> {
+        Ok(Steam::query::<_, _, SteamUserVanityResponse>(
+            "ResolveVanityURL/v0001/",
+            &[("vanityurl", player.to_string().as_str())],
         )
+        .await?
+        .response
+        .id
+        .context("Invalid user vanity.")?)
     }
 }

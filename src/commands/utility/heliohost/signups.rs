@@ -1,6 +1,6 @@
 use crate::{macros::if_else, statics::colors::PRIMARY_COLOR, structs::duration::Duration};
 use anyhow::Result;
-use reqwest::get;
+use reqwest::Client;
 use slashook::{
     chrono::{Datelike, Duration as ChronoDuration, TimeZone, Utc},
     commands::{CommandInput, CommandResponder},
@@ -27,7 +27,10 @@ pub async fn run(_: CommandInput, res: CommandResponder) -> Result<()> {
         embed = embed.add_field(
             server,
             if_else!(
-                get(format!("https://heliohost.org/assets/monitor.php?plan={plan}"))
+                Client::new()
+                    .get("https://heliohost.org/assets/monitor.php")
+                    .query(&[("plan", plan)])
+                    .send()
                     .await?
                     .text()
                     .await?
