@@ -34,15 +34,14 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     let interaction = Interaction::new(&input, &res);
 
-    match entries.get(input.get_string_arg("entry")?.parse::<usize>()? - 1) {
+    match entries.get(match input.get_string_arg("entry")?.parse::<usize>() {
+        Ok(index) => index - 1,
+        Err(_) => return interaction.respond_error("Please enter a valid number.", true).await,
+    }) {
         Some(entry) => {
             reminders.delete(entry._id).await?;
             interaction.respond_success("Gone.", true).await
         },
-        None => {
-            interaction
-                .respond_error("Invalid entry. Make sure it's a valid number.", true)
-                .await
-        },
+        None => interaction.respond_error("Invalid entry.", true).await,
     }
 }
