@@ -17,14 +17,13 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     let mut embed = Embed::new().set_color(PRIMARY_COLOR)?.set_description(format!(
         "[Signups](https://heliohost.org/signup/) will reset in: **{}**",
-        Duration::new().parse(format!(
-            "{}s",
+        Duration::new().parse(
             (Utc.with_ymd_and_hms(now.year(), now.month(), now.day(), 0, 0, 0)
                 .unwrap()
                 + ChronoDuration::days(1))
             .timestamp()
                 - SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64,
-        ))?,
+        )?,
     ));
 
     for (server, plan) in [("Tommy", "2"), ("Ricky", "1"), ("Johnny", "9")] {
