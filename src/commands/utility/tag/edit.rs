@@ -9,7 +9,7 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let interaction = Interaction::new(&input, &res);
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
     let tags = Tags::new();
 
     if input.is_modal_submit() {

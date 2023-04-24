@@ -10,6 +10,8 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+
     let (query, section): (String, String) = {
         if input.is_string_select() {
             let mut split = input.values.as_ref().unwrap()[0].split("/");
@@ -18,8 +20,6 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             (input.get_string_arg("user")?, "".into())
         }
     };
-
-    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
     let user = if_else!(
         input.is_string_select(),

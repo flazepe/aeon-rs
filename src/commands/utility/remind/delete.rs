@@ -9,6 +9,7 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
     let reminders = Reminders::new();
     let entries = reminders.get_many(&input.user.id).await.unwrap_or(vec![]);
 
@@ -31,8 +32,6 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             )
             .await?);
     }
-
-    let interaction = Interaction::new(&input, &res);
 
     match entries.get(match input.get_string_arg("entry")?.parse::<usize>() {
         Ok(index) => index - 1,

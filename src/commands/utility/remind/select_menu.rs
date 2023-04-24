@@ -3,6 +3,7 @@ use anyhow::Result;
 use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
     let message = input.message.as_ref().unwrap();
 
     match if_else!(
@@ -19,10 +20,6 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         true,
     ) {
         true => set::run(input, res).await,
-        false => {
-            Interaction::new(&input, &res)
-                .respond_error("This isn't your reminder.", true)
-                .await
-        },
+        false => interaction.respond_error("This isn't your reminder.", true).await,
     }
 }

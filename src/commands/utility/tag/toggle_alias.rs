@@ -6,7 +6,7 @@ use anyhow::Result;
 use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let interaction = Interaction::new(&input, &res);
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
     match Tags::new()
         .toggle_alias(

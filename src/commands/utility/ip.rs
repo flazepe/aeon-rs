@@ -22,7 +22,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn ip(input: CommandInput, res: CommandResponder) {
-        let interaction = Interaction::new(&input, &res);
+        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
         match IPInfo::get(input.get_string_arg("ip")?).await {
             Ok(ip_info) => interaction.respond(ip_info.format(), false).await?,

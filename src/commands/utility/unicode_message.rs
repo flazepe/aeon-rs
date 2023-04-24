@@ -11,7 +11,9 @@ pub fn get_command() -> Command {
         command_type = ApplicationCommandType::MESSAGE,
     )]
     async fn unicode_message(input: CommandInput, res: CommandResponder) {
-        Interaction::new(&input, &res)
+        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+
+        interaction
             .respond(
                 UnicodeCharacters::get(StringifiedMessage::from(input.target_message.as_ref().unwrap().clone()))
                     .format(),

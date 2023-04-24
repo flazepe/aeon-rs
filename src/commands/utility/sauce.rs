@@ -26,7 +26,7 @@ pub fn get_command() -> Command {
 		],
 	)]
     async fn sauce(input: CommandInput, res: CommandResponder) {
-        let interaction = Interaction::new(&input, &res);
+        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
         let url = input.get_string_arg("image-url").ok().unwrap_or(
             input

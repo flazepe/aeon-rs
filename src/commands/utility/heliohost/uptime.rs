@@ -4,9 +4,10 @@ use reqwest::get;
 use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
     let server = input.get_string_arg("server")?;
 
-    Interaction::new(&input, &res)
+    interaction
         .respond(
             format!(
                 "{}'s uptime is `{}`.",

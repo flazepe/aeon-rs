@@ -6,8 +6,13 @@ use anyhow::Result;
 use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+
+    res.defer(input.is_string_select()).await?;
+    let original_message = res.get_original_message().await?;
+
+    // Delete snoozed reminder
     if let Some(message) = input.message.as_ref() {
-        // Delete snoozed reminder
         if message.interaction.is_none() {
             input
                 .rest
@@ -16,11 +21,6 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 .ok();
         }
     }
-
-    let interaction = Interaction::new(&input, &res);
-    res.defer(input.is_string_select()).await?;
-
-    let original_message = res.get_original_message().await?;
 
     let url = input.custom_id.as_ref().map_or_else(
         || {

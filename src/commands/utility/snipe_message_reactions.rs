@@ -12,7 +12,7 @@ pub fn get_command() -> Command {
         dm_permission = false,
     )]
     async fn snipe_message_reactions(input: CommandInput, res: CommandResponder) {
-        let interaction = Interaction::new(&input, &res);
+        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
         match ReactionSnipes::new(
             input.guild_id.as_ref().unwrap(),

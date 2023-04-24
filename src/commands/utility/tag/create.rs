@@ -9,9 +9,9 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    if input.is_modal_submit() {
-        let interaction = Interaction::new(&input, &res);
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
+    if input.is_modal_submit() {
         match Tags::new()
             .create(
                 input.get_string_arg("tag")?,

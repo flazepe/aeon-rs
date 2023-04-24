@@ -13,6 +13,7 @@ use slashook::{
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
     let now = Utc::now();
 
     let mut embed = Embed::new().set_color(PRIMARY_COLOR)?.set_description(format!(
@@ -45,5 +46,5 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         );
     }
 
-    Interaction::new(&input, &res).respond(embed, false).await
+    interaction.respond(embed, false).await
 }

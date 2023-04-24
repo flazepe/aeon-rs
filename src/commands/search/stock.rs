@@ -22,7 +22,7 @@ pub fn get_command() -> Command {
 		],
 	)]
     async fn stock(input: CommandInput, res: CommandResponder) {
-        let interaction = Interaction::new(&input, &res);
+        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
         // We have to defer since scraping this takes a bit of time
         res.defer(false).await?;

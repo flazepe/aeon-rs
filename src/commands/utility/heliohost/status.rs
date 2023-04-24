@@ -5,6 +5,7 @@ use reqwest::Client;
 use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
     let user = input.get_string_arg("user")?;
 
     let response = Client::new()
@@ -20,8 +21,6 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         let status = document.select("#page-content p").first().text();
         status.trim().to_string()
     };
-
-    let interaction = Interaction::new(&input, &res);
 
     if_else!(
         status.is_empty() || status.contains("no account"),

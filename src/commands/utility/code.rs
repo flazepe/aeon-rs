@@ -26,7 +26,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn code(input: CommandInput, res: CommandResponder) {
-        let interaction = Interaction::new(&input, &res);
+        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
         if input.is_autocomplete() {
             return interaction

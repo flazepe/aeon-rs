@@ -22,7 +22,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn distrowatch(input: CommandInput, res: CommandResponder) {
-        let interaction = Interaction::new(&input, &res);
+        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
         match Distro::get(input.get_string_arg("distro")?).await {
             Ok(distro) => interaction.respond(distro.format(), false).await?,

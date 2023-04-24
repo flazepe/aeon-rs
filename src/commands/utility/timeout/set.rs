@@ -12,7 +12,7 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let interaction = Interaction::new(&input, &res);
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
     match Duration::new().parse(input.get_string_arg("duration")?) {
         Ok(duration) => {

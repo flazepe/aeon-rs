@@ -19,6 +19,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn calculate(input: CommandInput, res: CommandResponder) {
+        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
         let expression = input.get_string_arg("expression")?;
 
         let body = if_else!(
@@ -36,8 +37,6 @@ pub fn get_command() -> Command {
         .chars()
         .take(1000)
         .collect::<String>();
-
-        let interaction = Interaction::new(&input, &res);
 
         if_else!(
             body.is_empty() || body.contains("Error"),

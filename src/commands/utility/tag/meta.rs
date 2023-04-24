@@ -11,7 +11,7 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let interaction = Interaction::new(&input, &res);
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
     match Tags::new()
         .get(input.get_string_arg("tag")?, input.guild_id.as_ref().unwrap())

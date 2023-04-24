@@ -15,7 +15,7 @@ use sysinfo::{get_current_pid, ProcessExt, System, SystemExt};
 pub fn get_command() -> Command {
     #[command(name = "status", description = "Sends the process status.")]
     async fn status(input: CommandInput, res: CommandResponder) {
-        let interaction = Interaction::new(&input, &res);
+        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
         match get_current_pid() {
             Ok(pid) => {
