@@ -37,6 +37,8 @@ impl<'a> Interaction<'a> {
             return Ok(self);
         }
 
+        self.verified = true;
+
         if CACHE.cooldowns.read().unwrap().get(&self.input.user.id).unwrap_or(&0)
             > &SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs()
         {
@@ -57,8 +59,6 @@ impl<'a> Interaction<'a> {
                 bail!("User is not the interaction initiator.");
             }
         }
-
-        self.verified = true;
 
         Ok(self)
     }
