@@ -14,9 +14,7 @@ pub fn get_command() -> Command {
 		command_type = ApplicationCommandType::MESSAGE,
 	)]
     async fn remind_message(input: CommandInput, res: CommandResponder) {
-        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
-        interaction
+        Interaction::new(&input, &res)
             .respond(
                 Components::new().add_select_menu(
                     add_reminder_select_options(SelectMenu::new(SelectMenuType::STRING))

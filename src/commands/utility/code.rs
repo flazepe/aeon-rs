@@ -41,7 +41,7 @@ pub fn get_command() -> Command {
             )
         };
 
-        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+        let interaction = Interaction::new(&input, &res);
 
         if programming_language.is_empty() {
             return interaction
