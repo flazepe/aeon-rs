@@ -1,6 +1,5 @@
 use crate::{
     macros::if_else,
-    statics::emojis::ERROR_EMOJI,
     structs::{api::anilist::AniList, interaction::Interaction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
@@ -27,7 +26,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         AniList::get_user(query).await?,
         match AniList::get_user(query).await {
             Ok(result) => result,
-            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}"), true).await,
+            Err(error) => return interaction.respond_error(error, true).await,
         },
     );
 

@@ -1,5 +1,4 @@
 use crate::{
-    statics::emojis::ERROR_EMOJI,
     structs::{api::vndb::Vndb, interaction::Interaction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
@@ -46,7 +45,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     let visual_novel = match vndb.search_visual_novel(query).await {
         Ok(mut results) => results.remove(0),
-        Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}"), true).await,
+        Err(error) => return interaction.respond_error(error, true).await,
     };
 
     interaction
