@@ -97,16 +97,16 @@ impl Google {
             .replace("http://", "")
             .replace("https://", "");
 
-        let res = Client::new()
+        let dns_response = Client::new()
             .get(format!("https://dns.google/resolve"))
             .query(&[
                 ("type", record_type.to_string().as_str()),
                 ("name", domain.to_string().as_str()),
             ])
             .send()
+            .await?
+            .json::<GoogleDNSQuery>()
             .await?;
-
-        let dns_response = res.json::<GoogleDNSQuery>().await?;
 
         if dns_response.status != 0 {
             bail!(GOOGLE_DNS_CODES

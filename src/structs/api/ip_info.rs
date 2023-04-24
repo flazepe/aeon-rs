@@ -25,17 +25,17 @@ pub struct IPInfo {
 
 impl IPInfo {
     pub async fn get<T: ToString>(ip: T) -> Result<Self> {
-        let res = get(format!(
+        let response = get(format!(
             "https://ipinfo.io/{}/json",
             ip.to_string().replace(['/', '?'], "")
         ))
         .await?;
 
-        if res.status() != 200 {
+        if response.status() != 200 {
             bail!("IP address not found.");
         }
 
-        Ok(res.json().await?)
+        Ok(response.json().await?)
     }
 
     pub fn format(self) -> String {

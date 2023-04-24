@@ -21,8 +21,9 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         }
     }
 
-    res.defer(input.is_string_select()).await?;
     let interaction = Interaction::new(&input, &res);
+    res.defer(input.is_string_select()).await?;
+
     let reminders = MONGODB.get().unwrap().collection::<Reminder>("reminders");
 
     if reminders

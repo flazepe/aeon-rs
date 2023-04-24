@@ -22,10 +22,10 @@ pub fn get_command() -> Command {
 		],
 	)]
     async fn stock(input: CommandInput, res: CommandResponder) {
+        let interaction = Interaction::new(&input, &res);
+
         // We have to defer since scraping this takes a bit of time
         res.defer(false).await?;
-
-        let interaction = Interaction::new(&input, &res);
 
         match Stock::get(input.get_string_arg("ticker")?).await {
             Ok(stock) => interaction.respond(stock.format(), false).await?,
