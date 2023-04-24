@@ -7,14 +7,12 @@ use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let interaction = Interaction::new(&input, &res);
-    let tag = input.get_string_arg("tag")?;
-    let alias = input.get_string_arg("alias")?;
 
     match Tags::new()
         .toggle_alias(
-            &tag,
+            input.get_string_arg("tag")?,
             input.guild_id.as_ref().unwrap(),
-            &alias,
+            input.get_string_arg("alias")?,
             input.member.as_ref().unwrap(),
         )
         .await
