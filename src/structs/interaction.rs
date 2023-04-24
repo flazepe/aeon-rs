@@ -5,8 +5,12 @@ use crate::{
         CACHE,
     },
 };
-use anyhow::{bail, Result};
-use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
+use anyhow::{bail, Context, Result};
+use slashook::{
+    commands::{CommandInput, CommandResponder, MessageResponse},
+    structs::interactions::ApplicationCommandOptionChoice,
+};
+use std::collections::hash_map::Iter;
 use std::{
     fmt::Display,
     time::{SystemTime, UNIX_EPOCH},
@@ -70,5 +74,29 @@ impl<'a> Interaction<'a> {
 
     pub async fn respond_success<T: Display>(&self, response: T, ephemeral: bool) -> Result<()> {
         self.respond(format!("{SUCCESS_EMOJI} {response}"), ephemeral).await
+    }
+
+    pub async fn hashmap_autocomplete<K: ToString, V: ToString>(&self, hashmap_iter: Iter<'_, K, V>) -> Result<()> {
+        let value = self
+            .input
+            .args
+            .get(self.input.focused.as_ref().context("Missing focused arg.")?)
+            .context("Could not get focused arg.")?
+            .as_string()
+            .context("Could not convert focused arg to String.")?
+            .to_lowercase();
+
+        Ok(self
+            .res
+            .autocomplete(
+                hashmap_iter
+                    .filter(|(k, v)| {
+                        k.to_string().to_lowercase().contains(&value) || v.to_string().to_lowercase().contains(&value)
+                    })
+                    .map(|(k, v)| ApplicationCommandOptionChoice::new(v.to_string(), k.to_string()))
+                    .take(25)
+                    .collect(),
+            )
+            .await?)
     }
 }

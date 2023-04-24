@@ -2,7 +2,7 @@ use crate::{
     structs::{interaction::Interaction, tags::Tags},
     traits::ArgGetters,
 };
-use anyhow::{Error, Result};
+use anyhow::Result;
 use slashook::{
     commands::{CommandInput, CommandResponder, Modal},
     structs::components::{Components, TextInput, TextInputStyle},
@@ -26,21 +26,21 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             Err(error) => interaction.respond_error(error, true).await,
         }
     } else {
-        res.open_modal(
-            Modal::new("tag", "create", "Create Tag").set_components(
-                Components::new()
-                    .add_text_input(TextInput::new().set_id("tag").set_max_length(30).set_label("Tag"))
-                    .add_row()
-                    .add_text_input(
-                        TextInput::new()
-                            .set_style(TextInputStyle::PARAGRAPH)
-                            .set_id("content")
-                            .set_max_length(1000)
-                            .set_label("Content"),
-                    ),
-            ),
-        )
-        .await
-        .map_err(|error| Error::from(error))
+        Ok(res
+            .open_modal(
+                Modal::new("tag", "create", "Create Tag").set_components(
+                    Components::new()
+                        .add_text_input(TextInput::new().set_id("tag").set_max_length(30).set_label("Tag"))
+                        .add_row()
+                        .add_text_input(
+                            TextInput::new()
+                                .set_style(TextInputStyle::PARAGRAPH)
+                                .set_id("content")
+                                .set_max_length(1000)
+                                .set_label("Content"),
+                        ),
+                ),
+            )
+            .await?)
     }
 }

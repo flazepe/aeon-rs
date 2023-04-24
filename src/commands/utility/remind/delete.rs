@@ -3,7 +3,7 @@ use crate::{
     structs::{interaction::Interaction, reminders::Reminder},
     traits::ArgGetters,
 };
-use anyhow::{Error, Result};
+use anyhow::Result;
 use futures::stream::TryStreamExt;
 use mongodb::bson::doc;
 use slashook::{
@@ -21,7 +21,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         .await?;
 
     if input.is_autocomplete() {
-        return res
+        return Ok(res
             .autocomplete(
                 entries
                     .iter()
@@ -37,8 +37,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                     })
                     .collect::<Vec<ApplicationCommandOptionChoice>>(),
             )
-            .await
-            .map_err(|error| Error::from(error));
+            .await?);
     }
 
     let interaction = Interaction::new(&input, &res);

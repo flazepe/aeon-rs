@@ -2,7 +2,7 @@ use crate::{
     structs::{interaction::Interaction, tags::Tags},
     traits::ArgGetters,
 };
-use anyhow::{Error, Result};
+use anyhow::Result;
 use slashook::{
     commands::{CommandInput, CommandResponder, Modal},
     structs::components::{Components, TextInput, TextInputStyle},
@@ -32,7 +32,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             .await
             .and_then(|tag| Tags::validate_tag_modifier(tag, input.member.as_ref().unwrap()))
         {
-            Ok(tag) => res
+            Ok(tag) => Ok(res
                 .open_modal(
                     Modal::new("tag", "edit", "Edit Tag").set_components(
                         Components::new()
@@ -63,8 +63,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                             ),
                     ),
                 )
-                .await
-                .map_err(|error| Error::from(error)),
+                .await?),
             Err(error) => interaction.respond_error(error, true).await,
         }
     }

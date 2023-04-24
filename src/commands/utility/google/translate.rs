@@ -1,5 +1,4 @@
 use crate::{
-    functions::hashmap_autocomplete,
     statics::google::GOOGLE_TRANSLATE_LANGUAGES,
     structs::{api::google::Google, interaction::Interaction},
     traits::ArgGetters,
@@ -8,11 +7,13 @@ use anyhow::Result;
 use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    if input.is_autocomplete() {
-        return Ok(hashmap_autocomplete(input, res, GOOGLE_TRANSLATE_LANGUAGES.iter()).await?);
-    }
-
     let interaction = Interaction::new(&input, &res);
+
+    if input.is_autocomplete() {
+        return interaction
+            .hashmap_autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter())
+            .await;
+    }
 
     match Google::translate(
         input.get_string_arg("text")?,

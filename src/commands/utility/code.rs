@@ -1,5 +1,4 @@
 use crate::{
-    functions::hashmap_autocomplete,
     statics::{tio::TIO_PROGRAMMING_LANGUAGES, CACHE},
     structs::{api::tio::Tio, interaction::Interaction},
     traits::ArgGetters,
@@ -27,8 +26,12 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn code(input: CommandInput, res: CommandResponder) {
+        let interaction = Interaction::new(&input, &res);
+
         if input.is_autocomplete() {
-            return hashmap_autocomplete(input, res, TIO_PROGRAMMING_LANGUAGES.iter()).await?;
+            return interaction
+                .hashmap_autocomplete(TIO_PROGRAMMING_LANGUAGES.iter())
+                .await?;
         }
 
         let programming_language = {
@@ -40,8 +43,6 @@ pub fn get_command() -> Command {
                     .map_or("".into(), |programming_language| programming_language.clone()),
             )
         };
-
-        let interaction = Interaction::new(&input, &res);
 
         if programming_language.is_empty() {
             return interaction
