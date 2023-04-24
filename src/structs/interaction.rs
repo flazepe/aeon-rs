@@ -19,14 +19,55 @@ use std::{
 pub struct Interaction<'a> {
     input: &'a CommandInput,
     res: &'a CommandResponder,
+    verified: bool,
 }
 
 impl<'a> Interaction<'a> {
     pub fn new(input: &'a CommandInput, res: &'a CommandResponder) -> Interaction<'a> {
-        Self { input, res }
+        Self {
+            input,
+            res,
+            verified: false,
+        }
+    }
+
+    pub async fn verify(mut self) -> Result<Interaction<'a>> {
+        // Ignore verification for autocomplete
+        if self.input.is_autocomplete() {
+            return Ok(self);
+        }
+
+        if CACHE.cooldowns.read().unwrap().get(&self.input.user.id).unwrap_or(&0)
+            > &SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs()
+        {
+            self.respond_error("You are under a cooldown. Try again later.", true)
+                .await?;
+
+            bail!("User is under a cooldown.");
+        }
+
+        if let Some(interaction) = self
+            .input
+            .message
+            .as_ref()
+            .and_then(|message| message.interaction.as_ref())
+        {
+            if self.input.user.id != interaction.user.id {
+                self.respond_error("This isn't your interaction.", true).await?;
+                bail!("User is not the interaction initiator.");
+            }
+        }
+
+        self.verified = true;
+
+        Ok(self)
     }
 
     pub async fn respond<T: Into<MessageResponse>>(&self, response: T, ephemeral: bool) -> Result<()> {
+        if !self.verified {
+            bail!("Interaction isn't verified.");
+        }
+
         CACHE.cooldowns.write().unwrap().insert(
             self.input.user.id.clone(),
             SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + 3,
@@ -49,31 +90,6 @@ impl<'a> Interaction<'a> {
 
     pub async fn respond_success<T: Display>(&self, response: T, ephemeral: bool) -> Result<()> {
         self.respond(format!("{SUCCESS_EMOJI} {response}"), ephemeral).await
-    }
-
-    pub async fn verify(self) -> Result<Interaction<'a>> {
-        if CACHE.cooldowns.read().unwrap().get(&self.input.user.id).unwrap_or(&0)
-            > &SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs()
-        {
-            self.respond_error("You are under a cooldown. Try again later.", true)
-                .await?;
-
-            bail!("User is under a cooldown.");
-        }
-
-        if let Some(interaction) = self
-            .input
-            .message
-            .as_ref()
-            .and_then(|message| message.interaction.as_ref())
-        {
-            if self.input.user.id != interaction.user.id {
-                self.respond_error("This isn't your interaction.", true).await?;
-                bail!("User is not the interaction initiator.");
-            }
-        }
-
-        Ok(self)
     }
 
     pub async fn hashmap_autocomplete<K: ToString, V: ToString>(&self, hashmap_iter: Iter<'_, K, V>) -> Result<()> {
