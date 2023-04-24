@@ -225,8 +225,8 @@ impl Reminders {
         ))
     }
 
-    pub async fn delete<T: ToString>(&self, id: T) -> Result<()> {
-        self.reminders.delete_one(doc! { "_id": id.to_string() }, None).await?;
+    pub async fn delete(&self, id: ObjectId) -> Result<()> {
+        self.reminders.delete_one(doc! { "_id": id }, None).await?;
         Ok(())
     }
 }
