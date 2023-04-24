@@ -1,7 +1,6 @@
 use crate::{
     macros::if_else,
-    statics::emojis::ERROR_EMOJI,
-    structs::{api::steam::Steam, component_interaction::ComponentInteraction, select_menu::SelectMenu},
+    structs::{api::steam::Steam, interaction::Interaction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
 use anyhow::Result;
@@ -11,34 +10,29 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+
     if input.get_bool_arg("search").unwrap_or(false) {
-        res.send_message(
-            SelectMenu::new(
-                "steam",
-                "game",
-                "Select a game…",
-                match Steam::search_game(input.get_string_arg("game")?).await {
-                    Ok(results) => results
-                        .into_iter()
-                        .map(|result| SelectOption::new(result.name, result.id)),
-                    Err(error) => {
-                        res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                            .await?;
-
-                        return Ok(());
-                    },
-                }
-                .collect::<Vec<SelectOption>>(),
-                None::<String>,
+        return interaction
+            .respond(
+                SelectMenu::new(
+                    "steam",
+                    "game",
+                    "Select a game…",
+                    match Steam::search_game(input.get_string_arg("game")?).await {
+                        Ok(results) => results
+                            .into_iter()
+                            .map(|result| SelectOption::new(result.name, result.id)),
+                        Err(error) => return interaction.respond_error(error, true).await,
+                    }
+                    .collect::<Vec<SelectOption>>(),
+                    None::<String>,
+                )
+                .to_components(),
+                false,
             )
-            .to_components(),
-        )
-        .await?;
-
-        return Ok(());
+            .await;
     }
-
-    let Ok(interaction) = ComponentInteraction::verify(&input, &res).await else { return Ok(()); };
 
     let (query, section): (String, String) = {
         if input.is_string_select() {
@@ -54,7 +48,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         Steam::get_game(query).await?,
         match Steam::search_game(query).await {
             Ok(results) => Steam::get_game(&results[0].id).await?,
-            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}"), true).await,
+            Err(error) => return interaction.respond_error(error, true).await,
         },
     );
 

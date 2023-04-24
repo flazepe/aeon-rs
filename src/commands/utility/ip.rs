@@ -1,7 +1,10 @@
-use crate::{statics::emojis::ERROR_EMOJI, structs::api::ip_info::IPInfo, traits::ArgGetters};
+use crate::{
+    structs::{api::ip_info::IPInfo, interaction::Interaction},
+    traits::ArgGetters,
+};
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder, MessageResponse},
+    commands::{Command, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
@@ -19,14 +22,11 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn ip(input: CommandInput, res: CommandResponder) {
+        let interaction = Interaction::new(&input, &res);
+
         match IPInfo::get(input.get_string_arg("ip")?).await {
-            Ok(ip_info) => {
-                res.send_message(ip_info.format()).await?;
-            },
-            Err(error) => {
-                res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                    .await?;
-            },
+            Ok(ip_info) => interaction.respond(ip_info.format(), false).await?,
+            Err(error) => interaction.respond_error(error, true).await?,
         };
     }
 

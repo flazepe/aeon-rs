@@ -1,45 +1,39 @@
 use crate::{
-    statics::emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
-    structs::tags::Tags,
+    structs::{interaction::Interaction, tags::Tags},
     traits::ArgGetters,
 };
-use anyhow::Result;
+use anyhow::{Error, Result};
 use slashook::{
-    commands::{CommandInput, CommandResponder, MessageResponse, Modal},
+    commands::{CommandInput, CommandResponder, Modal},
     structs::components::{Components, TextInput, TextInputStyle},
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let interaction = Interaction::new(&input, &res);
     let tags = Tags::new();
 
-    Ok(if input.is_modal_submit() {
-        res.send_message(
-            MessageResponse::from(
-                match tags
-                    .edit(
-                        input.get_string_arg("tag")?,
-                        input.guild_id.as_ref().unwrap(),
-                        input.get_string_arg("name")?,
-                        input.get_string_arg("content")?,
-                        input.member.unwrap(),
-                    )
-                    .await
-                {
-                    Ok(response) => format!("{SUCCESS_EMOJI} {response}"),
-                    Err(error) => format!("{ERROR_EMOJI} {error}"),
-                },
+    if input.is_modal_submit() {
+        match tags
+            .edit(
+                input.get_string_arg("tag")?,
+                input.guild_id.as_ref().unwrap(),
+                input.get_string_arg("name")?,
+                input.get_string_arg("content")?,
+                input.member.as_ref().unwrap(),
             )
-            .set_ephemeral(true),
-        )
-        .await?;
+            .await
+        {
+            Ok(response) => interaction.respond_success(response, true).await,
+            Err(error) => interaction.respond_error(error, true).await,
+        }
     } else {
         match tags
-            .get(input.get_string_arg("tag")?, input.guild_id.unwrap())
+            .get(input.get_string_arg("tag")?, input.guild_id.as_ref().unwrap())
             .await
-            .and_then(|tag| Tags::validate_tag_modifier(tag, input.member.unwrap()))
+            .and_then(|tag| Tags::validate_tag_modifier(tag, input.member.as_ref().unwrap()))
         {
-            Ok(tag) => {
-                res.open_modal(
+            Ok(tag) => res
+                .open_modal(
                     Modal::new("tag", "edit", "Edit Tag").set_components(
                         Components::new()
                             .add_text_input(
@@ -69,12 +63,9 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                             ),
                     ),
                 )
-                .await?;
-            },
-            Err(error) => {
-                res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                    .await?;
-            },
-        };
-    })
+                .await
+                .map_err(|error| Error::from(error)),
+            Err(error) => interaction.respond_error(error, true).await,
+        }
+    }
 }

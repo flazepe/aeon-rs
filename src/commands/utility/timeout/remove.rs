@@ -1,15 +1,13 @@
-use crate::{
-    statics::emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
-    traits::ArgGetters,
-};
+use crate::{structs::interaction::Interaction, traits::ArgGetters};
 use anyhow::Result;
 use serde_json::json;
 use slashook::{
-    commands::{CommandInput, CommandResponder, MessageResponse},
+    commands::{CommandInput, CommandResponder},
     structs::guilds::GuildMember,
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let interaction = Interaction::new(&input, &res);
     let user = input.get_user_arg("member")?;
 
     match input
@@ -21,13 +19,11 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         .await
     {
         Ok(_) => {
-            res.send_message(format!("{SUCCESS_EMOJI} Removed timeout for {}.", user.mention()))
+            interaction
+                .respond_success(format!("Removed timeout for {}.", user.mention()), false)
                 .await?
         },
-        Err(error) => {
-            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                .await?
-        },
+        Err(error) => interaction.respond_error(error, true).await?,
     };
 
     Ok(())

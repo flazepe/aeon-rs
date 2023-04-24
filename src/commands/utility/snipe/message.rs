@@ -1,8 +1,13 @@
-use crate::{statics::emojis::ERROR_EMOJI, structs::snipes::Snipes, traits::ArgGetters};
+use crate::{
+    structs::{interaction::Interaction, snipes::Snipes},
+    traits::ArgGetters,
+};
 use anyhow::Result;
-use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
+use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let interaction = Interaction::new(&input, &res);
+
     match Snipes::new(
         input
             .get_channel_arg("channel")
@@ -12,12 +17,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     )
     .to_response()
     {
-        Ok(response) => res.send_message(response).await?,
-        Err(error) => {
-            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                .await?
-        },
-    };
-
-    Ok(())
+        Ok(response) => interaction.respond(response, false).await,
+        Err(error) => interaction.respond_error(error, true).await,
+    }
 }

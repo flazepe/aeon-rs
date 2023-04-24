@@ -1,6 +1,5 @@
 use crate::{
-    statics::emojis::ERROR_EMOJI,
-    structs::{api::vndb::Vndb, component_interaction::ComponentInteraction, select_menu::SelectMenu},
+    structs::{api::vndb::Vndb, interaction::Interaction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
 use anyhow::Result;
@@ -10,11 +9,11 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
     let vndb = Vndb::new();
 
     if input.is_string_select() {
-        return ComponentInteraction::verify(&input, &res)
-            .await?
+        return interaction
             .respond(
                 vndb.search_tag(&input.values.as_ref().unwrap()[0])
                     .await?
@@ -27,12 +26,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     let mut results = match vndb.search_tag(input.get_string_arg("tag")?).await {
         Ok(results) => results,
-        Err(error) => {
-            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                .await?;
-
-            return Ok(());
-        },
+        Err(error) => return interaction.respond_error(error, true).await,
     };
 
     res.send_message(

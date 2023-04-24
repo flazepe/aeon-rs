@@ -1,7 +1,7 @@
 use crate::{
     macros::if_else,
     statics::emojis::ERROR_EMOJI,
-    structs::{api::anilist::AniList, component_interaction::ComponentInteraction, select_menu::SelectMenu},
+    structs::{api::anilist::AniList, interaction::Interaction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
 use anyhow::Result;
@@ -11,8 +11,6 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let Ok(interaction) = ComponentInteraction::verify(&input, &res).await else { return Ok(()); };
-
     let (query, section): (String, String) = {
         if input.is_string_select() {
             let mut split = input.values.as_ref().unwrap()[0].split("/");
@@ -21,6 +19,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             (input.get_string_arg("user")?, "".into())
         }
     };
+
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
     let user = if_else!(
         input.is_string_select(),

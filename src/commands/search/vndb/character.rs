@@ -1,6 +1,5 @@
 use crate::{
-    statics::emojis::ERROR_EMOJI,
-    structs::{api::vndb::Vndb, component_interaction::ComponentInteraction, select_menu::SelectMenu},
+    structs::{api::vndb::Vndb, interaction::Interaction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
 use anyhow::Result;
@@ -10,36 +9,32 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
     let vndb = Vndb::new();
 
     if input.get_bool_arg("search").unwrap_or(false) {
-        res.send_message(
-            SelectMenu::new(
-                "vndb",
-                "character",
-                "Select a character…",
-                match vndb.search_character(input.get_string_arg("character")?).await {
-                    Ok(results) => results
-                        .into_iter()
-                        .map(|result| SelectOption::new(result.name, result.id).set_description(&result.vns[0].title))
-                        .collect::<Vec<SelectOption>>(),
-                    Err(error) => {
-                        res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                            .await?;
-
-                        return Ok(());
+        return interaction
+            .respond(
+                SelectMenu::new(
+                    "vndb",
+                    "character",
+                    "Select a character…",
+                    match vndb.search_character(input.get_string_arg("character")?).await {
+                        Ok(results) => results
+                            .into_iter()
+                            .map(|result| {
+                                SelectOption::new(result.name, result.id).set_description(&result.vns[0].title)
+                            })
+                            .collect::<Vec<SelectOption>>(),
+                        Err(error) => return interaction.respond_error(error, true).await,
                     },
-                },
-                None::<String>,
+                    None::<String>,
+                )
+                .to_components(),
+                false,
             )
-            .to_components(),
-        )
-        .await?;
-
-        return Ok(());
+            .await;
     }
-
-    let Ok(interaction) = ComponentInteraction::verify(&input, &res).await else { return Ok(()); };
 
     let (query, section): (String, String) = {
         if input.is_string_select() {
@@ -52,7 +47,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     let character = match vndb.search_character(query).await {
         Ok(mut results) => results.remove(0),
-        Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}"), true).await,
+        Err(error) => return interaction.respond_error(error, true).await,
     };
 
     interaction

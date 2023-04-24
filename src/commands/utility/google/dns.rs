@@ -1,14 +1,16 @@
-use crate::{statics::emojis::ERROR_EMOJI, structs::api::google::Google, traits::ArgGetters};
+use crate::{
+    structs::{api::google::Google, interaction::Interaction},
+    traits::ArgGetters,
+};
 use anyhow::Result;
-use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
+use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+
     match Google::query_dns(input.get_string_arg("type")?, input.get_string_arg("domain")?).await {
-        Ok(records) => res.send_message(records.format()).await?,
-        Err(error) => {
-            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                .await?
-        },
+        Ok(records) => interaction.respond(records.format(), false).await?,
+        Err(error) => interaction.respond_error(error, true).await?,
     };
 
     Ok(())

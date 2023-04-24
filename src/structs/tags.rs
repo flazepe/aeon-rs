@@ -81,7 +81,7 @@ impl Tags {
         guild_id: U,
         author_id: V,
         content: W,
-        modifier: GuildMember,
+        modifier: &GuildMember,
     ) -> Result<String> {
         if !modifier
             .permissions
@@ -138,7 +138,7 @@ impl Tags {
         &self,
         name: T,
         guild_id: U,
-        modifier: GuildMember,
+        modifier: &GuildMember,
     ) -> Result<String> {
         let tag = Tags::validate_tag_modifier(self.get(name, guild_id).await?, modifier)?;
 
@@ -161,7 +161,7 @@ impl Tags {
         guild_id: U,
         new_name: V,
         content: W,
-        modifier: GuildMember,
+        modifier: &GuildMember,
     ) -> Result<String> {
         let tag = Tags::validate_tag_modifier(self.get(name, guild_id).await?, modifier)?;
 
@@ -211,7 +211,7 @@ impl Tags {
         name: T,
         guild_id: U,
         alias: V,
-        modifier: GuildMember,
+        modifier: &GuildMember,
     ) -> Result<String> {
         let mut tag = Tags::validate_tag_modifier(self.get(name, guild_id).await?, modifier)?;
         let alias = Tags::validate_tag_name(alias)?;
@@ -262,7 +262,7 @@ impl Tags {
         &self,
         name: T,
         guild_id: U,
-        modifier: GuildMember,
+        modifier: &GuildMember,
     ) -> Result<String> {
         let tag = Tags::validate_tag_modifier(self.get(name, guild_id).await?, modifier)?;
         let nsfw = !tag.nsfw;
@@ -290,8 +290,8 @@ impl Tags {
         ))
     }
 
-    pub fn validate_tag_modifier(tag: Tag, member: GuildMember) -> Result<Tag> {
-        if tag.author_id != member.user.map_or("".into(), |user| user.id)
+    pub fn validate_tag_modifier(tag: Tag, member: &GuildMember) -> Result<Tag> {
+        if tag.author_id != member.user.as_ref().map_or("".into(), |user| user.id.clone())
             && !member
                 .permissions
                 .unwrap_or(Permissions::empty())

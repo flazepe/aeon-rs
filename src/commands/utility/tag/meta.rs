@@ -1,24 +1,25 @@
 use crate::{
     functions::{format_timestamp, TimestampFormat},
     macros::{if_else, yes_no},
-    statics::emojis::ERROR_EMOJI,
-    structs::tags::Tags,
+    structs::{interaction::Interaction, tags::Tags},
     traits::{ArgGetters, Tag},
 };
 use anyhow::Result;
 use slashook::{
-    commands::{CommandInput, CommandResponder, MessageResponse},
+    commands::{CommandInput, CommandResponder},
     structs::users::User,
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    res.send_message(
-        MessageResponse::from(
-            match Tags::new()
-                .get(input.get_string_arg("tag")?, input.guild_id.unwrap())
-                .await
-            {
-                Ok(tag) => {
+    let interaction = Interaction::new(&input, &res);
+
+    match Tags::new()
+        .get(input.get_string_arg("tag")?, input.guild_id.as_ref().unwrap())
+        .await
+    {
+        Ok(tag) => {
+            interaction
+                .respond(
                     format!(
                         "Tag `{}` was created by {} ({}) at {}.\nAliases: {}\nNSFW: {}\n\nLast updated {}.",
                         tag.name,
@@ -42,14 +43,11 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                         },
                         yes_no!(tag.nsfw),
                         format_timestamp(tag.updated_timestamp, TimestampFormat::Full)
-                    )
-                },
-                Err(error) => format!("{ERROR_EMOJI} {error}"),
-            },
-        )
-        .set_ephemeral(true),
-    )
-    .await?;
-
-    Ok(())
+                    ),
+                    true,
+                )
+                .await
+        },
+        Err(error) => interaction.respond_error(error, true).await,
+    }
 }

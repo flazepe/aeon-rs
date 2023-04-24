@@ -1,8 +1,8 @@
-use crate::{macros::if_else, statics::emojis::ERROR_EMOJI, traits::ArgGetters};
+use crate::{macros::if_else, structs::interaction::Interaction, traits::ArgGetters};
 use anyhow::Result;
 use nipper::Document;
 use reqwest::Client;
-use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
+use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let user = input.get_string_arg("user")?;
@@ -15,18 +15,17 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     let url = response.url().to_string();
 
-    res.send_message({
+    let status = {
         let document = Document::from(&response.text().await?);
         let status = document.select("#page-content p").first().text();
-        let status = status.trim();
+        status.trim().to_string()
+    };
 
-        if_else!(
-            status.is_empty() || status.contains("no account"),
-            MessageResponse::from(format!("{ERROR_EMOJI} Account not found.")).set_ephemeral(true),
-            MessageResponse::from(format!("[{user}]({url})\n{status}")),
-        )
-    })
-    .await?;
+    let interaction = Interaction::new(&input, &res);
 
-    Ok(())
+    if_else!(
+        status.is_empty() || status.contains("no account"),
+        interaction.respond_error("Account not found.", true).await,
+        interaction.respond(format!("[{user}]({url})\n{status}"), false).await,
+    )
 }

@@ -1,7 +1,10 @@
-use crate::{statics::emojis::ERROR_EMOJI, structs::scraping::distrowatch::Distro, traits::ArgGetters};
+use crate::{
+    structs::{interaction::Interaction, scraping::distrowatch::Distro},
+    traits::ArgGetters,
+};
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder, MessageResponse},
+    commands::{Command, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
@@ -19,14 +22,11 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn distrowatch(input: CommandInput, res: CommandResponder) {
+        let interaction = Interaction::new(&input, &res);
+
         match Distro::get(input.get_string_arg("distro")?).await {
-            Ok(distro) => {
-                res.send_message(distro.format()).await?;
-            },
-            Err(error) => {
-                res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                    .await?;
-            },
+            Ok(distro) => interaction.respond(distro.format(), false).await?,
+            Err(error) => interaction.respond_error(error, true).await?,
         };
     }
 

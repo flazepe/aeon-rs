@@ -1,7 +1,10 @@
-use crate::{statics::emojis::ERROR_EMOJI, structs::scraping::stock::Stock, traits::ArgGetters};
+use crate::{
+    structs::{interaction::Interaction, scraping::stock::Stock},
+    traits::ArgGetters,
+};
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder, MessageResponse},
+    commands::{Command, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
@@ -22,14 +25,11 @@ pub fn get_command() -> Command {
         // We have to defer since scraping this takes a bit of time
         res.defer(false).await?;
 
+        let interaction = Interaction::new(&input, &res);
+
         match Stock::get(input.get_string_arg("ticker")?).await {
-            Ok(stock) => {
-                res.send_message(stock.format()).await?;
-            },
-            Err(error) => {
-                res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                    .await?;
-            },
+            Ok(stock) => interaction.respond(stock.format(), false).await?,
+            Err(error) => interaction.respond_error(error, true).await?,
         };
     }
 

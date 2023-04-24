@@ -1,16 +1,13 @@
 use crate::{
-    statics::{
-        emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
-        MONGODB,
-    },
-    structs::reminders::Reminder,
+    statics::MONGODB,
+    structs::{interaction::Interaction, reminders::Reminder},
     traits::ArgGetters,
 };
-use anyhow::Result;
+use anyhow::{Error, Result};
 use futures::stream::TryStreamExt;
 use mongodb::bson::doc;
 use slashook::{
-    commands::{CommandInput, CommandResponder, MessageResponse},
+    commands::{CommandInput, CommandResponder},
     structs::interactions::ApplicationCommandOptionChoice,
 };
 
@@ -24,42 +21,37 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         .await?;
 
     if input.is_autocomplete() {
-        res.autocomplete(
-            entries
-                .iter()
-                .enumerate()
-                .map(|(index, entry)| {
-                    ApplicationCommandOptionChoice::new(
-                        format!("{}. {}", index + 1, entry.reminder)
-                            .chars()
-                            .take(100)
-                            .collect::<String>(),
-                        (index + 1).to_string(),
-                    )
-                })
-                .collect::<Vec<ApplicationCommandOptionChoice>>(),
-        )
-        .await?;
-
-        return Ok(());
+        return res
+            .autocomplete(
+                entries
+                    .iter()
+                    .enumerate()
+                    .map(|(index, entry)| {
+                        ApplicationCommandOptionChoice::new(
+                            format!("{}. {}", index + 1, entry.reminder)
+                                .chars()
+                                .take(100)
+                                .collect::<String>(),
+                            (index + 1).to_string(),
+                        )
+                    })
+                    .collect::<Vec<ApplicationCommandOptionChoice>>(),
+            )
+            .await
+            .map_err(|error| Error::from(error));
     }
 
-    let response = MessageResponse::from("").set_ephemeral(true);
+    let interaction = Interaction::new(&input, &res);
 
     match entries.get(input.get_string_arg("entry")?.parse::<usize>()? - 1) {
         Some(entry) => {
             reminders.delete_one(doc! { "_id": entry._id }, None).await?;
-
-            res.send_message(response.set_content(format!("{SUCCESS_EMOJI} Gone.")))
-                .await?;
+            interaction.respond_success("Gone.", true).await
         },
         None => {
-            res.send_message(
-                response.set_content(format!("{ERROR_EMOJI} Invalid entry. Make sure it's a valid number.")),
-            )
-            .await?;
+            interaction
+                .respond_error("Invalid entry. Make sure it's a valid number.", true)
+                .await
         },
     }
-
-    Ok(())
 }

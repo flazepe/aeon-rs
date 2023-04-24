@@ -1,32 +1,25 @@
 use crate::{
-    statics::{
-        duration::SECS_PER_DAY,
-        emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
-    },
-    structs::duration::Duration,
+    statics::duration::SECS_PER_DAY,
+    structs::{duration::Duration, interaction::Interaction},
     traits::ArgGetters,
 };
 use anyhow::Result;
 use serde_json::json;
 use slashook::{
     chrono::{Duration as ChronoDuration, Utc},
-    commands::{CommandInput, CommandResponder, MessageResponse},
+    commands::{CommandInput, CommandResponder},
     structs::guilds::GuildMember,
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let interaction = Interaction::new(&input, &res);
+
     match Duration::new().parse(input.get_string_arg("duration")?) {
         Ok(duration) => {
             if duration.total_secs < 30 || duration.total_secs > SECS_PER_DAY * 28 {
-                res.send_message(
-                    MessageResponse::from(format!(
-                        "{ERROR_EMOJI} Time cannot be under 30 seconds or over 28 days."
-                    ))
-                    .set_ephemeral(true),
-                )
-                .await?;
-
-                return Ok(());
+                return interaction
+                    .respond_error("Time cannot be under 30 seconds or over 28 days.", true)
+                    .await;
             }
 
             let user = input.get_user_arg("member")?;
@@ -43,23 +36,13 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 .await
             {
                 Ok(_) => {
-                    res.send_message(format!(
-                        "{SUCCESS_EMOJI} Set timeout for {} for {duration}.",
-                        user.mention()
-                    ))
-                    .await?
+                    interaction
+                        .respond_success(format!("Set timeout for {} for {duration}.", user.mention()), false)
+                        .await
                 },
-                Err(error) => {
-                    res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                        .await?
-                },
+                Err(error) => interaction.respond_error(error, true).await,
             }
         },
-        Err(error) => {
-            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                .await?
-        },
-    };
-
-    Ok(())
+        Err(error) => interaction.respond_error(error, true).await,
+    }
 }

@@ -1,29 +1,22 @@
 use crate::{
-    statics::emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
-    structs::tags::Tags,
+    structs::{interaction::Interaction, tags::Tags},
     traits::ArgGetters,
 };
 use anyhow::Result;
-use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
+use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    res.send_message(
-        MessageResponse::from(
-            match Tags::new()
-                .delete(
-                    input.get_string_arg("tag")?,
-                    input.guild_id.as_ref().unwrap(),
-                    input.member.unwrap(),
-                )
-                .await
-            {
-                Ok(response) => format!("{SUCCESS_EMOJI} {response}"),
-                Err(error) => format!("{ERROR_EMOJI} {error}"),
-            },
-        )
-        .set_ephemeral(true),
-    )
-    .await?;
+    let interaction = Interaction::new(&input, &res);
 
-    Ok(())
+    match Tags::new()
+        .delete(
+            input.get_string_arg("tag")?,
+            input.guild_id.as_ref().unwrap(),
+            input.member.as_ref().unwrap(),
+        )
+        .await
+    {
+        Ok(response) => interaction.respond_success(response, true).await,
+        Err(error) => interaction.respond_error(error, true).await,
+    }
 }

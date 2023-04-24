@@ -1,12 +1,8 @@
-use crate::{
-    macros::if_else,
-    statics::emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
-    traits::ArgGetters,
-};
+use crate::{macros::if_else, structs::interaction::Interaction, traits::ArgGetters};
 use reqwest::{get, Client};
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder, MessageResponse},
+    commands::{Command, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
@@ -41,12 +37,13 @@ pub fn get_command() -> Command {
         .take(1000)
         .collect::<String>();
 
-        res.send_message(if_else!(
+        let interaction = Interaction::new(&input, &res);
+
+        if_else!(
             body.is_empty() || body.contains("Error"),
-            MessageResponse::from(format!("{ERROR_EMOJI} Invalid expression.")).set_ephemeral(true),
-            MessageResponse::from(format!("{SUCCESS_EMOJI} `{body}`"))
-        ))
-        .await?;
+            interaction.respond_error("Invalid expression.", true).await?,
+            interaction.respond_success(format!("`{body}`"), false).await?
+        )
     }
 
     calculate

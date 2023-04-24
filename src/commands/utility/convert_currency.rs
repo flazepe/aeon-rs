@@ -1,12 +1,12 @@
 use crate::{
     functions::hashmap_autocomplete,
-    statics::{emojis::ERROR_EMOJI, exchange_rate::EXCHANGE_RATE_CURRENCIES},
-    structs::api::exchange_rate::ExchangeRateConversion,
+    statics::exchange_rate::EXCHANGE_RATE_CURRENCIES,
+    structs::{api::exchange_rate::ExchangeRateConversion, interaction::Interaction},
     traits::ArgGetters,
 };
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder, MessageResponse},
+    commands::{Command, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
@@ -42,6 +42,8 @@ pub fn get_command() -> Command {
             return hashmap_autocomplete(input, res, EXCHANGE_RATE_CURRENCIES.iter()).await?;
         }
 
+        let interaction = Interaction::new(&input, &res);
+
         match ExchangeRateConversion::get(
             input.get_f64_arg("amount")?,
             input.get_string_arg("origin-currency")?,
@@ -50,12 +52,11 @@ pub fn get_command() -> Command {
         .await
         {
             Ok(exchange_rate_conversion) => {
-                res.send_message(exchange_rate_conversion.format()).await?;
+                interaction
+                    .respond_success(exchange_rate_conversion.format(), false)
+                    .await?
             },
-            Err(error) => {
-                res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                    .await?;
-            },
+            Err(error) => interaction.respond_error(error, true).await?,
         };
     }
 

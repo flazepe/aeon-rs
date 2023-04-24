@@ -1,9 +1,9 @@
 pub mod api;
 pub mod client;
-pub mod component_interaction;
 pub mod config;
 pub mod duration;
 pub mod gateway;
+pub mod interaction;
 pub mod reminders;
 pub mod scraping;
 pub mod select_menu;

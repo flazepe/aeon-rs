@@ -1,12 +1,12 @@
 use crate::{
     functions::hashmap_autocomplete,
-    statics::{emojis::ERROR_EMOJI, tio::TIO_PROGRAMMING_LANGUAGES, CACHE},
-    structs::api::tio::Tio,
+    statics::{tio::TIO_PROGRAMMING_LANGUAGES, CACHE},
+    structs::{api::tio::Tio, interaction::Interaction},
     traits::ArgGetters,
 };
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder, MessageResponse, Modal},
+    commands::{Command, CommandInput, CommandResponder, Modal},
     structs::{
         components::{Components, TextInput, TextInputStyle},
         interactions::InteractionOptionType,
@@ -37,13 +37,15 @@ pub fn get_command() -> Command {
                     .last_tio_programming_languages
                     .read()?
                     .get(&input.user.id)
-                    .map_or("".into(), |programming_language| programming_language.to_string()),
+                    .map_or("".into(), |programming_language| programming_language.clone()),
             )
         };
 
+        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+
         if programming_language.is_empty() {
-            return res
-                .send_message(format!("{ERROR_EMOJI} Please provide a programming language."))
+            return interaction
+                .respond_error("Please provide a programming language.", true)
                 .await?;
         }
 
@@ -62,13 +64,8 @@ pub fn get_command() -> Command {
                 .run()
                 .await
             {
-                Ok(tio) => {
-                    res.send_message(tio.format()).await?;
-                },
-                Err(error) => {
-                    res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                        .await?;
-                },
+                Ok(tio) => interaction.respond(tio.format(), false).await?,
+                Err(error) => interaction.respond_error(error, true).await?,
             };
         } else {
             res.open_modal(

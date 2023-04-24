@@ -1,16 +1,18 @@
 use crate::{
     functions::hashmap_autocomplete,
-    statics::{emojis::ERROR_EMOJI, google::GOOGLE_TRANSLATE_LANGUAGES},
-    structs::api::google::Google,
+    statics::google::GOOGLE_TRANSLATE_LANGUAGES,
+    structs::{api::google::Google, interaction::Interaction},
     traits::ArgGetters,
 };
 use anyhow::Result;
-use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
+use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     if input.is_autocomplete() {
         return Ok(hashmap_autocomplete(input, res, GOOGLE_TRANSLATE_LANGUAGES.iter()).await?);
     }
+
+    let interaction = Interaction::new(&input, &res);
 
     match Google::translate(
         input.get_string_arg("text")?,
@@ -19,12 +21,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     )
     .await
     {
-        Ok(translation) => res.send_message(translation.format()).await?,
-        Err(error) => {
-            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                .await?
-        },
-    };
-
-    Ok(())
+        Ok(translation) => interaction.respond(translation.format(), false).await,
+        Err(error) => interaction.respond_error(error, true).await,
+    }
 }

@@ -1,10 +1,7 @@
-use crate::{
-    statics::emojis::ERROR_EMOJI,
-    structs::{api::google::Google, stringified_message::StringifiedMessage},
-};
+use crate::structs::{api::google::Google, interaction::Interaction, stringified_message::StringifiedMessage};
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder, MessageResponse},
+    commands::{Command, CommandInput, CommandResponder},
     structs::interactions::ApplicationCommandType,
 };
 
@@ -14,14 +11,17 @@ pub fn get_command() -> Command {
 		command_type = ApplicationCommandType::MESSAGE,
 	)]
     async fn translate_message(input: CommandInput, res: CommandResponder) {
-        match Google::translate(StringifiedMessage::from(input.target_message.unwrap()), "auto", "en").await {
-            Ok(translation) => {
-                res.send_message(translation.format()).await?;
-            },
-            Err(error) => {
-                res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                    .await?;
-            },
+        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+
+        match Google::translate(
+            StringifiedMessage::from(input.target_message.as_ref().unwrap().clone()),
+            "auto",
+            "en",
+        )
+        .await
+        {
+            Ok(translation) => interaction.respond(translation.format(), false).await?,
+            Err(error) => interaction.respond_error(error, true).await?,
         };
     }
 

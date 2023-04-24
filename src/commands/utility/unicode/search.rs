@@ -1,15 +1,15 @@
-use crate::{statics::emojis::ERROR_EMOJI, structs::unicode::UnicodeCharacter, traits::ArgGetters};
+use crate::{
+    structs::{interaction::Interaction, unicode::UnicodeCharacter},
+    traits::ArgGetters,
+};
 use anyhow::Result;
-use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
+use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    match UnicodeCharacter::get(input.get_string_arg("query")?).await {
-        Ok(unicode_character) => res.send_message(unicode_character.format()).await?,
-        Err(error) => {
-            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                .await?
-        },
-    };
+    let interaction = Interaction::new(&input, &res);
 
-    Ok(())
+    match UnicodeCharacter::get(input.get_string_arg("query")?).await {
+        Ok(unicode_character) => interaction.respond(unicode_character.format(), false).await,
+        Err(error) => interaction.respond_error(error, true).await,
+    }
 }

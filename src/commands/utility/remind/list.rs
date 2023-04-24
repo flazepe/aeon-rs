@@ -1,14 +1,14 @@
 use crate::{
     functions::{format_timestamp, TimestampFormat},
     macros::if_else,
-    statics::{colors::PRIMARY_COLOR, emojis::ERROR_EMOJI, MONGODB},
-    structs::{duration::Duration, reminders::Reminder},
+    statics::{colors::PRIMARY_COLOR, MONGODB},
+    structs::{duration::Duration, interaction::Interaction, reminders::Reminder},
 };
 use anyhow::Result;
 use futures::stream::TryStreamExt;
 use mongodb::bson::doc;
 use slashook::{
-    commands::{CommandInput, CommandResponder, MessageResponse},
+    commands::{CommandInput, CommandResponder},
     structs::embeds::Embed,
 };
 
@@ -39,19 +39,18 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         })
         .collect::<Vec<String>>();
 
-    res.send_message(
-        if_else!(
-            entries.is_empty(),
-            MessageResponse::from(format!("{ERROR_EMOJI} No reminders found.")),
-            MessageResponse::from(
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+
+    if_else!(
+        entries.is_empty(),
+        interaction.respond_error("No reminders found.", true).await,
+        interaction
+            .respond(
                 Embed::new()
                     .set_color(PRIMARY_COLOR)?
-                    .set_description(entries.join("\n\n"))
+                    .set_description(entries.join("\n\n")),
+                true
             )
-        )
-        .set_ephemeral(true),
+            .await
     )
-    .await?;
-
-    Ok(())
 }

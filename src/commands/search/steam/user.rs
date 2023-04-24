@@ -1,15 +1,15 @@
-use crate::{statics::emojis::ERROR_EMOJI, structs::api::steam::Steam, traits::ArgGetters};
+use crate::{
+    structs::{api::steam::Steam, interaction::Interaction},
+    traits::ArgGetters,
+};
 use anyhow::Result;
-use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
+use slashook::commands::{CommandInput, CommandResponder};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    Ok(match Steam::get_user(input.get_string_arg("user")?).await {
-        Ok(user) => {
-            res.send_message(user.format()).await?;
-        },
-        Err(error) => {
-            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                .await?;
-        },
-    })
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+
+    match Steam::get_user(input.get_string_arg("user")?).await {
+        Ok(user) => interaction.respond(user.format(), false).await,
+        Err(error) => interaction.respond_error(error, true).await,
+    }
 }

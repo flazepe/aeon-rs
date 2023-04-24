@@ -1,6 +1,5 @@
 use crate::{
-    statics::emojis::ERROR_EMOJI,
-    structs::{api::vndb::Vndb, component_interaction::ComponentInteraction, select_menu::SelectMenu},
+    structs::{api::vndb::Vndb, interaction::Interaction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
 use anyhow::Result;
@@ -10,11 +9,11 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
     let vndb = Vndb::new();
 
     if input.is_string_select() {
-        return ComponentInteraction::verify(&input, &res)
-            .await?
+        return interaction
             .respond(
                 vndb.search_trait(&input.values.as_ref().unwrap()[0])
                     .await?
@@ -27,31 +26,26 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     let mut results = match vndb.search_trait(input.get_string_arg("trait")?).await {
         Ok(results) => results,
-        Err(error) => {
-            res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                .await?;
-
-            return Ok(());
-        },
+        Err(error) => return interaction.respond_error(error, true).await,
     };
 
-    res.send_message(
-        MessageResponse::from(
-            SelectMenu::new(
-                "vndb",
-                "trait",
-                "View other results…",
-                results
-                    .iter()
-                    .map(|result| SelectOption::new(&result.name, &result.id).set_description(&result.group_name))
-                    .collect::<Vec<SelectOption>>(),
-                None::<String>,
+    interaction
+        .respond(
+            MessageResponse::from(
+                SelectMenu::new(
+                    "vndb",
+                    "trait",
+                    "View other results…",
+                    results
+                        .iter()
+                        .map(|result| SelectOption::new(&result.name, &result.id).set_description(&result.group_name))
+                        .collect::<Vec<SelectOption>>(),
+                    None::<String>,
+                )
+                .to_components(),
             )
-            .to_components(),
+            .add_embed(results.remove(0).format()),
+            false,
         )
-        .add_embed(results.remove(0).format()),
-    )
-    .await?;
-
-    Ok(())
+        .await
 }

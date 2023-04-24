@@ -1,6 +1,5 @@
 use crate::{
-    statics::emojis::ERROR_EMOJI,
-    structs::{api::jisho::JishoSearch, component_interaction::ComponentInteraction, select_menu::SelectMenu},
+    structs::{api::jisho::JishoSearch, interaction::Interaction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
 use slashook::{
@@ -23,9 +22,10 @@ pub fn get_command() -> Command {
 		],
 	)]
     async fn jisho(input: CommandInput, res: CommandResponder) {
+        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+
         if input.is_string_select() {
-            return ComponentInteraction::verify(&input, &res)
-                .await?
+            return interaction
                 .respond(
                     JishoSearch::get(&input.values.as_ref().unwrap()[0]).await?.format(),
                     false,
@@ -35,31 +35,28 @@ pub fn get_command() -> Command {
 
         let mut results = match JishoSearch::search(input.get_string_arg("query")?).await {
             Ok(results) => results,
-            Err(error) => {
-                res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                    .await?;
-
-                return Ok(());
-            },
+            Err(error) => return Ok(interaction.respond_error(error, true).await?),
         };
 
-        res.send_message(
-            MessageResponse::from(
-                SelectMenu::new(
-                    "jisho",
-                    "search",
-                    "View other results…",
-                    results
-                        .iter()
-                        .map(|result| SelectOption::new(result.format_title(), result.slug.clone()))
-                        .collect::<Vec<SelectOption>>(),
-                    None::<String>,
+        interaction
+            .respond(
+                MessageResponse::from(
+                    SelectMenu::new(
+                        "jisho",
+                        "search",
+                        "View other results…",
+                        results
+                            .iter()
+                            .map(|result| SelectOption::new(result.format_title(), result.slug.clone()))
+                            .collect::<Vec<SelectOption>>(),
+                        None::<String>,
+                    )
+                    .to_components(),
                 )
-                .to_components(),
+                .add_embed(results.remove(0).format()),
+                false,
             )
-            .add_embed(results.remove(0).format()),
-        )
-        .await?;
+            .await?;
     }
 
     jisho

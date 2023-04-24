@@ -1,7 +1,10 @@
-use crate::{statics::emojis::ERROR_EMOJI, structs::api::saucenao::SauceNAOSearch, traits::ArgGetters};
+use crate::{
+    structs::{api::saucenao::SauceNAOSearch, interaction::Interaction},
+    traits::ArgGetters,
+};
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder, MessageResponse},
+    commands::{Command, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
@@ -23,6 +26,8 @@ pub fn get_command() -> Command {
 		],
 	)]
     async fn sauce(input: CommandInput, res: CommandResponder) {
+        let interaction = Interaction::new(&input, &res);
+
         let url = input.get_string_arg("image-url").ok().unwrap_or(
             input
                 .get_attachment_arg("image-attachment")
@@ -30,19 +35,14 @@ pub fn get_command() -> Command {
         );
 
         if url.is_empty() {
-            return res
-                .send_message(format!("{ERROR_EMOJI} Please provide an image URL or attachment."))
+            return interaction
+                .respond_error("Please provide an image URL or attachment.", true)
                 .await?;
         }
 
         match SauceNAOSearch::query(url).await {
-            Ok(saucenao_search) => {
-                res.send_message(saucenao_search.format()).await?;
-            },
-            Err(error) => {
-                res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                    .await?;
-            },
+            Ok(saucenao_search) => interaction.respond(saucenao_search.format(), false).await?,
+            Err(error) => interaction.respond_error(error, true).await?,
         };
     }
 

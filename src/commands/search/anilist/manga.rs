@@ -1,7 +1,6 @@
 use crate::{
     macros::if_else,
-    statics::emojis::ERROR_EMOJI,
-    structs::{api::anilist::AniList, component_interaction::ComponentInteraction, select_menu::SelectMenu},
+    structs::{api::anilist::AniList, interaction::Interaction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
 use anyhow::Result;
@@ -11,42 +10,37 @@ use slashook::{
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
+    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+
     if input.get_bool_arg("search").unwrap_or(false) {
-        res.send_message(
-            SelectMenu::new(
-                "anilist",
-                "manga",
-                "Select a manga…",
-                match AniList::search_manga(input.get_string_arg("manga")?).await {
-                    Ok(results) => results
-                        .into_iter()
-                        .map(|result| {
-                            SelectOption::new(result.title.romaji, result.id).set_description(format!(
-                                "{} - {}",
-                                result
-                                    .format
-                                    .map_or("TBA".into(), |format| AniList::format_enum_value(format)),
-                                AniList::format_enum_value(result.status),
-                            ))
-                        })
-                        .collect::<Vec<SelectOption>>(),
-                    Err(error) => {
-                        res.send_message(MessageResponse::from(format!("{ERROR_EMOJI} {error}")).set_ephemeral(true))
-                            .await?;
-
-                        return Ok(());
+        return interaction
+            .respond(
+                SelectMenu::new(
+                    "anilist",
+                    "manga",
+                    "Select a manga…",
+                    match AniList::search_manga(input.get_string_arg("manga")?).await {
+                        Ok(results) => results
+                            .into_iter()
+                            .map(|result| {
+                                SelectOption::new(result.title.romaji, result.id).set_description(format!(
+                                    "{} - {}",
+                                    result
+                                        .format
+                                        .map_or("TBA".into(), |format| AniList::format_enum_value(format)),
+                                    AniList::format_enum_value(result.status),
+                                ))
+                            })
+                            .collect::<Vec<SelectOption>>(),
+                        Err(error) => return interaction.respond_error(error, true).await,
                     },
-                },
-                None::<String>,
+                    None::<String>,
+                )
+                .to_components(),
+                false,
             )
-            .to_components(),
-        )
-        .await?;
-
-        return Ok(());
+            .await;
     }
-
-    let Ok(interaction) = ComponentInteraction::verify(&input, &res).await else { return Ok(()); };
 
     let (query, section): (String, String) = {
         if input.is_string_select() {
@@ -62,7 +56,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         AniList::get_manga(query.parse::<u64>()?).await?,
         match AniList::search_manga(query).await {
             Ok(mut results) => results.remove(0),
-            Err(error) => return interaction.respond(format!("{ERROR_EMOJI} {error}"), true).await,
+            Err(error) => return interaction.respond_error(error, true).await,
         },
     );
 
@@ -71,9 +65,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             .await
             .map_or(false, |channel| channel.nsfw.unwrap_or(false))
         {
-            return interaction
-                .respond(format!("{ERROR_EMOJI} NSFW channels only."), true)
-                .await;
+            return interaction.respond_error("NSFW channels only.", true).await;
         }
     }
 
