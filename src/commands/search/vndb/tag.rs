@@ -29,25 +29,25 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         Err(error) => return interaction.respond_error(error, true).await,
     };
 
-    res.send_message(
-        MessageResponse::from(
-            SelectMenu::new(
-                "vndb",
-                "tag",
-                "View other results…",
-                results
-                    .iter()
-                    .map(|result| {
-                        SelectOption::new(result.name.to_string(), &result.id).set_description(&result.category)
-                    })
-                    .collect::<Vec<SelectOption>>(),
-                None::<String>,
+    interaction
+        .respond(
+            MessageResponse::from(
+                SelectMenu::new(
+                    "vndb",
+                    "tag",
+                    "View other results…",
+                    results
+                        .iter()
+                        .map(|result| {
+                            SelectOption::new(result.name.to_string(), &result.id).set_description(&result.category)
+                        })
+                        .collect::<Vec<SelectOption>>(),
+                    None::<String>,
+                )
+                .to_components(),
             )
-            .to_components(),
+            .add_embed(results.remove(0).format()),
+            false,
         )
-        .add_embed(results.remove(0).format()),
-    )
-    .await?;
-
-    Ok(())
+        .await
 }

@@ -61,7 +61,7 @@ impl Reminders {
                 .await?
             {
                 match self.handle(&reminder).await {
-                    Ok(()) => {
+                    Ok(_) => {
                         self.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
 
                         if reminder.interval > 0 {

@@ -9,9 +9,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let interaction = Interaction::new(&input, &res);
 
     match Google::query_dns(input.get_string_arg("type")?, input.get_string_arg("domain")?).await {
-        Ok(records) => interaction.respond(records.format(), false).await?,
-        Err(error) => interaction.respond_error(error, true).await?,
-    };
-
-    Ok(())
+        Ok(records) => interaction.respond(records.format(), false).await,
+        Err(error) => interaction.respond_error(error, true).await,
+    }
 }

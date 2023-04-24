@@ -1,4 +1,8 @@
-use crate::{macros::if_else, statics::colors::PRIMARY_COLOR, structs::duration::Duration};
+use crate::{
+    macros::if_else,
+    statics::colors::PRIMARY_COLOR,
+    structs::{duration::Duration, interaction::Interaction},
+};
 use anyhow::Result;
 use reqwest::Client;
 use slashook::{
@@ -8,7 +12,7 @@ use slashook::{
 };
 use std::time::{SystemTime, UNIX_EPOCH};
 
-pub async fn run(_: CommandInput, res: CommandResponder) -> Result<()> {
+pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let now = Utc::now();
 
     let mut embed = Embed::new().set_color(PRIMARY_COLOR)?.set_description(format!(
@@ -42,7 +46,5 @@ pub async fn run(_: CommandInput, res: CommandResponder) -> Result<()> {
         );
     }
 
-    res.send_message(embed).await?;
-
-    Ok(())
+    Interaction::new(&input, &res).respond(embed, false).await
 }

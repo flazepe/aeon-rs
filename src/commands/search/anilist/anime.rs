@@ -13,7 +13,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
     if input.get_bool_arg("search").unwrap_or(false) {
-        interaction
+        return interaction
             .respond(
                 SelectMenu::new(
                     "anilist",
@@ -37,9 +37,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 .to_components(),
                 false,
             )
-            .await?;
-
-        return Ok(());
+            .await;
     }
 
     let (query, section): (String, String) = {
