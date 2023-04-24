@@ -1,9 +1,10 @@
 use crate::{
     functions::add_reminder_select_options,
     macros::if_else,
-    statics::{colors::NOTICE_COLOR, CONFIG, MONGODB},
+    statics::{colors::NOTICE_COLOR, duration::SECS_PER_MONTH, CONFIG, MONGODB},
+    structs::duration::Duration,
 };
-use anyhow::Result;
+use anyhow::{bail, Result};
 use futures::stream::TryStreamExt;
 use mongodb::{
     bson::{doc, oid::ObjectId},
@@ -22,7 +23,7 @@ use slashook::{
 };
 use std::{
     thread::sleep,
-    time::{Duration, SystemTime, UNIX_EPOCH},
+    time::{Duration as TimeDuration, SystemTime, UNIX_EPOCH},
 };
 
 #[derive(Deserialize, Serialize)]
@@ -37,19 +38,19 @@ pub struct Reminder {
 }
 
 pub struct Reminders {
-    rest: Rest,
+    rest: Option<Rest>,
     reminders: Collection<Reminder>,
 }
 
 impl Reminders {
     pub fn new() -> Self {
         Self {
-            rest: Rest::with_token(CONFIG.bot.token.clone()),
+            rest: None,
             reminders: MONGODB.get().unwrap().collection::<Reminder>("reminders"),
         }
     }
 
-    pub async fn poll(self) -> Result<()> {
+    pub async fn poll(mut self) -> Result<()> {
         loop {
             let current_timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
 
@@ -96,11 +97,15 @@ impl Reminders {
                 }
             }
 
-            sleep(Duration::from_secs(10));
+            sleep(TimeDuration::from_secs(10));
         }
     }
 
-    async fn handle(&self, reminder: &Reminder) -> Result<()> {
+    async fn handle(&mut self, reminder: &Reminder) -> Result<()> {
+        if self.rest.is_none() {
+            self.rest = Some(Rest::with_token(CONFIG.bot.token.clone()));
+        }
+
         let mut response = MessageResponse::from(if_else!(reminder.dm, "".into(), format!("<@{}>", reminder.user_id)))
             .add_embed(
                 Embed::new()
@@ -121,10 +126,12 @@ impl Reminders {
         }
 
         Message::create(
-            &self.rest,
+            self.rest.as_ref().unwrap(),
             if reminder.dm && !reminder.url.contains("@me") {
                 // If the reminder should be DM'd but was created inside a guild channel, we have to create a new DM channel
                 self.rest
+                    .as_ref()
+                    .unwrap()
                     .post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": reminder.user_id }))
                     .await?
                     .id
@@ -136,6 +143,90 @@ impl Reminders {
         )
         .await?;
 
+        Ok(())
+    }
+
+    pub async fn get_many<T: ToString>(&self, user_id: T) -> Result<Vec<Reminder>> {
+        let reminders = self
+            .reminders
+            .find(
+                doc! {
+                    "user_id": user_id.to_string(),
+                },
+                None,
+            )
+            .await?
+            .try_collect::<Vec<Reminder>>()
+            .await?;
+
+        if_else!(reminders.is_empty(), bail!("No reminders found."), Ok(reminders))
+    }
+
+    pub async fn set<T: ToString, U: ToString, V: ToString>(
+        &self,
+        user_id: T,
+        url: U,
+        time: Duration,
+        interval: Duration,
+        reminder: V,
+        dm: bool,
+    ) -> Result<String> {
+        if self
+            .reminders
+            .count_documents(doc! { "user_id": user_id.to_string() }, None)
+            .await?
+            >= 10
+        {
+            bail!("You can only have up to 10 reminders.");
+        };
+
+        if time.total_secs < 30 || time.total_secs > SECS_PER_MONTH * 12 {
+            bail!("Time cannot be under 30 seconds or over a year.");
+        }
+
+        if interval.total_secs > 0 && (interval.total_secs < 30 || interval.total_secs > SECS_PER_MONTH * 12) {
+            bail!("Interval cannot be under 30 seconds or over a year.");
+        }
+
+        if interval.total_secs > 0 && !dm {
+            bail!("Intervals are only supported for DMs.");
+        }
+
+        // For older snooze messages
+        if !url.to_string().contains("/") {
+            bail!("Unsupported message.");
+        }
+
+        self.reminders
+            .insert_one(
+                &Reminder {
+                    _id: ObjectId::new(),
+                    user_id: user_id.to_string(),
+                    url: url.to_string(),
+                    timestamp: SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + time.total_secs,
+                    interval: interval.total_secs,
+                    reminder: reminder.to_string(),
+                    dm,
+                },
+                None,
+            )
+            .await?;
+
+        Ok(format!(
+            "I will remind you about [{}](<https://discord.com/channels/{}>) in {time}{}. Make sure I {}.",
+            reminder.to_string(),
+            url.to_string(),
+            if_else!(
+                interval.total_secs > 0,
+                format!(" and every {interval} after that"),
+                "".into(),
+            ),
+            if_else!(dm, "can DM you", "have the View Channel and Send Messages permission"),
+        ))
+    }
+
+    pub async fn delete<T: ToString>(&self, id: T) -> Result<()> {
+        self.reminders.delete_one(doc! { "_id": id.to_string() }, None).await?;
         Ok(())
     }
 }
