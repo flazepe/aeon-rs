@@ -35,7 +35,7 @@ impl<'a> Interaction<'a> {
         let response = response.into().set_ephemeral(ephemeral);
 
         if_else!(
-            self.input.message.is_some(),
+            self.input.message.is_some() && !ephemeral,
             self.res.update_message(response).await?,
             self.res.send_message(response).await?,
         );
@@ -51,16 +51,11 @@ impl<'a> Interaction<'a> {
         self.respond(format!("{SUCCESS_EMOJI} {response}"), ephemeral).await
     }
 
-    async fn send_ephemeral<T: Into<MessageResponse>>(&self, response: T) -> Result<()> {
-        self.res.send_message(response.into().set_ephemeral(true)).await?;
-        Ok(())
-    }
-
     pub async fn verify(self) -> Result<Interaction<'a>> {
         if CACHE.cooldowns.read().unwrap().get(&self.input.user.id).unwrap_or(&0)
             > &SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs()
         {
-            self.send_ephemeral("You are under a cooldown. Try again later.")
+            self.respond_error("You are under a cooldown. Try again later.", true)
                 .await?;
 
             bail!("User is under a cooldown.");
@@ -73,7 +68,7 @@ impl<'a> Interaction<'a> {
             .and_then(|message| message.interaction.as_ref())
         {
             if self.input.user.id != interaction.user.id {
-                self.send_ephemeral("This isn't your interaction.").await?;
+                self.respond_error("This isn't your interaction.", true).await?;
                 bail!("User is not the interaction initiator.");
             }
         }
