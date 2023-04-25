@@ -93,17 +93,7 @@ impl Tags {
             bail!("Tag already exists.");
         }
 
-        if self
-            .tags
-            .count_documents(
-                doc! {
-                    "guild_id": guild_id.to_string(),
-                },
-                None,
-            )
-            .await?
-            == 100
-        {
+        if self.tags.count_documents(doc! { "guild_id": guild_id.to_string() }, None).await? == 100 {
             bail!("I'm sure 100 tags are enough for your server...");
         }
 
