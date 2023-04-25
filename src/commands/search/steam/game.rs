@@ -4,34 +4,22 @@ use crate::{
     traits::ArgGetters,
 };
 use anyhow::Result;
-use slashook::{
-    commands::{CommandInput, CommandResponder, MessageResponse},
-    structs::components::SelectOption,
-};
+use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
     if input.get_bool_arg("search").unwrap_or(false) {
-        return interaction
-            .respond(
-                SelectMenu::new(
-                    "steam",
-                    "game",
-                    "Select a game…",
-                    match Steam::search_game(input.get_string_arg("game")?).await {
-                        Ok(results) => results
-                            .into_iter()
-                            .map(|result| SelectOption::new(result.name, result.id)),
-                        Err(error) => return interaction.respond_error(error, true).await,
-                    }
-                    .collect::<Vec<SelectOption>>(),
-                    None::<String>,
-                )
-                .to_components(),
-                false,
-            )
-            .await;
+        let mut select_menu = SelectMenu::new("steam", "game", "Select a game…", None::<String>);
+
+        for result in match Steam::search_game(input.get_string_arg("game")?).await {
+            Ok(results) => results,
+            Err(error) => return interaction.respond_error(error, true).await,
+        } {
+            select_menu = select_menu.add_option(result.name, result.id, None::<String>);
+        }
+
+        return interaction.respond(select_menu.to_components(), false).await;
     }
 
     let (query, section): (String, String) = {
@@ -55,19 +43,12 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     interaction
         .respond(
             MessageResponse::from(
-                SelectMenu::new(
-                    "steam",
-                    "game",
-                    "Select a section…",
-                    vec![
-                        SelectOption::new("Overview", format!("{}", game.id)),
-                        SelectOption::new("Developers", format!("{}/developers", game.id)),
-                        SelectOption::new("Details", format!("{}/details", game.id)),
-                        SelectOption::new("Featured Achievements", format!("{}/featured-achievements", game.id)),
-                    ],
-                    Some(&section),
-                )
-                .to_components(),
+                SelectMenu::new("steam", "game", "Select a section…", Some(&section))
+                    .add_option("Overview", format!("{}", game.id), None::<String>)
+                    .add_option("Developers", format!("{}/developers", game.id), None::<String>)
+                    .add_option("Details", format!("{}/details", game.id), None::<String>)
+                    .add_option("Featured Achievements", format!("{}/featured-achievements", game.id), None::<String>)
+                    .to_components(),
             )
             .add_embed(match section.as_str() {
                 "developers" => game.format_developers(),

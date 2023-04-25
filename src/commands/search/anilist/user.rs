@@ -4,10 +4,7 @@ use crate::{
     traits::ArgGetters,
 };
 use anyhow::Result;
-use slashook::{
-    commands::{CommandInput, CommandResponder, MessageResponse},
-    structs::components::SelectOption,
-};
+use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
@@ -33,21 +30,14 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     interaction
         .respond(
             MessageResponse::from(
-                SelectMenu::new(
-                    "anilist",
-                    "user",
-                    "Select a section…",
-                    vec![
-                        SelectOption::new("Overview", format!("{}", user.name)),
-                        SelectOption::new("About", format!("{}/about", user.name)),
-                        SelectOption::new("Favorite Anime", format!("{}/favorite-anime", user.name)),
-                        SelectOption::new("Favorite Manga", format!("{}/favorite-manga", user.name)),
-                        SelectOption::new("Favorite Characters", format!("{}/favorite-characters", user.name)),
-                        SelectOption::new("Favorite Staff", format!("{}/favorite-staff", user.name)),
-                    ],
-                    Some(&section),
-                )
-                .to_components(),
+                SelectMenu::new("anilist", "user", "Select a section…", Some(&section))
+                    .add_option("Overview", format!("{}", user.name), None::<String>)
+                    .add_option("About", format!("{}/about", user.name), None::<String>)
+                    .add_option("Favorite Anime", format!("{}/favorite-anime", user.name), None::<String>)
+                    .add_option("Favorite Manga", format!("{}/favorite-manga", user.name), None::<String>)
+                    .add_option("Favorite Characters", format!("{}/favorite-characters", user.name), None::<String>)
+                    .add_option("Favorite Staff", format!("{}/favorite-staff", user.name), None::<String>)
+                    .to_components(),
             )
             .add_embed(match section.as_str() {
                 "about" => user.format_about(),

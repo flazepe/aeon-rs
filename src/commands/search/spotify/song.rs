@@ -4,34 +4,22 @@ use crate::{
     traits::ArgGetters,
 };
 use anyhow::Result;
-use slashook::{
-    commands::{CommandInput, CommandResponder, MessageResponse},
-    structs::components::SelectOption,
-};
+use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
     if input.get_bool_arg("search").unwrap_or(false) {
-        return interaction
-            .respond(
-                SelectMenu::new(
-                    "spotify",
-                    "song",
-                    "Select a song…",
-                    match Spotify::search_track(input.get_string_arg("song")?).await {
-                        Ok(results) => results.into_iter().map(|result| {
-                            SelectOption::new(result.name, result.id).set_description(&result.artists[0].name)
-                        }),
-                        Err(error) => return interaction.respond_error(error, true).await,
-                    }
-                    .collect::<Vec<SelectOption>>(),
-                    None::<String>,
-                )
-                .to_components(),
-                false,
-            )
-            .await;
+        let mut select_menu = SelectMenu::new("spotify", "song", "Select a song…", None::<String>);
+
+        for result in match Spotify::search_track(input.get_string_arg("song")?).await {
+            Ok(results) => results,
+            Err(error) => return interaction.respond_error(error, true).await,
+        } {
+            select_menu = select_menu.add_option(result.name, result.id, Some(&result.artists[0].name))
+        }
+
+        return interaction.respond(select_menu.to_components(), false).await;
     }
 
     let (query, section): (String, String) = {
@@ -55,18 +43,11 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     interaction
         .respond(
             MessageResponse::from(
-                SelectMenu::new(
-                    "spotify",
-                    "song",
-                    "Select a section…",
-                    vec![
-                        SelectOption::new("Overview", format!("{}", track.id)),
-                        SelectOption::new("Audio Features", format!("{}/audio-features", track.id)),
-                        SelectOption::new("Available Countries", format!("{}/available-countries", track.id)),
-                    ],
-                    Some(&section),
-                )
-                .to_components(),
+                SelectMenu::new("spotify", "song", "Select a section…", Some(&section))
+                    .add_option("Overview", format!("{}", track.id), None::<String>)
+                    .add_option("Audio Features", format!("{}/audio-features", track.id), None::<String>)
+                    .add_option("Available Countries", format!("{}/available-countries", track.id), None::<String>)
+                    .to_components(),
             )
             .add_embed(match section.as_str() {
                 "audio-features" => track.get_audio_features().await?.format_audio_features(),

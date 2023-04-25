@@ -3,37 +3,23 @@ use crate::{
     traits::ArgGetters,
 };
 use anyhow::Result;
-use slashook::{
-    commands::{CommandInput, CommandResponder, MessageResponse},
-    structs::components::SelectOption,
-};
+use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
     let vndb = Vndb::new();
 
     if input.get_bool_arg("search").unwrap_or(false) {
-        return interaction
-            .respond(
-                SelectMenu::new(
-                    "vndb",
-                    "character",
-                    "Select a character…",
-                    match vndb.search_character(input.get_string_arg("character")?).await {
-                        Ok(results) => results
-                            .into_iter()
-                            .map(|result| {
-                                SelectOption::new(result.name, result.id).set_description(&result.vns[0].title)
-                            })
-                            .collect::<Vec<SelectOption>>(),
-                        Err(error) => return interaction.respond_error(error, true).await,
-                    },
-                    None::<String>,
-                )
-                .to_components(),
-                false,
-            )
-            .await;
+        let mut select_menu = SelectMenu::new("vndb", "character", "Select a character…", None::<String>);
+
+        for result in match vndb.search_character(input.get_string_arg("character")?).await {
+            Ok(results) => results,
+            Err(error) => return interaction.respond_error(error, true).await,
+        } {
+            select_menu = select_menu.add_option(result.name, result.id, Some(&result.vns[0].title));
+        }
+
+        return interaction.respond(select_menu.to_components(), false).await;
     }
 
     let (query, section): (String, String) = {
@@ -53,18 +39,11 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     interaction
         .respond(
             MessageResponse::from(
-                SelectMenu::new(
-                    "vndb",
-                    "character",
-                    "Select a section…",
-                    vec![
-                        SelectOption::new("Overview", format!("{}", character.id)),
-                        SelectOption::new("Traits", format!("{}/traits", character.id)),
-                        SelectOption::new("Visual Novels", format!("{}/visual-novels", character.id)),
-                    ],
-                    Some(&section),
-                )
-                .to_components(),
+                SelectMenu::new("vndb", "character", "Select a section…", Some(&section))
+                    .add_option("Overview", format!("{}", character.id), None::<String>)
+                    .add_option("Traits", format!("{}/traits", character.id), None::<String>)
+                    .add_option("Visual Novels", format!("{}/visual-novels", character.id), None::<String>)
+                    .to_components(),
             )
             .add_embed(match section.as_str() {
                 "traits" => character.format_traits(),
