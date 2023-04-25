@@ -84,7 +84,7 @@ impl AniListUser {
             .set_url(&self.site_url)
     }
 
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         self._format()
             .set_image(format!("https://img.anili.st/user/{}", self.id))
             .add_field("Created", format_timestamp(self.created_at, TimestampFormat::Full), false)
@@ -108,11 +108,11 @@ impl AniListUser {
             .set_timestamp(Utc.timestamp_opt(self.updated_at as i64, 0).unwrap())
     }
 
-    pub fn format_about(self) -> Embed {
-        self._format().set_description(limit_string(self.about.unwrap_or("".into()), "\n", 4096))
+    pub fn format_about(&self) -> Embed {
+        self._format().set_description(limit_string(self.about.as_ref().unwrap_or(&"".into()), "\n", 4096))
     }
 
-    pub fn format_favorite_anime(self) -> Embed {
+    pub fn format_favorite_anime(&self) -> Embed {
         self._format().set_description(limit_string(
             self.favorites
                 .anime
@@ -133,7 +133,7 @@ impl AniListUser {
         ))
     }
 
-    pub fn format_favorite_manga(self) -> Embed {
+    pub fn format_favorite_manga(&self) -> Embed {
         self._format().set_description(limit_string(
             self.favorites
                 .manga
@@ -154,7 +154,7 @@ impl AniListUser {
         ))
     }
 
-    pub fn format_favorite_characters(self) -> Embed {
+    pub fn format_favorite_characters(&self) -> Embed {
         self._format().set_description(limit_string(
             self.favorites
                 .characters
@@ -168,7 +168,7 @@ impl AniListUser {
         ))
     }
 
-    pub fn format_favorite_staff(self) -> Embed {
+    pub fn format_favorite_staff(&self) -> Embed {
         self._format().set_description(limit_string(
             self.favorites
                 .staff

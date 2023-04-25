@@ -90,7 +90,7 @@ impl JishoSearch {
         if_else!(title == reading || reading.is_empty(), title, format!("{title} （{reading}）"))
     }
 
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
@@ -100,7 +100,7 @@ impl JishoSearch {
                 {
                     let mut parts_of_speech = HashMap::new();
 
-                    for sense in self.senses {
+                    for sense in &self.senses {
                         let part_of_speech =
                             if_else!(sense.parts_of_speech.is_empty(), "Others".into(), sense.parts_of_speech.join(", ")).to_lowercase();
 

@@ -38,18 +38,18 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     interaction
         .respond(
-            MessageResponse::from(
+            MessageResponse::from(match section.as_str() {
+                "traits" => character.format_traits(),
+                "visual-novels" => character.format_visual_novels(),
+                _ => character.format(),
+            })
+            .set_components(
                 SelectMenu::new("vndb", "character", "Select a section…", Some(&section))
                     .add_option("Overview", format!("{}", character.id), None::<String>)
                     .add_option("Traits", format!("{}/traits", character.id), None::<String>)
                     .add_option("Visual Novels", format!("{}/visual-novels", character.id), None::<String>)
                     .to_components(),
-            )
-            .add_embed(match section.as_str() {
-                "traits" => character.format_traits(),
-                "visual-novels" => character.format_visual_novels(),
-                _ => character.format(),
-            }),
+            ),
             false,
         )
         .await

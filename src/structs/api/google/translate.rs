@@ -27,12 +27,12 @@ pub struct GoogleTranslateTranslation {
 }
 
 impl GoogleTranslateTranslation {
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
             .set_title(format!("{} to {}", self.origin_language, self.target_language))
-            .set_description(self.translation)
+            .set_description(&self.translation)
     }
 }
 

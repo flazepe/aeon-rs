@@ -29,7 +29,7 @@ impl UnicodeCharacter {
         Ok(Self { codepoint: format!("`U+{:04X}`", character.chars().next().context("Empty string provided.")? as u32), name, character })
     }
 
-    pub fn format(self) -> String {
+    pub fn format(&self) -> String {
         format!(
             "`{}` - {}{}",
             self.codepoint,
@@ -74,13 +74,10 @@ impl UnicodeCharacters {
         Self { unicode_characters }
     }
 
-    pub fn format(self) -> String {
-        let unicode_characters = self.unicode_characters.into_iter().take(20).collect::<Vec<UnicodeCharacter>>();
+    pub fn format(&self) -> String {
+        let unicode_characters =
+            self.unicode_characters.iter().take(20).map(|unicode_character| unicode_character.format()).collect::<Vec<String>>();
 
-        format!(
-            "Showing first {}:\n\n{}",
-            plural!(unicode_characters.len(), "character"),
-            unicode_characters.into_iter().map(|unicode_character| unicode_character.format()).collect::<Vec<String>>().join("\n"),
-        )
+        format!("Showing first {}:\n\n{}", plural!(unicode_characters.len(), "character"), unicode_characters.join("\n"))
     }
 }

@@ -65,7 +65,7 @@ impl SpotifyFullAlbum {
             .set_url(&self.external_urls.spotify)
     }
 
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         self._format()
             .set_image(Spotify::generate_scannable(&self.uri))
             .add_field(
@@ -78,7 +78,7 @@ impl SpotifyFullAlbum {
                     .join(", "),
                 false,
             )
-            .add_field("Label", self.label, false)
+            .add_field("Label", &self.label, false)
             .add_field(
                 "Release Date",
                 if_else!(
@@ -87,7 +87,7 @@ impl SpotifyFullAlbum {
                         NaiveDateTime::parse_from_str(&format!("{} 00:00", self.release_date), "%F %R").unwrap().timestamp(),
                         TimestampFormat::Full,
                     ),
-                    self.release_date,
+                    self.release_date.clone(),
                 ),
                 false,
             )
@@ -124,7 +124,7 @@ impl SpotifyFullAlbum {
             )
     }
 
-    pub fn format_tracks(self) -> Embed {
+    pub fn format_tracks(&self) -> Embed {
         self._format().set_description(limit_string(
             self.tracks
                 .items
@@ -154,10 +154,11 @@ impl SpotifyFullAlbum {
         ))
     }
 
-    pub fn format_available_countries(self) -> Embed {
+    pub fn format_available_countries(&self) -> Embed {
         self._format().set_description(
             self.available_markets
-                .unwrap_or(vec![])
+                .as_ref()
+                .unwrap_or(&vec![])
                 .iter()
                 .map(|country| format!(":flag_{}:", country.to_lowercase()))
                 .collect::<Vec<String>>()

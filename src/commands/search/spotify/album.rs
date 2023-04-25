@@ -42,18 +42,18 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     interaction
         .respond(
-            MessageResponse::from(
+            MessageResponse::from(match section.as_str() {
+                "songs" => album.format_tracks(),
+                "available-countries" => album.format_available_countries(),
+                _ => album.format(),
+            })
+            .set_components(
                 SelectMenu::new("spotify", "album", "Select a section…", Some(&section))
                     .add_option("Overview", format!("{}", album.id), None::<String>)
                     .add_option("Songs", format!("{}/songs", album.id), None::<String>)
                     .add_option("Available Countries", format!("{}/available-countries", album.id), None::<String>)
                     .to_components(),
-            )
-            .add_embed(match section.as_str() {
-                "songs" => album.format_tracks(),
-                "available-countries" => album.format_available_countries(),
-                _ => album.format(),
-            }),
+            ),
             false,
         )
         .await

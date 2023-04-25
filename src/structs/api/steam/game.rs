@@ -196,9 +196,9 @@ impl SteamGame {
             .set_url(format!("https://store.steampowered.com/app/{}", self.id))
     }
 
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         self._format()
-            .set_image(self.header_image)
+            .set_image(&self.header_image)
             .set_description(limit_string(
                 Document::from(&self.short_description)
                     .select("body")
@@ -212,7 +212,7 @@ impl SteamGame {
             ))
             .add_field(
                 "Release Date",
-                self.release_date.map_or("TBA".into(), |release_date| {
+                self.release_date.as_ref().map_or("TBA".into(), |release_date| {
                     format!(
                         "{}{}",
                         format_timestamp(
@@ -229,32 +229,32 @@ impl SteamGame {
                 if_else!(
                     self.is_free,
                     "Free".into(),
-                    self.price_overview.map_or("N/A".into(), |price_overview| if_else!(
+                    self.price_overview.as_ref().map_or("N/A".into(), |price_overview| if_else!(
                         price_overview.discount_percent > 0,
                         format!(
                             "~~{}~~ {} ({}% off)",
                             price_overview.initial_formatted, price_overview.final_formatted, price_overview.discount_percent,
                         ),
-                        price_overview.final_formatted,
+                        price_overview.final_formatted.clone(),
                     )),
                 ),
                 false,
             )
     }
 
-    pub fn format_developers(self) -> Embed {
+    pub fn format_developers(&self) -> Embed {
         self._format()
-            .set_image(self.background)
-            .add_field("Developers", self.developers.map_or("N/A".into(), |developers| developers.join(", ")), false)
-            .add_field("Publishers", self.publishers.map_or("N/A".into(), |publishers| publishers.join(", ")), false)
-            .add_field("Website", self.website.unwrap_or("N/A".into()), false)
+            .set_image(&self.background)
+            .add_field("Developers", self.developers.as_ref().map_or("N/A".into(), |developers| developers.join(", ")), false)
+            .add_field("Publishers", self.publishers.as_ref().map_or("N/A".into(), |publishers| publishers.join(", ")), false)
+            .add_field("Website", self.website.as_ref().unwrap_or(&"N/A".into()), false)
     }
 
-    pub fn format_details(self) -> Embed {
+    pub fn format_details(&self) -> Embed {
         self._format()
             .add_field(
                 "Category",
-                self.categories.map_or("N/A".into(), |categories| {
+                self.categories.as_ref().map_or("N/A".into(), |categories| {
                     limit_string(
                         categories
                             .iter()
@@ -275,7 +275,7 @@ impl SteamGame {
             )
             .add_field(
                 "Genre",
-                self.genres.map_or("N/A".into(), |genres| {
+                self.genres.as_ref().map_or("N/A".into(), |genres| {
                     limit_string(
                         genres
                             .iter()
@@ -317,13 +317,13 @@ impl SteamGame {
             )
             .add_field(
                 "Metacritic",
-                self.metacritic.map_or("N/A".into(), |metacritic| format!("[{}]({})", metacritic.score, metacritic.url)),
+                self.metacritic.as_ref().map_or("N/A".into(), |metacritic| format!("[{}]({})", metacritic.score, metacritic.url)),
                 false,
             )
     }
 
-    pub fn format_featured_achievements(self) -> Embed {
-        self._format().set_description(self.achievements.map_or("N/A".into(), |achievements| {
+    pub fn format_featured_achievements(&self) -> Embed {
+        self._format().set_description(self.achievements.as_ref().map_or("N/A".into(), |achievements| {
             limit_string(
                 achievements
                     .highlighted

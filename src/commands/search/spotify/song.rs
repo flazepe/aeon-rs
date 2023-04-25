@@ -31,7 +31,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         }
     };
 
-    let track = if_else!(
+    let mut track = if_else!(
         input.is_string_select(),
         Spotify::get_track(query).await?,
         match Spotify::search_track(query).await {
@@ -42,18 +42,21 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     interaction
         .respond(
-            MessageResponse::from(
+            MessageResponse::from(match section.as_str() {
+                "audio-features" => {
+                    track.get_audio_features().await?;
+                    track.format_audio_features()
+                },
+                "available-countries" => track.format_available_countries(),
+                _ => track.format(),
+            })
+            .set_components(
                 SelectMenu::new("spotify", "song", "Select a section…", Some(&section))
                     .add_option("Overview", format!("{}", track.id), None::<String>)
                     .add_option("Audio Features", format!("{}/audio-features", track.id), None::<String>)
                     .add_option("Available Countries", format!("{}/available-countries", track.id), None::<String>)
                     .to_components(),
-            )
-            .add_embed(match section.as_str() {
-                "audio-features" => track.get_audio_features().await?.format_audio_features(),
-                "available-countries" => track.format_available_countries(),
-                _ => track.format(),
-            }),
+            ),
             false,
         )
         .await

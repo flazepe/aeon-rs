@@ -81,7 +81,7 @@ pub struct SteamUser {
 }
 
 impl SteamUser {
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         let mut vanity = self.profile_url.clone();
 
         vanity = vanity.chars().take(vanity.len() - 1).collect::<String>().split("/").last().unwrap_or("None").to_string();
@@ -89,9 +89,9 @@ impl SteamUser {
         let mut embed = Embed::new()
             .set_color(STEAM_EMBED_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.avatar_full)
-            .set_title(self.real_name.unwrap_or(self.persona_name))
-            .set_url(self.profile_url)
+            .set_thumbnail(&self.avatar_full)
+            .set_title(self.real_name.as_ref().unwrap_or(&self.persona_name))
+            .set_url(&self.profile_url)
             .add_field("ID", &self.id, true)
             .add_field("Custom ID", if_else!(self.id == vanity, "None".into(), format!("`{vanity}`")), true)
             .add_field(
@@ -110,11 +110,11 @@ impl SteamUser {
             )
             .add_field(
                 "Location",
-                match STEAM_COUNTRIES.get_key_value(self.loc_country_code.unwrap_or("".into()).as_str()) {
+                match STEAM_COUNTRIES.get_key_value(self.loc_country_code.as_ref().unwrap_or(&"".into()).as_str()) {
                     Some((country_code, country)) => format!(
                         ":flag_{}: {}{}",
                         country_code.to_lowercase(),
-                        self.loc_state_code.map_or("".into(), |state_code| format!(
+                        self.loc_state_code.as_ref().map_or("".into(), |state_code| format!(
                             "{}, ",
                             country.states.get(state_code.as_str()).unwrap_or(&"Unknown"),
                         )),
@@ -126,19 +126,19 @@ impl SteamUser {
             )
             .add_field(
                 "Playing",
-                self.game_extra_info.map_or("None".into(), |game_extra_info| {
+                self.game_extra_info.as_ref().map_or("None".into(), |game_extra_info| {
                     format!(
                         "[{}](https://store.steampowered.com/app/{}){}",
                         game_extra_info,
                         self.game_id.unwrap_or(0),
-                        format!("\n{}", self.game_server_ip.unwrap_or("".into())).trim()
+                        format!("\n{}", self.game_server_ip.as_ref().unwrap_or(&"".into())).trim()
                     )
                 }),
                 true,
             )
             .add_field("Allows Profile Comments", yes_no!(self.comment_permission.is_some()), true);
 
-        if let Some(bans) = self.bans {
+        if let Some(bans) = self.bans.as_ref() {
             embed = embed
                 .add_field("Community Banned", yes_no!(bans.community_banned), true)
                 .add_field(

@@ -34,18 +34,22 @@ impl IPInfo {
         Ok(response.json().await?)
     }
 
-    pub fn format(self) -> String {
+    pub fn format(&self) -> String {
         format!(
             "[{ip}](<https://whatismyipaddress.com/ip/{ip}>)\n{}",
             [
-                self.hostname.unwrap_or("".into()),
-                [self.city.unwrap_or("".into()), self.region.unwrap_or("".into()), self.country.unwrap_or("".into()),]
-                    .into_iter()
-                    .filter(|entry| !entry.is_empty())
-                    .collect::<Vec<String>>()
-                    .join(", "),
-                self.loc.unwrap_or("".into()).replace(",", ", "),
-                self.org.unwrap_or("".into()),
+                self.hostname.as_ref().unwrap_or(&"".into()).clone(),
+                [
+                    self.city.as_ref().unwrap_or(&"".into()).clone(),
+                    self.region.as_ref().unwrap_or(&"".into()).clone(),
+                    self.country.as_ref().unwrap_or(&"".into()).clone(),
+                ]
+                .into_iter()
+                .filter(|entry| !entry.is_empty())
+                .collect::<Vec<String>>()
+                .join(", "),
+                self.loc.as_ref().unwrap_or(&"".into()).clone().replace(",", ", "),
+                self.org.as_ref().unwrap_or(&"".into()).clone(),
             ]
             .into_iter()
             .filter(|entry| !entry.is_empty())

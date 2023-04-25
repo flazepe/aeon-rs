@@ -73,25 +73,25 @@ impl AniListAnime {
             .set_url(&self.site_url)
     }
 
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         self._format()
             .set_description(self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n"))
             .add_field(
                 "Aired",
                 format!(
                     "{}{} ({}){}",
-                    self.season.map_or("".into(), |season| format!(
+                    self.season.as_ref().map_or("".into(), |season| format!(
                         "Premiered {} {}{}\n",
                         AniList::format_enum_value(season),
                         self.season_year.unwrap(),
-                        self.trailer.map_or("".into(), |trailer| format!(
+                        self.trailer.as_ref().map_or("".into(), |trailer| format!(
                             " - [Trailer]({}{})",
                             if_else!(trailer.site == "youtube", "https://www.youtube.com/watch?v=", "https://www.dailymotion.com/video/"),
                             trailer.id
                         ))
                     )),
-                    AniList::format_airing_date(self.start_date, self.end_date),
-                    AniList::format_enum_value(self.status),
+                    AniList::format_airing_date(&self.start_date, &self.end_date),
+                    AniList::format_enum_value(&self.status),
                     self.airing_schedule.nodes.iter().find(|node| node.time_until_airing.map_or(false, |time| time > 0)).map_or(
                         "".into(),
                         |node| format!(
@@ -123,7 +123,7 @@ impl AniListAnime {
             )
             .add_field(
                 "Twitter Hashtag",
-                self.hashtag.map_or("N/A".into(), |hashtag| {
+                self.hashtag.as_ref().map_or("N/A".into(), |hashtag| {
                     hashtag
                         .split(" ")
                         .map(|hashtag| format!("[{hashtag}](https://twitter.com/hashtag/{})", hashtag.chars().skip(1).collect::<String>()))
@@ -141,7 +141,7 @@ impl AniListAnime {
                     .join(", "),
                 true,
             )
-            .add_field("Source", self.source.map_or("N/A".into(), |source| AniList::format_enum_value(source)), true)
+            .add_field("Source", self.source.as_ref().map_or("N/A".into(), |source| AniList::format_enum_value(source)), true)
             .add_field(
                 "Score",
                 {
@@ -163,11 +163,11 @@ impl AniListAnime {
             .set_timestamp(Utc.timestamp_opt(self.updated_at as i64, 0).unwrap())
     }
 
-    pub fn format_description(self) -> Embed {
-        AniList::format_description(self._format(), self.description)
+    pub fn format_description(&self) -> Embed {
+        AniList::format_description(self._format(), self.description.as_ref())
     }
 
-    pub fn format_characters(self) -> Embed {
+    pub fn format_characters(&self) -> Embed {
         self._format().set_description(limit_string(
             self.characters
                 .edges
@@ -192,8 +192,8 @@ impl AniListAnime {
         ))
     }
 
-    pub fn format_relations(self) -> Embed {
-        AniList::format_relations(self._format(), self.relations.edges)
+    pub fn format_relations(&self) -> Embed {
+        AniList::format_relations(self._format(), &self.relations.edges)
     }
 }
 

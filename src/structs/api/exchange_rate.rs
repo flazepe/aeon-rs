@@ -44,7 +44,7 @@ impl ExchangeRateConversion {
         })
     }
 
-    pub fn format(self) -> String {
+    pub fn format(&self) -> String {
         format!("{} {} = `{:.3} {}`.", self.amount, self.origin_currency, self.conversion, self.target_currency)
     }
 }

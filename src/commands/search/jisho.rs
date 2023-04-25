@@ -28,7 +28,7 @@ pub fn get_command() -> Command {
             return interaction.respond(JishoSearch::get(&input.values.as_ref().unwrap()[0]).await?.format(), false).await?;
         }
 
-        let mut results = match JishoSearch::search(input.get_string_arg("query")?).await {
+        let results = match JishoSearch::search(input.get_string_arg("query")?).await {
             Ok(results) => results,
             Err(error) => return Ok(interaction.respond_error(error, true).await?),
         };
@@ -39,7 +39,7 @@ pub fn get_command() -> Command {
             select_menu = select_menu.add_option(result.format_title(), result.slug.clone(), None::<String>);
         }
 
-        interaction.respond(MessageResponse::from(select_menu.to_components()).add_embed(results.remove(0).format()), false).await?;
+        interaction.respond(MessageResponse::from(results[0].format()).set_components(select_menu.to_components()), false).await?;
     }
 
     jisho

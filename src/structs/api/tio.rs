@@ -82,16 +82,16 @@ impl Tio {
         Ok(self)
     }
 
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_title(self.programming_language)
-            .set_url(self.code_url.unwrap_or("".into()))
+            .set_title(&self.programming_language)
+            .set_url(self.code_url.as_ref().unwrap_or(&"".into()))
             .set_description(format!(
                 "{}```\n{}```",
-                self.result_url.map_or("".into(), |result_url| format!("[Full Result]({result_url})")),
-                self.result.unwrap_or("No output.".into()).chars().take(3900).collect::<String>()
+                self.result_url.as_ref().map_or("".into(), |result_url| format!("[Full Result]({result_url})")),
+                self.result.as_ref().unwrap_or(&"No output.".into()).chars().take(3900).collect::<String>(),
             ))
     }
 }

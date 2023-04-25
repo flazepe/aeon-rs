@@ -23,14 +23,14 @@ pub struct VndbTrait {
 }
 
 impl VndbTrait {
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
             .set_title(format!("{}: {}", self.group_name, self.name))
             .set_url(format!("https://vndb.org/{}", self.id))
             .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n"))
-            .add_field("Description", limit_string(Vndb::clean_bbcode(self.description), "\n", 1024), false)
+            .add_field("Description", limit_string(Vndb::clean_bbcode(&self.description), "\n", 1024), false)
             .add_field("Searchable", yes_no!(self.searchable), true)
             .add_field("Applicable", yes_no!(self.applicable), true)
             .add_field("Character Count", self.char_count.to_string(), true)

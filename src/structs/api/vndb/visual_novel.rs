@@ -523,7 +523,7 @@ impl VndbVisualNovel {
             .set_url(format!("https://vndb.org/{}", self.id))
     }
 
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         self._format()
             .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n"))
             .add_field("Popularity", format!("{:.0}%", self.popularity), true)
@@ -534,15 +534,19 @@ impl VndbVisualNovel {
             )
             .add_field(
                 "Length",
-                format!("{} ({})", self.length.map_or("N/A".into(), |length| length.to_string()), plural!(self.length_votes, "vote")),
+                format!(
+                    "{} ({})",
+                    self.length.as_ref().map_or("N/A".into(), |length| length.to_string()),
+                    plural!(self.length_votes, "vote")
+                ),
                 true,
             )
             .add_field("Languages", self.languages.iter().map(|language| language.to_string()).collect::<Vec<String>>().join(", "), false)
             .add_field("Platforms", self.platforms.iter().map(|platform| platform.to_string()).collect::<Vec<String>>().join(", "), false)
-            .set_footer(self.released.map_or("".into(), |released| format!("Released {released}")), None::<String>)
+            .set_footer(self.released.as_ref().map_or("".into(), |released| format!("Released {released}")), None::<String>)
     }
 
-    pub fn format_description(self) -> Embed {
+    pub fn format_description(&self) -> Embed {
         self._format().set_description(limit_string(
             Vndb::clean_bbcode(self.description.as_ref().unwrap_or(&"N/A".into()))
                 .split("\n")
@@ -554,10 +558,10 @@ impl VndbVisualNovel {
         ))
     }
 
-    pub fn format_tags(self) -> Embed {
+    pub fn format_tags(&self) -> Embed {
         self._format().set_description(limit_string(
             self.tags
-                .into_iter()
+                .iter()
                 .map(|tag| {
                     if_else!(
                         tag.spoiler > 1.0,

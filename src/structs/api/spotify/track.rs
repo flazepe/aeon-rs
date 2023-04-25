@@ -50,10 +50,9 @@ pub struct SpotifyFullTrack {
 }
 
 impl SpotifyFullTrack {
-    pub async fn get_audio_features(mut self) -> Result<Self> {
+    pub async fn get_audio_features(&mut self) -> Result<&SpotifyAudioFeatures> {
         self.audio_features = Spotify::query(format!("audio-features/{}", self.id)).await?;
-
-        Ok(self)
+        Ok(self.audio_features.as_ref().unwrap())
     }
 
     fn _format(&self) -> Embed {
@@ -65,7 +64,7 @@ impl SpotifyFullTrack {
             .set_url(&self.external_urls.spotify)
     }
 
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         self._format()
             .set_image(Spotify::generate_scannable(&self.uri))
             .add_field(
@@ -91,17 +90,17 @@ impl SpotifyFullTrack {
                 format!(
                     "{}{}",
                     Spotify::format_duration(self.duration_ms),
-                    self.preview_url.map_or("".into(), |preview_url| format!(" - [Preview]({preview_url})"))
+                    self.preview_url.as_ref().map_or("".into(), |preview_url| format!(" - [Preview]({preview_url})"))
                 ),
                 false,
             )
             .add_field("Popularity", format!("{FIRE_EMOJI} {}%", self.popularity), false)
     }
 
-    pub fn format_audio_features(self) -> Embed {
+    pub fn format_audio_features(&self) -> Embed {
         let mut embed = self._format();
 
-        if let Some(audio_features) = self.audio_features {
+        if let Some(audio_features) = self.audio_features.as_ref() {
             let pitch_notation = if_else!(audio_features.key == -1, None, Some(SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize]));
 
             embed = embed
@@ -144,10 +143,11 @@ impl SpotifyFullTrack {
         embed
     }
 
-    pub fn format_available_countries(self) -> Embed {
+    pub fn format_available_countries(&self) -> Embed {
         self._format().set_description(
             self.available_markets
-                .unwrap_or(vec![])
+                .as_ref()
+                .unwrap_or(&vec![])
                 .iter()
                 .map(|country| format!(":flag_{}:", country.to_lowercase()))
                 .collect::<Vec<String>>()

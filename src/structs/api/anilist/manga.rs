@@ -67,12 +67,12 @@ impl AniListManga {
             .set_url(&self.site_url)
     }
 
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         self._format()
             .set_description(self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n"))
             .add_field(
                 "Published",
-                format!("{} ({})", AniList::format_airing_date(self.start_date, self.end_date), AniList::format_enum_value(self.status)),
+                format!("{} ({})", AniList::format_airing_date(&self.start_date, &self.end_date), AniList::format_enum_value(&self.status)),
                 false,
             )
             .add_field("Chapters", format!("{}", self.chapters.map_or("TBA".into(), |chapters| chapters.to_string())), true)
@@ -87,7 +87,7 @@ impl AniListManga {
                     .join(", "),
                 true,
             )
-            .add_field("Source", self.source.map_or("N/A".into(), |source| AniList::format_enum_value(source)), true)
+            .add_field("Source", self.source.as_ref().map_or("N/A".into(), |source| AniList::format_enum_value(source)), true)
             .add_field(
                 "Score",
                 {
@@ -109,11 +109,11 @@ impl AniListManga {
             .set_timestamp(Utc.timestamp_opt(self.updated_at as i64, 0).unwrap())
     }
 
-    pub fn format_description(self) -> Embed {
-        AniList::format_description(self._format(), self.description)
+    pub fn format_description(&self) -> Embed {
+        AniList::format_description(self._format(), self.description.as_ref())
     }
 
-    pub fn format_characters(self) -> Embed {
+    pub fn format_characters(&self) -> Embed {
         self._format().set_description(
             limit_string(
                 self.characters
@@ -135,8 +135,8 @@ impl AniListManga {
         )
     }
 
-    pub fn format_relations(self) -> Embed {
-        AniList::format_relations(self._format(), self.relations.edges)
+    pub fn format_relations(&self) -> Embed {
+        AniList::format_relations(self._format(), &self.relations.edges)
     }
 }
 

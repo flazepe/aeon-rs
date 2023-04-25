@@ -66,14 +66,14 @@ pub struct GoogleDNS {
 }
 
 impl GoogleDNS {
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
             .set_title(format!("{} records for {}", self.record_type, self.domain))
             .set_description(format!(
                 "{}```diff\n{}```",
-                self.comment.unwrap_or("".into()),
+                self.comment.as_ref().unwrap_or(&"".into()),
                 self.records
                     .iter()
                     .map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl))

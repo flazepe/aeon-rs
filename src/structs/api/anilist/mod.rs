@@ -50,7 +50,7 @@ impl AniList {
             .join(" ")
     }
 
-    fn format_airing_date(start: AniListFuzzyDate, end: AniListFuzzyDate) -> String {
+    fn format_airing_date(start: &AniListFuzzyDate, end: &AniListFuzzyDate) -> String {
         let mut dates = vec![];
 
         for fuzzy_date in [start, end] {
@@ -70,9 +70,9 @@ impl AniList {
         if_else!(dates.is_empty(), "TBA".into(), dates.join(" - "))
     }
 
-    pub fn format_description(embed: Embed, description: Option<String>) -> Embed {
+    pub fn format_description<T: ToString>(embed: Embed, description: Option<&T>) -> Embed {
         embed.set_description(limit_string(
-            Document::from(&description.unwrap_or("N/A".into()))
+            Document::from(&description.map(|description| description.to_string()).unwrap_or("N/A".into()))
                 .select("body")
                 .text()
                 .split("\n")
@@ -84,11 +84,11 @@ impl AniList {
         ))
     }
 
-    fn format_relations(mut embed: Embed, relations: Vec<AniListRelation>) -> Embed {
+    fn format_relations(mut embed: Embed, relations: &Vec<AniListRelation>) -> Embed {
         let mut categorized = HashMap::new();
 
         for relation in relations {
-            let relation_type = AniList::format_enum_value(relation.relation_type);
+            let relation_type = AniList::format_enum_value(&relation.relation_type);
 
             if !categorized.contains_key(&relation_type) {
                 categorized.insert(relation_type.clone(), vec![]);
@@ -98,7 +98,7 @@ impl AniList {
                 "[{}]({}){}",
                 relation.node.title.romaji,
                 relation.node.site_url,
-                relation.node.format.map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format)))
+                relation.node.format.as_ref().map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format)))
             ));
         }
 

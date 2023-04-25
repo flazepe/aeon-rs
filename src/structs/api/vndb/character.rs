@@ -127,36 +127,37 @@ impl VndbCharacter {
             .set_url(format!("https://vndb.org/{}", self.id))
     }
 
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         self._format()
             .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n"))
             .add_field(
                 "Sex",
-                self.sex.map_or("N/A".into(), |(sex, spoiler_sex)| {
+                self.sex.as_ref().map_or("N/A".into(), |(sex, spoiler_sex)| {
                     format!(
                         "{}{}",
-                        sex.map_or("N/A".into(), |sex| sex.to_string()),
-                        spoiler_sex.map_or("".into(), |spoiler_sex| format!(" (||actually {spoiler_sex}||)"))
+                        sex.as_ref().map_or("N/A".into(), |sex| sex.to_string()),
+                        spoiler_sex.as_ref().map_or("".into(), |spoiler_sex| format!(" (||actually {spoiler_sex}||)"))
                     )
                 }),
                 true,
             )
             .add_field("Age", self.age.map_or("N/A".into(), |age| age.to_string()), true)
             .add_field("Birthday", self.birthday.map_or("N/A".into(), |birthday| format!("{}/{}", birthday.0, birthday.1)), true)
-            .add_field("Blood Type", self.blood_type.map_or("N/A".into(), |blood_type| format!("{:?}", blood_type)), true)
+            .add_field("Blood Type", self.blood_type.as_ref().map_or("N/A".into(), |blood_type| format!("{:?}", blood_type)), true)
             .add_field("Height", self.height.map_or("N/A".into(), |height| format!("{height} cm")), true)
             .add_field("Weight", self.weight.map_or("N/A".into(), |weight| format!("{weight} kg")), true)
             .add_field(
                 "Bust",
-                self.bust
-                    .map_or("N/A".into(), |bust| format!("{bust} cm{}", self.cup.map_or("".into(), |cup| format!(" - Cup Size {cup}")))),
+                self.bust.map_or("N/A".into(), |bust| {
+                    format!("{bust} cm{}", self.cup.as_ref().map_or("".into(), |cup| format!(" - Cup Size {cup}")))
+                }),
                 true,
             )
             .add_field("Waist", self.waist.map_or("N/A".into(), |waist| format!("{waist} cm")), true)
             .add_field("Hips", self.hips.map_or("N/A".into(), |hips| format!("{hips} cm")), true)
     }
 
-    pub fn format_traits(self) -> Embed {
+    pub fn format_traits(&self) -> Embed {
         let mut groups = HashMap::new();
 
         for character_trait in &self.traits {
@@ -180,10 +181,10 @@ impl VndbCharacter {
         embed
     }
 
-    pub fn format_visual_novels(self) -> Embed {
+    pub fn format_visual_novels(&self) -> Embed {
         self._format().set_description(limit_string(
             self.vns
-                .into_iter()
+                .iter()
                 .map(|visual_novel| format!("[{}](https://vndb.org/{}) ({})", visual_novel.title, visual_novel.id, visual_novel.role))
                 .collect::<Vec<String>>()
                 .join("\n"),

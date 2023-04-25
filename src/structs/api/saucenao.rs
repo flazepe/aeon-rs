@@ -54,7 +54,7 @@ impl SauceNAOSearch {
         if_else!(search.results.is_empty(), bail!("Sauce not found."), Ok(search))
     }
 
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_description(
             self.results
                 .iter()

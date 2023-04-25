@@ -64,12 +64,12 @@ impl Stock {
         })
     }
 
-    pub fn format(self) -> Embed {
+    pub fn format(&self) -> Embed {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_title(self.name)
-            .set_url(self.url)
+            .set_title(&self.name)
+            .set_url(&self.url)
             .set_description(format!("```diff\n{} {}\n{}```", self.currency, self.price, self.diff))
     }
 }

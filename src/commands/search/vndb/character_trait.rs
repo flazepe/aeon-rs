@@ -13,7 +13,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         return interaction.respond(vndb.search_trait(&input.values.as_ref().unwrap()[0]).await?.remove(0).format(), false).await;
     }
 
-    let mut results = match vndb.search_trait(input.get_string_arg("trait")?).await {
+    let results = match vndb.search_trait(input.get_string_arg("trait")?).await {
         Ok(results) => results,
         Err(error) => return interaction.respond_error(error, true).await,
     };
@@ -24,5 +24,5 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         select_menu = select_menu.add_option(&result.name, &result.id, Some(&result.group_name));
     }
 
-    interaction.respond(MessageResponse::from(results.remove(0).format()).set_components(select_menu.to_components()), false).await
+    interaction.respond(MessageResponse::from(results[0].format()).set_components(select_menu.to_components()), false).await
 }

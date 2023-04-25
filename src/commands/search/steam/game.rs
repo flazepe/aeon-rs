@@ -42,20 +42,20 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     interaction
         .respond(
-            MessageResponse::from(
+            MessageResponse::from(match section.as_str() {
+                "developers" => game.format_developers(),
+                "details" => game.format_details(),
+                "featured-achievements" => game.format_featured_achievements(),
+                _ => game.format(),
+            })
+            .set_components(
                 SelectMenu::new("steam", "game", "Select a section…", Some(&section))
                     .add_option("Overview", format!("{}", game.id), None::<String>)
                     .add_option("Developers", format!("{}/developers", game.id), None::<String>)
                     .add_option("Details", format!("{}/details", game.id), None::<String>)
                     .add_option("Featured Achievements", format!("{}/featured-achievements", game.id), None::<String>)
                     .to_components(),
-            )
-            .add_embed(match section.as_str() {
-                "developers" => game.format_developers(),
-                "details" => game.format_details(),
-                "featured-achievements" => game.format_featured_achievements(),
-                _ => game.format(),
-            }),
+            ),
             false,
         )
         .await

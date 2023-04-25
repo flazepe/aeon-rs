@@ -59,20 +59,20 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     interaction
         .respond(
-            MessageResponse::from(
+            MessageResponse::from(match section.as_str() {
+                "description" => manga.format_description(),
+                "characters" => manga.format_characters(),
+                "relations" => manga.format_relations(),
+                _ => manga.format(),
+            })
+            .set_components(
                 SelectMenu::new("anilist", "manga", "Select a section…", Some(&section))
                     .add_option("Overview", format!("{}", manga.id), None::<String>)
                     .add_option("Description", format!("{}/description", manga.id), None::<String>)
                     .add_option("Characters", format!("{}/characters", manga.id), None::<String>)
                     .add_option("Relations", format!("{}/relations", manga.id), None::<String>)
                     .to_components(),
-            )
-            .add_embed(match section.as_str() {
-                "description" => manga.format_description(),
-                "characters" => manga.format_characters(),
-                "relations" => manga.format_relations(),
-                _ => manga.format(),
-            }),
+            ),
             false,
         )
         .await
