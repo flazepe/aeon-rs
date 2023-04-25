@@ -21,7 +21,6 @@ impl SelectMenu {
 
     pub fn add_option<T: ToString, U: ToString, V: ToString>(mut self, label: T, value: U, description: Option<V>) -> Self {
         let value = value.to_string();
-
         let mut option = SelectOption::new(label.to_string().chars().take(100).collect::<String>(), &value);
 
         if let Some(default) = self.default.as_ref() {
