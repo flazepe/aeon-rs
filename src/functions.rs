@@ -25,12 +25,9 @@ pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
 pub fn escape_markdown<T: ToString>(string: T) -> String {
     Regex::new(r"\\?[*_~`]")
         .unwrap()
-        .replace_all(&string.to_string(), |caps: &Captures| {
-            if caps[0].starts_with("\\") {
-                caps[0].to_string()
-            } else {
-                format!("\\{}", caps[0].to_string())
-            }
+        .replace_all(&string.to_string(), |caps: &Captures| match caps[0].starts_with("\\") {
+            true => caps[0].to_string(),
+            false => format!("\\{}", caps[0].to_string()),
         })
         .to_string()
 }

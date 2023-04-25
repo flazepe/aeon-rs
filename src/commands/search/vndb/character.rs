@@ -22,13 +22,12 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         return interaction.respond(select_menu.to_components(), false).await;
     }
 
-    let (query, section): (String, String) = {
-        if input.is_string_select() {
+    let (query, section): (String, String) = match input.is_string_select() {
+        true => {
             let mut split = input.values.as_ref().unwrap()[0].split("/");
             (split.next().unwrap().into(), split.next().unwrap_or("").into())
-        } else {
-            (input.get_string_arg("character")?, "".into())
-        }
+        },
+        false => (input.get_string_arg("character")?, "".into()),
     };
 
     let character = match vndb.search_character(query).await {

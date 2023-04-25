@@ -3,10 +3,9 @@ macro_rules! plural {
         let mut subject = $subject.to_string();
 
         if $amount != 1 {
-            if subject.ends_with("ny") {
-                subject = format!("{}ies", subject.chars().take(subject.len() - 1).collect::<String>());
-            } else {
-                subject = format!("{}s", subject);
+            match subject.ends_with("ny") {
+                true => subject = format!("{}ies", subject.chars().take(subject.len() - 1).collect::<String>()),
+                false => subject = format!("{}s", subject),
             }
         }
 
@@ -23,7 +22,10 @@ macro_rules! yes_no {
             let _no = "No";
             $(let _no = $no;)?
 
-            if $condition { _yes } else { _no }
+            match $condition {
+                true => _yes,
+                false => _no,
+            }
         }
     };
 }

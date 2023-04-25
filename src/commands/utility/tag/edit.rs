@@ -12,8 +12,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
     let tags = Tags::new();
 
-    if input.is_modal_submit() {
-        match tags
+    match input.is_modal_submit() {
+        true => match tags
             .edit(
                 input.get_string_arg("tag")?,
                 input.guild_id.as_ref().unwrap(),
@@ -25,9 +25,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         {
             Ok(response) => interaction.respond_success(response, true).await,
             Err(error) => interaction.respond_error(error, true).await,
-        }
-    } else {
-        match tags
+        },
+        false => match tags
             .get(input.get_string_arg("tag")?, input.guild_id.as_ref().unwrap())
             .await
             .and_then(|tag| Tags::validate_tag_modifier(tag, input.member.as_ref().unwrap()))
@@ -59,6 +58,6 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 )
                 .await?),
             Err(error) => interaction.respond_error(error, true).await,
-        }
+        },
     }
 }

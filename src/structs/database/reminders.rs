@@ -119,17 +119,18 @@ impl Reminders {
 
         Message::create(
             self.rest.as_ref().unwrap(),
-            if reminder.dm && !reminder.url.contains("@me") {
+            match reminder.dm && !reminder.url.contains("@me") {
                 // If the reminder should be DM'd but was created inside a guild channel, we have to create a new DM channel
-                self.rest
-                    .as_ref()
-                    .unwrap()
-                    .post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": reminder.user_id }))
-                    .await?
-                    .id
-            } else {
+                true => {
+                    self.rest
+                        .as_ref()
+                        .unwrap()
+                        .post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": reminder.user_id }))
+                        .await?
+                        .id
+                },
                 // Else, just grab channel ID from the URL
-                reminder.url.split("/").skip(1).next().unwrap().to_string()
+                false => reminder.url.split("/").skip(1).next().unwrap().to_string(),
             },
             response,
         )

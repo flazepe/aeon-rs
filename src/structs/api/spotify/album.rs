@@ -61,7 +61,10 @@ impl SpotifyFullAlbum {
             .set_color(SPOTIFY_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(self.images.get(0).map_or(&"".into(), |image| &image.url))
-            .set_title(if self.name.is_empty() { "N/A".into() } else { self.name.clone() })
+            .set_title(match self.name.is_empty() {
+                true => "N/A".into(),
+                false => self.name.clone(),
+            })
             .set_url(&self.external_urls.spotify)
     }
 
@@ -90,7 +93,14 @@ impl SpotifyFullAlbum {
                 },
                 false,
             )
-            .add_field("Genre", if self.genres.is_empty() { "N/A".into() } else { self.genres.join(", ") }, false)
+            .add_field(
+                "Genre",
+                match self.genres.is_empty() {
+                    true => "N/A".into(),
+                    false => self.genres.join(", "),
+                },
+                false,
+            )
             .add_field(
                 "Duration",
                 format!(
@@ -104,7 +114,10 @@ impl SpotifyFullAlbum {
             )
             .add_field("Popularity", format!("{FIRE_EMOJI} {}%", self.popularity), false)
             .add_field(
-                if self.copyrights.len() == 1 { "Copyright" } else { "Copyrights" },
+                match self.copyrights.len() == 1 {
+                    true => "Copyright",
+                    false => "Copyrights",
+                },
                 self.copyrights
                     .iter()
                     .map(|copyright| {
@@ -133,10 +146,9 @@ impl SpotifyFullAlbum {
                         "`{}.` [{}]({}) [{}]",
                         format!(
                             "{}{:0pad_length$}",
-                            if self.tracks.items.iter().any(|track| track.disc_number == 2) {
-                                format!("{}-", track.disc_number)
-                            } else {
-                                "".into()
+                            match self.tracks.items.iter().any(|track| track.disc_number == 2) {
+                                true => format!("{}-", track.disc_number),
+                                false => "".into(),
                             },
                             track.track_number,
                             pad_length = self.tracks.items.len().to_string().len(),

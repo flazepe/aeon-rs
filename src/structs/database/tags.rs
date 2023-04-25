@@ -151,42 +151,43 @@ impl Tags {
         let name = {
             let new_name = new_name.to_string();
 
-            if new_name.is_empty() {
-                tag.name.clone()
-            } else {
-                let new_name = Tags::validate_tag_name(new_name)?;
+            match new_name.is_empty() {
+                true => tag.name.clone(),
+                false => {
+                    let new_name = Tags::validate_tag_name(new_name)?;
 
-                if self.get(&new_name, guild_id).await.is_ok() {
-                    bail!("Tag with that new name already exists.");
-                }
+                    if self.get(&new_name, guild_id).await.is_ok() {
+                        bail!("Tag with that new name already exists.");
+                    }
 
-                new_name
+                    new_name
+                },
             }
         };
 
         let content = content.to_string();
 
-        if name != tag.name || content != tag.content {
-            self.tags
-                .update_one(
-                    doc! {
-                        "name": tag.name,
-                        "guild_id": tag.guild_id,
-                    },
-                    doc! {
-                        "$set": {
-                            "name": name,
-                            "content": content,
-                        },
-                    },
-                    None,
-                )
-                .await?;
-
-            Ok("Edited.".into())
-        } else {
+        if name == tag.name && content == tag.content {
             bail!("No changes detected.");
         }
+
+        self.tags
+            .update_one(
+                doc! {
+                    "name": tag.name,
+                    "guild_id": tag.guild_id,
+                },
+                doc! {
+                    "$set": {
+                        "name": name,
+                        "content": content,
+                    },
+                },
+                None,
+            )
+            .await?;
+
+        Ok("Edited.".into())
     }
 
     pub async fn toggle_alias<T: ToString, U: ToString + Copy, V: ToString>(
@@ -200,18 +201,19 @@ impl Tags {
         let alias = Tags::validate_tag_name(alias)?;
         let new = !tag.aliases.contains(&alias);
 
-        if new {
-            if tag.aliases.len() == 5 {
-                bail!("Maximum alias amount reached.");
-            }
+        match new {
+            true => {
+                if tag.aliases.len() == 5 {
+                    bail!("Maximum alias amount reached.");
+                }
 
-            if self.get(&alias, guild_id).await.is_ok() {
-                bail!("Tag with that new alias already exists.");
-            }
+                if self.get(&alias, guild_id).await.is_ok() {
+                    bail!("Tag with that new alias already exists.");
+                }
 
-            tag.aliases.push(alias.clone());
-        } else {
-            tag.aliases = tag.aliases.into_iter().filter(|entry| entry != &alias).collect::<Vec<String>>();
+                tag.aliases.push(alias.clone());
+            },
+            false => tag.aliases = tag.aliases.into_iter().filter(|entry| entry != &alias).collect(),
         }
 
         self.tags

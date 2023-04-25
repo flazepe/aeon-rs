@@ -24,7 +24,14 @@ pub enum VndbTagCategory {
 
 impl Display for VndbTagCategory {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        write!(f, "{}", if matches!(self, VndbTagCategory::SexualContext) { "Sexual Content".into() } else { format!("{self:?}") })
+        write!(
+            f,
+            "{}",
+            match self {
+                VndbTagCategory::SexualContext => "Sexual Content".into(),
+                _ => format!("{self:?}"),
+            }
+        )
     }
 }
 

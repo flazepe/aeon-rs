@@ -25,7 +25,10 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                         input.rest.get::<User>(format!("users/{}", tag.author_id)).await.ok().map_or("N/A".into(), |user| user.tag()),
                         tag.author_id,
                         format_timestamp(tag.created_timestamp, TimestampFormat::Full),
-                        if aliases.is_empty() { "None".into() } else { aliases },
+                        match aliases.is_empty() {
+                            true => "None".into(),
+                            false => aliases,
+                        },
                         yes_no!(tag.nsfw),
                         format_timestamp(tag.updated_timestamp, TimestampFormat::Full)
                     ),

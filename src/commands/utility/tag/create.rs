@@ -11,8 +11,8 @@ use slashook::{
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
-    if input.is_modal_submit() {
-        match Tags::new()
+    match input.is_modal_submit() {
+        true => match Tags::new()
             .create(
                 input.get_string_arg("tag")?,
                 input.guild_id.as_ref().unwrap(),
@@ -24,9 +24,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         {
             Ok(response) => interaction.respond_success(response, true).await,
             Err(error) => interaction.respond_error(error, true).await,
-        }
-    } else {
-        Ok(res
+        },
+        false => Ok(res
             .open_modal(
                 Modal::new("tag", "create", "Create Tag").set_components(
                     Components::new()
@@ -41,6 +40,6 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                         ),
                 ),
             )
-            .await?)
+            .await?),
     }
 }

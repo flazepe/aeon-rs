@@ -33,7 +33,10 @@ impl Snipes {
 
         Ok(match self.send_list {
             true => File::new(
-                if self.is_edit { "edit-snipes.txt" } else { "snipes.txt" },
+                match self.is_edit {
+                    true => "edit-snipes.txt",
+                    false => "snipes.txt",
+                },
                 snipes
                     .into_iter()
                     .rev()
@@ -46,7 +49,13 @@ impl Snipes {
                             StringifiedMessage::from(message.clone())
                                 .to_string()
                                 .split("\n")
-                                .map(|line| format!("\t{}", if line.is_empty() { "<empty>" } else { line }))
+                                .map(|line| format!(
+                                    "\t{}",
+                                    match line.is_empty() {
+                                        true => "<empty>",
+                                        false => line,
+                                    }
+                                ))
                                 .collect::<Vec<String>>()
                                 .join("\n")
                         )

@@ -51,18 +51,24 @@ pub fn get_command() -> Command {
             CACHE.last_tio_programming_languages.write()?.insert(input.user.id.clone(), programming_language.clone());
         }
 
-        if input.is_modal_submit() {
-            res.defer(false).await?;
+        match input.is_modal_submit() {
+            true => {
+                res.defer(false).await?;
 
-            match Tio::new(programming_language, input.get_string_arg("code")?).run().await {
-                Ok(tio) => interaction.respond(tio.format(), false).await?,
-                Err(error) => interaction.respond_error(error, true).await?,
-            };
-        } else {
-            res.open_modal(Modal::new("code", "modal", "Enter Code").set_components(
-                Components::new().add_text_input(TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code").set_label("Code")),
-            ))
-            .await?;
+                match Tio::new(programming_language, input.get_string_arg("code")?).run().await {
+                    Ok(tio) => interaction.respond(tio.format(), false).await?,
+                    Err(error) => interaction.respond_error(error, true).await?,
+                };
+            },
+            false => {
+                res.open_modal(
+                    Modal::new("code", "modal", "Enter Code").set_components(
+                        Components::new()
+                            .add_text_input(TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code").set_label("Code")),
+                    ),
+                )
+                .await?
+            },
         }
     }
 
