@@ -7,12 +7,11 @@ mod traits;
 
 use crate::{
     statics::{CONFIG, MONGODB},
-    structs::{client::AeonClient, gateway::client::GatewayClient},
+    structs::{client::AeonClient, database::reminders::Reminders, gateway::client::GatewayClient},
 };
 use anyhow::Result;
 use mongodb::{options::ClientOptions as MongoDBClientOptions, Client as MongoDBClient};
 use slashook::main;
-use structs::reminders::Reminders;
 use tokio::spawn;
 
 #[main]

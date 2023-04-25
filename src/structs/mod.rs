@@ -1,13 +1,12 @@
 pub mod api;
 pub mod client;
 pub mod config;
+pub mod database;
 pub mod duration;
 pub mod gateway;
 pub mod interaction;
-pub mod reminders;
 pub mod scraping;
 pub mod select_menu;
 pub mod snipes;
 pub mod stringified_message;
-pub mod tags;
 pub mod unicode;

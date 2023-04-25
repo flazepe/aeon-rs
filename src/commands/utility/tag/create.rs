@@ -1,5 +1,5 @@
 use crate::{
-    structs::{interaction::Interaction, tags::Tags},
+    structs::{database::tags::Tags, interaction::Interaction},
     traits::ArgGetters,
 };
 use anyhow::Result;

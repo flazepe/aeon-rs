@@ -5,7 +5,7 @@ pub mod track;
 use crate::{
     macros::if_else,
     statics::{spotify::SPOTIFY_EMBED_COLOR, CONFIG},
-    structs::api::oauth::OAuth,
+    structs::database::oauth::OAuth,
 };
 use anyhow::Result;
 use reqwest::Client;

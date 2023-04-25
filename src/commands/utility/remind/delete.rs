@@ -1,5 +1,5 @@
 use crate::{
-    structs::{interaction::Interaction, reminders::Reminders},
+    structs::{database::reminders::Reminders, interaction::Interaction},
     traits::ArgGetters,
 };
 use anyhow::Result;

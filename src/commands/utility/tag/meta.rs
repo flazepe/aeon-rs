@@ -1,7 +1,7 @@
 use crate::{
     functions::{format_timestamp, TimestampFormat},
     macros::{if_else, yes_no},
-    structs::{interaction::Interaction, tags::Tags},
+    structs::{database::tags::Tags, interaction::Interaction},
     traits::{ArgGetters, Tag},
 };
 use anyhow::Result;

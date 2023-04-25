@@ -1,7 +1,7 @@
 use crate::{
     functions::limit_string,
     statics::colors::PRIMARY_COLOR,
-    structs::{interaction::Interaction, tags::Tags},
+    structs::{database::tags::Tags, interaction::Interaction},
     traits::{ArgGetters, AvatarURL, Tag},
 };
 use anyhow::Result;

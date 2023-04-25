@@ -2,7 +2,7 @@ use crate::{
     functions::{format_timestamp, TimestampFormat},
     macros::if_else,
     statics::colors::PRIMARY_COLOR,
-    structs::{duration::Duration, interaction::Interaction, reminders::Reminders},
+    structs::{database::reminders::Reminders, duration::Duration, interaction::Interaction},
 };
 use anyhow::Result;
 use slashook::{

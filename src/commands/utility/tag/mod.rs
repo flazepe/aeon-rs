@@ -7,7 +7,7 @@ mod toggle_alias;
 mod toggle_nsfw;
 mod view;
 
-use crate::structs::tags::Tags;
+use crate::structs::database::tags::Tags;
 use anyhow::Context;
 use slashook::{
     command,
