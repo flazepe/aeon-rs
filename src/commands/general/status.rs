@@ -10,6 +10,7 @@ use slashook::{
     commands::{Command, CommandInput, CommandResponder},
     structs::embeds::Embed,
 };
+use std::collections::hash_map::Iter;
 use sysinfo::{get_current_pid, ProcessExt, System, SystemExt};
 
 pub fn get_command() -> Command {
@@ -29,52 +30,18 @@ pub fn get_command() -> Command {
                         Embed::new()
                             .set_color(PRIMARY_COLOR)?
                             .add_field("Uptime", format_timestamp(process.start_time(), TimestampFormat::Full), false)
-                            .add_field("Memory", format!("{} MB", process.memory() / 1024 / 1024), false)
-                            .add_field("Virtual Memory", format!("{} MB", process.virtual_memory() / 1024 / 1024), false)
+                            .add_field("Memory", bytes_to_mb(process.memory()), false)
+                            .add_field("Virtual Memory", bytes_to_mb(process.virtual_memory()), false)
                             .add_field(
                                 "Cache",
-                                {
-                                    let channels = CACHE.channels.read()?;
-
-                                    [
-                                        plural!(channels.len(), "channel"),
-                                        plural!(
-                                            channels.iter().map(|(_, messages)| messages.len()).reduce(|acc, cur| acc + cur).unwrap_or(0),
-                                            "message",
-                                        ),
-                                        plural!(
-                                            CACHE
-                                                .snipes
-                                                .read()?
-                                                .iter()
-                                                .map(|(_, messages)| messages.len())
-                                                .reduce(|acc, cur| acc + cur)
-                                                .unwrap_or(0),
-                                            "snipe",
-                                        ),
-                                        plural!(
-                                            CACHE
-                                                .edit_snipes
-                                                .read()?
-                                                .iter()
-                                                .map(|(_, messages)| messages.len())
-                                                .reduce(|acc, cur| acc + cur)
-                                                .unwrap_or(0),
-                                            "edit snipe",
-                                        ),
-                                        plural!(
-                                            CACHE
-                                                .reaction_snipes
-                                                .read()?
-                                                .iter()
-                                                .map(|(_, messages)| messages.len())
-                                                .reduce(|acc, cur| acc + cur)
-                                                .unwrap_or(0),
-                                            "reaction snipe",
-                                        ),
-                                    ]
-                                    .join("\n")
-                                },
+                                [
+                                    plural!(CACHE.channels.read()?.len(), "channel"),
+                                    plural!(sum_cache_len(CACHE.channels.read()?.iter()), "message",),
+                                    plural!(sum_cache_len(CACHE.snipes.read()?.iter()), "snipe"),
+                                    plural!(sum_cache_len(CACHE.edit_snipes.read()?.iter()), "edit snipe"),
+                                    plural!(sum_cache_len(CACHE.reaction_snipes.read()?.iter()), "reaction snipe"),
+                                ]
+                                .join("\n"),
                                 false,
                             ),
                         false,
@@ -86,4 +53,12 @@ pub fn get_command() -> Command {
     }
 
     status
+}
+
+fn bytes_to_mb(bytes: u64) -> String {
+    format!("{} MB", bytes / 1024 / 1024)
+}
+
+fn sum_cache_len<T: Clone>(iter: Iter<String, Vec<T>>) -> usize {
+    iter.map(|(_, vec)| vec.len()).reduce(|acc, cur| acc + cur).unwrap_or(0)
 }
