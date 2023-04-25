@@ -1,6 +1,5 @@
 use crate::{
     functions::limit_string,
-    macros::if_else,
     statics::anilist::{ANILIST_ANIME_FIELDS, ANILIST_EMBED_COLOR},
     structs::api::anilist::{
         components::{
@@ -86,7 +85,10 @@ impl AniListAnime {
                         self.season_year.unwrap(),
                         self.trailer.as_ref().map_or("".into(), |trailer| format!(
                             " - [Trailer]({}{})",
-                            if_else!(trailer.site == "youtube", "https://www.youtube.com/watch?v=", "https://www.dailymotion.com/video/"),
+                            match trailer.site == "youtube" {
+                                true => "https://www.youtube.com/watch?v=",
+                                false => "https://www.dailymotion.com/video/",
+                            },
                             trailer.id
                         ))
                     )),
@@ -155,7 +157,10 @@ impl AniListAnime {
                         scores.push(format!("Mean {mean_score}%"))
                     }
 
-                    if_else!(scores.is_empty(), "N/A".into(), scores.join("\n"))
+                    match scores.is_empty() {
+                        true => "N/A".into(),
+                        false => scores.join("\n"),
+                    }
                 },
                 true,
             )
@@ -178,16 +183,15 @@ impl AniListAnime {
                         character.node.name.full,
                         character.node.site_url,
                         AniList::format_enum_value(&character.role),
-                        if let Some(voice_actor) = character.voice_actors.get(0) {
-                            format!(" - voiced by [{}]({})", voice_actor.name.full, voice_actor.site_url)
-                        } else {
-                            "".into()
+                        match character.voice_actors.get(0) {
+                            Some(voice_actor) => format!("\nVoiced by [{}]({})", voice_actor.name.full, voice_actor.site_url),
+                            None => "".into(),
                         }
                     )
                 })
                 .collect::<Vec<String>>()
-                .join("\n"),
-            "\n",
+                .join("\n\n"),
+            "\n\n",
             4096,
         ))
     }
@@ -233,6 +237,10 @@ impl AniList {
         )
         .await?;
 
-        if_else!(result.data.page.media.is_empty(), bail!("Anime not found."), Ok(result.data.page.media))
+        if result.data.page.media.is_empty() {
+            bail!("Anime not found.");
+        }
+
+        Ok(result.data.page.media)
     }
 }

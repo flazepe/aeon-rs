@@ -1,5 +1,4 @@
 use crate::{
-    macros::if_else,
     statics::{
         colors::PRIMARY_COLOR,
         google::{GOOGLE_DNS_CODES, GOOGLE_DNS_RECORD_TYPES},
@@ -107,10 +106,10 @@ impl Google {
 
         let records = dns_response.answer.or(dns_response.authority).unwrap_or(vec![]);
 
-        if_else!(
-            records.is_empty(),
-            bail!("No DNS records found."),
-            Ok(GoogleDNS { domain: domain.to_string(), record_type, comment: dns_response.comment, records }),
-        )
+        if records.is_empty() {
+            bail!("No DNS records found.");
+        }
+
+        Ok(GoogleDNS { domain: domain.to_string(), record_type, comment: dns_response.comment, records })
     }
 }

@@ -5,7 +5,6 @@ mod user;
 
 use crate::{
     functions::{format_timestamp, limit_string, TimestampFormat},
-    macros::if_else,
     structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
 };
 use anyhow::Result;
@@ -37,14 +36,11 @@ impl AniList {
     }
 
     pub fn format_enum_value<T: Debug>(value: T) -> String {
-        format!("{:?}", value)
+        format!("{value:?}")
             .split("_")
-            .map(|word| {
-                if_else!(
-                    ["ONA", "OVA", "TV"].contains(&word),
-                    word.into(),
-                    format!("{}{}", word.chars().next().unwrap(), word.chars().skip(1).collect::<String>().to_lowercase()),
-                )
+            .map(|word| match ["ONA", "OVA", "TV"].contains(&word) {
+                true => word.into(),
+                false => format!("{}{}", word.chars().next().unwrap(), word.chars().skip(1).collect::<String>().to_lowercase()),
             })
             .collect::<Vec<String>>()
             .join(" ")
@@ -67,7 +63,10 @@ impl AniList {
             }
         }
 
-        if_else!(dates.is_empty(), "TBA".into(), dates.join(" - "))
+        match dates.is_empty() {
+            true => "TBA".into(),
+            false => dates.join(" - "),
+        }
     }
 
     pub fn format_description<T: ToString>(embed: Embed, description: Option<&T>) -> Embed {

@@ -1,4 +1,4 @@
-use crate::{macros::if_else, structs::interaction::Interaction, traits::ArgGetters};
+use crate::{structs::interaction::Interaction, traits::ArgGetters};
 use anyhow::Result;
 use nipper::Document;
 use reqwest::Client;
@@ -16,9 +16,8 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         status.trim().to_string()
     };
 
-    if_else!(
-        status.is_empty() || status.contains("no account"),
-        interaction.respond_error("Account not found.", true).await,
-        interaction.respond(format!("[{user}]({url})\n{status}"), false).await,
-    )
+    match status.is_empty() || status.contains("no account") {
+        true => interaction.respond_error("Account not found.", true).await,
+        false => interaction.respond(format!("[{user}]({url})\n{status}"), false).await,
+    }
 }

@@ -1,7 +1,4 @@
-use crate::{
-    macros::if_else,
-    statics::{colors::PRIMARY_COLOR, CONFIG},
-};
+use crate::statics::{colors::PRIMARY_COLOR, CONFIG};
 use anyhow::{bail, Result};
 use reqwest::Client;
 use serde::Deserialize;
@@ -51,7 +48,11 @@ impl SauceNAOSearch {
             .json::<Self>()
             .await?;
 
-        if_else!(search.results.is_empty(), bail!("Sauce not found."), Ok(search))
+        if search.results.is_empty() {
+            bail!("Sauce not found.");
+        }
+
+        Ok(search)
     }
 
     pub fn format(&self) -> Embed {
@@ -73,7 +74,10 @@ impl SauceNAOSearch {
                                 title = result.data.source.as_ref().map_or("".into(), |source| source.into());
                             }
 
-                            if_else!(title.is_empty(), "Source".into(), title)
+                            match title.is_empty() {
+                                true => "Source".into(),
+                                false => title,
+                            }
                         },
                         result.data.ext_urls.as_ref().unwrap_or(&vec!["https://google.com".into()])[0],
                         {
@@ -82,7 +86,10 @@ impl SauceNAOSearch {
                                 match &result.data.part {
                                     Some(part) => format!(
                                         "{} {}",
-                                        if_else!(part.chars().into_iter().all(|char| char.is_numeric()), "Episode", ""),
+                                        match part.chars().into_iter().all(|char| char.is_numeric()) {
+                                            true => "Episode",
+                                            false => "",
+                                        },
                                         part.replace("-", "").trim(),
                                     ),
                                     None => "".into(),
@@ -94,7 +101,10 @@ impl SauceNAOSearch {
                             .collect::<Vec<String>>()
                             .join("\n");
 
-                            if_else!(joined.is_empty(), "".into(), format!("\n{joined}"))
+                            match joined.is_empty() {
+                                true => "".into(),
+                                false => format!("\n{joined}"),
+                            }
                         }
                     )
                 })

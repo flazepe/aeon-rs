@@ -1,4 +1,4 @@
-use crate::{macros::if_else, statics::MONGODB};
+use crate::statics::MONGODB;
 use anyhow::{bail, Result};
 use futures::stream::TryStreamExt;
 use mongodb::{
@@ -54,15 +54,14 @@ impl Tags {
         let tags = self
             .tags
             .find(
-                if let Some(author_id) = author_id {
-                    doc! {
+                match author_id {
+                    Some(author_id) => doc! {
                         "guild_id": guild_id.to_string(),
                         "author_id": author_id.to_string(),
-                    }
-                } else {
-                    doc! {
+                    },
+                    None => doc! {
                         "guild_id": guild_id.to_string(),
-                    }
+                    },
                 },
                 None,
             )
@@ -70,7 +69,11 @@ impl Tags {
             .try_collect::<Vec<Tag>>()
             .await?;
 
-        if_else!(tags.is_empty(), bail!("No tags found."), Ok(tags))
+        if tags.is_empty() {
+            bail!("No tags found.");
+        }
+
+        Ok(tags)
     }
 
     pub async fn create<T: ToString, U: ToString + Copy, V: ToString + Copy, W: ToString>(
@@ -227,7 +230,10 @@ impl Tags {
             )
             .await?;
 
-        Ok(if_else!(new, format!("Added `{}` to `{}` alias.", alias, tag.name), format!("Removed `{}` from `{}` alias.", alias, tag.name)))
+        Ok(match new {
+            true => format!("Added `{}` to `{}` alias.", alias, tag.name),
+            false => format!("Removed `{}` from `{}` alias.", alias, tag.name),
+        })
     }
 
     pub async fn toggle_nsfw<T: ToString, U: ToString>(&self, name: T, guild_id: U, modifier: &GuildMember) -> Result<String> {
@@ -250,7 +256,14 @@ impl Tags {
             )
             .await?;
 
-        Ok(format!("Set tag `{}` as {}.", tag.name, if_else!(nsfw, "NSFW", "non-NSFW")))
+        Ok(format!(
+            "Set tag `{}` as {}.",
+            tag.name,
+            match nsfw {
+                true => "NSFW",
+                false => "non-NSFW",
+            }
+        ))
     }
 
     pub fn validate_tag_modifier(tag: Tag, member: &GuildMember) -> Result<Tag> {

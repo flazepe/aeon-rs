@@ -1,5 +1,4 @@
 use crate::{
-    macros::if_else,
     structs::{api::anilist::AniList, interaction::Interaction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
@@ -33,23 +32,21 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         return interaction.respond(select_menu.to_components(), false).await;
     }
 
-    let (query, section): (String, String) = {
-        if input.is_string_select() {
+    let (query, section): (String, String) = match input.is_string_select() {
+        true => {
             let mut split = input.values.as_ref().unwrap()[0].split("/");
             (split.next().unwrap().into(), split.next().unwrap_or("").into())
-        } else {
-            (input.get_string_arg("manga")?, "".into())
-        }
+        },
+        false => (input.get_string_arg("manga")?, "".into()),
     };
 
-    let manga = if_else!(
-        input.is_string_select(),
-        AniList::get_manga(query.parse::<u64>()?).await?,
-        match AniList::search_manga(query).await {
+    let manga = match input.is_string_select() {
+        true => AniList::get_manga(query.parse::<u64>()?).await?,
+        false => match AniList::search_manga(query).await {
             Ok(mut results) => results.remove(0),
             Err(error) => return interaction.respond_error(error, true).await,
         },
-    );
+    };
 
     if manga.is_adult {
         if !Channel::fetch(&input.rest, input.channel_id.as_ref().unwrap()).await.map_or(false, |channel| channel.nsfw.unwrap_or(false)) {

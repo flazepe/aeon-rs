@@ -1,6 +1,5 @@
 use crate::{
     functions::{format_timestamp, TimestampFormat},
-    macros::if_else,
     statics::CACHE,
     structs::gateway::events::handler::EventHandler,
 };
@@ -30,7 +29,10 @@ impl EventHandler {
                             "[{}](https://cdn.discordapp.com/emojis/{}.{})",
                             name.unwrap_or("<deleted>".into()),
                             id,
-                            if_else!(animated, "gif", "png")
+                            match animated {
+                                true => "gif",
+                                false => "png",
+                            }
                         )
                     },
                     ReactionType::Unicode { name } => {

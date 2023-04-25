@@ -1,7 +1,4 @@
-use crate::{
-    macros::{if_else, plural},
-    statics::unicode::CONTROL_CHARACTERS,
-};
+use crate::{macros::plural, statics::unicode::CONTROL_CHARACTERS};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::Client;
@@ -34,11 +31,10 @@ impl UnicodeCharacter {
             "`{}` - {}{}",
             self.codepoint,
             self.name,
-            if_else!(
-                CONTROL_CHARACTERS.iter().any(|(_, control_character)| control_character == &self.name),
-                "".into(),
-                format!(" - `{}`", self.character.replace("`", "｀")),
-            ),
+            match CONTROL_CHARACTERS.iter().any(|(_, control_character)| control_character == &self.name) {
+                true => "".into(),
+                false => format!(" - `{}`", self.character.replace("`", "｀")),
+            }
         )
     }
 }

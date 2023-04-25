@@ -1,6 +1,6 @@
 use crate::{
     functions::limit_string,
-    macros::{if_else, plural},
+    macros::plural,
     statics::{colors::PRIMARY_COLOR, vndb::VISUAL_NOVEL_FIELDS},
     structs::api::vndb::Vndb,
 };
@@ -37,7 +37,7 @@ impl Display for VndbDevStatus {
             "{}",
             match self {
                 VndbDevStatus::InDevelopment => "In development".into(),
-                _ => format!("{:?}", self),
+                _ => format!("{self:?}"),
             }
         )
     }
@@ -201,7 +201,7 @@ pub enum VndbLanguage {
 
 impl Display for VndbLanguage {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        let default = format!("{:?}", self);
+        let default = format!("{self:?}");
 
         write!(
             f,
@@ -364,7 +364,7 @@ pub enum VndbPlatform {
 
 impl Display for VndbPlatform {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        let original = format!("{:?}", self);
+        let original = format!("{self:?}");
 
         write!(
             f,
@@ -518,7 +518,10 @@ impl VndbVisualNovel {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.image.as_ref().map_or("".into(), |image| if_else!(image.sexual > 1.0, "".into(), image.url.to_string())))
+            .set_thumbnail(self.image.as_ref().map_or("".into(), |image| match image.sexual > 1.0 {
+                true => "".into(),
+                false => image.url.to_string(),
+            }))
             .set_title(format!("{} ({})", self.title.chars().take(240).collect::<String>(), self.dev_status.to_string()))
             .set_url(format!("https://vndb.org/{}", self.id))
     }
@@ -562,12 +565,9 @@ impl VndbVisualNovel {
         self._format().set_description(limit_string(
             self.tags
                 .iter()
-                .map(|tag| {
-                    if_else!(
-                        tag.spoiler > 1.0,
-                        format!("||[{}](https://vndb.org/{})||", tag.name, tag.id),
-                        format!("[{}](https://vndb.org/{})", tag.name, tag.id),
-                    )
+                .map(|tag| match tag.spoiler > 1.0 {
+                    true => format!("||[{}](https://vndb.org/{})||", tag.name, tag.id),
+                    false => format!("[{}](https://vndb.org/{})", tag.name, tag.id),
                 })
                 .collect::<Vec<String>>()
                 .join(", "),
@@ -584,22 +584,25 @@ impl Vndb {
         let results = self
             .query(
                 "vn",
-                if_else!(
-                    query.starts_with("v") && query.chars().skip(1).all(|char| char.is_numeric()),
-                    json!({
+                match query.starts_with("v") && query.chars().skip(1).all(|char| char.is_numeric()) {
+                    true => json!({
                         "filters": ["id", "=", query],
                         "fields": VISUAL_NOVEL_FIELDS,
                     }),
-                    json!({
+                    false => json!({
                         "filters": ["search", "=", query],
                         "fields": VISUAL_NOVEL_FIELDS,
                         "sort": "searchrank",
                     }),
-                ),
+                },
             )
             .await?
             .results;
 
-        if_else!(results.is_empty(), bail!("Visual novel not found."), Ok(results))
+        if results.is_empty() {
+            bail!("Visual novel not found.");
+        }
+
+        Ok(results)
     }
 }

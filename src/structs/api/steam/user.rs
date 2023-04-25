@@ -1,6 +1,6 @@
 use crate::{
     functions::{format_timestamp, TimestampFormat},
-    macros::{if_else, plural, yes_no},
+    macros::{plural, yes_no},
     statics::steam::{STEAM_COUNTRIES, STEAM_EMBED_COLOR, STEAM_USER_STATES},
     structs::api::steam::{user_bans::SteamUserBans, Steam},
 };
@@ -93,7 +93,14 @@ impl SteamUser {
             .set_title(self.real_name.as_ref().unwrap_or(&self.persona_name))
             .set_url(&self.profile_url)
             .add_field("ID", &self.id, true)
-            .add_field("Custom ID", if_else!(self.id == vanity, "None".into(), format!("`{vanity}`")), true)
+            .add_field(
+                "Custom ID",
+                match self.id == vanity {
+                    true => "None".into(),
+                    false => format!("`{vanity}`"),
+                },
+                true,
+            )
             .add_field(
                 "Status",
                 STEAM_USER_STATES

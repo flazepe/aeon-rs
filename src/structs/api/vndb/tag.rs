@@ -1,6 +1,6 @@
 use crate::{
     functions::limit_string,
-    macros::{if_else, yes_no},
+    macros::yes_no,
     statics::{colors::PRIMARY_COLOR, vndb::TAG_FIELDS},
     structs::api::vndb::Vndb,
 };
@@ -24,7 +24,7 @@ pub enum VndbTagCategory {
 
 impl Display for VndbTagCategory {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        write!(f, "{}", if_else!(matches!(self, VndbTagCategory::SexualContext), "Sexual Content".into(), format!("{:?}", self)))
+        write!(f, "{}", if matches!(self, VndbTagCategory::SexualContext) { "Sexual Content".into() } else { format!("{self:?}") })
     }
 }
 
@@ -62,22 +62,25 @@ impl Vndb {
         let results = self
             .query(
                 "tag",
-                if_else!(
-                    query.starts_with("g") && query.chars().skip(1).all(|char| char.is_numeric()),
-                    json!({
+                match query.starts_with("g") && query.chars().skip(1).all(|char| char.is_numeric()) {
+                    true => json!({
                         "filters": ["id", "=", query],
                         "fields": TAG_FIELDS,
                     }),
-                    json!({
+                    false => json!({
                         "filters": ["search", "=", query],
                         "fields": TAG_FIELDS,
                         "sort": "searchrank",
                     }),
-                ),
+                },
             )
             .await?
             .results;
 
-        if_else!(results.is_empty(), bail!("Tag not found."), Ok(results))
+        if results.is_empty() {
+            bail!("Tag not found.");
+        }
+
+        Ok(results)
     }
 }

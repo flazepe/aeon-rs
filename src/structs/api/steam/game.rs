@@ -1,6 +1,5 @@
 use crate::{
     functions::{format_timestamp, limit_string, TimestampFormat},
-    macros::if_else,
     statics::steam::STEAM_EMBED_COLOR,
     structs::api::steam::Steam,
 };
@@ -219,25 +218,28 @@ impl SteamGame {
                             NaiveDateTime::parse_from_str(&format!("{} 00:00", release_date.date), "%b %-d, %Y %R").unwrap().timestamp(),
                             TimestampFormat::Full
                         ),
-                        if_else!(release_date.coming_soon, " (coming soon)", "")
+                        match release_date.coming_soon {
+                            true => " (coming soon)",
+                            false => "",
+                        }
                     )
                 }),
                 false,
             )
             .add_field(
                 "Price",
-                if_else!(
-                    self.is_free,
-                    "Free".into(),
-                    self.price_overview.as_ref().map_or("N/A".into(), |price_overview| if_else!(
-                        price_overview.discount_percent > 0,
-                        format!(
-                            "~~{}~~ {} ({}% off)",
-                            price_overview.initial_formatted, price_overview.final_formatted, price_overview.discount_percent,
-                        ),
-                        price_overview.final_formatted.clone(),
-                    )),
-                ),
+                match self.is_free {
+                    true => "Free".into(),
+                    false => {
+                        self.price_overview.as_ref().map_or("N/A".into(), |price_overview| match price_overview.discount_percent > 0 {
+                            true => format!(
+                                "~~{}~~ {} ({}% off)",
+                                price_overview.initial_formatted, price_overview.final_formatted, price_overview.discount_percent,
+                            ),
+                            false => price_overview.final_formatted.clone(),
+                        })
+                    },
+                },
                 false,
             )
     }

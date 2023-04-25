@@ -1,4 +1,4 @@
-use crate::{macros::if_else, statics::colors::PRIMARY_COLOR};
+use crate::statics::colors::PRIMARY_COLOR;
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::{get, Client};
@@ -33,15 +33,15 @@ impl Stock {
 
             let selection = &document.select("td a");
 
-            if_else!(
-                selection.nodes().is_empty(),
-                bail!("Ticker not found."),
-                YahooFinanceLookupAttributes {
-                    href: selection.attr("href").context("Missing href attr.")?.to_string(),
-                    title: selection.attr("title").context("Missing title attr.")?.to_string(),
-                    data_symbol: selection.attr("data-symbol").context("Missing data-symbol attr.")?.to_string(),
-                },
-            )
+            if selection.nodes().is_empty() {
+                bail!("Ticker not found.");
+            }
+
+            YahooFinanceLookupAttributes {
+                href: selection.attr("href").context("Missing href attr.")?.to_string(),
+                title: selection.attr("title").context("Missing title attr.")?.to_string(),
+                data_symbol: selection.attr("data-symbol").context("Missing data-symbol attr.")?.to_string(),
+            }
         };
 
         let document = Document::from(&get(format!("https://finance.yahoo.com{}", attributes.href)).await?.text().await?);

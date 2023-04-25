@@ -3,7 +3,6 @@ pub mod components;
 pub mod track;
 
 use crate::{
-    macros::if_else,
     statics::{spotify::SPOTIFY_EMBED_COLOR, CONFIG},
     structs::database::oauth::OAuth,
 };
@@ -54,8 +53,14 @@ impl Spotify {
 
         format!(
             "{}{}:{}",
-            if_else!(hours > 0, format!("{hours}:"), "".into()),
-            if_else!(hours > 0, format!("{mins:02}"), mins.to_string()),
+            match hours > 0 {
+                true => format!("{hours}:"),
+                false => "".into(),
+            },
+            match hours > 0 {
+                true => format!("{mins:02}"),
+                false => mins.to_string(),
+            },
             format!("{secs:02}"),
         )
     }

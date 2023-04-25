@@ -1,5 +1,4 @@
 use crate::{
-    macros::if_else,
     structs::{api::spotify::Spotify, interaction::Interaction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
@@ -22,23 +21,21 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         return interaction.respond(select_menu.to_components(), false).await;
     }
 
-    let (query, section): (String, String) = {
-        if input.is_string_select() {
+    let (query, section): (String, String) = match input.is_string_select() {
+        true => {
             let mut split = input.values.as_ref().unwrap()[0].split("/");
             (split.next().unwrap().into(), split.next().unwrap_or("").into())
-        } else {
-            (input.get_string_arg("song")?, "".into())
-        }
+        },
+        false => (input.get_string_arg("song")?, "".into()),
     };
 
-    let mut track = if_else!(
-        input.is_string_select(),
-        Spotify::get_track(query).await?,
-        match Spotify::search_track(query).await {
+    let mut track = match input.is_string_select() {
+        true => Spotify::get_track(query).await?,
+        false => match Spotify::search_track(query).await {
             Ok(mut result) => result.remove(0),
             Err(error) => return interaction.respond_error(error, true).await,
         },
-    );
+    };
 
     interaction
         .respond(

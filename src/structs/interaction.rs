@@ -1,9 +1,6 @@
-use crate::{
-    macros::if_else,
-    statics::{
-        emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
-        CACHE,
-    },
+use crate::statics::{
+    emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
+    CACHE,
 };
 use anyhow::{bail, Context, Result};
 use slashook::{
@@ -60,11 +57,10 @@ impl<'a> Interaction<'a> {
 
         let response = response.into().set_ephemeral(ephemeral);
 
-        if_else!(
-            self.input.message.is_some() && !ephemeral,
-            self.res.update_message(response).await?,
-            self.res.send_message(response).await?,
-        );
+        match self.input.message.is_some() && !ephemeral {
+            true => self.res.update_message(response).await?,
+            false => self.res.send_message(response).await?,
+        };
 
         Ok(())
     }

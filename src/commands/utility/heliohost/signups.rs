@@ -1,5 +1,4 @@
 use crate::{
-    macros::if_else,
     statics::colors::PRIMARY_COLOR,
     structs::{duration::Duration, interaction::Interaction},
 };
@@ -27,11 +26,11 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     for (server, plan) in [("Tommy", "2"), ("Ricky", "1"), ("Johnny", "9")] {
         embed = embed.add_field(
             server,
-            if_else!(
-                Client::new().get("https://heliohost.org/assets/monitor.php").query(&[("plan", plan)]).send().await?.text().await? == "1",
-                "Open",
-                "Closed",
-            ),
+            match Client::new().get("https://heliohost.org/assets/monitor.php").query(&[("plan", plan)]).send().await?.text().await? == "1"
+            {
+                true => "Open",
+                false => "Closed",
+            },
             true,
         );
     }

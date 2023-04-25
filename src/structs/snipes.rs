@@ -1,5 +1,5 @@
 use crate::{
-    macros::{if_else, plural},
+    macros::plural,
     statics::{colors::PRIMARY_COLOR, CACHE},
     structs::stringified_message::StringifiedMessage,
     traits::{AvatarURL, Tag},
@@ -24,49 +24,48 @@ impl Snipes {
 
     pub fn to_response(&self) -> Result<MessageResponse> {
         let empty_vec = vec![];
-        let snipes = if_else!(self.is_edit, &CACHE.edit_snipes, &CACHE.snipes).read().unwrap();
+        let snipes = if self.is_edit { &CACHE.edit_snipes } else { &CACHE.snipes }.read().unwrap();
         let snipes = snipes.get(&self.channel_id).unwrap_or(&empty_vec);
 
-        if_else!(
-            snipes.is_empty(),
-            bail!("No snipes found."),
-            Ok(if_else!(
-                self.send_list,
-                File::new(
-                    if_else!(self.is_edit, "edit-snipes.txt", "snipes.txt"),
-                    snipes
-                        .into_iter()
-                        .rev()
-                        .map(|message| {
-                            format!(
-                                "{} ({}) at {}:\n\n{}",
-                                message.author.tag(),
-                                message.author.id,
-                                DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string()).unwrap().to_rfc2822(),
-                                StringifiedMessage::from(message.clone())
-                                    .to_string()
-                                    .split("\n")
-                                    .map(|line| format!("\t{}", if_else!(line.is_empty(), "<empty>", line)))
-                                    .collect::<Vec<String>>()
-                                    .join("\n")
-                            )
-                        })
-                        .collect::<Vec<String>>()
-                        .join("\n\n"),
-                )
-                .into(),
-                {
-                    let snipe = &snipes[snipes.len() - 1];
+        if snipes.is_empty() {
+            bail!("No snipes found.");
+        }
 
-                    Embed::new()
-                        .set_color(PRIMARY_COLOR)?
-                        .set_description(StringifiedMessage::from(snipe.clone()))
-                        .set_footer(snipe.author.tag(), Some(snipe.author.display_avatar_url("png", 64)))
-                        .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?)
-                        .into()
-                },
-            )),
-        )
+        Ok(match self.send_list {
+            true => File::new(
+                if self.is_edit { "edit-snipes.txt" } else { "snipes.txt" },
+                snipes
+                    .into_iter()
+                    .rev()
+                    .map(|message| {
+                        format!(
+                            "{} ({}) at {}:\n\n{}",
+                            message.author.tag(),
+                            message.author.id,
+                            DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string()).unwrap().to_rfc2822(),
+                            StringifiedMessage::from(message.clone())
+                                .to_string()
+                                .split("\n")
+                                .map(|line| format!("\t{}", if line.is_empty() { "<empty>" } else { line }))
+                                .collect::<Vec<String>>()
+                                .join("\n")
+                        )
+                    })
+                    .collect::<Vec<String>>()
+                    .join("\n\n"),
+            )
+            .into(),
+            false => {
+                let snipe = &snipes[snipes.len() - 1];
+
+                Embed::new()
+                    .set_color(PRIMARY_COLOR)?
+                    .set_description(StringifiedMessage::from(snipe.clone()))
+                    .set_footer(snipe.author.tag(), Some(snipe.author.display_avatar_url("png", 64)))
+                    .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?)
+                    .into()
+            },
+        })
     }
 }
 
@@ -85,11 +84,11 @@ impl ReactionSnipes {
         let reaction_snipes = CACHE.reaction_snipes.read().unwrap();
         let reaction_snipes = reaction_snipes.get(&format!("{}/{}", self.guild_id, self.message_id)).unwrap_or(&empty_vec);
 
-        if_else!(
-            reaction_snipes.is_empty(),
-            bail!("No reaction snipes found."),
-            Ok(MessageResponse::from(format!("Last {} for `{}`:", plural!(reaction_snipes.len(), "reaction snipe"), self.message_id))
-                .add_embed(Embed::new().set_color(PRIMARY_COLOR)?.set_description(reaction_snipes.join("\n\n")))),
-        )
+        if reaction_snipes.is_empty() {
+            bail!("No reaction snipes found.");
+        }
+
+        Ok(MessageResponse::from(format!("Last {} for `{}`:", plural!(reaction_snipes.len(), "reaction snipe"), self.message_id))
+            .add_embed(Embed::new().set_color(PRIMARY_COLOR)?.set_description(reaction_snipes.join("\n\n"))))
     }
 }

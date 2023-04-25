@@ -1,6 +1,6 @@
 use crate::{
     functions::{format_timestamp, limit_string, TimestampFormat},
-    macros::{if_else, plural},
+    macros::plural,
     statics::{
         emojis::{COPYRIGHT_EMOJI, FIRE_EMOJI, PHONOGRAM_EMOJI},
         spotify::SPOTIFY_EMBED_COLOR,
@@ -61,7 +61,7 @@ impl SpotifyFullAlbum {
             .set_color(SPOTIFY_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(self.images.get(0).map_or(&"".into(), |image| &image.url))
-            .set_title(if_else!(self.name.is_empty(), "N/A".into(), self.name.clone()))
+            .set_title(if self.name.is_empty() { "N/A".into() } else { self.name.clone() })
             .set_url(&self.external_urls.spotify)
     }
 
@@ -81,17 +81,16 @@ impl SpotifyFullAlbum {
             .add_field("Label", &self.label, false)
             .add_field(
                 "Release Date",
-                if_else!(
-                    matches!(self.release_date_precision, SpotifyReleaseDatePrecision::Day),
-                    format_timestamp(
+                match self.release_date_precision {
+                    SpotifyReleaseDatePrecision::Day => format_timestamp(
                         NaiveDateTime::parse_from_str(&format!("{} 00:00", self.release_date), "%F %R").unwrap().timestamp(),
                         TimestampFormat::Full,
                     ),
-                    self.release_date.clone(),
-                ),
+                    _ => self.release_date.clone(),
+                },
                 false,
             )
-            .add_field("Genre", if_else!(self.genres.is_empty(), "N/A".into(), self.genres.join(", ")), false)
+            .add_field("Genre", if self.genres.is_empty() { "N/A".into() } else { self.genres.join(", ") }, false)
             .add_field(
                 "Duration",
                 format!(
@@ -105,7 +104,7 @@ impl SpotifyFullAlbum {
             )
             .add_field("Popularity", format!("{FIRE_EMOJI} {}%", self.popularity), false)
             .add_field(
-                if_else!(self.copyrights.len() == 1, "Copyright", "Copyrights"),
+                if self.copyrights.len() == 1 { "Copyright" } else { "Copyrights" },
                 self.copyrights
                     .iter()
                     .map(|copyright| {
@@ -134,11 +133,11 @@ impl SpotifyFullAlbum {
                         "`{}.` [{}]({}) [{}]",
                         format!(
                             "{}{:0pad_length$}",
-                            if_else!(
-                                self.tracks.items.iter().any(|track| track.disc_number == 2),
-                                format!("{}-", track.disc_number),
-                                "".into(),
-                            ),
+                            if self.tracks.items.iter().any(|track| track.disc_number == 2) {
+                                format!("{}-", track.disc_number)
+                            } else {
+                                "".into()
+                            },
                             track.track_number,
                             pad_length = self.tracks.items.len().to_string().len(),
                         ),
@@ -182,14 +181,20 @@ impl Spotify {
         }
     }
 
-    pub async fn search_album<T: Display>(query: T) -> Result<Vec<SpotifySimpleAlbum>> {
+    pub async fn search_simple_album<T: Display>(query: T) -> Result<Vec<SpotifySimpleAlbum>> {
         let query = query.to_string();
 
-        if query.contains("album") {
-            Ok(vec![Spotify::get_simple_album(query.split("/").last().unwrap().split("?").next().unwrap()).await?])
-        } else {
-            let results = Spotify::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}")).await?.albums.items;
-            if_else!(results.is_empty(), bail!("Album not found."), Ok(results))
+        match query.contains("album") {
+            true => Ok(vec![Spotify::get_simple_album(query.split("/").last().unwrap().split("?").next().unwrap()).await?]),
+            false => {
+                let results = Spotify::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}")).await?.albums.items;
+
+                if results.is_empty() {
+                    bail!("Album not found.");
+                }
+
+                Ok(results)
+            },
         }
     }
 }

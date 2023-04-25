@@ -1,6 +1,5 @@
 use crate::{
     functions::add_reminder_select_options,
-    macros::if_else,
     statics::{colors::NOTICE_COLOR, duration::SECS_PER_MONTH, CONFIG, MONGODB},
     structs::duration::Duration,
 };
@@ -96,7 +95,11 @@ impl Reminders {
             self.rest = Some(Rest::with_token(CONFIG.bot.token.clone()));
         }
 
-        let mut response = MessageResponse::from(if_else!(reminder.dm, "".into(), format!("<@{}>", reminder.user_id))).add_embed(
+        let mut response = MessageResponse::from(match reminder.dm {
+            true => "".into(),
+            false => format!("<@{}>", reminder.user_id),
+        })
+        .add_embed(
             Embed::new()
                 .set_color(NOTICE_COLOR)?
                 .set_title("Reminder")
@@ -148,7 +151,11 @@ impl Reminders {
             .try_collect::<Vec<Reminder>>()
             .await?;
 
-        if_else!(reminders.is_empty(), bail!("No reminders found."), Ok(reminders))
+        if reminders.is_empty() {
+            bail!("No reminders found.");
+        }
+
+        Ok(reminders)
     }
 
     pub async fn set<T: ToString, U: ToString, V: ToString>(
@@ -200,8 +207,14 @@ impl Reminders {
             "I will remind you about [{}](<https://discord.com/channels/{}>) in {time}{}. Make sure I {}.",
             reminder.to_string(),
             url.to_string(),
-            if_else!(interval.total_secs > 0, format!(" and every {interval} after that"), "".into()),
-            if_else!(dm, "can DM you", "have the View Channel and Send Messages permission"),
+            match interval.total_secs > 0 {
+                true => format!(" and every {interval} after that"),
+                false => "".into(),
+            },
+            match dm {
+                true => "can DM you",
+                false => "have the View Channel and Send Messages permission",
+            },
         ))
     }
 

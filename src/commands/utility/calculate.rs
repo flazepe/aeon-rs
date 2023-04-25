@@ -1,4 +1,4 @@
-use crate::{macros::if_else, structs::interaction::Interaction, traits::ArgGetters};
+use crate::{structs::interaction::Interaction, traits::ArgGetters};
 use reqwest::{get, Client};
 use slashook::{
     command,
@@ -22,11 +22,10 @@ pub fn get_command() -> Command {
         let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
         let expression = input.get_string_arg("expression")?;
 
-        let body = if_else!(
-            expression.chars().all(|char| char.is_numeric()),
-            get(format!("http://numbersapi.com/{expression}")).await?,
-            Client::new().get("https://api.mathjs.org/v4/").query(&[("expr", expression.as_str())]).send().await?
-        )
+        let body = match expression.chars().all(|char| char.is_numeric()) {
+            true => get(format!("http://numbersapi.com/{expression}")).await?,
+            false => Client::new().get("https://api.mathjs.org/v4/").query(&[("expr", expression.as_str())]).send().await?,
+        }
         .text()
         .await?
         .replace("`", "｀")
@@ -34,11 +33,10 @@ pub fn get_command() -> Command {
         .take(1000)
         .collect::<String>();
 
-        if_else!(
-            body.is_empty() || body.contains("Error"),
-            interaction.respond_error("Invalid expression.", true).await?,
-            interaction.respond_success(format!("`{body}`"), false).await?
-        )
+        match body.is_empty() || body.contains("Error") {
+            true => interaction.respond_error("Invalid expression.", true).await?,
+            false => interaction.respond_success(format!("`{body}`"), false).await?,
+        };
     }
 
     calculate

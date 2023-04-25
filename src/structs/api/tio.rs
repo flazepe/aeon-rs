@@ -1,6 +1,5 @@
 use crate::{
     functions::hastebin,
-    macros::if_else,
     statics::{colors::PRIMARY_COLOR, tio::TIO_PROGRAMMING_LANGUAGES},
 };
 use anyhow::{Context, Result};
@@ -57,7 +56,14 @@ impl Tio {
                 .map(|values| {
                     let key = values.remove(0);
 
-                    format!("{}{key}\0{}", if_else!(key.starts_with("."), "F", "V"), values.join("\0"))
+                    format!(
+                        "{}{key}\0{}",
+                        match key.starts_with(".") {
+                            true => "F",
+                            false => "V",
+                        },
+                        values.join("\0")
+                    )
                 })
                 .collect::<Vec<String>>()
                 .join("\0")

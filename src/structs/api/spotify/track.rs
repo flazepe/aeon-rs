@@ -1,5 +1,4 @@
 use crate::{
-    macros::if_else,
     statics::{
         emojis::{EXPLICIT_EMOJI, FIRE_EMOJI},
         spotify::{SPOTIFY_CAMELOT, SPOTIFY_EMBED_COLOR, SPOTIFY_PITCH_NOTATIONS},
@@ -60,7 +59,14 @@ impl SpotifyFullTrack {
             .set_color(SPOTIFY_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(self.album.images.get(0).map_or(&"".into(), |image| &image.url))
-            .set_title(format!("{}{}", if_else!(self.explicit, format!("{EXPLICIT_EMOJI} "), "".into()), self.name))
+            .set_title(format!(
+                "{}{}",
+                match self.explicit {
+                    true => format!("{EXPLICIT_EMOJI} "),
+                    false => "".into(),
+                },
+                self.name
+            ))
             .set_url(&self.external_urls.spotify)
     }
 
@@ -101,13 +107,23 @@ impl SpotifyFullTrack {
         let mut embed = self._format();
 
         if let Some(audio_features) = self.audio_features.as_ref() {
-            let pitch_notation = if_else!(audio_features.key == -1, None, Some(SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize]));
+            let pitch_notation = match audio_features.key == -1 {
+                true => None,
+                false => Some(SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize]),
+            };
 
             embed = embed
                 .add_field(
                     "Key",
                     pitch_notation.map_or("N/A".into(), |pitch_notation| {
-                        format!("{} {}", pitch_notation, if_else!(audio_features.mode == 0, "Minor", "Major"))
+                        format!(
+                            "{} {}",
+                            pitch_notation,
+                            match audio_features.mode == 0 {
+                                true => "Minor",
+                                false => "Major",
+                            }
+                        )
                     }),
                     true,
                 )
@@ -123,7 +139,10 @@ impl SpotifyFullTrack {
                                 .unwrap()
                                 .0
                                 + 1,
-                            if_else!(audio_features.mode == 0, "A", "B")
+                            match audio_features.mode == 0 {
+                                true => "A",
+                                false => "B",
+                            }
                         )
                     }),
                     true,
@@ -167,11 +186,17 @@ impl Spotify {
     pub async fn search_track<T: Display>(query: T) -> Result<Vec<SpotifyFullTrack>> {
         let query = query.to_string();
 
-        if query.contains("track") {
-            Ok(vec![Spotify::get_track(query.split("/").last().unwrap().split("?").next().unwrap()).await?])
-        } else {
-            let results = Spotify::query::<_, SpotifySearchTrackResponse>(format!("search?type=track&q={query}")).await?.tracks.items;
-            if_else!(results.is_empty(), bail!("Song not found."), Ok(results))
+        match query.contains("track") {
+            true => Ok(vec![Spotify::get_track(query.split("/").last().unwrap().split("?").next().unwrap()).await?]),
+            false => {
+                let results = Spotify::query::<_, SpotifySearchTrackResponse>(format!("search?type=track&q={query}")).await?.tracks.items;
+
+                if results.is_empty() {
+                    bail!("Song not found.");
+                }
+
+                Ok(results)
+            },
         }
     }
 }

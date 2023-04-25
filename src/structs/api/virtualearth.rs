@@ -1,4 +1,4 @@
-use crate::{macros::if_else, statics::CONFIG};
+use crate::statics::CONFIG;
 use anyhow::{bail, Result};
 use reqwest::Client;
 use serde::Deserialize;
@@ -71,37 +71,15 @@ impl TimeZoneLocation {
             .resources[0]
             .time_zone_at_location;
 
-        if_else!(timezones.len() > 0, Ok(timezones.remove(0)), bail!("Location not found."))
-    }
-
-    pub fn format(mut self) -> String {
-        let timezone = self.time_zone.remove(0);
-
-        format!("It is `{} UTC {}` in {}.", timezone.converted_time.local_time.replace("T", " "), timezone.utc_offset, self.place_name)
-
-        /*
-        let mut entries = self
-            .time_zone
-            .iter()
-            .map(|timezone| {
-                format!(
-                    "`{} UTC {}` - {}",
-                    timezone.converted_time.local_time.replace("T", " "),
-                    timezone.utc_offset,
-                    timezone.converted_time.time_zone_display_name
-                )
-            })
-            .collect::<Vec<String>>();
-
-        while entries.join("\n").len() > 4000 {
-            entries.pop();
+        if timezones.is_empty() {
+            bail!("Location not found.");
         }
 
-        Embed::new()
-            .set_color(PRIMARY_COLOR)
-            .unwrap_or_default()
-            .set_title(self.place_name)
-            .set_description(entries.join("\n"))
-        */
+        Ok(timezones.remove(0))
+    }
+
+    pub fn format(&self) -> String {
+        let timezone = &self.time_zone[0];
+        format!("It is `{} UTC {}` in {}.", timezone.converted_time.local_time.replace("T", " "), timezone.utc_offset, self.place_name)
     }
 }

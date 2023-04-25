@@ -1,5 +1,4 @@
 use crate::{
-    macros::if_else,
     statics::{colors::PRIMARY_COLOR, google::GOOGLE_TRANSLATE_LANGUAGES},
     structs::api::google::Google,
 };
@@ -75,7 +74,10 @@ impl Google {
             origin_language: format!(
                 "{}{}",
                 GOOGLE_TRANSLATE_LANGUAGES.get(&google_translate_response.src.as_str()).context("Unexpected language code from API.")?,
-                if_else!(origin_language.0 == &"auto", " (detected)", "")
+                match origin_language.0 == &"auto" {
+                    true => " (detected)",
+                    false => "",
+                }
             ),
             target_language: target_language.1.to_string(),
             translation: google_translate_response

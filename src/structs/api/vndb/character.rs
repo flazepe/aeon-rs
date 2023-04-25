@@ -1,6 +1,5 @@
 use crate::{
     functions::limit_string,
-    macros::if_else,
     statics::{colors::PRIMARY_COLOR, vndb::CHARACTER_FIELDS},
     structs::api::vndb::{visual_novel::VndbImage, Vndb},
 };
@@ -33,12 +32,6 @@ pub enum VndbSex {
 
     #[serde(rename = "b")]
     Both,
-}
-
-impl Display for VndbSex {
-    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        write!(f, "{:?}", self)
-    }
 }
 
 #[derive(Deserialize)]
@@ -122,7 +115,10 @@ impl VndbCharacter {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.image.as_ref().map_or("".into(), |image| if_else!(image.sexual > 1.0, "".into(), image.url.clone())))
+            .set_thumbnail(self.image.as_ref().map_or("".into(), |image| match image.sexual > 1.0 {
+                true => "".into(),
+                false => image.url.clone(),
+            }))
             .set_title(self.name.chars().take(256).collect::<String>())
             .set_url(format!("https://vndb.org/{}", self.id))
     }
@@ -135,15 +131,15 @@ impl VndbCharacter {
                 self.sex.as_ref().map_or("N/A".into(), |(sex, spoiler_sex)| {
                     format!(
                         "{}{}",
-                        sex.as_ref().map_or("N/A".into(), |sex| sex.to_string()),
-                        spoiler_sex.as_ref().map_or("".into(), |spoiler_sex| format!(" (||actually {spoiler_sex}||)"))
+                        sex.as_ref().map_or("N/A".into(), |sex| format!("{sex:?}")),
+                        spoiler_sex.as_ref().map_or("".into(), |spoiler_sex| format!(" (||actually {spoiler_sex:?}||)"))
                     )
                 }),
                 true,
             )
             .add_field("Age", self.age.map_or("N/A".into(), |age| age.to_string()), true)
             .add_field("Birthday", self.birthday.map_or("N/A".into(), |birthday| format!("{}/{}", birthday.0, birthday.1)), true)
-            .add_field("Blood Type", self.blood_type.as_ref().map_or("N/A".into(), |blood_type| format!("{:?}", blood_type)), true)
+            .add_field("Blood Type", self.blood_type.as_ref().map_or("N/A".into(), |blood_type| format!("{blood_type:?}")), true)
             .add_field("Height", self.height.map_or("N/A".into(), |height| format!("{height} cm")), true)
             .add_field("Weight", self.weight.map_or("N/A".into(), |weight| format!("{weight} kg")), true)
             .add_field(
@@ -165,11 +161,10 @@ impl VndbCharacter {
                 groups.insert(character_trait.group_name.clone(), vec![]);
             }
 
-            groups.get_mut(&character_trait.group_name).unwrap().push(if_else!(
-                matches!(character_trait.spoiler, VndbSpoilerLevel::NonSpoiler),
-                format!("||[{}](https://vndb.org/{})||", character_trait.name.clone(), character_trait.id),
-                format!("[{}](https://vndb.org/{})", character_trait.name.clone(), character_trait.id),
-            ));
+            groups.get_mut(&character_trait.group_name).unwrap().push(match character_trait.spoiler {
+                VndbSpoilerLevel::NonSpoiler => format!("||[{}](https://vndb.org/{})||", character_trait.name.clone(), character_trait.id),
+                _ => format!("[{}](https://vndb.org/{})", character_trait.name.clone(), character_trait.id),
+            });
         }
 
         let mut embed = self._format();
@@ -201,22 +196,25 @@ impl Vndb {
         let results = self
             .query(
                 "character",
-                if_else!(
-                    query.starts_with("c") && query.chars().skip(1).all(|char| char.is_numeric()),
-                    json!({
+                match query.starts_with("c") && query.chars().skip(1).all(|char| char.is_numeric()) {
+                    true => json!({
                         "filters": ["id", "=", query],
                         "fields": CHARACTER_FIELDS,
                     }),
-                    json!({
+                    false => json!({
                         "filters": ["search", "=", query],
                         "fields": CHARACTER_FIELDS,
                         "sort": "searchrank",
                     }),
-                ),
+                },
             )
             .await?
             .results;
 
-        if_else!(results.is_empty(), bail!("Character not found."), Ok(results))
+        if results.is_empty() {
+            bail!("Character not found.");
+        }
+
+        Ok(results)
     }
 }

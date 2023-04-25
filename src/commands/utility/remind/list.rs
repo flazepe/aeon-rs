@@ -1,6 +1,5 @@
 use crate::{
     functions::{format_timestamp, TimestampFormat},
-    macros::if_else,
     statics::colors::PRIMARY_COLOR,
     structs::{database::reminders::Reminders, duration::Duration, interaction::Interaction},
 };
@@ -28,11 +27,10 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                                     reminder.reminder,
                                     reminder.url,
                                     format_timestamp(reminder.timestamp, TimestampFormat::Full),
-                                    if_else!(
-                                        reminder.interval > 0,
-                                        format!(" (every {})", Duration::new().parse(reminder.interval).unwrap()),
-                                        "".into(),
-                                    ),
+                                    match reminder.interval > 0 {
+                                        true => format!(" (every {})", Duration::new().parse(reminder.interval).unwrap()),
+                                        false => "".into(),
+                                    },
                                 )
                             })
                             .collect::<Vec<String>>()

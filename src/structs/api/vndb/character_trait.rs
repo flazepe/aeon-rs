@@ -1,6 +1,6 @@
 use crate::{
     functions::limit_string,
-    macros::{if_else, yes_no},
+    macros::yes_no,
     statics::{colors::PRIMARY_COLOR, vndb::TRAIT_FIELDS},
     structs::api::vndb::Vndb,
 };
@@ -44,22 +44,25 @@ impl Vndb {
         let results = self
             .query(
                 "trait",
-                if_else!(
-                    query.starts_with("i") && query.chars().skip(1).all(|char| char.is_numeric()),
-                    json!({
+                match query.starts_with("i") && query.chars().skip(1).all(|char| char.is_numeric()) {
+                    true => json!({
                         "filters": ["id", "=", query],
                         "fields": TRAIT_FIELDS,
                     }),
-                    json!({
+                    false => json!({
                         "filters": ["search", "=", query],
                         "fields": TRAIT_FIELDS,
                         "sort": "searchrank",
                     }),
-                ),
+                },
             )
             .await?
             .results;
 
-        if_else!(results.is_empty(), bail!("Trait not found."), Ok(results))
+        if results.is_empty() {
+            bail!("Trait not found.");
+        }
+
+        Ok(results)
     }
 }

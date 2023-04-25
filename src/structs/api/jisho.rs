@@ -1,4 +1,4 @@
-use crate::{macros::if_else, statics::colors::PRIMARY_COLOR};
+use crate::statics::colors::PRIMARY_COLOR;
 use anyhow::{bail, Result};
 use reqwest::Client;
 use serde::Deserialize;
@@ -68,7 +68,11 @@ impl JishoSearch {
             .await?
             .data;
 
-        if_else!(results.is_empty(), bail!("No results found."), Ok(results.remove(0)))
+        if results.is_empty() {
+            bail!("No results found.");
+        }
+
+        Ok(results.remove(0))
     }
 
     pub async fn search<T: ToString>(query: T) -> Result<Vec<Self>> {
@@ -81,13 +85,21 @@ impl JishoSearch {
             .await?
             .data;
 
-        if_else!(results.is_empty(), bail!("No results found."), Ok(results))
+        if results.is_empty() {
+            bail!("No results found.");
+        }
+
+        Ok(results)
     }
 
     pub fn format_title(&self) -> String {
         let title = self.japanese[0].word.as_ref().unwrap_or_else(|| self.japanese[0].reading.as_ref().unwrap()).to_string(); // One of these gotta exist
         let reading = self.japanese[0].reading.as_ref().unwrap_or(&"".into()).to_string();
-        if_else!(title == reading || reading.is_empty(), title, format!("{title} （{reading}）"))
+
+        match title == reading || reading.is_empty() {
+            true => title,
+            false => format!("{title} （{reading}）"),
+        }
     }
 
     pub fn format(&self) -> Embed {
@@ -101,8 +113,10 @@ impl JishoSearch {
                     let mut parts_of_speech = HashMap::new();
 
                     for sense in &self.senses {
-                        let part_of_speech =
-                            if_else!(sense.parts_of_speech.is_empty(), "Others".into(), sense.parts_of_speech.join(", ")).to_lowercase();
+                        let part_of_speech = match sense.parts_of_speech.is_empty() {
+                            true => "others".into(),
+                            false => sense.parts_of_speech.join(", ").to_lowercase(),
+                        };
 
                         if !parts_of_speech.contains_key(&part_of_speech) {
                             parts_of_speech.insert(part_of_speech.clone(), vec![]);

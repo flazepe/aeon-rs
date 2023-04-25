@@ -1,6 +1,6 @@
 use crate::{
     functions::limit_string,
-    macros::{if_else, yes_no},
+    macros::yes_no,
     statics::anilist::{ANILIST_EMBED_COLOR, ANILIST_MANGA_FIELDS},
     structs::api::anilist::{
         components::{
@@ -101,7 +101,10 @@ impl AniListManga {
                         scores.push(format!("Mean {mean_score}%"))
                     }
 
-                    if_else!(scores.is_empty(), "N/A".into(), scores.join("\n"))
+                    match scores.is_empty() {
+                        true => "N/A".into(),
+                        false => scores.join("\n"),
+                    }
                 },
                 true,
             )
@@ -176,6 +179,10 @@ impl AniList {
         )
         .await?;
 
-        if_else!(result.data.page.media.is_empty(), bail!("Manga not found."), Ok(result.data.page.media))
+        if result.data.page.media.is_empty() {
+            bail!("Manga not found.");
+        }
+
+        Ok(result.data.page.media)
     }
 }

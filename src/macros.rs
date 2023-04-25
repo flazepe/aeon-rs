@@ -1,13 +1,3 @@
-macro_rules! if_else {
-    ($condition:expr, $true:expr, $false:expr$(,)?) => {
-        if $condition {
-            $true
-        } else {
-            $false
-        }
-    };
-}
-
 macro_rules! plural {
     ($amount:expr, $subject:expr$(,)?) => {{
         let mut subject = $subject.to_string();
@@ -38,6 +28,5 @@ macro_rules! yes_no {
     };
 }
 
-pub(crate) use if_else;
 pub(crate) use plural;
 pub(crate) use yes_no;

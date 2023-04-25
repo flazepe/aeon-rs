@@ -1,5 +1,4 @@
 use crate::{
-    macros::if_else,
     structs::{api::anilist::AniList, interaction::Interaction, select_menu::SelectMenu},
     traits::ArgGetters,
 };
@@ -9,23 +8,21 @@ use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
-    let (query, section): (String, String) = {
-        if input.is_string_select() {
+    let (query, section): (String, String) = match input.is_string_select() {
+        true => {
             let mut split = input.values.as_ref().unwrap()[0].split("/");
             (split.next().unwrap().into(), split.next().unwrap_or("").into())
-        } else {
-            (input.get_string_arg("user")?, "".into())
-        }
+        },
+        false => (input.get_string_arg("user")?, "".into()),
     };
 
-    let user = if_else!(
-        input.is_string_select(),
-        AniList::get_user(query).await?,
-        match AniList::get_user(query).await {
+    let user = match input.is_string_select() {
+        true => AniList::get_user(query).await?,
+        false => match AniList::get_user(query).await {
             Ok(result) => result,
             Err(error) => return interaction.respond_error(error, true).await,
         },
-    );
+    };
 
     interaction
         .respond(

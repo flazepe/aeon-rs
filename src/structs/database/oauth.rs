@@ -1,4 +1,4 @@
-use crate::{macros::if_else, statics::MONGODB};
+use crate::statics::MONGODB;
 use anyhow::Result;
 use mongodb::{
     bson::{doc, to_document},
@@ -58,7 +58,11 @@ impl OAuth {
 
     pub async fn get_token(self) -> Result<String> {
         Ok(if let Some(token) = self.oauth.find_one(doc! { "_id": &self.name }, None).await? {
-            if_else!(token.expires_at > self.timestamp, token, self.generate_token().await?).token
+            match token.expires_at > self.timestamp {
+                true => token,
+                false => self.generate_token().await?,
+            }
+            .token
         } else {
             self.generate_token().await?.token
         })
