@@ -10,11 +10,7 @@ impl EventHandler {
             channels.insert(channel_id.clone(), vec![]);
         }
 
-        let old_message = channels
-            .get_mut(&channel_id)
-            .unwrap()
-            .iter_mut()
-            .find(|_message| _message.id == message.id);
+        let old_message = channels.get_mut(&channel_id).unwrap().iter_mut().find(|_message| _message.id == message.id);
 
         if let Some(old_message) = old_message {
             let cloned_old_message = old_message.clone();
@@ -43,10 +39,7 @@ impl EventHandler {
                 channels.insert(channel_id.clone(), vec![]);
             }
 
-            channels
-                .get_mut(&channel_id)
-                .unwrap()
-                .push_limited(cloned_old_message, 50);
+            channels.get_mut(&channel_id).unwrap().push_limited(cloned_old_message, 50);
         }
     }
 }

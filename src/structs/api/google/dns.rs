@@ -91,27 +91,18 @@ impl Google {
             bail!("Invalid record type.");
         }
 
-        let domain = domain
-            .to_string()
-            .to_lowercase()
-            .replace("http://", "")
-            .replace("https://", "");
+        let domain = domain.to_string().to_lowercase().replace("http://", "").replace("https://", "");
 
         let dns_response = Client::new()
             .get(format!("https://dns.google/resolve"))
-            .query(&[
-                ("type", record_type.to_string().as_str()),
-                ("name", domain.to_string().as_str()),
-            ])
+            .query(&[("type", record_type.to_string().as_str()), ("name", domain.to_string().as_str())])
             .send()
             .await?
             .json::<GoogleDNSQuery>()
             .await?;
 
         if dns_response.status != 0 {
-            bail!(GOOGLE_DNS_CODES
-                .get(&dns_response.status)
-                .unwrap_or(&"An unknown error occurred."));
+            bail!(GOOGLE_DNS_CODES.get(&dns_response.status).unwrap_or(&"An unknown error occurred."));
         }
 
         let records = dns_response.answer.or(dns_response.authority).unwrap_or(vec![]);
@@ -119,12 +110,7 @@ impl Google {
         if_else!(
             records.is_empty(),
             bail!("No DNS records found."),
-            Ok(GoogleDNS {
-                domain: domain.to_string(),
-                record_type,
-                comment: dns_response.comment,
-                records,
-            }),
+            Ok(GoogleDNS { domain: domain.to_string(), record_type, comment: dns_response.comment, records }),
         )
     }
 }

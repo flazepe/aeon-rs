@@ -55,26 +55,13 @@ pub fn format_timestamp<T: Display>(timestamp: T, format: TimestampFormat) -> St
 
 pub async fn hastebin<T: ToString>(string: T) -> Result<String> {
     let domain = "https://paste.pythondiscord.com";
-
-    let json = Client::new()
-        .post(format!("{domain}/documents"))
-        .body(string.to_string())
-        .send()
-        .await?
-        .json::<Value>()
-        .await?;
-
+    let json = Client::new().post(format!("{domain}/documents")).body(string.to_string()).send().await?.json::<Value>().await?;
     Ok(format!("{domain}/raw/{}", json["key"].as_str().unwrap_or("")))
 }
 
 pub fn limit_string<T: ToString, U: ToString>(string: T, delimiter: U, limit: usize) -> String {
     let delimiter = delimiter.to_string();
-
-    let mut split = string
-        .to_string()
-        .split(&delimiter)
-        .map(|string| string.to_string())
-        .collect::<Vec<String>>();
+    let mut split = string.to_string().split(&delimiter).map(|string| string.to_string()).collect::<Vec<String>>();
 
     while split.join(&delimiter).len() > limit {
         split.pop();

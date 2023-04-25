@@ -14,10 +14,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
     let author = input.get_user_arg("author").ok();
 
-    match Tags::new()
-        .search(input.guild_id.as_ref().unwrap(), author.map(|user| &user.id))
-        .await
-    {
+    match Tags::new().search(input.guild_id.as_ref().unwrap(), author.map(|user| &user.id)).await {
         Ok(tags) => {
             interaction
                 .respond(

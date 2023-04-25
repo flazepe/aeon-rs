@@ -55,11 +55,7 @@ impl From<TwilightMessage> for StringifiedMessage {
                     url: embed.url,
                     footer_text: embed.footer.map(|footer| footer.text),
                     author_name: embed.author.map(|author| author.name),
-                    fields: embed
-                        .fields
-                        .into_iter()
-                        .map(|field| (field.name, field.value))
-                        .collect::<Vec<(String, String)>>(),
+                    fields: embed.fields.into_iter().map(|field| (field.name, field.value)).collect::<Vec<(String, String)>>(),
                 })
                 .collect::<Vec<SimpleEmbed>>(),
         }

@@ -25,11 +25,7 @@ pub fn get_command() -> Command {
         let body = if_else!(
             expression.chars().all(|char| char.is_numeric()),
             get(format!("http://numbersapi.com/{expression}")).await?,
-            Client::new()
-                .get("https://api.mathjs.org/v4/")
-                .query(&[("expr", expression.as_str())])
-                .send()
-                .await?
+            Client::new().get("https://api.mathjs.org/v4/").query(&[("expr", expression.as_str())]).send().await?
         )
         .text()
         .await?

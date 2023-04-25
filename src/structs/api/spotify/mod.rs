@@ -40,10 +40,7 @@ impl Spotify {
     }
 
     pub fn generate_scannable<T: Display>(uri: T) -> String {
-        format!(
-            "https://scannables.scdn.co/uri/plain/png/{}/black/700/{uri}",
-            SPOTIFY_EMBED_COLOR.chars().skip(1).collect::<String>()
-        )
+        format!("https://scannables.scdn.co/uri/plain/png/{}/black/700/{uri}", SPOTIFY_EMBED_COLOR.chars().skip(1).collect::<String>())
     }
 
     pub fn format_duration(mut millis: u64) -> String {
@@ -59,7 +56,7 @@ impl Spotify {
             "{}{}:{}",
             if_else!(hours > 0, format!("{hours}:"), "".into()),
             if_else!(hours > 0, format!("{mins:02}"), mins.to_string()),
-            format!("{secs:02}")
+            format!("{secs:02}"),
         )
     }
 }

@@ -518,68 +518,28 @@ impl VndbVisualNovel {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.image.as_ref().map_or("".into(), |image| {
-                if_else!(image.sexual > 1.0, "".into(), image.url.to_string())
-            }))
-            .set_title(format!(
-                "{} ({})",
-                self.title.chars().take(240).collect::<String>(),
-                self.dev_status.to_string(),
-            ))
+            .set_thumbnail(self.image.as_ref().map_or("".into(), |image| if_else!(image.sexual > 1.0, "".into(), image.url.to_string())))
+            .set_title(format!("{} ({})", self.title.chars().take(240).collect::<String>(), self.dev_status.to_string()))
             .set_url(format!("https://vndb.org/{}", self.id))
     }
 
     pub fn format(self) -> Embed {
         self._format()
-            .set_description(
-                self.aliases
-                    .iter()
-                    .map(|alias| format!("_{alias}_"))
-                    .collect::<Vec<String>>()
-                    .join("\n"),
-            )
+            .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n"))
             .add_field("Popularity", format!("{:.0}%", self.popularity), true)
             .add_field(
                 "Rating",
-                format!(
-                    "{} ({})",
-                    self.rating.map_or("N/A".into(), |rating| format!("{rating:.0}%")),
-                    plural!(self.vote_count, "vote")
-                ),
+                format!("{} ({})", self.rating.map_or("N/A".into(), |rating| format!("{rating:.0}%")), plural!(self.vote_count, "vote")),
                 true,
             )
             .add_field(
                 "Length",
-                format!(
-                    "{} ({})",
-                    self.length.map_or("N/A".into(), |length| length.to_string()),
-                    plural!(self.length_votes, "vote")
-                ),
+                format!("{} ({})", self.length.map_or("N/A".into(), |length| length.to_string()), plural!(self.length_votes, "vote")),
                 true,
             )
-            .add_field(
-                "Languages",
-                self.languages
-                    .iter()
-                    .map(|language| language.to_string())
-                    .collect::<Vec<String>>()
-                    .join(", "),
-                false,
-            )
-            .add_field(
-                "Platforms",
-                self.platforms
-                    .iter()
-                    .map(|platform| platform.to_string())
-                    .collect::<Vec<String>>()
-                    .join(", "),
-                false,
-            )
-            .set_footer(
-                self.released
-                    .map_or("".into(), |released| format!("Released {released}")),
-                None::<String>,
-            )
+            .add_field("Languages", self.languages.iter().map(|language| language.to_string()).collect::<Vec<String>>().join(", "), false)
+            .add_field("Platforms", self.platforms.iter().map(|platform| platform.to_string()).collect::<Vec<String>>().join(", "), false)
+            .set_footer(self.released.map_or("".into(), |released| format!("Released {released}")), None::<String>)
     }
 
     pub fn format_description(self) -> Embed {

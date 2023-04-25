@@ -25,11 +25,7 @@ pub struct IPInfo {
 
 impl IPInfo {
     pub async fn get<T: ToString>(ip: T) -> Result<Self> {
-        let response = get(format!(
-            "https://ipinfo.io/{}/json",
-            ip.to_string().replace(['/', '?'], "")
-        ))
-        .await?;
+        let response = get(format!("https://ipinfo.io/{}/json", ip.to_string().replace(['/', '?'], ""))).await?;
 
         if response.status() != 200 {
             bail!("IP address not found.");
@@ -43,15 +39,11 @@ impl IPInfo {
             "[{ip}](<https://whatismyipaddress.com/ip/{ip}>)\n{}",
             [
                 self.hostname.unwrap_or("".into()),
-                [
-                    self.city.unwrap_or("".into()),
-                    self.region.unwrap_or("".into()),
-                    self.country.unwrap_or("".into()),
-                ]
-                .into_iter()
-                .filter(|entry| !entry.is_empty())
-                .collect::<Vec<String>>()
-                .join(", "),
+                [self.city.unwrap_or("".into()), self.region.unwrap_or("".into()), self.country.unwrap_or("".into()),]
+                    .into_iter()
+                    .filter(|entry| !entry.is_empty())
+                    .collect::<Vec<String>>()
+                    .join(", "),
                 self.loc.unwrap_or("".into()).replace(",", ", "),
                 self.org.unwrap_or("".into()),
             ]

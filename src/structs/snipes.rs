@@ -19,18 +19,12 @@ pub struct Snipes {
 
 impl Snipes {
     pub fn new<T: ToString>(channel_id: T, is_edit: bool, send_list: bool) -> Self {
-        Self {
-            channel_id: channel_id.to_string(),
-            is_edit,
-            send_list,
-        }
+        Self { channel_id: channel_id.to_string(), is_edit, send_list }
     }
 
     pub fn to_response(&self) -> Result<MessageResponse> {
         let empty_vec = vec![];
-        let snipes = if_else!(self.is_edit, &CACHE.edit_snipes, &CACHE.snipes)
-            .read()
-            .unwrap();
+        let snipes = if_else!(self.is_edit, &CACHE.edit_snipes, &CACHE.snipes).read().unwrap();
         let snipes = snipes.get(&self.channel_id).unwrap_or(&empty_vec);
 
         if_else!(
@@ -48,9 +42,7 @@ impl Snipes {
                                 "{} ({}) at {}:\n\n{}",
                                 message.author.tag(),
                                 message.author.id,
-                                DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string())
-                                    .unwrap()
-                                    .to_rfc2822(),
+                                DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string()).unwrap().to_rfc2822(),
                                 StringifiedMessage::from(message.clone())
                                     .to_string()
                                     .split("\n")
@@ -85,32 +77,19 @@ pub struct ReactionSnipes {
 
 impl ReactionSnipes {
     pub fn new<T: ToString, U: ToString>(guild_id: T, message_id: U) -> Self {
-        Self {
-            guild_id: guild_id.to_string(),
-            message_id: message_id.to_string(),
-        }
+        Self { guild_id: guild_id.to_string(), message_id: message_id.to_string() }
     }
 
     pub fn to_response(self) -> Result<MessageResponse> {
         let empty_vec = vec![];
         let reaction_snipes = CACHE.reaction_snipes.read().unwrap();
-        let reaction_snipes = reaction_snipes
-            .get(&format!("{}/{}", self.guild_id, self.message_id))
-            .unwrap_or(&empty_vec);
+        let reaction_snipes = reaction_snipes.get(&format!("{}/{}", self.guild_id, self.message_id)).unwrap_or(&empty_vec);
 
-        if reaction_snipes.is_empty() {
-            bail!("No reaction snipes found.");
-        }
-
-        Ok(MessageResponse::from(format!(
-            "Last {} for `{}`:",
-            plural!(reaction_snipes.len(), "reaction snipe"),
-            self.message_id
-        ))
-        .add_embed(
-            Embed::new()
-                .set_color(PRIMARY_COLOR)?
-                .set_description(reaction_snipes.join("\n\n")),
-        ))
+        if_else!(
+            reaction_snipes.is_empty(),
+            bail!("No reaction snipes found."),
+            Ok(MessageResponse::from(format!("Last {} for `{}`:", plural!(reaction_snipes.len(), "reaction snipe"), self.message_id))
+                .add_embed(Embed::new().set_color(PRIMARY_COLOR)?.set_description(reaction_snipes.join("\n\n")))),
+        )
     }
 }

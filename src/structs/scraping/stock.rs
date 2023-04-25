@@ -39,20 +39,12 @@ impl Stock {
                 YahooFinanceLookupAttributes {
                     href: selection.attr("href").context("Missing href attr.")?.to_string(),
                     title: selection.attr("title").context("Missing title attr.")?.to_string(),
-                    data_symbol: selection
-                        .attr("data-symbol")
-                        .context("Missing data-symbol attr.")?
-                        .to_string(),
+                    data_symbol: selection.attr("data-symbol").context("Missing data-symbol attr.")?.to_string(),
                 },
             )
         };
 
-        let document = Document::from(
-            &get(format!("https://finance.yahoo.com{}", attributes.href))
-                .await?
-                .text()
-                .await?,
-        );
+        let document = Document::from(&get(format!("https://finance.yahoo.com{}", attributes.href)).await?.text().await?);
 
         Ok(Self {
             name: format!("{} ({})", attributes.title, attributes.data_symbol),
@@ -65,19 +57,9 @@ impl Stock {
                 .last()
                 .context("Could not get currency.")?
                 .to_string(),
-            price: document
-                .select("#quote-header-info [data-field=\"regularMarketPrice\"]")
-                .first()
-                .text()
-                .to_string(),
+            price: document.select("#quote-header-info [data-field=\"regularMarketPrice\"]").first().text().to_string(),
             diff: ["regularMarketChange", "regularMarketChangePercent"]
-                .map(|field| {
-                    document
-                        .select(&format!("#quote-header-info [data-field=\"{}\"]", field))
-                        .first()
-                        .text()
-                        .to_string()
-                })
+                .map(|field| document.select(&format!("#quote-header-info [data-field=\"{}\"]", field)).first().text().to_string())
                 .join(" "),
         })
     }

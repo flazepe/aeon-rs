@@ -6,8 +6,8 @@ use crate::{
     },
     structs::api::spotify::{
         components::{
-            SpotifyAudioFeatures, SpotifyExternalIDs, SpotifyExternalURLs, SpotifyItems, SpotifyRestrictions,
-            SpotifySimpleAlbum, SpotifySimpleArtist, SpotifyTrackLink,
+            SpotifyAudioFeatures, SpotifyExternalIDs, SpotifyExternalURLs, SpotifyItems, SpotifyRestrictions, SpotifySimpleAlbum,
+            SpotifySimpleArtist, SpotifyTrackLink,
         },
         Spotify,
     },
@@ -61,11 +61,7 @@ impl SpotifyFullTrack {
             .set_color(SPOTIFY_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(self.album.images.get(0).map_or(&"".into(), |image| &image.url))
-            .set_title(format!(
-                "{}{}",
-                if_else!(self.explicit, format!("{EXPLICIT_EMOJI} "), "".into()),
-                self.name
-            ))
+            .set_title(format!("{}{}", if_else!(self.explicit, format!("{EXPLICIT_EMOJI} "), "".into()), self.name))
             .set_url(&self.external_urls.spotify)
     }
 
@@ -95,8 +91,7 @@ impl SpotifyFullTrack {
                 format!(
                     "{}{}",
                     Spotify::format_duration(self.duration_ms),
-                    self.preview_url
-                        .map_or("".into(), |preview_url| format!(" - [Preview]({preview_url})"))
+                    self.preview_url.map_or("".into(), |preview_url| format!(" - [Preview]({preview_url})"))
                 ),
                 false,
             )
@@ -107,21 +102,13 @@ impl SpotifyFullTrack {
         let mut embed = self._format();
 
         if let Some(audio_features) = self.audio_features {
-            let pitch_notation = if_else!(
-                audio_features.key == -1,
-                None,
-                Some(SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize]),
-            );
+            let pitch_notation = if_else!(audio_features.key == -1, None, Some(SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize]));
 
             embed = embed
                 .add_field(
                     "Key",
                     pitch_notation.map_or("N/A".into(), |pitch_notation| {
-                        format!(
-                            "{} {}",
-                            pitch_notation,
-                            if_else!(audio_features.mode == 0, "Minor", "Major"),
-                        )
+                        format!("{} {}", pitch_notation, if_else!(audio_features.mode == 0, "Minor", "Major"))
                     }),
                     true,
                 )
@@ -146,27 +133,11 @@ impl SpotifyFullTrack {
                 .add_field("Time Signature", format!("{} / 4", audio_features.time_signature), true)
                 .add_field("Loudness", format!("{:.1} dB", audio_features.loudness), true)
                 .add_field("Valence", format!("{:.0}%", audio_features.valence * 100.0), true)
-                .add_field(
-                    "Danceability",
-                    format!("{:.0}%", audio_features.danceability * 100.0),
-                    true,
-                )
+                .add_field("Danceability", format!("{:.0}%", audio_features.danceability * 100.0), true)
                 .add_field("Energy", format!("{:.0}%", audio_features.energy * 100.0), true)
-                .add_field(
-                    "Speechiness",
-                    format!("{:.0}%", audio_features.speechiness * 100.0),
-                    true,
-                )
-                .add_field(
-                    "Acousticness",
-                    format!("{:.0}%", audio_features.acousticness * 100.0),
-                    true,
-                )
-                .add_field(
-                    "Instrumentalness",
-                    format!("{:.0}%", audio_features.instrumentalness * 100.0),
-                    true,
-                )
+                .add_field("Speechiness", format!("{:.0}%", audio_features.speechiness * 100.0), true)
+                .add_field("Acousticness", format!("{:.0}%", audio_features.acousticness * 100.0), true)
+                .add_field("Instrumentalness", format!("{:.0}%", audio_features.instrumentalness * 100.0), true)
                 .add_field("Liveness", format!("{:.0}%", audio_features.liveness * 100.0), true);
         }
 
@@ -197,15 +168,9 @@ impl Spotify {
         let query = query.to_string();
 
         if query.contains("track") {
-            Ok(vec![
-                Spotify::get_track(query.split("/").last().unwrap().split("?").next().unwrap()).await?,
-            ])
+            Ok(vec![Spotify::get_track(query.split("/").last().unwrap().split("?").next().unwrap()).await?])
         } else {
-            let results = Spotify::query::<_, SpotifySearchTrackResponse>(format!("search?type=track&q={query}"))
-                .await?
-                .tracks
-                .items;
-
+            let results = Spotify::query::<_, SpotifySearchTrackResponse>(format!("search?type=track&q={query}")).await?.tracks.items;
             if_else!(results.is_empty(), bail!("Song not found."), Ok(results))
         }
     }

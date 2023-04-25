@@ -16,13 +16,7 @@ pub struct UnicodeCharacter {
 impl UnicodeCharacter {
     pub async fn get<T: ToString>(name: T) -> Result<Self> {
         let document = Document::from(
-            &Client::new()
-                .get("https://symbl.cc/en/search/")
-                .query(&[("q", name.to_string().as_str())])
-                .send()
-                .await?
-                .text()
-                .await?,
+            &Client::new().get("https://symbl.cc/en/search/").query(&[("q", name.to_string().as_str())]).send().await?.text().await?,
         );
 
         let name = document.select("h2").first().text().trim().to_string();
@@ -31,22 +25,8 @@ impl UnicodeCharacter {
             bail!("Unicode character not found.");
         }
 
-        let character = document
-            .select(".search-page__char")
-            .first()
-            .text()
-            .to_string()
-            .trim()
-            .to_string();
-
-        Ok(Self {
-            codepoint: format!(
-                "`U+{:04X}`",
-                character.chars().next().context("Empty string provided.")? as u32,
-            ),
-            name,
-            character,
-        })
+        let character = document.select(".search-page__char").first().text().to_string().trim().to_string();
+        Ok(Self { codepoint: format!("`U+{:04X}`", character.chars().next().context("Empty string provided.")? as u32), name, character })
     }
 
     pub fn format(self) -> String {
@@ -55,9 +35,7 @@ impl UnicodeCharacter {
             self.codepoint,
             self.name,
             if_else!(
-                CONTROL_CHARACTERS
-                    .iter()
-                    .any(|(_, control_character)| control_character == &self.name),
+                CONTROL_CHARACTERS.iter().any(|(_, control_character)| control_character == &self.name),
                 "".into(),
                 format!(" - `{}`", self.character.replace("`", "｀")),
             ),
@@ -76,10 +54,7 @@ impl UnicodeCharacters {
         for character in string.to_string().chars() {
             let codepoint = format!("U+{:04X}", character as u32);
 
-            if unicode_characters
-                .iter()
-                .any(|unicode_character| unicode_character.codepoint == codepoint)
-            {
+            if unicode_characters.iter().any(|unicode_character| unicode_character.codepoint == codepoint) {
                 continue;
             }
 
@@ -93,31 +68,19 @@ impl UnicodeCharacters {
                 name = character_name.to_string();
             }
 
-            unicode_characters.push(UnicodeCharacter {
-                codepoint,
-                name,
-                character: character.to_string(),
-            });
+            unicode_characters.push(UnicodeCharacter { codepoint, name, character: character.to_string() });
         }
 
         Self { unicode_characters }
     }
 
     pub fn format(self) -> String {
-        let unicode_characters = self
-            .unicode_characters
-            .into_iter()
-            .take(20)
-            .collect::<Vec<UnicodeCharacter>>();
+        let unicode_characters = self.unicode_characters.into_iter().take(20).collect::<Vec<UnicodeCharacter>>();
 
         format!(
             "Showing first {}:\n\n{}",
             plural!(unicode_characters.len(), "character"),
-            unicode_characters
-                .into_iter()
-                .map(|unicode_character| unicode_character.format())
-                .collect::<Vec<String>>()
-                .join("\n"),
+            unicode_characters.into_iter().map(|unicode_character| unicode_character.format()).collect::<Vec<String>>().join("\n"),
         )
     }
 }

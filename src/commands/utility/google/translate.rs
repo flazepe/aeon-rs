@@ -10,9 +10,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
     if input.is_autocomplete() {
-        return interaction
-            .hashmap_autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter())
-            .await;
+        return interaction.hashmap_autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
     }
 
     match Google::translate(

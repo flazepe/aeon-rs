@@ -28,16 +28,13 @@ pub fn get_command() -> Command {
     async fn sauce(input: CommandInput, res: CommandResponder) {
         let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
-        let url = input.get_string_arg("image-url").ok().unwrap_or(
-            input
-                .get_attachment_arg("image-attachment")
-                .map_or("".into(), |attachment| attachment.url.to_string()),
-        );
+        let url = input
+            .get_string_arg("image-url")
+            .ok()
+            .unwrap_or(input.get_attachment_arg("image-attachment").map_or("".into(), |attachment| attachment.url.to_string()));
 
         if url.is_empty() {
-            return interaction
-                .respond_error("Please provide an image URL or attachment.", true)
-                .await?;
+            return interaction.respond_error("Please provide an image URL or attachment.", true).await?;
         }
 
         match SauceNAOSearch::query(url).await {

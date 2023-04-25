@@ -28,17 +28,9 @@ pub fn get_command() -> Command {
                     .respond(
                         Embed::new()
                             .set_color(PRIMARY_COLOR)?
-                            .add_field(
-                                "Uptime",
-                                format_timestamp(process.start_time(), TimestampFormat::Full),
-                                false,
-                            )
+                            .add_field("Uptime", format_timestamp(process.start_time(), TimestampFormat::Full), false)
                             .add_field("Memory", format!("{} MB", process.memory() / 1024 / 1024), false)
-                            .add_field(
-                                "Virtual Memory",
-                                format!("{} MB", process.virtual_memory() / 1024 / 1024),
-                                false,
-                            )
+                            .add_field("Virtual Memory", format!("{} MB", process.virtual_memory() / 1024 / 1024), false)
                             .add_field(
                                 "Cache",
                                 {
@@ -47,11 +39,7 @@ pub fn get_command() -> Command {
                                     [
                                         plural!(channels.len(), "channel"),
                                         plural!(
-                                            channels
-                                                .iter()
-                                                .map(|(_, messages)| messages.len())
-                                                .reduce(|acc, cur| acc + cur)
-                                                .unwrap_or(0),
+                                            channels.iter().map(|(_, messages)| messages.len()).reduce(|acc, cur| acc + cur).unwrap_or(0),
                                             "message",
                                         ),
                                         plural!(

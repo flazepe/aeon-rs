@@ -75,11 +75,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn vndb(input: CommandInput, res: CommandResponder) {
-        match input
-            .custom_id
-            .as_deref()
-            .map_or_else(|| input.subcommand.as_deref().unwrap_or(""), |custom_id| custom_id)
-        {
+        match input.custom_id.as_deref().map_or_else(|| input.subcommand.as_deref().unwrap_or(""), |custom_id| custom_id) {
             "character" => character::run(input, res).await?,
             "tag" => tag::run(input, res).await?,
             "trait" => character_trait::run(input, res).await?,

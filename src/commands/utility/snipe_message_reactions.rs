@@ -14,12 +14,7 @@ pub fn get_command() -> Command {
     async fn snipe_message_reactions(input: CommandInput, res: CommandResponder) {
         let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
-        match ReactionSnipes::new(
-            input.guild_id.as_ref().unwrap(),
-            &input.target_message.as_ref().unwrap().id,
-        )
-        .to_response()
-        {
+        match ReactionSnipes::new(input.guild_id.as_ref().unwrap(), &input.target_message.as_ref().unwrap().id).to_response() {
             Ok(response) => interaction.respond(response, false).await?,
             Err(error) => interaction.respond_error(error, true).await?,
         };

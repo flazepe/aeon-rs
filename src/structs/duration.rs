@@ -19,16 +19,7 @@ pub struct Duration {
 
 impl Duration {
     pub fn new() -> Self {
-        Self {
-            total_secs: 0,
-            years: 0,
-            months: 0,
-            weeks: 0,
-            days: 0,
-            hours: 0,
-            mins: 0,
-            secs: 0,
-        }
+        Self { total_secs: 0, years: 0, months: 0, weeks: 0, days: 0, hours: 0, mins: 0, secs: 0 }
     }
 
     pub fn parse<T: ToString>(mut self, duration: T) -> Result<Self> {

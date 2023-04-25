@@ -28,9 +28,7 @@ pub struct Tags {
 
 impl Tags {
     pub fn new() -> Self {
-        Self {
-            tags: MONGODB.get().unwrap().collection::<Tag>("tags"),
-        }
+        Self { tags: MONGODB.get().unwrap().collection::<Tag>("tags") }
     }
 
     pub async fn get<T: ToString, U: ToString>(&self, name: T, guild_id: U) -> Result<Tag> {
@@ -83,10 +81,7 @@ impl Tags {
         content: W,
         modifier: &GuildMember,
     ) -> Result<String> {
-        if !modifier
-            .permissions
-            .unwrap_or(Permissions::empty())
-            .contains(Permissions::MANAGE_MESSAGES)
+        if !modifier.permissions.unwrap_or(Permissions::empty()).contains(Permissions::MANAGE_MESSAGES)
             && author_id.to_string() != "590455379931037697".to_string()
         {
             bail!("Only members with the Manage Messages permission can create tags.");
@@ -134,12 +129,7 @@ impl Tags {
         Ok("Created.".into())
     }
 
-    pub async fn delete<T: ToString, U: ToString>(
-        &self,
-        name: T,
-        guild_id: U,
-        modifier: &GuildMember,
-    ) -> Result<String> {
+    pub async fn delete<T: ToString, U: ToString>(&self, name: T, guild_id: U, modifier: &GuildMember) -> Result<String> {
         let tag = Tags::validate_tag_modifier(self.get(name, guild_id).await?, modifier)?;
 
         self.tags
@@ -228,11 +218,7 @@ impl Tags {
 
             tag.aliases.push(alias.clone());
         } else {
-            tag.aliases = tag
-                .aliases
-                .into_iter()
-                .filter(|entry| entry != &alias)
-                .collect::<Vec<String>>();
+            tag.aliases = tag.aliases.into_iter().filter(|entry| entry != &alias).collect::<Vec<String>>();
         }
 
         self.tags
@@ -251,19 +237,10 @@ impl Tags {
             )
             .await?;
 
-        Ok(if_else!(
-            new,
-            format!("Added `{}` to `{}` alias.", alias, tag.name),
-            format!("Removed `{}` from `{}` alias.", alias, tag.name),
-        ))
+        Ok(if_else!(new, format!("Added `{}` to `{}` alias.", alias, tag.name), format!("Removed `{}` from `{}` alias.", alias, tag.name)))
     }
 
-    pub async fn toggle_nsfw<T: ToString, U: ToString>(
-        &self,
-        name: T,
-        guild_id: U,
-        modifier: &GuildMember,
-    ) -> Result<String> {
+    pub async fn toggle_nsfw<T: ToString, U: ToString>(&self, name: T, guild_id: U, modifier: &GuildMember) -> Result<String> {
         let tag = Tags::validate_tag_modifier(self.get(name, guild_id).await?, modifier)?;
         let nsfw = !tag.nsfw;
 
@@ -283,19 +260,12 @@ impl Tags {
             )
             .await?;
 
-        Ok(format!(
-            "Set tag `{}` as {}.",
-            tag.name,
-            if_else!(nsfw, "NSFW", "non-NSFW")
-        ))
+        Ok(format!("Set tag `{}` as {}.", tag.name, if_else!(nsfw, "NSFW", "non-NSFW")))
     }
 
     pub fn validate_tag_modifier(tag: Tag, member: &GuildMember) -> Result<Tag> {
         if tag.author_id != member.user.as_ref().map_or("".into(), |user| user.id.clone())
-            && !member
-                .permissions
-                .unwrap_or(Permissions::empty())
-                .contains(Permissions::MANAGE_MESSAGES)
+            && !member.permissions.unwrap_or(Permissions::empty()).contains(Permissions::MANAGE_MESSAGES)
         {
             bail!("You're not the author of that tag. Only tag authors and members with the Manage Messages permission can update or delete tags.");
         }

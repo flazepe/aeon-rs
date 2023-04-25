@@ -17,9 +17,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     match Duration::new().parse(input.get_string_arg("duration")?) {
         Ok(duration) => {
             if duration.total_secs < 30 || duration.total_secs > SECS_PER_DAY * 28 {
-                return interaction
-                    .respond_error("Time cannot be under 30 seconds or over 28 days.", true)
-                    .await;
+                return interaction.respond_error("Time cannot be under 30 seconds or over 28 days.", true).await;
             }
 
             let user = input.get_user_arg("member")?;
@@ -35,11 +33,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 )
                 .await
             {
-                Ok(_) => {
-                    interaction
-                        .respond_success(format!("Set timeout for {} for {duration}.", user.mention()), false)
-                        .await
-                },
+                Ok(_) => interaction.respond_success(format!("Set timeout for {} for {duration}.", user.mention()), false).await,
                 Err(error) => interaction.respond_error(error, true).await,
             }
         },

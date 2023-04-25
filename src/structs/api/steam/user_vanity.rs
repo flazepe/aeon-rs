@@ -17,13 +17,10 @@ struct SteamUserVanityResponse {
 
 impl Steam {
     pub async fn get_user_vanity<T: ToString>(player: T) -> Result<String> {
-        Ok(Steam::query::<_, _, SteamUserVanityResponse>(
-            "ResolveVanityURL/v0001/",
-            &[("vanityurl", player.to_string().as_str())],
-        )
-        .await?
-        .response
-        .id
-        .context("Invalid user vanity.")?)
+        Ok(Steam::query::<_, _, SteamUserVanityResponse>("ResolveVanityURL/v0001/", &[("vanityurl", player.to_string().as_str())])
+            .await?
+            .response
+            .id
+            .context("Invalid user vanity.")?)
     }
 }

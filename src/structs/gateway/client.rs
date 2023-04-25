@@ -14,9 +14,7 @@ pub struct GatewayClient {
 
 impl GatewayClient {
     pub fn new() -> Self {
-        Self {
-            client: TwilightClient::new(CONFIG.bot.token.clone()),
-        }
+        Self { client: TwilightClient::new(CONFIG.bot.token.clone()) }
     }
 
     pub async fn create_shards(self) -> Result<()> {
@@ -26,11 +24,7 @@ impl GatewayClient {
                 CONFIG.bot.token.clone(),
                 Intents::GUILDS | Intents::GUILD_MESSAGE_REACTIONS | Intents::GUILD_MESSAGES | Intents::MESSAGE_CONTENT,
             )
-            .identify_properties(IdentifyProperties::new(
-                "Discord Android",
-                "Google Pixel 7 Pro",
-                "Android 14",
-            ))
+            .identify_properties(IdentifyProperties::new("Discord Android", "Google Pixel 7 Pro", "Android 14"))
             .build(),
             |_, builder| builder.build(),
         )

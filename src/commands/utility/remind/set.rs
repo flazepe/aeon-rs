@@ -14,23 +14,12 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     // Delete snoozed reminder
     if let Some(message) = input.message.as_ref() {
         if message.interaction.is_none() {
-            input
-                .rest
-                .delete::<()>(format!("channels/{}/messages/{}", message.channel_id, message.id))
-                .await
-                .ok();
+            input.rest.delete::<()>(format!("channels/{}/messages/{}", message.channel_id, message.id)).await.ok();
         }
     }
 
     let url = input.custom_id.as_ref().map_or_else(
-        || {
-            format!(
-                "{}/{}/{}",
-                input.guild_id.as_ref().unwrap_or(&"@me".into()),
-                input.channel_id.as_ref().unwrap(),
-                original_message.id,
-            )
-        },
+        || format!("{}/{}/{}", input.guild_id.as_ref().unwrap_or(&"@me".into()), input.channel_id.as_ref().unwrap(), original_message.id),
         |custom_id| custom_id.to_string(),
     );
 
@@ -38,9 +27,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         let mut reminder = input.get_string_arg("reminder").unwrap_or("Do something".into());
 
         if input.is_string_select() {
-            if let Some(parsed_reminder) =
-                || -> Option<&String> { input.message.as_ref()?.embeds.get(0)?.description.as_ref() }()
-            {
+            if let Some(parsed_reminder) = || -> Option<&String> { input.message.as_ref()?.embeds.get(0)?.description.as_ref() }() {
                 reminder = parsed_reminder.to_string();
             };
         }
@@ -60,14 +47,11 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             &input.user.id,
             &url,
             Duration::new()
-                .parse(input.values.as_ref().map_or_else(
-                    || input.get_string_arg("time").unwrap_or("".into()),
-                    |values| values[0].to_string(),
-                ))
+                .parse(
+                    input.values.as_ref().map_or_else(|| input.get_string_arg("time").unwrap_or("".into()), |values| values[0].to_string()),
+                )
                 .unwrap_or(Duration::new()),
-            Duration::new()
-                .parse(input.get_string_arg("interval").unwrap_or("".into()))
-                .unwrap_or(Duration::new()),
+            Duration::new().parse(input.get_string_arg("interval").unwrap_or("".into())).unwrap_or(Duration::new()),
             &reminder,
             dm,
         )

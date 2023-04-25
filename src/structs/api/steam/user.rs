@@ -84,14 +84,7 @@ impl SteamUser {
     pub fn format(self) -> Embed {
         let mut vanity = self.profile_url.clone();
 
-        vanity = vanity
-            .chars()
-            .take(vanity.len() - 1)
-            .collect::<String>()
-            .split("/")
-            .last()
-            .unwrap_or("None")
-            .to_string();
+        vanity = vanity.chars().take(vanity.len() - 1).collect::<String>().split("/").last().unwrap_or("None").to_string();
 
         let mut embed = Embed::new()
             .set_color(STEAM_EMBED_COLOR)
@@ -100,11 +93,7 @@ impl SteamUser {
             .set_title(self.real_name.unwrap_or(self.persona_name))
             .set_url(self.profile_url)
             .add_field("ID", &self.id, true)
-            .add_field(
-                "Custom ID",
-                if_else!(self.id == vanity, "None".into(), format!("`{vanity}`")),
-                true,
-            )
+            .add_field("Custom ID", if_else!(self.id == vanity, "None".into(), format!("`{vanity}`")), true)
             .add_field(
                 "Status",
                 STEAM_USER_STATES
@@ -116,9 +105,7 @@ impl SteamUser {
             )
             .add_field(
                 "Created",
-                self.time_created.map_or("N/A".into(), |time_created| {
-                    format_timestamp(time_created, TimestampFormat::Full)
-                }),
+                self.time_created.map_or("N/A".into(), |time_created| format_timestamp(time_created, TimestampFormat::Full)),
                 false,
             )
             .add_field(
@@ -149,11 +136,7 @@ impl SteamUser {
                 }),
                 true,
             )
-            .add_field(
-                "Allows Profile Comments",
-                yes_no!(self.comment_permission.is_some()),
-                true,
-            );
+            .add_field("Allows Profile Comments", yes_no!(self.comment_permission.is_some()), true);
 
         if let Some(bans) = self.bans {
             embed = embed
@@ -193,14 +176,13 @@ impl Steam {
             id = Steam::get_user_vanity(&id).await?;
         }
 
-        let mut user =
-            Steam::query::<_, _, SteamUsersResponse>("GetPlayerSummaries/v0002/", &[("steamids", id.as_str())])
-                .await?
-                .response
-                .players
-                .into_iter()
-                .next()
-                .context("User not found.")?;
+        let mut user = Steam::query::<_, _, SteamUsersResponse>("GetPlayerSummaries/v0002/", &[("steamids", id.as_str())])
+            .await?
+            .response
+            .players
+            .into_iter()
+            .next()
+            .context("User not found.")?;
 
         // Get user bans
         user.bans = Steam::get_user_bans(&user.id).await.ok();

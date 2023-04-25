@@ -32,9 +32,8 @@ impl Tio {
     }
 
     pub async fn run(mut self) -> Result<Self> {
-        let (programming_language_id, programming_language_name) = TIO_PROGRAMMING_LANGUAGES
-            .get_key_value(self.programming_language.as_str())
-            .context("Invalid programming language.")?;
+        let (programming_language_id, programming_language_name) =
+            TIO_PROGRAMMING_LANGUAGES.get_key_value(self.programming_language.as_str()).context("Invalid programming language.")?;
 
         // Set to real programming language name
         self.programming_language = programming_language_name.to_string();
@@ -58,11 +57,7 @@ impl Tio {
                 .map(|values| {
                     let key = values.remove(0);
 
-                    format!(
-                        "{}{key}\0{}",
-                        if_else!(key.starts_with("."), "F", "V"),
-                        values.join("\0")
-                    )
+                    format!("{}{key}\0{}", if_else!(key.starts_with("."), "F", "V"), values.join("\0"))
                 })
                 .collect::<Vec<String>>()
                 .join("\0")
@@ -72,16 +67,8 @@ impl Tio {
 
         let mut result = vec![];
 
-        GzDecoder::new(&mut result).write_all(
-            &Client::new()
-                .post("https://tio.run/cgi-bin/run/api/")
-                .body(body)
-                .send()
-                .await?
-                .bytes()
-                .await?
-                .to_vec(),
-        )?;
+        GzDecoder::new(&mut result)
+            .write_all(&Client::new().post("https://tio.run/cgi-bin/run/api/").body(body).send().await?.bytes().await?.to_vec())?;
 
         let result = String::from_utf8(result)?;
         let result = result.replace(&result.chars().take(16).collect::<String>(), "");
@@ -103,13 +90,8 @@ impl Tio {
             .set_url(self.code_url.unwrap_or("".into()))
             .set_description(format!(
                 "{}```\n{}```",
-                self.result_url
-                    .map_or("".into(), |result_url| format!("[Full Result]({result_url})")),
-                self.result
-                    .unwrap_or("No output.".into())
-                    .chars()
-                    .take(3900)
-                    .collect::<String>()
+                self.result_url.map_or("".into(), |result_url| format!("[Full Result]({result_url})")),
+                self.result.unwrap_or("No output.".into()).chars().take(3900).collect::<String>()
             ))
     }
 }

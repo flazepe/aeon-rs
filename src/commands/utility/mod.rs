@@ -1,3 +1,4 @@
+mod calculate;
 mod code;
 mod convert_currency;
 mod google;
@@ -8,7 +9,6 @@ mod remind;
 mod remind_message;
 mod sauce;
 mod snipe;
-mod calculate;
 mod snipe_message_reactions;
 mod tag;
 mod timeout;

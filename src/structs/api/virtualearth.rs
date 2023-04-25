@@ -62,10 +62,7 @@ impl TimeZoneLocation {
     pub async fn get<T: ToString>(location: T) -> Result<Self> {
         let timezones = &mut Client::new()
             .get("https://dev.virtualearth.net/REST/v1/TimeZone/")
-            .query(&[
-                ("key", CONFIG.api.virtualearth_key.as_str()),
-                ("query", location.to_string().as_str()),
-            ])
+            .query(&[("key", CONFIG.api.virtualearth_key.as_str()), ("query", location.to_string().as_str())])
             .send()
             .await?
             .json::<TimeZoneResponse>()
@@ -74,22 +71,13 @@ impl TimeZoneLocation {
             .resources[0]
             .time_zone_at_location;
 
-        if_else!(
-            timezones.len() > 0,
-            Ok(timezones.remove(0)),
-            bail!("Location not found."),
-        )
+        if_else!(timezones.len() > 0, Ok(timezones.remove(0)), bail!("Location not found."))
     }
 
     pub fn format(mut self) -> String {
         let timezone = self.time_zone.remove(0);
 
-        format!(
-            "It is `{} UTC {}` in {}.",
-            timezone.converted_time.local_time.replace("T", " "),
-            timezone.utc_offset,
-            self.place_name,
-        )
+        format!("It is `{} UTC {}` in {}.", timezone.converted_time.local_time.replace("T", " "), timezone.utc_offset, self.place_name)
 
         /*
         let mut entries = self

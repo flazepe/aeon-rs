@@ -216,9 +216,7 @@ impl SteamGame {
                     format!(
                         "{}{}",
                         format_timestamp(
-                            NaiveDateTime::parse_from_str(&format!("{} 00:00", release_date.date), "%b %-d, %Y %R")
-                                .unwrap()
-                                .timestamp(),
+                            NaiveDateTime::parse_from_str(&format!("{} 00:00", release_date.date), "%b %-d, %Y %R").unwrap().timestamp(),
                             TimestampFormat::Full
                         ),
                         if_else!(release_date.coming_soon, " (coming soon)", "")
@@ -235,9 +233,7 @@ impl SteamGame {
                         price_overview.discount_percent > 0,
                         format!(
                             "~~{}~~ {} ({}% off)",
-                            price_overview.initial_formatted,
-                            price_overview.final_formatted,
-                            price_overview.discount_percent,
+                            price_overview.initial_formatted, price_overview.final_formatted, price_overview.discount_percent,
                         ),
                         price_overview.final_formatted,
                     )),
@@ -249,16 +245,8 @@ impl SteamGame {
     pub fn format_developers(self) -> Embed {
         self._format()
             .set_image(self.background)
-            .add_field(
-                "Developers",
-                self.developers.map_or("N/A".into(), |developers| developers.join(", ")),
-                false,
-            )
-            .add_field(
-                "Publishers",
-                self.publishers.map_or("N/A".into(), |publishers| publishers.join(", ")),
-                false,
-            )
+            .add_field("Developers", self.developers.map_or("N/A".into(), |developers| developers.join(", ")), false)
+            .add_field("Publishers", self.publishers.map_or("N/A".into(), |publishers| publishers.join(", ")), false)
             .add_field("Website", self.website.unwrap_or("N/A".into()), false)
     }
 
@@ -329,27 +317,24 @@ impl SteamGame {
             )
             .add_field(
                 "Metacritic",
-                self.metacritic.map_or("N/A".into(), |metacritic| {
-                    format!("[{}]({})", metacritic.score, metacritic.url)
-                }),
+                self.metacritic.map_or("N/A".into(), |metacritic| format!("[{}]({})", metacritic.score, metacritic.url)),
                 false,
             )
     }
 
     pub fn format_featured_achievements(self) -> Embed {
-        self._format()
-            .set_description(self.achievements.map_or("N/A".into(), |achievements| {
-                limit_string(
-                    achievements
-                        .highlighted
-                        .iter()
-                        .map(|achievement| format!("[{}]({})", achievement.name, achievement.path))
-                        .collect::<Vec<String>>()
-                        .join("\n"),
-                    "\n",
-                    4096,
-                )
-            }))
+        self._format().set_description(self.achievements.map_or("N/A".into(), |achievements| {
+            limit_string(
+                achievements
+                    .highlighted
+                    .iter()
+                    .map(|achievement| format!("[{}]({})", achievement.name, achievement.path))
+                    .collect::<Vec<String>>()
+                    .join("\n"),
+                "\n",
+                4096,
+            )
+        }))
     }
 }
 
@@ -393,12 +378,7 @@ impl Steam {
                 .await?,
         );
 
-        let names = document
-            .select(".title")
-            .nodes()
-            .iter()
-            .map(|node| node.text().to_string())
-            .collect::<Vec<String>>();
+        let names = document.select(".title").nodes().iter().map(|node| node.text().to_string()).collect::<Vec<String>>();
 
         if names.is_empty() {
             bail!("Game not found.");
@@ -414,10 +394,7 @@ impl Steam {
         Ok(names
             .into_iter()
             .enumerate()
-            .map(|(index, name)| SteamSearchResult {
-                name,
-                id: ids[index].clone(),
-            })
+            .map(|(index, name)| SteamSearchResult { name, id: ids[index].clone() })
             .filter(
                 |result| result.id.chars().all(|char| char.is_numeric()), // Need to filter out subs
             )

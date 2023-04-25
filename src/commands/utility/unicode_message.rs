@@ -14,11 +14,7 @@ pub fn get_command() -> Command {
         let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
         interaction
-            .respond(
-                UnicodeCharacters::get(StringifiedMessage::from(input.target_message.as_ref().unwrap().clone()))
-                    .format(),
-                false,
-            )
+            .respond(UnicodeCharacters::get(StringifiedMessage::from(input.target_message.as_ref().unwrap().clone())).format(), false)
             .await?;
     }
 

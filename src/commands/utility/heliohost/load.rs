@@ -12,11 +12,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             format!(
                 "{}'s load is `{}`.",
                 server,
-                get(format!("https://heliohost.org/load/load_{server}.html").to_lowercase())
-                    .await?
-                    .text()
-                    .await?
-                    .trim(),
+                get(format!("https://heliohost.org/load/load_{server}.html").to_lowercase()).await?.text().await?.trim(),
             ),
             false,
         )

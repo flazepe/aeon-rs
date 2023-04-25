@@ -50,13 +50,11 @@ impl Google {
             bail!("Text is empty.");
         }
 
-        let origin_language = GOOGLE_TRANSLATE_LANGUAGES
-            .get_key_value(origin_language.to_lowercase().as_str())
-            .context("Invalid origin language.")?;
+        let origin_language =
+            GOOGLE_TRANSLATE_LANGUAGES.get_key_value(origin_language.to_lowercase().as_str()).context("Invalid origin language.")?;
 
-        let target_language = GOOGLE_TRANSLATE_LANGUAGES
-            .get_key_value(target_language.to_lowercase().as_str())
-            .context("Invalid target language.")?;
+        let target_language =
+            GOOGLE_TRANSLATE_LANGUAGES.get_key_value(target_language.to_lowercase().as_str()).context("Invalid target language.")?;
 
         let google_translate_response = Client::new()
             .get("https://translate.googleapis.com/translate_a/single")
@@ -76,9 +74,7 @@ impl Google {
         Ok(GoogleTranslateTranslation {
             origin_language: format!(
                 "{}{}",
-                GOOGLE_TRANSLATE_LANGUAGES
-                    .get(&google_translate_response.src.as_str())
-                    .context("Unexpected language code from API.")?,
+                GOOGLE_TRANSLATE_LANGUAGES.get(&google_translate_response.src.as_str()).context("Unexpected language code from API.")?,
                 if_else!(origin_language.0 == &"auto", " (detected)", "")
             ),
             target_language: target_language.1.to_string(),

@@ -18,11 +18,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         )
         .await
     {
-        Ok(_) => {
-            interaction
-                .respond_success(format!("Removed timeout for {}.", user.mention()), false)
-                .await
-        },
+        Ok(_) => interaction.respond_success(format!("Removed timeout for {}.", user.mention()), false).await,
         Err(error) => interaction.respond_error(error, true).await,
     }
 }

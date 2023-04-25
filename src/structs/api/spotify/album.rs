@@ -7,10 +7,9 @@ use crate::{
     },
     structs::api::spotify::{
         components::{
-            SpotifyAlbumGroup, SpotifyAlbumType, SpotifyCopyright, SpotifyCopyrightType, SpotifyExternalIDs,
-            SpotifyExternalURLs, SpotifyImage, SpotifyItems, SpotifyObjectType, SpotifyPaging,
-            SpotifyReleaseDatePrecision, SpotifyRestrictions, SpotifySimpleAlbum, SpotifySimpleArtist,
-            SpotifySimpleTrack,
+            SpotifyAlbumGroup, SpotifyAlbumType, SpotifyCopyright, SpotifyCopyrightType, SpotifyExternalIDs, SpotifyExternalURLs,
+            SpotifyImage, SpotifyItems, SpotifyObjectType, SpotifyPaging, SpotifyReleaseDatePrecision, SpotifyRestrictions,
+            SpotifySimpleAlbum, SpotifySimpleArtist, SpotifySimpleTrack,
         },
         Spotify,
     },
@@ -85,31 +84,20 @@ impl SpotifyFullAlbum {
                 if_else!(
                     matches!(self.release_date_precision, SpotifyReleaseDatePrecision::Day),
                     format_timestamp(
-                        NaiveDateTime::parse_from_str(&format!("{} 00:00", self.release_date), "%F %R")
-                            .unwrap()
-                            .timestamp(),
+                        NaiveDateTime::parse_from_str(&format!("{} 00:00", self.release_date), "%F %R").unwrap().timestamp(),
                         TimestampFormat::Full,
                     ),
                     self.release_date,
                 ),
                 false,
             )
-            .add_field(
-                "Genre",
-                if_else!(self.genres.is_empty(), "N/A".into(), self.genres.join(", ")),
-                false,
-            )
+            .add_field("Genre", if_else!(self.genres.is_empty(), "N/A".into(), self.genres.join(", ")), false)
             .add_field(
                 "Duration",
                 format!(
                     "{} ({})",
                     Spotify::format_duration(
-                        self.tracks
-                            .items
-                            .iter()
-                            .map(|track| track.duration_ms)
-                            .reduce(|acc, cur| acc + cur)
-                            .unwrap_or(0),
+                        self.tracks.items.iter().map(|track| track.duration_ms).reduce(|acc, cur| acc + cur).unwrap_or(0),
                     ),
                     plural!(self.total_tracks, "song")
                 ),
@@ -197,15 +185,9 @@ impl Spotify {
         let query = query.to_string();
 
         if query.contains("album") {
-            Ok(vec![
-                Spotify::get_simple_album(query.split("/").last().unwrap().split("?").next().unwrap()).await?,
-            ])
+            Ok(vec![Spotify::get_simple_album(query.split("/").last().unwrap().split("?").next().unwrap()).await?])
         } else {
-            let results = Spotify::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}"))
-                .await?
-                .albums
-                .items;
-
+            let results = Spotify::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}")).await?.albums.items;
             if_else!(results.is_empty(), bail!("Album not found."), Ok(results))
         }
     }

@@ -4,10 +4,9 @@ use crate::{
     statics::anilist::{ANILIST_ANIME_FIELDS, ANILIST_EMBED_COLOR},
     structs::api::anilist::{
         components::{
-            AniListAiringSchedule, AniListAnimeCharacter, AniListCoverImage, AniListEdges, AniListExternalLink,
-            AniListFormat, AniListFuzzyDate, AniListMediaPageResponse, AniListMediaResponse, AniListNodes,
-            AniListRanking, AniListRelation, AniListResponse, AniListSeason, AniListSource, AniListStatus,
-            AniListStudio, AniListTitle, AniListTrailer,
+            AniListAiringSchedule, AniListAnimeCharacter, AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat,
+            AniListFuzzyDate, AniListMediaPageResponse, AniListMediaResponse, AniListNodes, AniListRanking, AniListRelation,
+            AniListResponse, AniListSeason, AniListSource, AniListStatus, AniListStudio, AniListTitle, AniListTrailer,
         },
         AniList,
     },
@@ -69,22 +68,14 @@ impl AniListAnime {
                 ":flag_{}: {} ({})",
                 self.country_of_origin.to_lowercase(),
                 self.title.romaji,
-                self.format
-                    .as_ref()
-                    .map_or("TBA".into(), |format| AniList::format_enum_value(format))
+                self.format.as_ref().map_or("TBA".into(), |format| AniList::format_enum_value(format))
             ))
             .set_url(&self.site_url)
     }
 
     pub fn format(self) -> Embed {
         self._format()
-            .set_description(
-                self.synonyms
-                    .iter()
-                    .map(|title| format!("_{title}_"))
-                    .collect::<Vec<String>>()
-                    .join("\n"),
-            )
+            .set_description(self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n"))
             .add_field(
                 "Aired",
                 format!(
@@ -95,25 +86,19 @@ impl AniListAnime {
                         self.season_year.unwrap(),
                         self.trailer.map_or("".into(), |trailer| format!(
                             " - [Trailer]({}{})",
-                            if_else!(
-                                trailer.site == "youtube",
-                                "https://www.youtube.com/watch?v=",
-                                "https://www.dailymotion.com/video/",
-                            ),
+                            if_else!(trailer.site == "youtube", "https://www.youtube.com/watch?v=", "https://www.dailymotion.com/video/"),
                             trailer.id
-                        ),)
+                        ))
                     )),
                     AniList::format_airing_date(self.start_date, self.end_date),
                     AniList::format_enum_value(self.status),
-                    self.airing_schedule
-                        .nodes
-                        .iter()
-                        .find(|node| node.time_until_airing.map_or(false, |time| time > 0))
-                        .map_or("".into(), |node| format!(
+                    self.airing_schedule.nodes.iter().find(|node| node.time_until_airing.map_or(false, |time| time > 0)).map_or(
+                        "".into(),
+                        |node| format!(
                             "\nNext episode airs <t:{}:R>",
-                            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()
-                                + node.time_until_airing.unwrap() as u64
-                        ),)
+                            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() + node.time_until_airing.unwrap() as u64
+                        ),
+                    )
                 ),
                 false,
             )
@@ -132,8 +117,7 @@ impl AniListAnime {
                 format!(
                     "{}{}",
                     self.episodes.map_or("TBA".into(), |episodes| episodes.to_string()),
-                    self.duration
-                        .map_or("".into(), |duration| format!(" ({duration} minutes per episode)"))
+                    self.duration.map_or("".into(), |duration| format!(" ({duration} minutes per episode)"))
                 ),
                 true,
             )
@@ -142,12 +126,7 @@ impl AniListAnime {
                 self.hashtag.map_or("N/A".into(), |hashtag| {
                     hashtag
                         .split(" ")
-                        .map(|hashtag| {
-                            format!(
-                                "[{hashtag}](https://twitter.com/hashtag/{})",
-                                hashtag.chars().skip(1).collect::<String>()
-                            )
-                        })
+                        .map(|hashtag| format!("[{hashtag}](https://twitter.com/hashtag/{})", hashtag.chars().skip(1).collect::<String>()))
                         .collect::<Vec<String>>()
                         .join(", ")
                 }),
@@ -157,22 +136,12 @@ impl AniListAnime {
                 "Genre",
                 self.genres
                     .iter()
-                    .map(|genre| {
-                        format!(
-                            "[{genre}](https://anilist.co/search/anime?genres={})",
-                            genre.replace(" ", "+")
-                        )
-                    })
+                    .map(|genre| format!("[{genre}](https://anilist.co/search/anime?genres={})", genre.replace(" ", "+")))
                     .collect::<Vec<String>>()
                     .join(", "),
                 true,
             )
-            .add_field(
-                "Source",
-                self.source
-                    .map_or("N/A".into(), |source| AniList::format_enum_value(source)),
-                true,
-            )
+            .add_field("Source", self.source.map_or("N/A".into(), |source| AniList::format_enum_value(source)), true)
             .add_field(
                 "Score",
                 {
@@ -264,10 +233,6 @@ impl AniList {
         )
         .await?;
 
-        if_else!(
-            result.data.page.media.is_empty(),
-            bail!("Anime not found."),
-            Ok(result.data.page.media),
-        )
+        if_else!(result.data.page.media.is_empty(), bail!("Anime not found."), Ok(result.data.page.media))
     }
 }

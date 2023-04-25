@@ -122,22 +122,14 @@ impl VndbCharacter {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.image.as_ref().map_or("".into(), |image| {
-                if_else!(image.sexual > 1.0, "".into(), image.url.clone())
-            }))
+            .set_thumbnail(self.image.as_ref().map_or("".into(), |image| if_else!(image.sexual > 1.0, "".into(), image.url.clone())))
             .set_title(self.name.chars().take(256).collect::<String>())
             .set_url(format!("https://vndb.org/{}", self.id))
     }
 
     pub fn format(self) -> Embed {
         self._format()
-            .set_description(
-                self.aliases
-                    .iter()
-                    .map(|alias| format!("_{alias}_"))
-                    .collect::<Vec<String>>()
-                    .join("\n"),
-            )
+            .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n"))
             .add_field(
                 "Sex",
                 self.sex.map_or("N/A".into(), |(sex, spoiler_sex)| {
@@ -150,48 +142,18 @@ impl VndbCharacter {
                 true,
             )
             .add_field("Age", self.age.map_or("N/A".into(), |age| age.to_string()), true)
-            .add_field(
-                "Birthday",
-                self.birthday
-                    .map_or("N/A".into(), |birthday| format!("{}/{}", birthday.0, birthday.1)),
-                true,
-            )
-            .add_field(
-                "Blood Type",
-                self.blood_type
-                    .map_or("N/A".into(), |blood_type| format!("{:?}", blood_type)),
-                true,
-            )
-            .add_field(
-                "Height",
-                self.height.map_or("N/A".into(), |height| format!("{height} cm")),
-                true,
-            )
-            .add_field(
-                "Weight",
-                self.weight.map_or("N/A".into(), |weight| format!("{weight} kg")),
-                true,
-            )
+            .add_field("Birthday", self.birthday.map_or("N/A".into(), |birthday| format!("{}/{}", birthday.0, birthday.1)), true)
+            .add_field("Blood Type", self.blood_type.map_or("N/A".into(), |blood_type| format!("{:?}", blood_type)), true)
+            .add_field("Height", self.height.map_or("N/A".into(), |height| format!("{height} cm")), true)
+            .add_field("Weight", self.weight.map_or("N/A".into(), |weight| format!("{weight} kg")), true)
             .add_field(
                 "Bust",
-                self.bust.map_or("N/A".into(), |bust| {
-                    format!(
-                        "{bust} cm{}",
-                        self.cup.map_or("".into(), |cup| format!(" - Cup Size {cup}"))
-                    )
-                }),
+                self.bust
+                    .map_or("N/A".into(), |bust| format!("{bust} cm{}", self.cup.map_or("".into(), |cup| format!(" - Cup Size {cup}")))),
                 true,
             )
-            .add_field(
-                "Waist",
-                self.waist.map_or("N/A".into(), |waist| format!("{waist} cm")),
-                true,
-            )
-            .add_field(
-                "Hips",
-                self.hips.map_or("N/A".into(), |hips| format!("{hips} cm")),
-                true,
-            )
+            .add_field("Waist", self.waist.map_or("N/A".into(), |waist| format!("{waist} cm")), true)
+            .add_field("Hips", self.hips.map_or("N/A".into(), |hips| format!("{hips} cm")), true)
     }
 
     pub fn format_traits(self) -> Embed {
@@ -204,16 +166,8 @@ impl VndbCharacter {
 
             groups.get_mut(&character_trait.group_name).unwrap().push(if_else!(
                 matches!(character_trait.spoiler, VndbSpoilerLevel::NonSpoiler),
-                format!(
-                    "||[{}](https://vndb.org/{})||",
-                    character_trait.name.clone(),
-                    character_trait.id,
-                ),
-                format!(
-                    "[{}](https://vndb.org/{})",
-                    character_trait.name.clone(),
-                    character_trait.id,
-                ),
+                format!("||[{}](https://vndb.org/{})||", character_trait.name.clone(), character_trait.id),
+                format!("[{}](https://vndb.org/{})", character_trait.name.clone(), character_trait.id),
             ));
         }
 
@@ -230,12 +184,7 @@ impl VndbCharacter {
         self._format().set_description(limit_string(
             self.vns
                 .into_iter()
-                .map(|visual_novel| {
-                    format!(
-                        "[{}](https://vndb.org/{}) ({})",
-                        visual_novel.title, visual_novel.id, visual_novel.role
-                    )
-                })
+                .map(|visual_novel| format!("[{}](https://vndb.org/{}) ({})", visual_novel.title, visual_novel.id, visual_novel.role))
                 .collect::<Vec<String>>()
                 .join("\n"),
             "\n",

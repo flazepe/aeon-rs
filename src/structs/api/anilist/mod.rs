@@ -43,11 +43,7 @@ impl AniList {
                 if_else!(
                     ["ONA", "OVA", "TV"].contains(&word),
                     word.into(),
-                    format!(
-                        "{}{}",
-                        word.chars().next().unwrap(),
-                        word.chars().skip(1).collect::<String>().to_lowercase(),
-                    ),
+                    format!("{}{}", word.chars().next().unwrap(), word.chars().skip(1).collect::<String>().to_lowercase()),
                 )
             })
             .collect::<Vec<String>>()
@@ -61,12 +57,7 @@ impl AniList {
             if fuzzy_date.day.is_some() && fuzzy_date.month.is_some() && fuzzy_date.year.is_some() {
                 dates.push(format_timestamp(
                     NaiveDateTime::parse_from_str(
-                        &format!(
-                            "{}-{}-{} 00:00",
-                            fuzzy_date.year.unwrap(),
-                            fuzzy_date.month.unwrap(),
-                            fuzzy_date.day.unwrap()
-                        ),
+                        &format!("{}-{}-{} 00:00", fuzzy_date.year.unwrap(), fuzzy_date.month.unwrap(), fuzzy_date.day.unwrap()),
                         "%F %R",
                     )
                     .unwrap()
@@ -107,10 +98,7 @@ impl AniList {
                 "[{}]({}){}",
                 relation.node.title.romaji,
                 relation.node.site_url,
-                relation
-                    .node
-                    .format
-                    .map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format)))
+                relation.node.format.map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format)))
             ));
         }
 

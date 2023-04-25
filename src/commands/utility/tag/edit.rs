@@ -36,13 +36,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 .open_modal(
                     Modal::new("tag", "edit", "Edit Tag").set_components(
                         Components::new()
-                            .add_text_input(
-                                TextInput::new()
-                                    .set_id("tag")
-                                    .set_max_length(30)
-                                    .set_label("Tag")
-                                    .set_value(tag.name),
-                            )
+                            .add_text_input(TextInput::new().set_id("tag").set_max_length(30).set_label("Tag").set_value(tag.name))
                             .add_row()
                             .add_text_input(
                                 TextInput::new()

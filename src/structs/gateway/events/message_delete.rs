@@ -12,11 +12,7 @@ impl EventHandler {
 
         let messages = channels.get_mut(&channel_id).unwrap();
 
-        if let Some(entry) = messages
-            .iter()
-            .enumerate()
-            .find(|(_, _message)| _message.id == message.id)
-        {
+        if let Some(entry) = messages.iter().enumerate().find(|(_, _message)| _message.id == message.id) {
             let message = messages.remove(entry.0);
 
             // Snipes

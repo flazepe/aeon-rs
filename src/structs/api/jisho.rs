@@ -85,19 +85,9 @@ impl JishoSearch {
     }
 
     pub fn format_title(&self) -> String {
-        let title = self.japanese[0]
-            .word
-            .as_ref()
-            .unwrap_or_else(|| self.japanese[0].reading.as_ref().unwrap())
-            .to_string(); // One of these gotta exist
-
+        let title = self.japanese[0].word.as_ref().unwrap_or_else(|| self.japanese[0].reading.as_ref().unwrap()).to_string(); // One of these gotta exist
         let reading = self.japanese[0].reading.as_ref().unwrap_or(&"".into()).to_string();
-
-        if_else!(
-            title == reading || reading.is_empty(),
-            title,
-            format!("{title} （{reading}）"),
-        )
+        if_else!(title == reading || reading.is_empty(), title, format!("{title} （{reading}）"))
     }
 
     pub fn format(self) -> Embed {
@@ -111,36 +101,20 @@ impl JishoSearch {
                     let mut parts_of_speech = HashMap::new();
 
                     for sense in self.senses {
-                        let part_of_speech = if_else!(
-                            sense.parts_of_speech.is_empty(),
-                            "Others".into(),
-                            sense.parts_of_speech.join(", "),
-                        )
-                        .to_lowercase();
+                        let part_of_speech =
+                            if_else!(sense.parts_of_speech.is_empty(), "Others".into(), sense.parts_of_speech.join(", ")).to_lowercase();
 
                         if !parts_of_speech.contains_key(&part_of_speech) {
                             parts_of_speech.insert(part_of_speech.clone(), vec![]);
                         }
 
-                        parts_of_speech
-                            .get_mut(&part_of_speech)
-                            .unwrap()
-                            .push(sense.english_definitions.join(", "));
+                        parts_of_speech.get_mut(&part_of_speech).unwrap().push(sense.english_definitions.join(", "));
                     }
 
                     parts_of_speech
                 }
                 .iter()
-                .map(|(k, v)| {
-                    format!(
-                        "{}\n{}",
-                        k,
-                        v.iter()
-                            .map(|entry| format!(" - {entry}"))
-                            .collect::<Vec<String>>()
-                            .join("\n")
-                    )
-                })
+                .map(|(k, v)| format!("{}\n{}", k, v.iter().map(|entry| format!(" - {entry}")).collect::<Vec<String>>().join("\n")))
                 .collect::<Vec<String>>()
                 .join("\n\n"),
             )

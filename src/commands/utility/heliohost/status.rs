@@ -7,13 +7,7 @@ use slashook::commands::{CommandInput, CommandResponder};
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
     let user = input.get_string_arg("user")?;
-
-    let response = Client::new()
-        .get("https://heliohost.org/status/")
-        .query(&[("u", user.as_str())])
-        .send()
-        .await?;
-
+    let response = Client::new().get("https://heliohost.org/status/").query(&[("u", user.as_str())]).send().await?;
     let url = response.url().to_string();
 
     let status = {

@@ -13,32 +13,18 @@ use slashook::{
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
-    match Tags::new()
-        .get(input.get_string_arg("tag")?, input.guild_id.as_ref().unwrap())
-        .await
-    {
+    match Tags::new().get(input.get_string_arg("tag")?, input.guild_id.as_ref().unwrap()).await {
         Ok(tag) => {
             interaction
                 .respond(
                     format!(
                         "Tag `{}` was created by {} ({}) at {}.\nAliases: {}\nNSFW: {}\n\nLast updated {}.",
                         tag.name,
-                        input
-                            .rest
-                            .get::<User>(format!("users/{}", tag.author_id))
-                            .await
-                            .ok()
-                            .map_or("N/A".into(), |user| user.tag()),
+                        input.rest.get::<User>(format!("users/{}", tag.author_id)).await.ok().map_or("N/A".into(), |user| user.tag()),
                         tag.author_id,
                         format_timestamp(tag.created_timestamp, TimestampFormat::Full),
                         {
-                            let aliases = tag
-                                .aliases
-                                .iter()
-                                .map(|alias| format!("`{alias}`"))
-                                .collect::<Vec<String>>()
-                                .join(", ");
-
+                            let aliases = tag.aliases.iter().map(|alias| format!("`{alias}`")).collect::<Vec<String>>().join(", ");
                             if_else!(aliases.is_empty(), "None".into(), aliases)
                         },
                         yes_no!(tag.nsfw),

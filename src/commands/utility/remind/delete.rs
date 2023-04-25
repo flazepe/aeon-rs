@@ -21,10 +21,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                     .enumerate()
                     .map(|(index, entry)| {
                         ApplicationCommandOptionChoice::new(
-                            format!("{}. {}", index + 1, entry.reminder)
-                                .chars()
-                                .take(100)
-                                .collect::<String>(),
+                            format!("{}. {}", index + 1, entry.reminder).chars().take(100).collect::<String>(),
                             (index + 1).to_string(),
                         )
                     })

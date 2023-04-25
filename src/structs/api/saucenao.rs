@@ -45,11 +45,7 @@ impl SauceNAOSearch {
     pub async fn query<T: ToString>(url: T) -> Result<Self> {
         let search = Client::new()
             .get("https://saucenao.com/search.php")
-            .query(&[
-                ("api_key", CONFIG.api.saucenao_key.as_str()),
-                ("output_type", "2"),
-                ("url", url.to_string().as_str()),
-            ])
+            .query(&[("api_key", CONFIG.api.saucenao_key.as_str()), ("output_type", "2"), ("url", url.to_string().as_str())])
             .send()
             .await?
             .json::<Self>()
@@ -59,63 +55,52 @@ impl SauceNAOSearch {
     }
 
     pub fn format(self) -> Embed {
-        Embed::new()
-            .set_color(PRIMARY_COLOR)
-            .unwrap_or_default()
-            .set_description(
-                self.results
-                    .iter()
-                    .map(|result| {
-                        format!(
-                            "`[{}%]` [{}]({}){}",
-                            result.header.similarity,
-                            {
-                                let title: String;
+        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_description(
+            self.results
+                .iter()
+                .map(|result| {
+                    format!(
+                        "`[{}%]` [{}]({}){}",
+                        result.header.similarity,
+                        {
+                            let title: String;
 
-                                if result.data.pixiv_id.is_some() {
-                                    title = "Pixiv Source".into();
-                                } else if result.data.gelbooru_id.is_some() {
-                                    title = "Gelbooru Source".into();
-                                } else {
-                                    title = result.data.source.as_ref().map_or("".into(), |source| source.into());
-                                }
-
-                                if_else!(title.is_empty(), "Source".into(), title)
-                            },
-                            result
-                                .data
-                                .ext_urls
-                                .as_ref()
-                                .unwrap_or(&vec!["https://google.com".into()])[0],
-                            {
-                                let joined = [
-                                    result.data.year.as_ref().unwrap_or(&"".into()).into(),
-                                    match &result.data.part {
-                                        Some(part) => format!(
-                                            "{} {}",
-                                            if_else!(
-                                                part.chars().into_iter().all(|char| char.is_numeric()),
-                                                "Episode",
-                                                "",
-                                            ),
-                                            part.replace("-", "").trim(),
-                                        ),
-                                        None => "".into(),
-                                    },
-                                    result.data.est_time.as_ref().unwrap_or(&"".into()).into(),
-                                ]
-                                .into_iter()
-                                .filter(|entry| !entry.is_empty())
-                                .collect::<Vec<String>>()
-                                .join("\n");
-
-                                if_else!(joined.is_empty(), "".into(), format!("\n{joined}"))
+                            if result.data.pixiv_id.is_some() {
+                                title = "Pixiv Source".into();
+                            } else if result.data.gelbooru_id.is_some() {
+                                title = "Gelbooru Source".into();
+                            } else {
+                                title = result.data.source.as_ref().map_or("".into(), |source| source.into());
                             }
-                        )
-                    })
-                    .take(5)
-                    .collect::<Vec<String>>()
-                    .join("\n\n"),
-            )
+
+                            if_else!(title.is_empty(), "Source".into(), title)
+                        },
+                        result.data.ext_urls.as_ref().unwrap_or(&vec!["https://google.com".into()])[0],
+                        {
+                            let joined = [
+                                result.data.year.as_ref().unwrap_or(&"".into()).into(),
+                                match &result.data.part {
+                                    Some(part) => format!(
+                                        "{} {}",
+                                        if_else!(part.chars().into_iter().all(|char| char.is_numeric()), "Episode", ""),
+                                        part.replace("-", "").trim(),
+                                    ),
+                                    None => "".into(),
+                                },
+                                result.data.est_time.as_ref().unwrap_or(&"".into()).into(),
+                            ]
+                            .into_iter()
+                            .filter(|entry| !entry.is_empty())
+                            .collect::<Vec<String>>()
+                            .join("\n");
+
+                            if_else!(joined.is_empty(), "".into(), format!("\n{joined}"))
+                        }
+                    )
+                })
+                .take(5)
+                .collect::<Vec<String>>()
+                .join("\n\n"),
+        )
     }
 }

@@ -158,11 +158,7 @@ pub fn get_command() -> Command {
                 .await?;
         }
 
-        match input
-            .custom_id
-            .as_deref()
-            .unwrap_or_else(|| input.subcommand.as_deref().unwrap_or(""))
-        {
+        match input.custom_id.as_deref().unwrap_or_else(|| input.subcommand.as_deref().unwrap_or("")) {
             "create" => create::run(input, res).await?,
             "delete" => delete::run(input, res).await?,
             "edit" => edit::run(input, res).await?,

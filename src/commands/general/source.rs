@@ -10,9 +10,7 @@ pub fn get_command() -> Command {
     async fn source(input: CommandInput, res: CommandResponder) {
         let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
-        interaction
-            .respond("<https://github.com/flazepe/aeon-rs>", false)
-            .await?;
+        interaction.respond("<https://github.com/flazepe/aeon-rs>", false).await?;
     }
 
     source

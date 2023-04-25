@@ -40,9 +40,7 @@ pub fn get_command() -> Command {
         let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
         if input.is_autocomplete() {
-            return interaction
-                .hashmap_autocomplete(EXCHANGE_RATE_CURRENCIES.iter())
-                .await?;
+            return interaction.hashmap_autocomplete(EXCHANGE_RATE_CURRENCIES.iter()).await?;
         }
 
         match ExchangeRateConversion::get(
@@ -52,11 +50,7 @@ pub fn get_command() -> Command {
         )
         .await
         {
-            Ok(exchange_rate_conversion) => {
-                interaction
-                    .respond_success(exchange_rate_conversion.format(), false)
-                    .await?
-            },
+            Ok(exchange_rate_conversion) => interaction.respond_success(exchange_rate_conversion.format(), false).await?,
             Err(error) => interaction.respond_error(error, true).await?,
         };
     }

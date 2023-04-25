@@ -11,10 +11,7 @@ use slashook::{
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
-    match Tags::new()
-        .get(input.get_string_arg("tag")?, input.guild_id.as_ref().unwrap())
-        .await
-    {
+    match Tags::new().get(input.get_string_arg("tag")?, input.guild_id.as_ref().unwrap()).await {
         Ok(tag) => {
             if tag.nsfw {
                 if !Channel::fetch(&input.rest, input.channel_id.as_ref().unwrap())

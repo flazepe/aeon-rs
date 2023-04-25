@@ -87,18 +87,12 @@ impl AniListUser {
     pub fn format(self) -> Embed {
         self._format()
             .set_image(format!("https://img.anili.st/user/{}", self.id))
-            .add_field(
-                "Created",
-                format_timestamp(self.created_at, TimestampFormat::Full),
-                false,
-            )
+            .add_field("Created", format_timestamp(self.created_at, TimestampFormat::Full), false)
             .add_field(
                 "Anime Statistics",
                 format!(
                     "Watched {} episodes\n{} minutes spent\n{:.0}% mean score",
-                    self.statistics.anime.episodes_watched,
-                    self.statistics.anime.minutes_watched,
-                    self.statistics.anime.mean_score,
+                    self.statistics.anime.episodes_watched, self.statistics.anime.minutes_watched, self.statistics.anime.mean_score,
                 ),
                 true,
             )
@@ -106,9 +100,7 @@ impl AniListUser {
                 "Manga Statistics",
                 format!(
                     "Read {} chapters\nRead {} volumes\n{:.0}% mean score",
-                    self.statistics.manga.chapters_read,
-                    self.statistics.manga.volumes_read,
-                    self.statistics.manga.mean_score,
+                    self.statistics.manga.chapters_read, self.statistics.manga.volumes_read, self.statistics.manga.mean_score,
                 ),
                 true,
             )
@@ -117,8 +109,7 @@ impl AniListUser {
     }
 
     pub fn format_about(self) -> Embed {
-        self._format()
-            .set_description(limit_string(self.about.unwrap_or("".into()), "\n", 4096))
+        self._format().set_description(limit_string(self.about.unwrap_or("".into()), "\n", 4096))
     }
 
     pub fn format_favorite_anime(self) -> Embed {
@@ -132,10 +123,7 @@ impl AniListUser {
                         "[{}]({}){}",
                         anime.title.romaji,
                         anime.site_url,
-                        anime
-                            .format
-                            .as_ref()
-                            .map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format)))
+                        anime.format.as_ref().map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format)))
                     )
                 })
                 .collect::<Vec<String>>()
@@ -156,10 +144,7 @@ impl AniListUser {
                         "[{}]({}){}",
                         manga.title.romaji,
                         manga.site_url,
-                        manga
-                            .format
-                            .as_ref()
-                            .map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format)))
+                        manga.format.as_ref().map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format)))
                     )
                 })
                 .collect::<Vec<String>>()

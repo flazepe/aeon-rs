@@ -19,11 +19,10 @@ use tokio::spawn;
 async fn main() -> Result<()> {
     MONGODB
         .get_or_init(async {
-            MongoDBClient::with_options(MongoDBClientOptions::parse(&CONFIG.database.mongodb_uri).await.unwrap())
-                .unwrap()
-                .database("aeon")
+            MongoDBClient::with_options(MongoDBClientOptions::parse(&CONFIG.database.mongodb_uri).await.unwrap()).unwrap().database("aeon")
         })
         .await;
+
     println!("[DATABASE] Connected to MongoDB.");
 
     // Reminders

@@ -44,10 +44,7 @@ pub struct Reminders {
 
 impl Reminders {
     pub fn new() -> Self {
-        Self {
-            rest: None,
-            reminders: MONGODB.get().unwrap().collection::<Reminder>("reminders"),
-        }
+        Self { rest: None, reminders: MONGODB.get().unwrap().collection::<Reminder>("reminders") }
     }
 
     pub async fn poll(mut self) -> Result<()> {
@@ -77,21 +74,14 @@ impl Reminders {
                     Err(error) => {
                         let error = error.to_string();
 
-                        println!(
-                            "[REMINDERS] An error occurred while handling reminder {}: {error}",
-                            reminder._id
-                        );
+                        println!("[REMINDERS] An error occurred while handling reminder {}: {error}", reminder._id);
 
                         if let Some(fatal_error) = ["Invalid Recipient(s)", "Missing Access", "Unknown Channel"]
                             .iter()
                             .find(|message| error.contains(&message.to_string()))
                         {
                             self.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
-
-                            println!(
-                                "[REMINDERS] Deleted reminder {} due to fatal error \"{fatal_error}\".",
-                                reminder._id
-                            );
+                            println!("[REMINDERS] Deleted reminder {} due to fatal error \"{fatal_error}\".", reminder._id);
                         }
                     },
                 }
@@ -106,14 +96,13 @@ impl Reminders {
             self.rest = Some(Rest::with_token(CONFIG.bot.token.clone()));
         }
 
-        let mut response = MessageResponse::from(if_else!(reminder.dm, "".into(), format!("<@{}>", reminder.user_id)))
-            .add_embed(
-                Embed::new()
-                    .set_color(NOTICE_COLOR)?
-                    .set_title("Reminder")
-                    .set_url(format!("https://discord.com/channels/{}", reminder.url))
-                    .set_description(&reminder.reminder),
-            );
+        let mut response = MessageResponse::from(if_else!(reminder.dm, "".into(), format!("<@{}>", reminder.user_id))).add_embed(
+            Embed::new()
+                .set_color(NOTICE_COLOR)?
+                .set_title("Reminder")
+                .set_url(format!("https://discord.com/channels/{}", reminder.url))
+                .set_description(&reminder.reminder),
+        );
 
         if reminder.interval == 0 {
             response = response.set_components(
@@ -171,12 +160,7 @@ impl Reminders {
         reminder: V,
         dm: bool,
     ) -> Result<String> {
-        if self
-            .reminders
-            .count_documents(doc! { "user_id": user_id.to_string() }, None)
-            .await?
-            >= 10
-        {
+        if self.reminders.count_documents(doc! { "user_id": user_id.to_string() }, None).await? >= 10 {
             bail!("You can only have up to 10 reminders.");
         };
 
@@ -216,11 +200,7 @@ impl Reminders {
             "I will remind you about [{}](<https://discord.com/channels/{}>) in {time}{}. Make sure I {}.",
             reminder.to_string(),
             url.to_string(),
-            if_else!(
-                interval.total_secs > 0,
-                format!(" and every {interval} after that"),
-                "".into(),
-            ),
+            if_else!(interval.total_secs > 0, format!(" and every {interval} after that"), "".into()),
             if_else!(dm, "can DM you", "have the View Channel and Send Messages permission"),
         ))
     }
