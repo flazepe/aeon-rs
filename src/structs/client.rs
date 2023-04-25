@@ -1,6 +1,6 @@
 use crate::{commands::get_commands, statics::CONFIG};
 use anyhow::Result;
-use slashook::{Client as SlashookClient, Config as SlashookConfig};
+use slashook::{structs::interactions::ApplicationCommand, Client as SlashookClient, Config as SlashookConfig};
 
 pub struct AeonClient {
     pub slashook: SlashookClient,
@@ -19,16 +19,13 @@ impl AeonClient {
         }
     }
 
-    pub async fn register_commands(&mut self) -> Result<()> {
+    pub async fn register_commands(&mut self) -> Result<Vec<ApplicationCommand>> {
         self.slashook.register_commands(get_commands());
 
-        if let Some(guild_id) = &CONFIG.bot.guild_id {
-            self.slashook.sync_guild_commands(&guild_id).await?;
-        } else {
-            self.slashook.sync_commands().await?;
-        }
-
-        Ok(())
+        Ok(match CONFIG.bot.guild_id.as_ref() {
+            Some(guild_id) => self.slashook.sync_guild_commands(guild_id).await?,
+            None => self.slashook.sync_commands().await?,
+        })
     }
 
     pub async fn start(self) {

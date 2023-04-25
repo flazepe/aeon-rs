@@ -50,21 +50,30 @@ impl OAuth {
         };
 
         self.oauth
-            .update_one(doc! { "_id": &self.name }, doc! { "$set": to_document(&token)? }, UpdateOptions::builder().upsert(true).build())
+            .update_one(
+                doc! {
+                    "_id": self.name,
+                },
+                doc! {
+                    "$set": to_document(&token)?,
+                },
+                UpdateOptions::builder().upsert(true).build(),
+            )
             .await?;
 
         Ok(token)
     }
 
     pub async fn get_token(self) -> Result<String> {
-        Ok(if let Some(token) = self.oauth.find_one(doc! { "_id": &self.name }, None).await? {
-            match token.expires_at > self.timestamp {
-                true => token,
-                false => self.generate_token().await?,
-            }
-            .token
-        } else {
-            self.generate_token().await?.token
+        Ok(match self.oauth.find_one(doc! { "_id": &self.name }, None).await? {
+            Some(token) => {
+                match token.expires_at > self.timestamp {
+                    true => token,
+                    false => self.generate_token().await?,
+                }
+                .token
+            },
+            None => self.generate_token().await?.token,
         })
     }
 }
