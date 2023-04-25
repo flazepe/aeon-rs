@@ -85,11 +85,12 @@ impl AniListAnime {
                         self.season_year.unwrap(),
                         self.trailer.as_ref().map_or("".into(), |trailer| format!(
                             " - [Trailer]({}{})",
-                            match trailer.site == "youtube" {
-                                true => "https://www.youtube.com/watch?v=",
-                                false => "https://www.dailymotion.com/video/",
+                            match trailer.site.as_str() {
+                                "youtube" => "https://www.youtube.com/watch?v=".into(),
+                                "dailymotion" => "https://www.dailymotion.com/video/".into(),
+                                _ => format!("https://www.google.com/search?q={}+", trailer.site),
                             },
-                            trailer.id
+                            trailer.id,
                         ))
                     )),
                     AniList::format_airing_date(&self.start_date, &self.end_date),
