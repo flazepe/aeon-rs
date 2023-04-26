@@ -11,7 +11,7 @@ use slashook::{
 
 pub fn get_command() -> Command {
     #[command(
-        name = "remind",
+        name = "reminder",
         description = "Manages your reminders.",
         subcommands = [
 			{
@@ -61,7 +61,7 @@ pub fn get_command() -> Command {
             },
         ],
     )]
-    async fn remind(input: CommandInput, res: CommandResponder) {
+    async fn reminder(input: CommandInput, res: CommandResponder) {
         if input.is_string_select() {
             return select_menu::run(input, res).await?;
         }

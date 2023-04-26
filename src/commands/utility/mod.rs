@@ -5,11 +5,11 @@ mod google;
 mod google_translate_message;
 mod heliohost;
 mod ip;
-mod remind;
-mod remind_message;
+mod reminder;
+mod reminder_set_message;
 mod sauce;
 mod snipe;
-mod snipe_message_reactions;
+mod snipe_reaction_message;
 mod tag;
 mod timeout;
 mod unicode;
@@ -26,11 +26,11 @@ pub fn get_commands() -> Vec<Command> {
         google_translate_message::get_command(),
         heliohost::get_command(),
         ip::get_command(),
-        remind::get_command(),
-        remind_message::get_command(),
+        reminder::get_command(),
+        reminder_set_message::get_command(),
         sauce::get_command(),
         snipe::get_command(),
-        snipe_message_reactions::get_command(),
+        snipe_reaction_message::get_command(),
         tag::get_command(),
         timeout::get_command(),
         unicode::get_command(),

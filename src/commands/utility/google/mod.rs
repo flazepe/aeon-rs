@@ -61,7 +61,7 @@ pub fn get_command() -> Command {
 			}
         ],
     )]
-    async fn remind(input: CommandInput, res: CommandResponder) {
+    async fn google(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref().unwrap_or("") {
             "dns" => dns::run(input, res).await?,
             "translate" => translate::run(input, res).await?,
@@ -69,5 +69,5 @@ pub fn get_command() -> Command {
         };
     }
 
-    remind
+    google
 }

@@ -10,7 +10,7 @@ pub fn get_command() -> Command {
 		name = "Translate to English",
 		command_type = ApplicationCommandType::MESSAGE,
 	)]
-    async fn translate_message(input: CommandInput, res: CommandResponder) {
+    async fn google_translate_message(input: CommandInput, res: CommandResponder) {
         let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
         match Google::translate(StringifiedMessage::from(input.target_message.as_ref().unwrap().clone()), "auto", "en").await {
@@ -19,5 +19,5 @@ pub fn get_command() -> Command {
         };
     }
 
-    translate_message
+    google_translate_message
 }

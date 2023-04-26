@@ -13,7 +13,7 @@ pub fn get_command() -> Command {
 		name = "Remind me",
 		command_type = ApplicationCommandType::MESSAGE,
 	)]
-    async fn remind_message(input: CommandInput, res: CommandResponder) {
+    async fn reminder_set_message(input: CommandInput, res: CommandResponder) {
         let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
         interaction
@@ -36,5 +36,5 @@ pub fn get_command() -> Command {
             .await?;
     }
 
-    remind_message
+    reminder_set_message
 }
