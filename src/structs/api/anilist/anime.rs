@@ -88,7 +88,7 @@ impl AniListAnime {
                             match trailer.site.as_str() {
                                 "youtube" => "https://www.youtube.com/watch?v=".into(),
                                 "dailymotion" => "https://www.dailymotion.com/video/".into(),
-                                _ => format!("https://www.google.com/search?q={}+", trailer.site),
+                                site => format!("https://www.google.com/search?q={site}+"),
                             },
                             trailer.id,
                         ))
