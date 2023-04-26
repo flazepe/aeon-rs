@@ -39,7 +39,7 @@ pub fn get_command() -> Command {
             select_menu = select_menu.add_option(result.format_title(), result.slug.clone(), None::<String>);
         }
 
-        interaction.respond(MessageResponse::from(results[0].format()).set_components(select_menu.to_components()), false).await?;
+        interaction.respond(MessageResponse::from(select_menu).add_embed(results[0].format()), false).await?;
     }
 
     jisho

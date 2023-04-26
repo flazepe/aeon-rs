@@ -23,5 +23,5 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         select_menu = select_menu.add_option(&result.name, &result.id, Some(&result.group_name));
     }
 
-    interaction.respond(MessageResponse::from(results[0].format()).set_components(select_menu.to_components()), false).await
+    interaction.respond(MessageResponse::from(select_menu).add_embed(results[0].format()), false).await
 }

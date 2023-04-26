@@ -1,4 +1,7 @@
-use slashook::structs::components::{Components, SelectMenu as SlashookSelectMenu, SelectMenuType, SelectOption};
+use slashook::{
+    commands::MessageResponse,
+    structs::components::{Components, SelectMenu as SlashookSelectMenu, SelectMenuType, SelectOption},
+};
 
 pub struct SelectMenu {
     command: String,
@@ -36,8 +39,10 @@ impl SelectMenu {
 
         self
     }
+}
 
-    pub fn to_components(self) -> Components {
+impl Into<Components> for SelectMenu {
+    fn into(self) -> Components {
         let mut select_menu = SlashookSelectMenu::new(SelectMenuType::STRING)
             .set_id(self.command.to_string(), self.id.to_string())
             .set_placeholder(self.placeholder);
@@ -47,5 +52,11 @@ impl SelectMenu {
         }
 
         Components::new().add_select_menu(select_menu)
+    }
+}
+
+impl From<SelectMenu> for MessageResponse {
+    fn from(select_menu: SelectMenu) -> Self {
+        MessageResponse::from(<SelectMenu as Into<Components>>::into(select_menu))
     }
 }

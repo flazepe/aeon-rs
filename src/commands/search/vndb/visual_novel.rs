@@ -18,7 +18,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             select_menu = select_menu.add_option(result.title, result.id, Some(result.dev_status));
         }
 
-        return interaction.respond(select_menu.to_components(), false).await;
+        return interaction.respond(select_menu, false).await;
     }
 
     let (query, section): (String, String) = match input.is_string_select() {
@@ -36,18 +36,17 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     interaction
         .respond(
-            MessageResponse::from(match section.as_str() {
-                "description" => visual_novel.format_description(),
-                "tags" => visual_novel.format_tags(),
-                _ => visual_novel.format(),
-            })
-            .set_components(
+            MessageResponse::from(
                 SelectMenu::new("vndb", "visual-novel", "Select a section…", Some(&section))
                     .add_option("Overview", format!("{}", visual_novel.id), None::<String>)
                     .add_option("Description", format!("{}/description", visual_novel.id), None::<String>)
-                    .add_option("Tags", format!("{}/tags", visual_novel.id), None::<String>)
-                    .to_components(),
-            ),
+                    .add_option("Tags", format!("{}/tags", visual_novel.id), None::<String>),
+            )
+            .add_embed(match section.as_str() {
+                "description" => visual_novel.format_description(),
+                "tags" => visual_novel.format_tags(),
+                _ => visual_novel.format(),
+            }),
             false,
         )
         .await

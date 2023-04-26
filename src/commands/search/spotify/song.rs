@@ -18,7 +18,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             select_menu = select_menu.add_option(result.name, result.id, Some(&result.artists[0].name))
         }
 
-        return interaction.respond(select_menu.to_components(), false).await;
+        return interaction.respond(select_menu, false).await;
     }
 
     let (query, section): (String, String) = match input.is_string_select() {
@@ -39,21 +39,20 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     interaction
         .respond(
-            MessageResponse::from(match section.as_str() {
+            MessageResponse::from(
+                SelectMenu::new("spotify", "song", "Select a section…", Some(&section))
+                    .add_option("Overview", format!("{}", track.id), None::<String>)
+                    .add_option("Audio Features", format!("{}/audio-features", track.id), None::<String>)
+                    .add_option("Available Countries", format!("{}/available-countries", track.id), None::<String>),
+            )
+            .add_embed(match section.as_str() {
                 "audio-features" => {
                     track.get_audio_features().await?;
                     track.format_audio_features()
                 },
                 "available-countries" => track.format_available_countries(),
                 _ => track.format(),
-            })
-            .set_components(
-                SelectMenu::new("spotify", "song", "Select a section…", Some(&section))
-                    .add_option("Overview", format!("{}", track.id), None::<String>)
-                    .add_option("Audio Features", format!("{}/audio-features", track.id), None::<String>)
-                    .add_option("Available Countries", format!("{}/available-countries", track.id), None::<String>)
-                    .to_components(),
-            ),
+            }),
             false,
         )
         .await

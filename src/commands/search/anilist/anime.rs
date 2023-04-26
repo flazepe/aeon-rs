@@ -29,7 +29,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             );
         }
 
-        return interaction.respond(select_menu.to_components(), false).await;
+        return interaction.respond(select_menu, false).await;
     }
 
     let (query, section): (String, String) = match input.is_string_select() {
@@ -56,20 +56,19 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     interaction
         .respond(
-            MessageResponse::from(match section.as_str() {
-                "description" => anime.format_description(),
-                "characters" => anime.format_characters(),
-                "relations" => anime.format_relations(),
-                _ => anime.format(),
-            })
-            .set_components(
+            MessageResponse::from(
                 SelectMenu::new("anilist", "anime", "Select a section…", Some(&section))
                     .add_option("Overview", format!("{}", anime.id), None::<String>)
                     .add_option("Description", format!("{}/description", anime.id), None::<String>)
                     .add_option("Characters", format!("{}/characters", anime.id), None::<String>)
-                    .add_option("Relations", format!("{}/relations", anime.id), None::<String>)
-                    .to_components(),
-            ),
+                    .add_option("Relations", format!("{}/relations", anime.id), None::<String>),
+            )
+            .add_embed(match section.as_str() {
+                "description" => anime.format_description(),
+                "characters" => anime.format_characters(),
+                "relations" => anime.format_relations(),
+                _ => anime.format(),
+            }),
             false,
         )
         .await
