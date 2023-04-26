@@ -1,9 +1,8 @@
 use crate::{
-    statics::colors::PRIMARY_COLOR,
+    statics::{colors::PRIMARY_COLOR, REQWEST},
     structs::api::google::{statics::GOOGLE_TRANSLATE_LANGUAGES, Google},
 };
 use anyhow::{bail, Context, Result};
-use reqwest::Client;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 
@@ -54,7 +53,7 @@ impl Google {
         let target_language =
             GOOGLE_TRANSLATE_LANGUAGES.get_key_value(target_language.to_lowercase().as_str()).context("Invalid target language.")?;
 
-        let google_translate_response = Client::new()
+        let google_translate_response = REQWEST
             .get("https://translate.googleapis.com/translate_a/single")
             .query(&[
                 ("client", "gtx"),

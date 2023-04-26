@@ -578,26 +578,25 @@ impl VndbVisualNovel {
 }
 
 impl Vndb {
-    pub async fn search_visual_novel<T: ToString>(&self, query: T) -> Result<Vec<VndbVisualNovel>> {
+    pub async fn search_visual_novel<T: ToString>(query: T) -> Result<Vec<VndbVisualNovel>> {
         let query = query.to_string();
 
-        let results = self
-            .query(
-                "vn",
-                match query.starts_with("v") && query.chars().skip(1).all(|char| char.is_numeric()) {
-                    true => json!({
-                        "filters": ["id", "=", query],
-                        "fields": VISUAL_NOVEL_FIELDS,
-                    }),
-                    false => json!({
-                        "filters": ["search", "=", query],
-                        "fields": VISUAL_NOVEL_FIELDS,
-                        "sort": "searchrank",
-                    }),
-                },
-            )
-            .await?
-            .results;
+        let results = Vndb::query(
+            "vn",
+            match query.starts_with("v") && query.chars().skip(1).all(|char| char.is_numeric()) {
+                true => json!({
+                    "filters": ["id", "=", query],
+                    "fields": VISUAL_NOVEL_FIELDS,
+                }),
+                false => json!({
+                    "filters": ["search", "=", query],
+                    "fields": VISUAL_NOVEL_FIELDS,
+                    "sort": "searchrank",
+                }),
+            },
+        )
+        .await?
+        .results;
 
         if results.is_empty() {
             bail!("Visual novel not found.");

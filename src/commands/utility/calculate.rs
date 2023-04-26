@@ -1,5 +1,4 @@
-use crate::{structs::interaction::Interaction, traits::ArgGetters};
-use reqwest::{get, Client};
+use crate::{statics::REQWEST, structs::interaction::Interaction, traits::ArgGetters};
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -23,8 +22,8 @@ pub fn get_command() -> Command {
         let expression = input.get_string_arg("expression")?;
 
         let body = match expression.chars().all(|char| char.is_numeric()) {
-            true => get(format!("http://numbersapi.com/{expression}")).await?,
-            false => Client::new().get("https://api.mathjs.org/v4/").query(&[("expr", expression.as_str())]).send().await?,
+            true => REQWEST.get(format!("http://numbersapi.com/{expression}")).send().await?,
+            false => REQWEST.get("https://api.mathjs.org/v4/").query(&[("expr", expression.as_str())]).send().await?,
         }
         .text()
         .await?

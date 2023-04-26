@@ -190,26 +190,25 @@ impl VndbCharacter {
 }
 
 impl Vndb {
-    pub async fn search_character<T: ToString>(&self, query: T) -> Result<Vec<VndbCharacter>> {
+    pub async fn search_character<T: ToString>(query: T) -> Result<Vec<VndbCharacter>> {
         let query = query.to_string();
 
-        let results = self
-            .query(
-                "character",
-                match query.starts_with("c") && query.chars().skip(1).all(|char| char.is_numeric()) {
-                    true => json!({
-                        "filters": ["id", "=", query],
-                        "fields": CHARACTER_FIELDS,
-                    }),
-                    false => json!({
-                        "filters": ["search", "=", query],
-                        "fields": CHARACTER_FIELDS,
-                        "sort": "searchrank",
-                    }),
-                },
-            )
-            .await?
-            .results;
+        let results = Vndb::query(
+            "character",
+            match query.starts_with("c") && query.chars().skip(1).all(|char| char.is_numeric()) {
+                true => json!({
+                    "filters": ["id", "=", query],
+                    "fields": CHARACTER_FIELDS,
+                }),
+                false => json!({
+                    "filters": ["search", "=", query],
+                    "fields": CHARACTER_FIELDS,
+                    "sort": "searchrank",
+                }),
+            },
+        )
+        .await?
+        .results;
 
         if results.is_empty() {
             bail!("Character not found.");

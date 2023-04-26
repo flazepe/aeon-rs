@@ -38,26 +38,25 @@ impl VndbTrait {
 }
 
 impl Vndb {
-    pub async fn search_trait<T: ToString>(&self, query: T) -> Result<Vec<VndbTrait>> {
+    pub async fn search_trait<T: ToString>(query: T) -> Result<Vec<VndbTrait>> {
         let query = query.to_string();
 
-        let results = self
-            .query(
-                "trait",
-                match query.starts_with("i") && query.chars().skip(1).all(|char| char.is_numeric()) {
-                    true => json!({
-                        "filters": ["id", "=", query],
-                        "fields": TRAIT_FIELDS,
-                    }),
-                    false => json!({
-                        "filters": ["search", "=", query],
-                        "fields": TRAIT_FIELDS,
-                        "sort": "searchrank",
-                    }),
-                },
-            )
-            .await?
-            .results;
+        let results = Vndb::query(
+            "trait",
+            match query.starts_with("i") && query.chars().skip(1).all(|char| char.is_numeric()) {
+                true => json!({
+                    "filters": ["id", "=", query],
+                    "fields": TRAIT_FIELDS,
+                }),
+                false => json!({
+                    "filters": ["search", "=", query],
+                    "fields": TRAIT_FIELDS,
+                    "sort": "searchrank",
+                }),
+            },
+        )
+        .await?
+        .results;
 
         if results.is_empty() {
             bail!("Trait not found.");

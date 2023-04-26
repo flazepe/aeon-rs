@@ -6,11 +6,11 @@ mod user;
 
 use crate::{
     functions::{format_timestamp, limit_string, TimestampFormat},
+    statics::REQWEST,
     structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
 };
 use anyhow::Result;
 use nipper::Document;
-use reqwest::Client;
 use serde::de::DeserializeOwned;
 use serde_json::{json, Value};
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
@@ -20,7 +20,7 @@ pub struct AniList {}
 
 impl AniList {
     async fn query<T: ToString, U: DeserializeOwned>(query: T, variables: Value) -> Result<U> {
-        Ok(Client::new()
+        Ok(REQWEST
             .post("https://graphql.anilist.co")
             .header("content-type", "application/json")
             .body(

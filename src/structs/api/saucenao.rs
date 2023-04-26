@@ -1,6 +1,5 @@
-use crate::statics::{colors::PRIMARY_COLOR, CONFIG};
+use crate::statics::{colors::PRIMARY_COLOR, CONFIG, REQWEST};
 use anyhow::{bail, Result};
-use reqwest::Client;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 
@@ -40,7 +39,7 @@ pub struct SauceNAOSearch {
 
 impl SauceNAOSearch {
     pub async fn query<T: ToString>(url: T) -> Result<Self> {
-        let search = Client::new()
+        let search = REQWEST
             .get("https://saucenao.com/search.php")
             .query(&[("api_key", CONFIG.api.saucenao_key.as_str()), ("output_type", "2"), ("url", url.to_string().as_str())])
             .send()

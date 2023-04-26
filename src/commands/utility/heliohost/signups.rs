@@ -1,9 +1,8 @@
 use crate::{
-    statics::colors::PRIMARY_COLOR,
+    statics::{colors::PRIMARY_COLOR, REQWEST},
     structs::{duration::Duration, interaction::Interaction},
 };
 use anyhow::Result;
-use reqwest::Client;
 use slashook::{
     chrono::{Datelike, Duration as ChronoDuration, TimeZone, Utc},
     commands::{CommandInput, CommandResponder},
@@ -26,8 +25,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     for (server, plan) in [("Tommy", "2"), ("Ricky", "1"), ("Johnny", "9")] {
         embed = embed.add_field(
             server,
-            match Client::new().get("https://heliohost.org/assets/monitor.php").query(&[("plan", plan)]).send().await?.text().await? == "1"
-            {
+            match REQWEST.get("https://heliohost.org/assets/monitor.php").query(&[("plan", plan)]).send().await?.text().await? == "1" {
                 true => "Open",
                 false => "Closed",
             },

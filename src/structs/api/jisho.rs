@@ -1,6 +1,5 @@
-use crate::statics::colors::PRIMARY_COLOR;
+use crate::statics::{colors::PRIMARY_COLOR, REQWEST};
 use anyhow::{bail, Result};
-use reqwest::Client;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::{collections::HashMap, fmt::Display};
@@ -42,8 +41,8 @@ pub struct JishoAttribution {
 }
 
 #[derive(Deserialize)]
- struct JishoSearchResult {
-     data: Vec<JishoSearch>,
+struct JishoSearchResult {
+    data: Vec<JishoSearch>,
 }
 
 #[derive(Deserialize)]
@@ -59,7 +58,7 @@ pub struct JishoSearch {
 
 impl JishoSearch {
     pub async fn get<T: Display>(slug: T) -> Result<Self> {
-        let mut results = Client::new()
+        let mut results = REQWEST
             .get("https://jisho.org/api/v1/search/words")
             .query(&[("slug", slug.to_string().as_str())])
             .send()
@@ -76,7 +75,7 @@ impl JishoSearch {
     }
 
     pub async fn search<T: ToString>(query: T) -> Result<Vec<Self>> {
-        let results = Client::new()
+        let results = REQWEST
             .get("https://jisho.org/api/v1/search/words")
             .query(&[("keyword", query.to_string().as_str())])
             .send()

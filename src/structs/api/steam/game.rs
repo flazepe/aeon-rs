@@ -1,10 +1,10 @@
 use crate::{
     functions::{format_timestamp, limit_string, TimestampFormat},
+    statics::REQWEST,
     structs::api::steam::{statics::STEAM_EMBED_COLOR, Steam},
 };
 use anyhow::{bail, Result};
 use nipper::Document;
-use reqwest::Client;
 use serde::Deserialize;
 use serde_json::{from_value, Value};
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
@@ -352,7 +352,7 @@ pub struct SteamSearchResult {
 
 impl Steam {
     pub async fn get_game<T: ToString>(id: T) -> Result<SteamGame> {
-        match Client::new()
+        match REQWEST
             .get("https://store.steampowered.com/api/appdetails")
             .query(&[("cc", "us"), ("appids", id.to_string().as_str())])
             .send()
@@ -370,7 +370,7 @@ impl Steam {
 
     pub async fn search_game<T: ToString>(query: T) -> Result<Vec<SteamSearchResult>> {
         let document = Document::from(
-            &Client::new()
+            &REQWEST
                 .get("https://store.steampowered.com/search/results")
                 .query(&[("category1", "998"), ("term", query.to_string().as_str())]) // category1=998 is games only
                 .send()

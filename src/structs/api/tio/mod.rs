@@ -1,12 +1,15 @@
 pub mod statics;
 
-use crate::{functions::hastebin, statics::colors::PRIMARY_COLOR, structs::api::tio::statics::TIO_PROGRAMMING_LANGUAGES};
+use crate::{
+    functions::hastebin,
+    statics::{colors::PRIMARY_COLOR, REQWEST},
+    structs::api::tio::statics::TIO_PROGRAMMING_LANGUAGES,
+};
 use anyhow::{Context, Result};
 use flate2::{
     write::{DeflateEncoder, GzDecoder},
     Compression,
 };
-use reqwest::Client;
 use slashook::structs::embeds::Embed;
 use std::io::Write;
 
@@ -73,7 +76,7 @@ impl Tio {
         let mut result = vec![];
 
         GzDecoder::new(&mut result)
-            .write_all(&Client::new().post("https://tio.run/cgi-bin/run/api/").body(body).send().await?.bytes().await?.to_vec())?;
+            .write_all(&REQWEST.post("https://tio.run/cgi-bin/run/api/").body(body).send().await?.bytes().await?.to_vec())?;
 
         let result = String::from_utf8(result)?;
         let result = result.replace(&result.chars().take(16).collect::<String>(), "");

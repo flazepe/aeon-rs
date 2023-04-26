@@ -7,12 +7,11 @@ use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-    let vndb = Vndb::new();
 
     if input.get_bool_arg("search").unwrap_or(false) {
         let mut select_menu = SelectMenu::new("vndb", "visual-novel", "Select a visual novel…", None::<String>);
 
-        for result in match vndb.search_visual_novel(input.get_string_arg("visual-novel")?).await {
+        for result in match Vndb::search_visual_novel(input.get_string_arg("visual-novel")?).await {
             Ok(results) => results,
             Err(error) => return interaction.respond_error(error, true).await,
         } {
@@ -30,7 +29,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         false => (input.get_string_arg("visual-novel")?, "".into()),
     };
 
-    let visual_novel = match vndb.search_visual_novel(query).await {
+    let visual_novel = match Vndb::search_visual_novel(query).await {
         Ok(mut results) => results.remove(0),
         Err(error) => return interaction.respond_error(error, true).await,
     };

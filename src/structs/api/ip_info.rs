@@ -1,5 +1,5 @@
+use crate::statics::REQWEST;
 use anyhow::{bail, Result};
-use reqwest::get;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -25,7 +25,7 @@ pub struct IPInfo {
 
 impl IPInfo {
     pub async fn get<T: ToString>(ip: T) -> Result<Self> {
-        let response = get(format!("https://ipinfo.io/{}/json", ip.to_string().replace(['/', '?'], ""))).await?;
+        let response = REQWEST.get(format!("https://ipinfo.io/{}/json", ip.to_string().replace(['/', '?'], ""))).send().await?;
 
         if response.status() != 200 {
             bail!("IP address not found.");

@@ -63,26 +63,25 @@ impl VndbTag {
 }
 
 impl Vndb {
-    pub async fn search_tag<T: ToString>(&self, query: T) -> Result<Vec<VndbTag>> {
+    pub async fn search_tag<T: ToString>(query: T) -> Result<Vec<VndbTag>> {
         let query = query.to_string();
 
-        let results = self
-            .query(
-                "tag",
-                match query.starts_with("g") && query.chars().skip(1).all(|char| char.is_numeric()) {
-                    true => json!({
-                        "filters": ["id", "=", query],
-                        "fields": TAG_FIELDS,
-                    }),
-                    false => json!({
-                        "filters": ["search", "=", query],
-                        "fields": TAG_FIELDS,
-                        "sort": "searchrank",
-                    }),
-                },
-            )
-            .await?
-            .results;
+        let results = Vndb::query(
+            "tag",
+            match query.starts_with("g") && query.chars().skip(1).all(|char| char.is_numeric()) {
+                true => json!({
+                    "filters": ["id", "=", query],
+                    "fields": TAG_FIELDS,
+                }),
+                false => json!({
+                    "filters": ["search", "=", query],
+                    "fields": TAG_FIELDS,
+                    "sort": "searchrank",
+                }),
+            },
+        )
+        .await?
+        .results;
 
         if results.is_empty() {
             bail!("Tag not found.");

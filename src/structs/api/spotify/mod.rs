@@ -3,9 +3,12 @@ pub mod components;
 pub mod statics;
 mod track;
 
-use crate::{statics::CONFIG, structs::api::spotify::statics::SPOTIFY_EMBED_COLOR, structs::database::oauth::OAuth};
+use crate::{
+    statics::{CONFIG, REQWEST},
+    structs::api::spotify::statics::SPOTIFY_EMBED_COLOR,
+    structs::database::oauth::OAuth,
+};
 use anyhow::Result;
-use reqwest::Client;
 use serde::de::DeserializeOwned;
 use std::fmt::Display;
 
@@ -13,13 +16,13 @@ pub struct Spotify {}
 
 impl Spotify {
     pub async fn query<T: Display, U: DeserializeOwned>(endpoint: T) -> Result<U> {
-        Ok(Client::new()
+        Ok(REQWEST
             .get(format!("https://api.spotify.com/v1/{endpoint}"))
             .header(
                 "authorization",
                 OAuth::new(
                     "spotify",
-                    Client::new()
+                    REQWEST
                         .post("https://accounts.spotify.com/api/token")
                         .header("content-type", "application/x-www-form-urlencoded")
                         .header("authorization", format!("Basic {}", CONFIG.api.spotify_token))

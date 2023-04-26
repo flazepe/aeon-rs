@@ -4,9 +4,9 @@ pub mod statics;
 mod tag;
 mod visual_novel;
 
+use crate::statics::REQWEST;
 use anyhow::Result;
 use regex::{Regex, RegexBuilder};
-use reqwest::Client;
 use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
 use std::fmt::Display;
@@ -16,18 +16,11 @@ struct VndbResponse<T> {
     results: Vec<T>,
 }
 
-pub struct Vndb {
-    client: Client,
-}
+pub struct Vndb {}
 
 impl Vndb {
-    pub fn new() -> Self {
-        Self { client: Client::new() }
-    }
-
-    async fn query<T: Display, U: DeserializeOwned>(&self, endpoint: T, query: Value) -> Result<VndbResponse<U>> {
-        Ok(self
-            .client
+    async fn query<T: Display, U: DeserializeOwned>(endpoint: T, query: Value) -> Result<VndbResponse<U>> {
+        Ok(REQWEST
             .post(format!("https://api.vndb.org/kana/{endpoint}"))
             .header("content-type", "application/json")
             .body(query.to_string())

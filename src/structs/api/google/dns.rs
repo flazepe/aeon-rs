@@ -1,12 +1,11 @@
 use crate::{
-    statics::colors::PRIMARY_COLOR,
+    statics::{colors::PRIMARY_COLOR, REQWEST},
     structs::api::google::{
         statics::{GOOGLE_DNS_CODES, GOOGLE_DNS_RECORD_TYPES},
         Google,
     },
 };
 use anyhow::{bail, Result};
-use reqwest::Client;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 
@@ -92,7 +91,7 @@ impl Google {
 
         let domain = domain.to_string().to_lowercase().replace("http://", "").replace("https://", "");
 
-        let dns_response = Client::new()
+        let dns_response = REQWEST
             .get(format!("https://dns.google/resolve"))
             .query(&[("type", record_type.to_string().as_str()), ("name", domain.to_string().as_str())])
             .send()

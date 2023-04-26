@@ -1,8 +1,7 @@
 pub mod statics;
 
-use crate::structs::api::exchange_rate::statics::EXCHANGE_RATE_CURRENCIES;
+use crate::{statics::REQWEST, structs::api::exchange_rate::statics::EXCHANGE_RATE_CURRENCIES};
 use anyhow::{Context, Result};
-use reqwest::Client;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -31,7 +30,7 @@ impl ExchangeRateConversion {
             origin_currency: format!("{} ({})", origin_currency.1, origin_currency.0),
             amount: amount.clone(),
             target_currency: format!("{} ({})", target_currency.1, target_currency.0),
-            conversion: (Client::new()
+            conversion: (REQWEST
                 .get("https://api.exchangerate.host/convert")
                 .query(&[
                     ("amount", amount.to_string().as_str()),
