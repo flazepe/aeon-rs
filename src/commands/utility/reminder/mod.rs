@@ -74,5 +74,5 @@ pub fn get_command() -> Command {
         };
     }
 
-    remind
+    reminder
 }

@@ -1,4 +1,4 @@
-use crate::{commands::utility::remind::set, structs::interaction::Interaction};
+use crate::{commands::utility::reminder::set, structs::interaction::Interaction};
 use anyhow::Result;
 use slashook::commands::{CommandInput, CommandResponder};
 
