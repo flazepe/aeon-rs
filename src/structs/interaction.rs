@@ -1,6 +1,9 @@
-use crate::statics::{
-    emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
-    CACHE,
+use crate::{
+    statics::{
+        emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
+        CACHE,
+    },
+    traits::ArgGetters,
 };
 use anyhow::{bail, Context, Result};
 use slashook::{
@@ -38,6 +41,15 @@ impl<'a> Interaction<'a> {
             bail!("User is under a cooldown.");
         }
 
+        // Only add cooldown to non-search commands
+        if !self.input.get_bool_arg("search").unwrap_or(false) {
+            CACHE
+                .cooldowns
+                .write()
+                .unwrap()
+                .insert(self.input.user.id.clone(), SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + 3);
+        };
+
         if let Some(interaction) = self.input.message.as_ref().and_then(|message| message.interaction.as_ref()) {
             if self.input.user.id != interaction.user.id {
                 self.respond_error("This isn't your interaction.", true).await?;
@@ -52,8 +64,6 @@ impl<'a> Interaction<'a> {
         if !self.verified {
             bail!("Interaction isn't verified.");
         }
-
-        CACHE.cooldowns.write().unwrap().insert(self.input.user.id.clone(), SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + 3);
 
         let response = response.into().set_ephemeral(ephemeral);
 
