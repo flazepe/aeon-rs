@@ -1,6 +1,5 @@
-use std::collections::HashMap;
-
 use once_cell::sync::Lazy;
+use std::collections::HashMap;
 
 pub static TIO_PROGRAMMING_LANGUAGES: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
     HashMap::from([

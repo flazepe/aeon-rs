@@ -1,6 +1,8 @@
 use crate::{
-    statics::exchange_rate::EXCHANGE_RATE_CURRENCIES,
-    structs::{api::exchange_rate::ExchangeRateConversion, interaction::Interaction},
+    structs::{
+        api::exchange_rate::{statics::EXCHANGE_RATE_CURRENCIES, ExchangeRateConversion},
+        interaction::Interaction,
+    },
     traits::ArgGetters,
 };
 use slashook::{

@@ -1,6 +1,8 @@
 use crate::{
-    statics::google::GOOGLE_TRANSLATE_LANGUAGES,
-    structs::{api::google::Google, interaction::Interaction},
+    structs::{
+        api::google::{statics::GOOGLE_TRANSLATE_LANGUAGES, Google},
+        interaction::Interaction,
+    },
     traits::ArgGetters,
 };
 use anyhow::Result;

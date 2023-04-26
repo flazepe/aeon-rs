@@ -1,14 +1,5 @@
-pub mod anilist;
 pub mod colors;
-pub mod duration;
 pub mod emojis;
-pub mod exchange_rate;
-pub mod google;
-pub mod spotify;
-pub mod steam;
-pub mod tio;
-pub mod unicode;
-pub mod vndb;
 
 use crate::structs::{config::Config, gateway::cache::Cache};
 use async_once_cell::OnceCell as AsyncOnceCell;

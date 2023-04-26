@@ -1,7 +1,6 @@
-use crate::{
-    functions::hastebin,
-    statics::{colors::PRIMARY_COLOR, tio::TIO_PROGRAMMING_LANGUAGES},
-};
+pub mod statics;
+
+use crate::{functions::hastebin, statics::colors::PRIMARY_COLOR, structs::api::tio::statics::TIO_PROGRAMMING_LANGUAGES};
 use anyhow::{Context, Result};
 use flate2::{
     write::{DeflateEncoder, GzDecoder},

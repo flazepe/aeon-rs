@@ -1,12 +1,12 @@
 use crate::{
     functions::limit_string,
-    statics::anilist::{ANILIST_ANIME_FIELDS, ANILIST_EMBED_COLOR},
     structs::api::anilist::{
         components::{
             AniListAiringSchedule, AniListAnimeCharacter, AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat,
             AniListFuzzyDate, AniListMediaPageResponse, AniListMediaResponse, AniListNodes, AniListRanking, AniListRelation,
             AniListResponse, AniListSeason, AniListSource, AniListStatus, AniListStudio, AniListTitle, AniListTrailer,
         },
+        statics::{ANILIST_ANIME_FIELDS, ANILIST_EMBED_COLOR},
         AniList,
     },
 };

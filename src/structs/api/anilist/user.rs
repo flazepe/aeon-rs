@@ -1,8 +1,8 @@
 use crate::{
     functions::{format_timestamp, limit_string, TimestampFormat},
-    statics::anilist::{ANILIST_EMBED_COLOR, ANILIST_USER_FIELDS},
     structs::api::anilist::{
         components::{AniListCharacterNode, AniListFormat, AniListImage, AniListNodes, AniListResponse, AniListTitle},
+        statics::{ANILIST_EMBED_COLOR, ANILIST_USER_FIELDS},
         AniList,
     },
 };

@@ -1,8 +1,8 @@
 use crate::{
     functions::limit_string,
     macros::plural,
-    statics::{colors::PRIMARY_COLOR, vndb::VISUAL_NOVEL_FIELDS},
-    structs::api::vndb::Vndb,
+    statics::colors::PRIMARY_COLOR,
+    structs::api::vndb::{statics::VISUAL_NOVEL_FIELDS, Vndb},
 };
 use anyhow::{bail, Result};
 use serde::Deserialize;

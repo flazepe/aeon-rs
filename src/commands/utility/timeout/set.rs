@@ -1,6 +1,8 @@
 use crate::{
-    statics::duration::SECS_PER_DAY,
-    structs::{duration::Duration, interaction::Interaction},
+    structs::{
+        duration::{statics::SECS_PER_DAY, Duration},
+        interaction::Interaction,
+    },
     traits::ArgGetters,
 };
 use anyhow::Result;

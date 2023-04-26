@@ -1,4 +1,6 @@
-use crate::{macros::plural, statics::unicode::CONTROL_CHARACTERS};
+pub mod statics;
+
+use crate::{macros::plural, structs::unicode::statics::CONTROL_CHARACTERS};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::Client;

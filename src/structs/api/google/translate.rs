@@ -1,6 +1,6 @@
 use crate::{
-    statics::{colors::PRIMARY_COLOR, google::GOOGLE_TRANSLATE_LANGUAGES},
-    structs::api::google::Google,
+    statics::colors::PRIMARY_COLOR,
+    structs::api::google::{statics::GOOGLE_TRANSLATE_LANGUAGES, Google},
 };
 use anyhow::{bail, Context, Result};
 use reqwest::Client;
@@ -8,15 +8,14 @@ use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 
 #[derive(Deserialize)]
-pub struct GoogleTranslateSentences {
-    pub trans: String,
-    pub orig: String,
+struct GoogleTranslateSentences {
+    trans: String,
 }
 
 #[derive(Deserialize)]
-pub struct GoogleTranslateResponse {
-    pub sentences: Vec<GoogleTranslateSentences>,
-    pub src: String,
+struct GoogleTranslateResponse {
+    sentences: Vec<GoogleTranslateSentences>,
+    src: String,
 }
 
 pub struct GoogleTranslateTranslation {

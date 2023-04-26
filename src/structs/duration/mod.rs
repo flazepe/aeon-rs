@@ -1,6 +1,8 @@
+pub mod statics;
+
 use crate::{
     macros::plural,
-    statics::duration::{SECS_PER_DAY, SECS_PER_HOUR, SECS_PER_MIN, SECS_PER_MONTH, SECS_PER_WEEK, SECS_PER_YEAR},
+    structs::duration::statics::{SECS_PER_DAY, SECS_PER_HOUR, SECS_PER_MIN, SECS_PER_MONTH, SECS_PER_WEEK, SECS_PER_YEAR},
 };
 use anyhow::Result;
 use parse_duration::parse;

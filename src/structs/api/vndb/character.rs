@@ -1,7 +1,7 @@
 use crate::{
     functions::limit_string,
-    statics::{colors::PRIMARY_COLOR, vndb::CHARACTER_FIELDS},
-    structs::api::vndb::{visual_novel::VndbImage, Vndb},
+    statics::colors::PRIMARY_COLOR,
+    structs::api::vndb::{statics::CHARACTER_FIELDS, visual_novel::VndbImage, Vndb},
 };
 use anyhow::{bail, Result};
 use serde::Deserialize;

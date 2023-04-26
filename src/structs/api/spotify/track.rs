@@ -1,13 +1,11 @@
 use crate::{
-    statics::{
-        emojis::{EXPLICIT_EMOJI, FIRE_EMOJI},
-        spotify::{SPOTIFY_CAMELOT, SPOTIFY_EMBED_COLOR, SPOTIFY_PITCH_NOTATIONS},
-    },
+    statics::emojis::{EXPLICIT_EMOJI, FIRE_EMOJI},
     structs::api::spotify::{
         components::{
             SpotifyAudioFeatures, SpotifyExternalIDs, SpotifyExternalURLs, SpotifyItems, SpotifyRestrictions, SpotifySimpleAlbum,
             SpotifySimpleArtist, SpotifyTrackLink,
         },
+        statics::{SPOTIFY_CAMELOT, SPOTIFY_EMBED_COLOR, SPOTIFY_PITCH_NOTATIONS},
         Spotify,
     },
 };

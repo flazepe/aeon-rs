@@ -1,4 +1,5 @@
-pub mod dns;
-pub mod translate;
+mod dns;
+pub mod statics;
+mod translate;
 
 pub struct Google {}

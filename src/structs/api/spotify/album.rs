@@ -3,9 +3,8 @@ use crate::{
     macros::plural,
     statics::{
         emojis::{COPYRIGHT_EMOJI, FIRE_EMOJI, PHONOGRAM_EMOJI},
-        spotify::SPOTIFY_EMBED_COLOR,
     },
-    structs::api::spotify::{
+    structs::api::spotify::{SPOTIFY_EMBED_COLOR,
         components::{
             SpotifyAlbumGroup, SpotifyAlbumType, SpotifyCopyright, SpotifyCopyrightType, SpotifyExternalIDs, SpotifyExternalURLs,
             SpotifyImage, SpotifyItems, SpotifyObjectType, SpotifyPaging, SpotifyReleaseDatePrecision, SpotifyRestrictions,

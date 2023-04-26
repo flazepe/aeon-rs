@@ -1,7 +1,7 @@
 use crate::{
     functions::add_reminder_select_options,
-    statics::{colors::NOTICE_COLOR, duration::SECS_PER_MONTH, CONFIG, MONGODB},
-    structs::duration::Duration,
+    statics::{colors::NOTICE_COLOR, CONFIG, MONGODB},
+    structs::duration::{statics::SECS_PER_MONTH, Duration},
 };
 use anyhow::{bail, Result};
 use futures::stream::TryStreamExt;

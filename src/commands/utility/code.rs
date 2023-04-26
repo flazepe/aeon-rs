@@ -1,6 +1,9 @@
 use crate::{
-    statics::{tio::TIO_PROGRAMMING_LANGUAGES, CACHE},
-    structs::{api::tio::Tio, interaction::Interaction},
+    statics::CACHE,
+    structs::{
+        api::tio::{statics::TIO_PROGRAMMING_LANGUAGES, Tio},
+        interaction::Interaction,
+    },
     traits::ArgGetters,
 };
 use slashook::{

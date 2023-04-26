@@ -1,7 +1,8 @@
-pub mod character;
-pub mod character_trait;
-pub mod tag;
-pub mod visual_novel;
+mod character;
+mod character_trait;
+pub mod statics;
+mod tag;
+mod visual_novel;
 
 use anyhow::Result;
 use regex::{Regex, RegexBuilder};

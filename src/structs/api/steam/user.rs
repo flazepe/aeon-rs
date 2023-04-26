@@ -1,8 +1,11 @@
 use crate::{
     functions::{format_timestamp, TimestampFormat},
     macros::{plural, yes_no},
-    statics::steam::{STEAM_COUNTRIES, STEAM_EMBED_COLOR, STEAM_USER_STATES},
-    structs::api::steam::{user_bans::SteamUserBans, Steam},
+    structs::api::steam::{
+        statics::{STEAM_COUNTRIES, STEAM_EMBED_COLOR, STEAM_USER_STATES},
+        user_bans::SteamUserBans,
+        Steam,
+    },
 };
 use anyhow::{Context, Result};
 use serde::Deserialize;

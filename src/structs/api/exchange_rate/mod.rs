@@ -1,4 +1,6 @@
-use crate::statics::exchange_rate::EXCHANGE_RATE_CURRENCIES;
+pub mod statics;
+
+use crate::structs::api::exchange_rate::statics::EXCHANGE_RATE_CURRENCIES;
 use anyhow::{Context, Result};
 use reqwest::Client;
 use serde::Deserialize;

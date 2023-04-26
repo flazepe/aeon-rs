@@ -1,8 +1,9 @@
-pub mod country;
-pub mod game;
-pub mod user;
-pub mod user_bans;
-pub mod user_vanity;
+mod country;
+mod game;
+pub mod statics;
+mod user;
+mod user_bans;
+mod user_vanity;
 
 use crate::statics::CONFIG;
 use anyhow::Result;

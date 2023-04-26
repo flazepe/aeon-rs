@@ -1,6 +1,7 @@
 mod anime;
 mod components;
 mod manga;
+pub mod statics;
 mod user;
 
 use crate::{

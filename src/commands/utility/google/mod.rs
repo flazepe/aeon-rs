@@ -1,7 +1,7 @@
 mod dns;
 mod translate;
 
-use crate::statics::google::GOOGLE_DNS_RECORD_TYPES;
+use crate::structs::api::google::statics::GOOGLE_DNS_RECORD_TYPES;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},

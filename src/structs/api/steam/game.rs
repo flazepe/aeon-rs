@@ -1,7 +1,6 @@
 use crate::{
     functions::{format_timestamp, limit_string, TimestampFormat},
-    statics::steam::STEAM_EMBED_COLOR,
-    structs::api::steam::Steam,
+    structs::api::steam::{statics::STEAM_EMBED_COLOR, Steam},
 };
 use anyhow::{bail, Result};
 use nipper::Document;

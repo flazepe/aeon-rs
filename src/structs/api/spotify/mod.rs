@@ -1,11 +1,9 @@
-pub mod album;
+mod album;
 pub mod components;
-pub mod track;
+pub mod statics;
+mod track;
 
-use crate::{
-    statics::{spotify::SPOTIFY_EMBED_COLOR, CONFIG},
-    structs::database::oauth::OAuth,
-};
+use crate::{statics::CONFIG, structs::api::spotify::statics::SPOTIFY_EMBED_COLOR, structs::database::oauth::OAuth};
 use anyhow::Result;
 use reqwest::Client;
 use serde::de::DeserializeOwned;

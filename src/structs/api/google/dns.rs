@@ -1,9 +1,9 @@
 use crate::{
-    statics::{
-        colors::PRIMARY_COLOR,
-        google::{GOOGLE_DNS_CODES, GOOGLE_DNS_RECORD_TYPES},
+    statics::colors::PRIMARY_COLOR,
+    structs::api::google::{
+        statics::{GOOGLE_DNS_CODES, GOOGLE_DNS_RECORD_TYPES},
+        Google,
     },
-    structs::api::google::Google,
 };
 use anyhow::{bail, Result};
 use reqwest::Client;

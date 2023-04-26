@@ -1,13 +1,13 @@
 use crate::{
     functions::limit_string,
     macros::yes_no,
-    statics::anilist::{ANILIST_EMBED_COLOR, ANILIST_MANGA_FIELDS},
     structs::api::anilist::{
         components::{
             AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat, AniListFuzzyDate, AniListMangaCharacter,
             AniListMediaPageResponse, AniListMediaResponse, AniListRanking, AniListRelation, AniListResponse, AniListSource, AniListStatus,
             AniListTitle,
         },
+        statics::{ANILIST_EMBED_COLOR, ANILIST_MANGA_FIELDS},
         AniList,
     },
 };
