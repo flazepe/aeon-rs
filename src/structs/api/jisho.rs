@@ -42,6 +42,11 @@ pub struct JishoAttribution {
 }
 
 #[derive(Deserialize)]
+ struct JishoSearchResult {
+     data: Vec<JishoSearch>,
+}
+
+#[derive(Deserialize)]
 pub struct JishoSearch {
     pub slug: String,
     pub is_common: Option<bool>,
@@ -50,11 +55,6 @@ pub struct JishoSearch {
     pub japanese: Vec<JishoJapanese>,
     pub senses: Vec<JishoSense>,
     pub attribution: JishoAttribution,
-}
-
-#[derive(Deserialize)]
-pub struct JishoSearchResult {
-    pub data: Vec<JishoSearch>,
 }
 
 impl JishoSearch {

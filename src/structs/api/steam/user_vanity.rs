@@ -3,16 +3,16 @@ use anyhow::{Context, Result};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
+struct SteamUserVanityResponse {
+    response: SteamUserVanity,
+}
+
+#[derive(Deserialize)]
 pub struct SteamUserVanity {
     #[serde(rename = "steamid")]
     pub id: Option<String>,
     pub success: u64,
     pub message: Option<String>,
-}
-
-#[derive(Deserialize)]
-struct SteamUserVanityResponse {
-    response: SteamUserVanity,
 }
 
 impl Steam {

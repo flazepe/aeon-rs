@@ -1,16 +1,14 @@
 use crate::{
     functions::{format_timestamp, limit_string, TimestampFormat},
     macros::plural,
-    statics::{
-        emojis::{COPYRIGHT_EMOJI, FIRE_EMOJI, PHONOGRAM_EMOJI},
-    },
-    structs::api::spotify::{SPOTIFY_EMBED_COLOR,
+    statics::emojis::{COPYRIGHT_EMOJI, FIRE_EMOJI, PHONOGRAM_EMOJI},
+    structs::api::spotify::{
         components::{
             SpotifyAlbumGroup, SpotifyAlbumType, SpotifyCopyright, SpotifyCopyrightType, SpotifyExternalIDs, SpotifyExternalURLs,
             SpotifyImage, SpotifyItems, SpotifyObjectType, SpotifyPaging, SpotifyReleaseDatePrecision, SpotifyRestrictions,
             SpotifySimpleAlbum, SpotifySimpleArtist, SpotifySimpleTrack,
         },
-        Spotify,
+        Spotify, SPOTIFY_EMBED_COLOR,
     },
 };
 use anyhow::{bail, Result};
@@ -20,8 +18,8 @@ use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
 use std::fmt::Display;
 
 #[derive(Deserialize)]
-pub struct SpotifySearchAlbumResponse {
-    pub albums: SpotifyItems<SpotifySimpleAlbum>,
+struct SpotifySearchAlbumResponse {
+    albums: SpotifyItems<SpotifySimpleAlbum>,
 }
 
 #[derive(Deserialize)]

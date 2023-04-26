@@ -12,9 +12,9 @@ use slashook::{
 };
 
 pub struct Snipes {
-    pub channel_id: String,
-    pub is_edit: bool,
-    pub send_list: bool,
+    channel_id: String,
+    is_edit: bool,
+    send_list: bool,
 }
 
 impl Snipes {

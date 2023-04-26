@@ -1,11 +1,11 @@
 use slashook::structs::components::{Components, SelectMenu as SlashookSelectMenu, SelectMenuType, SelectOption};
 
 pub struct SelectMenu {
-    pub command: String,
-    pub id: String,
-    pub placeholder: String,
-    pub options: Vec<SelectOption>,
-    pub default: Option<String>,
+    command: String,
+    id: String,
+    placeholder: String,
+    options: Vec<SelectOption>,
+    default: Option<String>,
 }
 
 impl SelectMenu {

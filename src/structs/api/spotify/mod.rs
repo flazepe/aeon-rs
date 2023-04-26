@@ -9,9 +9,7 @@ use reqwest::Client;
 use serde::de::DeserializeOwned;
 use std::fmt::Display;
 
-pub struct Spotify {
-    pub token: String,
-}
+pub struct Spotify {}
 
 impl Spotify {
     pub async fn query<T: Display, U: DeserializeOwned>(endpoint: T) -> Result<U> {

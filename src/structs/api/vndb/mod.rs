@@ -12,9 +12,8 @@ use serde_json::Value;
 use std::fmt::Display;
 
 #[derive(Deserialize)]
-pub struct VndbResponse<T> {
-    pub results: Vec<T>,
-    pub more: bool,
+struct VndbResponse<T> {
+    results: Vec<T>,
 }
 
 pub struct Vndb {
@@ -26,7 +25,7 @@ impl Vndb {
         Self { client: Client::new() }
     }
 
-    pub async fn query<T: Display, U: DeserializeOwned>(&self, endpoint: T, query: Value) -> Result<VndbResponse<U>> {
+    async fn query<T: Display, U: DeserializeOwned>(&self, endpoint: T, query: Value) -> Result<VndbResponse<U>> {
         Ok(self
             .client
             .post(format!("https://api.vndb.org/kana/{endpoint}"))

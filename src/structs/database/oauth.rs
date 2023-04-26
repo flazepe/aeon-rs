@@ -10,10 +10,10 @@ use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Deserialize)]
-pub struct RawOauthToken {
-    pub access_token: String,
-    pub token_type: String,
-    pub expires_in: u64,
+struct RawOauthToken {
+    access_token: String,
+    token_type: String,
+    expires_in: u64,
 }
 
 #[derive(Deserialize, Serialize)]

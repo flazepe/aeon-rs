@@ -3,7 +3,7 @@ use anyhow::Result;
 use slashook::{structs::interactions::ApplicationCommand, Client as SlashookClient, Config as SlashookConfig};
 
 pub struct AeonClient {
-    pub slashook: SlashookClient,
+    slashook: SlashookClient,
 }
 
 impl AeonClient {

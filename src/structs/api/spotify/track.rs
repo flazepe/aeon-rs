@@ -15,8 +15,8 @@ use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
 #[derive(Deserialize)]
-pub struct SpotifySearchTrackResponse {
-    pub tracks: SpotifyItems<SpotifyFullTrack>,
+struct SpotifySearchTrackResponse {
+    tracks: SpotifyItems<SpotifyFullTrack>,
 }
 
 #[derive(Deserialize)]

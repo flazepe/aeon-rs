@@ -2,6 +2,12 @@ use crate::structs::api::steam::Steam;
 use anyhow::{Context, Result};
 use serde::Deserialize;
 
+
+#[derive(Deserialize)]
+struct SteamUserBansResponse {
+    players: Vec<SteamUserBans>,
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SteamUserBans {
@@ -22,10 +28,6 @@ pub struct SteamUserBans {
     pub community_banned: bool,
 }
 
-#[derive(Deserialize)]
-struct SteamUserBansResponse {
-    players: Vec<SteamUserBans>,
-}
 
 impl Steam {
     pub async fn get_user_bans<T: ToString>(id: T) -> Result<SteamUserBans> {
