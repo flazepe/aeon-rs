@@ -2,7 +2,6 @@ use crate::structs::api::steam::Steam;
 use anyhow::{Context, Result};
 use serde::Deserialize;
 
-
 #[derive(Deserialize)]
 struct SteamUserBansResponse {
     players: Vec<SteamUserBans>,
@@ -27,7 +26,6 @@ pub struct SteamUserBans {
     pub economy_ban: String,
     pub community_banned: bool,
 }
-
 
 impl Steam {
     pub async fn get_user_bans<T: ToString>(id: T) -> Result<SteamUserBans> {
