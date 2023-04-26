@@ -1,7 +1,10 @@
 use crate::{
     functions::{format_timestamp, limit_string, TimestampFormat},
     macros::plural,
-    statics::emojis::{COPYRIGHT_EMOJI, FIRE_EMOJI, PHONOGRAM_EMOJI},
+    statics::{
+        emojis::{COPYRIGHT_EMOJI, FIRE_EMOJI, PHONOGRAM_EMOJI},
+        regex::COPYRIGHT_REGEX,
+    },
     structs::api::spotify::{
         components::{
             SpotifyAlbumGroup, SpotifyAlbumType, SpotifyCopyright, SpotifyCopyrightType, SpotifyExternalIDs, SpotifyExternalURLs,
@@ -12,7 +15,6 @@ use crate::{
     },
 };
 use anyhow::{bail, Result};
-use regex::Regex;
 use serde::Deserialize;
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
 use std::fmt::Display;
@@ -124,7 +126,7 @@ impl SpotifyFullAlbum {
                                 SpotifyCopyrightType::Copyright => COPYRIGHT_EMOJI,
                                 SpotifyCopyrightType::Phonogram => PHONOGRAM_EMOJI,
                             },
-                            Regex::new(r"\((C|P)\)|©|℗").unwrap().replace_all(&copyright.text, "")
+                            COPYRIGHT_REGEX.replace_all(&copyright.text, "")
                         )
                     })
                     .collect::<Vec<String>>()

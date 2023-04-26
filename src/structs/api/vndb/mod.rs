@@ -4,9 +4,11 @@ pub mod statics;
 mod tag;
 mod visual_novel;
 
-use crate::statics::REQWEST;
+use crate::statics::{
+    regex::{BBCODE_REGEX, HTTPS_URL_REGEX},
+    REQWEST,
+};
 use anyhow::Result;
-use regex::{Regex, RegexBuilder};
 use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
 use std::fmt::Display;
@@ -31,16 +33,6 @@ impl Vndb {
     }
 
     pub fn clean_bbcode<T: ToString>(string: T) -> String {
-        Regex::new(r"https://(.+?)/")
-            .unwrap()
-            .replace_all(
-                &RegexBuilder::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]")
-                    .case_insensitive(true)
-                    .build()
-                    .unwrap()
-                    .replace_all(&string.to_string(), ""),
-                "<redacted>/",
-            )
-            .to_string()
+        HTTPS_URL_REGEX.replace_all(&BBCODE_REGEX.replace_all(&string.to_string(), ""), "<redacted>/").to_string()
     }
 }

@@ -1,6 +1,6 @@
-use crate::statics::REQWEST;
+use crate::statics::{regex::MARKDOWN_REGEX, REQWEST};
 use anyhow::Result;
-use regex::{Captures, Regex};
+use regex::Captures;
 use serde_json::Value;
 use slashook::structs::components::{SelectMenu, SelectOption};
 use std::fmt::Display;
@@ -23,8 +23,7 @@ pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
 }
 
 pub fn escape_markdown<T: ToString>(string: T) -> String {
-    Regex::new(r"\\?[*_~`]")
-        .unwrap()
+    MARKDOWN_REGEX
         .replace_all(&string.to_string(), |caps: &Captures| match caps[0].starts_with("\\") {
             true => caps[0].to_string(),
             false => format!("\\{}", caps[0].to_string()),
