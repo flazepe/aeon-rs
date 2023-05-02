@@ -5,7 +5,7 @@ use crate::{
 use anyhow::Result;
 use slashook::{
     commands::{CommandInput, CommandResponder, MessageResponse},
-    structs::{channels::Channel, AllowedMentions},
+    structs::channels::{AllowedMentions, Channel},
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
