@@ -35,7 +35,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                             ", ",
                             4096,
                         )),
-                    false,
+                    true,
                 )
                 .await
         },

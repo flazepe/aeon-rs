@@ -17,7 +17,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         )
         .await
     {
-        Ok(response) => interaction.respond_success(response, false).await,
+        Ok(response) => interaction.respond_success(response, true).await,
         Err(error) => interaction.respond_error(error, true).await,
     }
 }
