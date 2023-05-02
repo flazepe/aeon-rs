@@ -4,8 +4,8 @@ use crate::{
 };
 use anyhow::Result;
 use slashook::{
-    commands::{CommandInput, CommandResponder},
-    structs::channels::Channel,
+    commands::{CommandInput, CommandResponder, MessageResponse},
+    structs::{channels::Channel, AllowedMentions},
 };
 
 pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
@@ -22,7 +22,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 }
             }
 
-            interaction.respond(tag.content, false).await
+            interaction.respond(MessageResponse::from(tag.content).set_allowed_mentions(AllowedMentions::new()), false).await
         },
         Err(error) => interaction.respond_error(error, true).await,
     }
