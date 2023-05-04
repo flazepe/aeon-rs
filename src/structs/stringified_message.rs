@@ -15,6 +15,7 @@ pub struct SimpleEmbed {
 pub struct StringifiedMessage {
     pub content: String,
     pub embeds: Vec<SimpleEmbed>,
+    pub attachments: Vec<(String, String)>,
 }
 
 impl From<Message> for StringifiedMessage {
@@ -38,6 +39,7 @@ impl From<Message> for StringifiedMessage {
                         .collect::<Vec<(String, String)>>(),
                 })
                 .collect::<Vec<SimpleEmbed>>(),
+            attachments: message.attachments.into_iter().map(|attachment| (attachment.filename, attachment.url)).collect(),
         }
     }
 }
@@ -58,13 +60,16 @@ impl From<TwilightMessage> for StringifiedMessage {
                     fields: embed.fields.into_iter().map(|field| (field.name, field.value)).collect::<Vec<(String, String)>>(),
                 })
                 .collect::<Vec<SimpleEmbed>>(),
+            attachments: message.attachments.into_iter().map(|attachment| (attachment.filename, attachment.url)).collect(),
         }
     }
 }
 
 impl Display for StringifiedMessage {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        let mut text = self.content.clone();
+        let mut text = self.attachments.iter().map(|(name, url)| format!("[{name}]({url})")).collect::<Vec<String>>().join("\n");
+
+        text += &format!("\n\n{}", self.content);
 
         for embed in &self.embeds {
             if let Some(author_name) = embed.author_name.as_ref() {
