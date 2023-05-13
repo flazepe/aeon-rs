@@ -170,7 +170,7 @@ impl Reminders {
     ) -> Result<String> {
         if self.reminders.count_documents(doc! { "user_id": user_id.to_string() }, None).await? >= 10 {
             bail!("You can only have up to 10 reminders.");
-        };
+        }
 
         if time.total_secs < 30 || time.total_secs > SECS_PER_MONTH * 12 {
             bail!("Time cannot be under 30 seconds or over a year.");
