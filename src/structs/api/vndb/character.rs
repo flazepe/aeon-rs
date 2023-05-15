@@ -12,6 +12,7 @@ use std::{
     collections::HashMap,
     fmt::{Display, Formatter, Result as FmtResult},
 };
+use thousands::Separable;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -137,11 +138,11 @@ impl VndbCharacter {
                 }),
                 true,
             )
-            .add_field("Age", self.age.map_or("N/A".into(), |age| age.to_string()), true)
+            .add_field("Age", self.age.map_or("N/A".into(), |age| age.separate_with_commas()), true)
             .add_field("Birthday", self.birthday.map_or("N/A".into(), |birthday| format!("{}/{}", birthday.0, birthday.1)), true)
             .add_field("Blood Type", self.blood_type.as_ref().map_or("N/A".into(), |blood_type| format!("{blood_type:?}")), true)
-            .add_field("Height", self.height.map_or("N/A".into(), |height| format!("{height} cm")), true)
-            .add_field("Weight", self.weight.map_or("N/A".into(), |weight| format!("{weight} kg")), true)
+            .add_field("Height", self.height.map_or("N/A".into(), |height| format!("{} cm", height.separate_with_commas())), true)
+            .add_field("Weight", self.weight.map_or("N/A".into(), |weight| format!("{} kg", weight.separate_with_commas())), true)
             .add_field(
                 "Bust",
                 self.bust.map_or("N/A".into(), |bust| {

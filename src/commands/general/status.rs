@@ -29,7 +29,7 @@ pub fn get_command() -> Command {
                     .respond(
                         Embed::new()
                             .set_color(PRIMARY_COLOR)?
-                            .add_field("Uptime", format_timestamp(process.start_time(), TimestampFormat::Full), false)
+                            .add_field("Process Started", format_timestamp(process.start_time(), TimestampFormat::Full), false)
                             .add_field("Memory", bytes_to_mb(process.memory()), false)
                             .add_field("Virtual Memory", bytes_to_mb(process.virtual_memory()), false)
                             .add_field(

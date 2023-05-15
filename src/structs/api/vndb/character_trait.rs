@@ -8,6 +8,7 @@ use anyhow::{bail, Result};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::structs::embeds::Embed;
+use thousands::Separable;
 
 #[derive(Deserialize)]
 pub struct VndbTrait {
@@ -33,7 +34,7 @@ impl VndbTrait {
             .add_field("Description", limit_string(Vndb::clean_bbcode(&self.description), "\n", 1024), false)
             .add_field("Searchable", yes_no!(self.searchable), true)
             .add_field("Applicable", yes_no!(self.applicable), true)
-            .add_field("Character Count", self.char_count.to_string(), true)
+            .add_field("Character Count", self.char_count.separate_with_commas(), true)
     }
 }
 

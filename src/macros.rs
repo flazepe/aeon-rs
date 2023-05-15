@@ -9,7 +9,8 @@ macro_rules! plural {
             }
         }
 
-        format!("{} {subject}", $amount)
+        use thousands::Separable;
+        format!("{} {subject}", $amount.separate_with_commas())
     }};
 }
 

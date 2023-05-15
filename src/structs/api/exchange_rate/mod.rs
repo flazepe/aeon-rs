@@ -3,6 +3,7 @@ pub mod statics;
 use crate::{statics::REQWEST, structs::api::exchange_rate::statics::EXCHANGE_RATE_CURRENCIES};
 use anyhow::{Context, Result};
 use serde::Deserialize;
+use thousands::Separable;
 
 #[derive(Deserialize)]
 struct ExchangeRateConversionResponse {
@@ -46,6 +47,12 @@ impl ExchangeRateConversion {
     }
 
     pub fn format(&self) -> String {
-        format!("{} {} = `{:.3} {}`.", self.amount, self.origin_currency, self.conversion, self.target_currency)
+        format!(
+            "{} {} = `{} {}`.",
+            format!("{:.2}", self.amount).separate_with_commas(),
+            self.origin_currency,
+            format!("{:.2}", self.conversion).separate_with_commas(),
+            self.target_currency,
+        )
     }
 }

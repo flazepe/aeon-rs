@@ -9,6 +9,7 @@ use serde::Deserialize;
 use serde_json::json;
 use slashook::structs::embeds::Embed;
 use std::fmt::{Display, Formatter, Result as FmtResult};
+use thousands::Separable;
 
 #[derive(Debug, Deserialize)]
 pub enum VndbTagCategory {
@@ -58,7 +59,7 @@ impl VndbTag {
             .add_field("Description", limit_string(Vndb::clean_bbcode(&self.description), "\n", 1024), false)
             .add_field("Searchable", yes_no!(self.searchable), true)
             .add_field("Applicable", yes_no!(self.applicable), true)
-            .add_field("Visual Novel Count", self.vn_count.to_string(), true)
+            .add_field("Visual Novel Count", self.vn_count.separate_with_commas(), true)
     }
 }
 

@@ -10,6 +10,7 @@ use crate::{
 use anyhow::{Context, Result};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
+use thousands::Separable;
 
 #[derive(Deserialize)]
 struct SteamUsersResponse {
@@ -171,7 +172,7 @@ impl SteamUser {
                     ),
                     true,
                 )
-                .add_field("Days Since Last Ban", bans.days_since_last_ban, true);
+                .add_field("Days Since Last Ban", bans.days_since_last_ban.separate_with_commas(), true);
         }
 
         embed
