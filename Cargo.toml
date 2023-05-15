@@ -23,6 +23,7 @@ serde_repr = "0.1"
 slashook = "0.3"
 socketio-rs = "0.1"
 sysinfo = "0.28"
+thousands = "0.2"
 tokio = "1.26"
 toml = "0.7"
 tonic = { version = "0.9", features = ["tls"] }
