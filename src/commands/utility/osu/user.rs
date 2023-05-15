@@ -13,7 +13,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
             let mut split = input.values.as_ref().unwrap()[0].split("/");
             (split.next().unwrap().into(), split.next().unwrap_or("").into())
         },
-        false => (format!("{}|{}", input.get_string_arg("user")?, input.get_string_arg("mode").unwrap_or("osu".into())), "".into()),
+        false => (format!("{}|{}", input.get_string_arg("user")?, input.get_string_arg("mode").unwrap_or("default".into())), "".into()),
     };
 
     let (user, mode) = query.split_once("|").unwrap();

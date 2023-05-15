@@ -425,7 +425,7 @@ impl Osu {
         let mut mode = mode.to_string();
 
         if !["osu", "taiko", "fruits", "mania"].contains(&mode.as_str()) {
-            mode = "osu".into();
+            mode = "".into();
         }
 
         match Osu::query(format!("users/{user}/{mode}")).await {
