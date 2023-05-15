@@ -89,6 +89,7 @@ impl Google {
             if let Some(screen_out) = res.screen_out {
                 let (mut browser, mut handler) = Browser::launch(
                     BrowserConfig::builder()
+                        .no_sandbox()
                         .viewport(Viewport {
                             width: 1920,
                             height: 1080,
