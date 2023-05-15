@@ -94,7 +94,7 @@ impl Google {
                         String::from_utf8(screen_out.data)?.replace(r#"style="display:none""#, ""),
                     )
                     .as_str(),
-                    true,
+                    false,
                 )?;
 
                 return Ok(tab.capture_screenshot(CaptureScreenshotFormatOption::Png, None, None, true)?);
