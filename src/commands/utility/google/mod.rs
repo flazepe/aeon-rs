@@ -1,3 +1,4 @@
+mod assistant;
 mod dns;
 mod translate;
 
@@ -13,6 +14,18 @@ pub fn get_command() -> Command {
         name = "google",
         description = "Google commands.",
         subcommands = [
+			{
+                name = "assistant",
+                description = "Queries Google Assistant.",
+                options = [
+					{
+						name = "query",
+						description = "The query",
+						option_type = InteractionOptionType::STRING,
+						required = true,
+					},
+                ],
+            },
 			{
                 name = "dns",
                 description = "Fetches DNS records of a domain.",
@@ -63,6 +76,7 @@ pub fn get_command() -> Command {
     )]
     async fn google(input: CommandInput, res: CommandResponder) {
         match input.subcommand.as_deref().unwrap_or("") {
+            "assistant" => assistant::run(input, res).await?,
             "dns" => dns::run(input, res).await?,
             "translate" => translate::run(input, res).await?,
             _ => {},
