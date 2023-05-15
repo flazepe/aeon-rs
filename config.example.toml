@@ -8,7 +8,15 @@ public_key = "public_key"
 mongodb_uri = "mongodb_uri"
 
 [api]
+ordr_key = "ordr_key"
 saucenao_key = "saucenao_key"
 spotify_token = "spotify_token"
 steam_key = "steam_key"
 virtualearth_key = "virtualearth_key"
+
+[api.google_assistant]
+client_id = "client_id"
+client_secret = "client_secret"
+refresh_token = "refresh_token"
+device_id = "device_id"
+device_model_id = "device_model_id"

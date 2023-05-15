@@ -22,8 +22,19 @@ pub struct DatabaseConfig {
 
 #[derive(Deserialize)]
 pub struct APIConfig {
+    pub google_assistant: GoogleAssistantConfig,
+    pub ordr_key: String,
     pub saucenao_key: String,
     pub spotify_token: String,
     pub steam_key: String,
     pub virtualearth_key: String,
+}
+
+#[derive(Deserialize)]
+pub struct GoogleAssistantConfig {
+    pub client_id: String,
+    pub client_secret: String,
+    pub refresh_token: String,
+    pub device_id: String,
+    pub device_model_id: String,
 }
