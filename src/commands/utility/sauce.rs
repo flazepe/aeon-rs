@@ -19,8 +19,8 @@ pub fn get_command() -> Command {
 				option_type = InteractionOptionType::STRING,
 			},
 			{
-				name = "image-attachment",
-				description = "The image attachment",
+				name = "image-file",
+				description = "The image file",
 				option_type = InteractionOptionType::ATTACHMENT,
 			},
 		],
@@ -31,10 +31,10 @@ pub fn get_command() -> Command {
         let url = input
             .get_string_arg("image-url")
             .ok()
-            .unwrap_or(input.get_attachment_arg("image-attachment").map_or("".into(), |attachment| attachment.url.to_string()));
+            .unwrap_or(input.get_attachment_arg("image-file").map_or("".into(), |attachment| attachment.url.to_string()));
 
         if url.is_empty() {
-            return interaction.respond_error("Please provide an image URL or attachment.", true).await?;
+            return interaction.respond_error("Please provide an image URL or file.", true).await?;
         }
 
         match SauceNAOSearch::query(url).await {
