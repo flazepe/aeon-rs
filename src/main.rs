@@ -7,7 +7,7 @@ mod traits;
 
 use crate::{
     statics::{CONFIG, MONGODB},
-    structs::{client::AeonClient, database::reminders::Reminders, gateway::client::GatewayClient},
+    structs::{api::ordr::OrdrRender, client::AeonClient, database::reminders::Reminders, gateway::client::GatewayClient},
 };
 use anyhow::Result;
 use mongodb::{options::ClientOptions as MongoDBClientOptions, Client as MongoDBClient};
@@ -31,6 +31,10 @@ async fn main() -> Result<()> {
     // Spawn gateway client
     spawn(GatewayClient::new().create_shards());
     println!("[GATEWAY] Spawned gateway client.");
+
+    // Spawn ordr socket
+    spawn(OrdrRender::connect());
+    println!("[ORDR] Spawned socket client.");
 
     let mut client = AeonClient::new();
 

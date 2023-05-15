@@ -3,6 +3,7 @@ pub mod exchange_rate;
 pub mod google;
 pub mod ip_info;
 pub mod jisho;
+pub mod ordr;
 pub mod saucenao;
 pub mod spotify;
 pub mod steam;
