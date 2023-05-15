@@ -15,6 +15,6 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     match Google::query_assistant(input.get_string_arg("query")?).await {
         Ok(image) => interaction.respond(File::new("image.png", image), false).await,
-        Err(error) => interaction.respond_error(error, true).await,
+        Err(error) => interaction.respond_error(error, false).await,
     }
 }

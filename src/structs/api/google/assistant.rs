@@ -35,8 +35,7 @@ impl Google {
                 .to_string(),
             )
             .scopes(&["https://www.googleapis.com/auth/assistant-sdk-prototype"])
-            .build()
-            .unwrap();
+            .build()?;
 
         let mut response = EmbeddedAssistantClient::with_interceptor(
             Channel::from_static("https://embeddedassistant.googleapis.com")
