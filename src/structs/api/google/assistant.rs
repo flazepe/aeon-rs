@@ -73,7 +73,7 @@ impl Google {
                     }),
                     is_new_conversation: false,
                 }),
-                screen_out_config: { Some(ScreenOutConfig { screen_mode: ScreenMode::Playing.into() }) },
+                screen_out_config: Some(ScreenOutConfig { screen_mode: ScreenMode::Playing.into() }),
                 audio_out_config: Some(AudioOutConfig {
                     encoding: Encoding::Linear16.into(),
                     sample_rate_hertz: 16000,
