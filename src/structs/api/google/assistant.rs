@@ -13,11 +13,15 @@ use crate::{
     },
 };
 use anyhow::{bail, Result};
-use futures::stream;
+use chromiumoxide::{
+    browser::{Browser, BrowserConfig},
+    handler::viewport::Viewport,
+    page::ScreenshotParams,
+};
+use futures::{stream, StreamExt};
 use gouth::Builder;
-use headless_chrome::{protocol::cdp::Page::CaptureScreenshotFormatOption, Browser, LaunchOptionsBuilder};
 use serde_json::json;
-use tokio::fs::read;
+use tokio::{fs::read, spawn};
 use tonic::{
     metadata::MetadataValue,
     transport::{Certificate, Channel, ClientTlsConfig},
@@ -83,21 +87,44 @@ impl Google {
 
         while let Some(res) = response.message().await? {
             if let Some(screen_out) = res.screen_out {
-                let browser = Browser::new(LaunchOptionsBuilder::default().window_size(Some((1920, 1080))).build()?)?;
-                let tab = browser.new_tab()?;
+                let (mut browser, mut handler) = Browser::launch(
+                    BrowserConfig::builder()
+                        .viewport(Viewport {
+                            width: 1920,
+                            height: 1080,
+                            device_scale_factor: None,
+                            emulating_mobile: false,
+                            is_landscape: true,
+                            has_touch: false,
+                        })
+                        .build()
+                        .unwrap(),
+                )
+                .await?;
 
-                tab.navigate_to("https://picsum.photos/1920/1080")?;
+                let handle = spawn(async move {
+                    while let Some(handle) = handler.next().await {
+                        if handle.is_err() {
+                            break;
+                        }
+                    }
+                });
 
-                tab.evaluate(
-                    format!(
-                        r#"document.querySelector("html").innerHTML += `{}`;"#,
-                        String::from_utf8(screen_out.data)?.replace(r#"style="display:none""#, ""),
-                    )
-                    .as_str(),
-                    false,
-                )?;
+                let page = browser.new_page("about:blank").await?;
 
-                return Ok(tab.capture_screenshot(CaptureScreenshotFormatOption::Png, None, None, true)?);
+                page.set_content(
+                    String::from_utf8(screen_out.data)?
+                        .replace("<html>", r#"<html style="background-image: url(https://picsum.photos/1920/1080);">"#)
+                        .replace(r#"style="display:none""#, ""),
+                )
+                .await?;
+
+                let screenshot = page.screenshot(ScreenshotParams::builder().build()).await?;
+
+                browser.close().await?;
+                handle.await?;
+
+                return Ok(screenshot);
             }
 
             /*
