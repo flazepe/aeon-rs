@@ -3,9 +3,10 @@ use crate::{
     structs::api::google::{
         protos::{
             assistant::embedded::v1alpha2::{
-                assist_config, assist_request, audio_out_config::Encoding, device_location,
-                embedded_assistant_client::EmbeddedAssistantClient, screen_out_config::ScreenMode, AssistConfig, AssistRequest,
-                AudioOutConfig, DeviceConfig, DeviceLocation, DialogStateIn, ScreenOutConfig,
+                assist_config::Type as AssistConfigType, assist_request::Type as AssistRequestType, audio_out_config::Encoding,
+                device_location::Type as DeviceLocationType, embedded_assistant_client::EmbeddedAssistantClient,
+                screen_out_config::ScreenMode, AssistConfig, AssistRequest, AudioOutConfig, DeviceConfig, DeviceLocation, DialogStateIn,
+                ScreenOutConfig,
             },
             r#type::LatLng,
         },
@@ -18,7 +19,7 @@ use chromiumoxide::{
     handler::viewport::Viewport,
     page::ScreenshotParams,
 };
-use futures::{stream, StreamExt};
+use futures::{stream::iter, StreamExt};
 use gouth::Builder;
 use serde_json::json;
 use tokio::{fs::read, spawn};
@@ -56,9 +57,9 @@ impl Google {
                 Ok(req)
             },
         )
-        .assist(Request::new(stream::iter(vec![AssistRequest {
-            r#type: Some(assist_request::Type::Config(AssistConfig {
-                r#type: Some(assist_config::Type::TextQuery(query.to_string())),
+        .assist(Request::new(iter(vec![AssistRequest {
+            r#type: Some(AssistRequestType::Config(AssistConfig {
+                r#type: Some(AssistConfigType::TextQuery(query.to_string())),
                 device_config: Some(DeviceConfig {
                     device_id: CONFIG.api.google_assistant.device_id.clone(),
                     device_model_id: CONFIG.api.google_assistant.device_model_id.clone(),
@@ -67,7 +68,7 @@ impl Google {
                     conversation_state: vec![0],
                     language_code: "en-US".to_string(),
                     device_location: Some(DeviceLocation {
-                        r#type: Some(device_location::Type::Coordinates(
+                        r#type: Some(DeviceLocationType::Coordinates(
                             LatLng { latitude: 37.895582, longitude: 41.0967176 }, // Batman, Türkiye
                         )),
                     }),
