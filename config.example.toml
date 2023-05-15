@@ -20,3 +20,7 @@ client_secret = "client_secret"
 refresh_token = "refresh_token"
 device_id = "device_id"
 device_model_id = "device_model_id"
+
+[api.osu]
+client_id = "client_id"
+client_secret = "client_secret"

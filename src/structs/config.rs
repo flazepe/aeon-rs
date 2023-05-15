@@ -24,6 +24,7 @@ pub struct DatabaseConfig {
 pub struct APIConfig {
     pub google_assistant: GoogleAssistantConfig,
     pub ordr_key: String,
+    pub osu: OsuConfig,
     pub saucenao_key: String,
     pub spotify_token: String,
     pub steam_key: String,
@@ -37,4 +38,10 @@ pub struct GoogleAssistantConfig {
     pub refresh_token: String,
     pub device_id: String,
     pub device_model_id: String,
+}
+
+#[derive(Deserialize)]
+pub struct OsuConfig {
+    pub client_id: String,
+    pub client_secret: String,
 }
