@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1"
 async-once-cell = "0.4"
-chromiumoxide = { version = "0.5", features = ["tokio-runtime"], default-features = false }
+chromiumoxide = { version = "0.5", default-features = false, features = ["tokio-runtime"]}
 flate2 = "1"
 futures = "0.3"
 gouth = "0.1"
@@ -15,7 +15,6 @@ nipper = "0.1"
 once_cell = "1.5"
 parse_duration = "2.1"
 prost = "0.11"
-prost-types = "0.11"
 regex = "1"
 reqwest = "0.11"
 serde = "1"
