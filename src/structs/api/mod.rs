@@ -4,6 +4,7 @@ pub mod google;
 pub mod ip_info;
 pub mod jisho;
 pub mod ordr;
+pub mod osu;
 pub mod saucenao;
 pub mod spotify;
 pub mod steam;

@@ -1,9 +1,10 @@
 mod render_replay;
+mod user;
 
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
-    structs::interactions::InteractionOptionType,
+    structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
 };
 
 pub fn get_command() -> Command {
@@ -33,11 +34,35 @@ pub fn get_command() -> Command {
                     },
                 ],
             },
+            {
+                name = "user",
+                description = "Fetches a user from osu!.",
+                options = [
+                    {
+                        name = "user",
+                        description = "The user",
+                        option_type = InteractionOptionType::STRING,
+                        required = true,
+                    },
+                    {
+                        name = "mode",
+                        description = "The mode",
+                        option_type = InteractionOptionType::STRING,
+                        choices = [
+                            ApplicationCommandOptionChoice::new("osu!", "osu"),
+                            ApplicationCommandOptionChoice::new("osu!taiko", "taiko"),
+                            ApplicationCommandOptionChoice::new("osu!catch", "fruits"),
+                            ApplicationCommandOptionChoice::new("osu!mania", "mania"),
+                        ],
+                    }
+                ],
+            },
         ],
     )]
     async fn osu(input: CommandInput, res: CommandResponder) {
-        match input.subcommand.as_deref().unwrap_or("") {
+        match input.custom_id.as_deref().map_or_else(|| input.subcommand.as_deref().unwrap(), |custom_id| custom_id) {
             "render-replay" => render_replay::run(input, res).await?,
+            "user" => user::run(input, res).await?,
             _ => {},
         };
     }
