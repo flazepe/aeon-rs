@@ -3,8 +3,9 @@ use crate::{
     structs::api::google::{
         protos::{
             assistant::embedded::v1alpha2::{
-                assist_config, assist_request, device_location, embedded_assistant_client::EmbeddedAssistantClient, AssistConfig,
-                AssistRequest, AudioOutConfig, DeviceConfig, DeviceLocation, DialogStateIn, ScreenOutConfig,
+                assist_config, assist_request, audio_out_config::Encoding, device_location,
+                embedded_assistant_client::EmbeddedAssistantClient, screen_out_config::ScreenMode, AssistConfig, AssistRequest,
+                AudioOutConfig, DeviceConfig, DeviceLocation, DialogStateIn, ScreenOutConfig,
             },
             r#type::LatLng,
         },
@@ -68,12 +69,12 @@ impl Google {
                     }),
                     is_new_conversation: false,
                 }),
-                screen_out_config: {
-                    Some(ScreenOutConfig {
-                        screen_mode: 3, // https://github.com/googleapis/googleapis/blob/master/google/assistant/embedded/v1alpha2/embedded_assistant.proto#L276
-                    })
-                },
-                audio_out_config: Some(AudioOutConfig { encoding: 1, sample_rate_hertz: 16000, volume_percentage: 0 }),
+                screen_out_config: { Some(ScreenOutConfig { screen_mode: ScreenMode::Playing.into() }) },
+                audio_out_config: Some(AudioOutConfig {
+                    encoding: Encoding::Linear16.into(),
+                    sample_rate_hertz: 16000,
+                    volume_percentage: 0,
+                }),
                 debug_config: None,
             })),
         }])))
