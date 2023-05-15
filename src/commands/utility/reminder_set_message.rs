@@ -21,7 +21,7 @@ pub fn get_command() -> Command {
                 Components::new().add_select_menu(
                     add_reminder_select_options(SelectMenu::new(SelectMenuType::STRING))
                         .set_id(
-                            "remind",
+                            "reminder",
                             format!(
                                 "{}/{}/{}",
                                 input.guild_id.as_ref().unwrap_or(&"@me".into()),

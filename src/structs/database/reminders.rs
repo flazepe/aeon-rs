@@ -111,7 +111,7 @@ impl Reminders {
             response = response.set_components(
                 Components::new().add_select_menu(
                     add_reminder_select_options(SelectMenu::new(SelectMenuType::STRING))
-                        .set_id("remind", reminder.url.clone())
+                        .set_id("reminder", reminder.url.clone())
                         .set_placeholder("Snooze"),
                 ),
             );
