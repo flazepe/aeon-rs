@@ -102,7 +102,7 @@ impl OrdrRender {
         }
     }
 
-    pub async fn poll_result(&self, input: &CommandInput, res: &CommandResponder) -> Result<()> {
+    pub async fn poll_progress(&self, input: &CommandInput, res: &CommandResponder) -> Result<()> {
         CACHE.ordr_renders.write().unwrap().insert(self.render_id.unwrap(), "Rendering... (0%)".into());
         CACHE.ordr_rendering_users.write().unwrap().insert(input.user.id.clone(), true);
 

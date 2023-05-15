@@ -29,11 +29,10 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         return interaction.respond_error("Please provide a replay URL or file.", true).await;
     }
 
+    res.defer(false).await?;
+
     match OrdrRender::new(url, input.get_string_arg("skin").ok()).await {
-        Ok(render) => {
-            res.defer(false).await?;
-            render.poll_result(&input, &res).await
-        },
-        Err(error) => interaction.respond_error(error, true).await,
+        Ok(render) => render.poll_progress(&input, &res).await,
+        Err(error) => interaction.respond_error(error, false).await,
     }
 }
