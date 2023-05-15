@@ -9,4 +9,6 @@ pub struct Cache {
     pub reaction_snipes: RwLock<HashMap<String, Vec<String>>>,
     pub cooldowns: RwLock<HashMap<String, u64>>,
     pub last_tio_programming_languages: RwLock<HashMap<String, String>>,
+    pub ordr_renders: RwLock<HashMap<u64, String>>,
+    pub ordr_rendering_users: RwLock<HashMap<String, bool>>,
 }
