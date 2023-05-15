@@ -86,8 +86,8 @@ impl Google {
         .await?
         .into_inner();
 
-        while let Some(res) = response.message().await? {
-            if let Some(screen_out) = res.screen_out {
+        while let Some(message) = response.message().await? {
+            if let Some(screen_out) = message.screen_out {
                 let (mut browser, mut handler) = Browser::launch(
                     BrowserConfig::builder()
                         .no_sandbox()
@@ -130,7 +130,7 @@ impl Google {
             }
 
             /*
-            if let Some(dialog_state_out) = res.dialog_state_out {
+            if let Some(dialog_state_out) = message.dialog_state_out {
                 if !dialog_state_out.supplemental_display_text.is_empty() {
                     println!({}", dialog_state_out.supplemental_display_text);
                 }
