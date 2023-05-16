@@ -10,6 +10,8 @@ use reqwest::Client;
 use std::{collections::HashMap, fs::read_to_string, sync::RwLock};
 use toml::from_str;
 
+pub static FLAZEPE_ID: &str = "590455379931037697";
+
 pub static CACHE: Lazy<Cache> = Lazy::new(|| Cache {
     channels: RwLock::new(HashMap::new()),
     snipes: RwLock::new(HashMap::new()),

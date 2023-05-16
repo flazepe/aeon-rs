@@ -1,4 +1,4 @@
-use crate::statics::MONGODB;
+use crate::statics::{FLAZEPE_ID, MONGODB};
 use anyhow::{bail, Result};
 use futures::stream::TryStreamExt;
 use mongodb::{
@@ -85,7 +85,7 @@ impl Tags {
         modifier: &GuildMember,
     ) -> Result<String> {
         if !modifier.permissions.unwrap_or(Permissions::empty()).contains(Permissions::MANAGE_MESSAGES)
-            && author_id.to_string() != "590455379931037697".to_string()
+            && author_id.to_string() != FLAZEPE_ID.to_string()
         {
             bail!("Only members with the Manage Messages permission can create tags.");
         }
@@ -203,7 +203,7 @@ impl Tags {
 
         match new {
             true => {
-                if tag.aliases.len() == 5 {
+                if tag.aliases.len() >= 5 {
                     bail!("Maximum alias amount reached.");
                 }
 
