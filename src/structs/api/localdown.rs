@@ -4,6 +4,7 @@ use crate::{
 };
 use anyhow::{bail, Result};
 use serde::Deserialize;
+use serde_json::from_str;
 use slashook::structs::embeds::Embed;
 
 #[derive(Clone, Deserialize)]
@@ -86,15 +87,27 @@ impl LocalDownNovel {
                     .collect::<String>()
             ))
             .set_description(
-                self.other_names
-                    .chars()
-                    .skip(1)
-                    .take(self.other_names.len() - 2)
-                    .collect::<String>()
-                    .split("', '")
-                    .map(|entry| format!("_{entry}_"))
-                    .collect::<Vec<String>>()
-                    .join("\n"),
+                from_str::<Vec<String>>(
+                    format!(
+                        "[\"{}\"]",
+                        self.other_names
+                            .chars()
+                            .skip(1)
+                            .take(match self.other_names.len() {
+                                2.. => self.other_names.len() - 2,
+                                _ => 0,
+                            })
+                            .collect::<String>()
+                            .replace("', ", "\", ")
+                            .replace(", '", ", \"")
+                    )
+                    .as_str(),
+                )
+                .unwrap_or(vec![])
+                .iter()
+                .map(|name| format!("_{name}_"))
+                .collect::<Vec<String>>()
+                .join("\n"),
             )
             .add_field("Genre", &self.genres, false)
             .add_field("Publisher", &self.publisher, false)
