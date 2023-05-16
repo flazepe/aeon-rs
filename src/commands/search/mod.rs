@@ -1,6 +1,7 @@
 mod anilist;
 mod distrowatch;
 mod jisho;
+mod novel_updates;
 mod spotify;
 mod steam;
 mod stock;
@@ -14,6 +15,7 @@ pub fn get_commands() -> Vec<Command> {
         anilist::get_command(),
         distrowatch::get_command(),
         jisho::get_command(),
+        novel_updates::get_command(),
         spotify::get_command(),
         steam::get_command(),
         stock::get_command(),

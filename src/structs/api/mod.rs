@@ -3,6 +3,7 @@ pub mod exchange_rate;
 pub mod google;
 pub mod ip_info;
 pub mod jisho;
+pub mod localdown;
 pub mod ordr;
 pub mod osu;
 pub mod saucenao;
