@@ -10,7 +10,7 @@ use serde::Deserialize;
 use serde_json::{from_value, json};
 use slashook::commands::{CommandInput, CommandResponder};
 use socketio_rs::{ClientBuilder, Payload};
-use std::time::Duration;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::time::sleep;
 
 #[derive(Deserialize)]
@@ -106,10 +106,17 @@ impl OrdrRender {
         CACHE.ordr_renders.write().unwrap().insert(self.render_id.unwrap(), "Rendering... (0%)".into());
         CACHE.ordr_rendering_users.write().unwrap().insert(input.user.id.clone(), true);
 
+        let start_time = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+
         let mut renders = CACHE.ordr_renders.read().unwrap().clone();
         let mut state = renders.get(&self.render_id.unwrap()).unwrap();
 
-        while state.contains("%") {
+        while
+        // 8 minutes timeout
+        SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() - start_time < 480 &&
+            // Break if the state is no longer a progress
+            state.contains("%")
+        {
             renders = CACHE.ordr_renders.read().unwrap().clone();
             state = renders.get(&self.render_id.unwrap()).unwrap();
 
@@ -133,7 +140,7 @@ impl OrdrRender {
                         Some(Payload::Json(value)) => {
                             let render = from_value::<OrdrWsRenderProgress>(value).unwrap();
 
-                            if render.progress.contains("%") && CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
+                            if render.progress.contains("0%") && CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
                                 CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.progress);
                             }
                         },
