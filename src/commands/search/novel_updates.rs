@@ -4,7 +4,7 @@ use crate::{
 };
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command, CommandInput, CommandResponder, MessageResponse},
     structs::interactions::InteractionOptionType,
 };
 
@@ -19,42 +19,35 @@ pub fn get_command() -> Command {
 				option_type = InteractionOptionType::STRING,
 				required = true,
 			},
-            {
-				name = "search",
-				description = "Whether to search",
-				option_type = InteractionOptionType::BOOLEAN,
-			},
 		],
 	)]
     async fn localdown(input: CommandInput, res: CommandResponder) {
         let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
-        if input.get_bool_arg("search").unwrap_or(false) {
-            let mut select_menu = SelectMenu::new("novel-updates", "novel-updates", "Select a novel…", None::<String>);
+        if input.is_string_select() {
+            return match LocalDownNovel::get(input.values.as_ref().unwrap()[0].parse::<u64>()?).await {
+                Ok(result) => interaction.respond(result.format(), false).await?,
+                Err(error) => interaction.respond_error(error, true).await?,
+            };
+        }
 
-            for result in match LocalDownNovel::search(input.get_string_arg("novel")?).await {
-                Ok(results) => results,
-                Err(error) => return Ok(interaction.respond_error(error, true).await?),
-            } {
-                select_menu = select_menu.add_option(result.title, result.id, None::<String>);
-            }
+        let results = match LocalDownNovel::search(input.get_string_arg("novel")?).await {
+            Ok(results) => results,
+            Err(error) => return Ok(interaction.respond_error(error, true).await?),
+        };
 
-            return interaction.respond(select_menu, false).await?;
+        let mut select_menu = SelectMenu::new("novel-updates", "novel-updates", "Select a novel…", None::<String>);
+
+        for result in &results {
+            select_menu = select_menu.add_option(&result.title, result.id, None::<String>);
         }
 
         interaction
             .respond(
-                match input.is_string_select() {
-                    true => match LocalDownNovel::get(input.values.as_ref().unwrap()[0].parse::<u64>()?).await {
-                        Ok(result) => result,
-                        Err(error) => return Ok(interaction.respond_error(error, true).await?),
-                    },
-                    false => match LocalDownNovel::search(input.get_string_arg("novel")?).await {
-                        Ok(results) => LocalDownNovel::get(results[0].id).await?,
-                        Err(error) => return Ok(interaction.respond_error(error, true).await?),
-                    },
-                }
-                .format(),
+                MessageResponse::from(select_menu).add_embed(match LocalDownNovel::get(results[0].id).await {
+                    Ok(result) => result.format(),
+                    Err(error) => return Ok(interaction.respond_error(error, true).await?),
+                }),
                 false,
             )
             .await?;
