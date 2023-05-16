@@ -69,7 +69,7 @@ impl LocalDownNovel {
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
             .set_thumbnail(&self.cover_url)
-            .set_title(&self.title)
+            .set_title(format!("{} ({})", self.title, self.start_year))
             .set_url(format!(
                 "https://www.novelupdates.com/series/{}/",
                 self.title
@@ -96,8 +96,7 @@ impl LocalDownNovel {
                     .collect::<Vec<String>>()
                     .join("\n"),
             )
+            .add_field("Genre", &self.genres, false)
             .add_field("Publisher", &self.publisher, false)
-            .add_field("Start Year", self.start_year, false)
-            .add_field("Genres", &self.genres, false)
     }
 }
