@@ -19,21 +19,21 @@ pub struct LocalDownNovel {
 }
 
 #[derive(Deserialize)]
-pub struct LocalDownSearchResult {
+pub struct LocalDownNovelSearchResult {
     pub cover_url: String,
     pub id: u64,
     pub title: String,
 }
 
 impl LocalDownNovel {
-    pub async fn search<T: ToString>(query: T) -> Result<Vec<LocalDownSearchResult>> {
+    pub async fn search<T: ToString>(query: T) -> Result<Vec<LocalDownNovelSearchResult>> {
         let results = REQWEST
             .get("https://api.ahnafzamil.com/localdown/novels/search")
             .query(&[("q", query.to_string().as_str())])
             .header("user-agent", "yes")
             .send()
             .await?
-            .json::<Vec<LocalDownSearchResult>>()
+            .json::<Vec<LocalDownNovelSearchResult>>()
             .await?;
 
         if results.is_empty() {
