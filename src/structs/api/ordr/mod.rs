@@ -7,7 +7,7 @@ use crate::{
 use anyhow::{bail, Result};
 use futures::FutureExt;
 use serde::Deserialize;
-use serde_json::{from_value, json};
+use serde_json::{from_str, from_value, json};
 use slashook::commands::{CommandInput, CommandResponder};
 use socketio_rs::{ClientBuilder, Payload};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -59,7 +59,7 @@ impl OrdrRender {
             skin = "whitecat_2_1_old_ck".into();
         }
 
-        match REQWEST
+        let text = REQWEST
             .post("https://apis.issou.best/ordr/renders")
             .header("content-type", "application/json")
             .body(
@@ -88,17 +88,19 @@ impl OrdrRender {
             )
             .send()
             .await?
-            .json::<Self>()
-            .await
-        {
+            .text()
+            .await?;
+
+        match from_str::<Self>(text.as_str()) {
             Ok(render) => {
+                // If render_id is None, then message should be returned as it would contain the error message
                 if render.render_id.is_none() {
                     bail!(render.message);
                 }
 
                 Ok(render)
             },
-            Err(_) => bail!("Invalid replay URL."),
+            Err(_) => bail!(text), // Sometimes it returns the error as plain text, so we just send the text as the error
         }
     }
 
