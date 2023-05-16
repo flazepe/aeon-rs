@@ -43,12 +43,19 @@ impl LocalDownNovel {
         Ok(results)
     }
 
-    pub async fn get(id: u64) -> Result<LocalDownNovel> {
+    pub async fn get(id: u64) -> Result<Self> {
         if let Some(novel) = CACHE.localdown_novels.read().unwrap().iter().find(|novel| novel.id == id) {
             return Ok(novel.clone());
         }
 
-        match REQWEST.get(format!("https://api.ahnafzamil.com/localdown/novels/get/{id}")).send().await?.json::<Self>().await {
+        match REQWEST
+            .get(format!("https://api.ahnafzamil.com/localdown/novels/get/{id}"))
+            .header("user-agent", "yes")
+            .send()
+            .await?
+            .json::<Self>()
+            .await
+        {
             Ok(novel) => {
                 CACHE.localdown_novels.write().unwrap().push_limited(novel.clone(), 100);
                 Ok(novel)
