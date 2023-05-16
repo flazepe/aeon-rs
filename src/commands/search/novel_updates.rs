@@ -30,7 +30,7 @@ pub fn get_command() -> Command {
         let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
 
         if input.get_bool_arg("search").unwrap_or(false) {
-            let mut select_menu = SelectMenu::new("novel_updates", "novel_updates", "Select a novel…", None::<String>);
+            let mut select_menu = SelectMenu::new("novel-updates", "novel-updates", "Select a novel…", None::<String>);
 
             for result in match LocalDownNovel::search(input.get_string_arg("novel")?).await {
                 Ok(results) => results,
