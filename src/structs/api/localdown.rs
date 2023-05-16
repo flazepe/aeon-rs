@@ -6,7 +6,6 @@ use anyhow::{bail, Result};
 use serde::Deserialize;
 use serde_json::from_str;
 use slashook::structs::embeds::Embed;
-use std::cmp::max;
 
 #[derive(Clone, Deserialize)]
 pub struct LocalDownNovel {
@@ -94,7 +93,7 @@ impl LocalDownNovel {
                         self.other_names
                             .chars()
                             .skip(1)
-                            .take(max(2, self.other_names.len()) - 2)
+                            .take(2.max(self.other_names.len()) - 2)
                             .collect::<String>()
                             .replace("', ", "\", ")
                             .replace(", '", ", \"")
