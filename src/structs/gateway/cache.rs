@@ -1,3 +1,4 @@
+use crate::structs::api::localdown::LocalDownNovel;
 use std::collections::HashMap;
 use std::sync::RwLock;
 use twilight_model::channel::Message;
@@ -11,4 +12,5 @@ pub struct Cache {
     pub last_tio_programming_languages: RwLock<HashMap<String, String>>,
     pub ordr_renders: RwLock<HashMap<u64, String>>,
     pub ordr_rendering_users: RwLock<HashMap<String, bool>>,
+    pub localdown_novels: RwLock<Vec<LocalDownNovel>>,
 }

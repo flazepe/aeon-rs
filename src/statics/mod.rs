@@ -21,6 +21,7 @@ pub static CACHE: Lazy<Cache> = Lazy::new(|| Cache {
     last_tio_programming_languages: RwLock::new(HashMap::new()),
     ordr_renders: RwLock::new(HashMap::new()),
     ordr_rendering_users: RwLock::new(HashMap::new()),
+    localdown_novels: RwLock::new(vec![]),
 });
 
 pub static CONFIG: Lazy<Config> = Lazy::new(|| from_str(&read_to_string("config.toml").unwrap()).unwrap());
