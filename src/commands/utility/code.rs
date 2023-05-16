@@ -35,24 +35,21 @@ pub fn get_command() -> Command {
             return interaction.hashmap_autocomplete(TIO_PROGRAMMING_LANGUAGES.iter()).await?;
         }
 
-        let programming_language = {
-            input.get_string_arg("programming-language").unwrap_or(
-                CACHE
-                    .last_tio_programming_languages
-                    .read()?
-                    .get(&input.user.id)
-                    .map_or("".into(), |programming_language| programming_language.clone()),
-            )
+        // This had to be defined first
+        let programming_language = input.get_string_arg("programming-language").ok().or(CACHE
+            .last_tio_programming_languages
+            .read()?
+            .get(&input.user.id)
+            .map(|programming_language| programming_language.clone()));
+
+        let programming_language = match programming_language {
+            Some(programming_language) => {
+                // Cache user's last programming language
+                CACHE.last_tio_programming_languages.write()?.insert(input.user.id.clone(), programming_language.clone());
+                programming_language
+            },
+            None => return Ok(interaction.respond_error("Please provide a programming language.", true).await?),
         };
-
-        if programming_language.is_empty() {
-            return interaction.respond_error("Please provide a programming language.", true).await?;
-        }
-
-        // Set user's last programming language
-        {
-            CACHE.last_tio_programming_languages.write()?.insert(input.user.id.clone(), programming_language.clone());
-        }
 
         match input.is_modal_submit() {
             true => {

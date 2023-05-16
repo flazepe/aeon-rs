@@ -24,7 +24,14 @@ impl Snipes {
 
     pub fn to_response(&self) -> Result<MessageResponse> {
         let empty_vec = vec![];
-        let snipes = if self.is_edit { &CACHE.edit_snipes } else { &CACHE.snipes }.read().unwrap();
+
+        let snipes = match self.is_edit {
+            true => &CACHE.edit_snipes,
+            false => &CACHE.snipes,
+        }
+        .read()
+        .unwrap();
+
         let snipes = snipes.get(&self.channel_id).unwrap_or(&empty_vec);
 
         if snipes.is_empty() {
