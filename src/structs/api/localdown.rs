@@ -30,6 +30,7 @@ impl LocalDownNovel {
         let results = REQWEST
             .get("https://api.ahnafzamil.com/localdown/novels/search")
             .query(&[("q", query.to_string().as_str())])
+            .header("user-agent", "yes")
             .send()
             .await?
             .json::<Vec<LocalDownSearchResult>>()
