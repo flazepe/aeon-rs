@@ -98,5 +98,6 @@ impl LocalDownNovel {
             )
             .add_field("Genre", &self.genres, false)
             .add_field("Publisher", &self.publisher, false)
+            .set_footer("Powered by Project LocalDown API", None::<String>)
     }
 }
