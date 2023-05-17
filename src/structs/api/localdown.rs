@@ -70,7 +70,7 @@ impl LocalDownNovel {
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
             .set_thumbnail(&self.cover_url)
-            .set_title(format!("{} ({})", self.title, self.start_year))
+            .set_title(format!("{} ({})", self.title.chars().take(249).collect::<String>(), self.start_year))
             .set_url(format!(
                 "https://www.novelupdates.com/series/{}/",
                 self.title
