@@ -6,6 +6,7 @@ mod google_translate_message;
 mod heliohost;
 mod ip;
 mod osu;
+mod owner;
 mod reminder;
 mod reminder_set_message;
 mod sauce;
@@ -28,6 +29,7 @@ pub fn get_commands() -> Vec<Command> {
         heliohost::get_command(),
         ip::get_command(),
         osu::get_command(),
+        owner::get_command(),
         reminder::get_command(),
         reminder_set_message::get_command(),
         sauce::get_command(),
