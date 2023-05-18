@@ -3,7 +3,6 @@ use crate::{
     traits::ArgGetters,
 };
 use anyhow::Result;
-use std::collections::HashMap;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let reminders = Reminders::new();
@@ -11,12 +10,9 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     if ctx.input.is_autocomplete() {
         return ctx
-            .hashmap_autocomplete(
-                (HashMap::from_iter(entries.iter().enumerate().map(|(index, entry)| {
-                    ((index + 1).to_string(), format!("{}. {}", index + 1, entry.reminder).chars().take(100).collect::<String>())
-                })) as HashMap<String, String>)
-                    .iter(),
-            )
+            .hashmap_autocomplete(entries.iter().enumerate().map(|(index, entry)| {
+                ((index + 1).to_string(), format!("{}. {}", index + 1, entry.reminder).chars().take(100).collect::<String>())
+            }))
             .await;
     }
 

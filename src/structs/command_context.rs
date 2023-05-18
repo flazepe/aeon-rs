@@ -10,7 +10,6 @@ use slashook::{
     commands::{CommandInput, CommandResponder, MessageResponse},
     structs::interactions::ApplicationCommandOptionChoice,
 };
-use std::collections::hash_map::Iter;
 use std::{
     fmt::Display,
     time::{SystemTime, UNIX_EPOCH},
@@ -83,7 +82,7 @@ impl CommandContext {
         self.respond(format!("{SUCCESS_EMOJI} {response}"), ephemeral).await
     }
 
-    pub async fn hashmap_autocomplete<K: ToString, V: ToString>(&self, hashmap_iter: Iter<'_, K, V>) -> Result<()> {
+    pub async fn hashmap_autocomplete<T: Iterator<Item = (K, V)>, K: ToString, V: ToString>(&self, iter: T) -> Result<()> {
         let value = self
             .input
             .args
@@ -96,8 +95,7 @@ impl CommandContext {
         Ok(self
             .res
             .autocomplete(
-                hashmap_iter
-                    .filter(|(k, v)| k.to_string().to_lowercase().contains(&value) || v.to_string().to_lowercase().contains(&value))
+                iter.filter(|(k, v)| k.to_string().to_lowercase().contains(&value) || v.to_string().to_lowercase().contains(&value))
                     .map(|(k, v)| ApplicationCommandOptionChoice::new(v.to_string(), k.to_string()))
                     .take(25)
                     .collect(),
