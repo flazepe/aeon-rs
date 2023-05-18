@@ -1,15 +1,12 @@
 use crate::{
-    structs::{api::google::Google, interaction::Interaction},
+    structs::{api::google::Google, command_context::CommandContext},
     traits::ArgGetters,
 };
 use anyhow::Result;
-use slashook::commands::{CommandInput, CommandResponder};
 
-pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
-    match Google::query_dns(input.get_string_arg("type")?, input.get_string_arg("domain")?).await {
-        Ok(records) => interaction.respond(records.format(), false).await,
-        Err(error) => interaction.respond_error(error, true).await,
+pub async fn run(ctx: CommandContext) -> Result<()> {
+    match Google::query_dns(ctx.input.get_string_arg("type")?, ctx.input.get_string_arg("domain")?).await {
+        Ok(records) => ctx.respond(records.format(), false).await,
+        Err(error) => ctx.respond_error(error, true).await,
     }
 }

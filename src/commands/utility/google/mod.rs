@@ -2,7 +2,7 @@ mod assistant;
 mod dns;
 mod translate;
 
-use crate::structs::api::google::statics::GOOGLE_DNS_RECORD_TYPES;
+use crate::structs::{api::google::statics::GOOGLE_DNS_RECORD_TYPES, command::AeonCommand};
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -75,12 +75,12 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn google(input: CommandInput, res: CommandResponder) {
-        match input.subcommand.as_deref().unwrap_or("") {
-            "assistant" => assistant::run(input, res).await?,
-            "dns" => dns::run(input, res).await?,
-            "translate" => translate::run(input, res).await?,
-            _ => {},
-        };
+        AeonCommand::new(input, res)
+            .subcommand("assistant", assistant::run)
+            .subcommand("dns", dns::run)
+            .subcommand("translate", translate::run)
+            .run()
+            .await?;
     }
 
     google

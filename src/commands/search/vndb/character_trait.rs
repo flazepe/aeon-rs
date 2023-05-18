@@ -1,20 +1,18 @@
 use crate::{
-    structs::{api::vndb::Vndb, interaction::Interaction, select_menu::SelectMenu},
+    structs::{api::vndb::Vndb, command_context::CommandContext, select_menu::SelectMenu},
     traits::ArgGetters,
 };
 use anyhow::Result;
-use slashook::commands::{CommandInput, CommandResponder, MessageResponse};
+use slashook::commands::MessageResponse;
 
-pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
-    if input.is_string_select() {
-        return interaction.respond(Vndb::search_trait(&input.values.as_ref().unwrap()[0]).await?.remove(0).format(), false).await;
+pub async fn run(ctx: CommandContext) -> Result<()> {
+    if ctx.input.is_string_select() {
+        return ctx.respond(Vndb::search_trait(&ctx.input.values.as_ref().unwrap()[0]).await?.remove(0).format(), false).await;
     }
 
-    let results = match Vndb::search_trait(input.get_string_arg("trait")?).await {
+    let results = match Vndb::search_trait(ctx.input.get_string_arg("trait")?).await {
         Ok(results) => results,
-        Err(error) => return interaction.respond_error(error, true).await,
+        Err(error) => return ctx.respond_error(error, true).await,
     };
 
     let mut select_menu = SelectMenu::new("vndb", "trait", "View other results…", None::<String>);
@@ -23,5 +21,5 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         select_menu = select_menu.add_option(&result.name, &result.id, Some(&result.group_name));
     }
 
-    interaction.respond(MessageResponse::from(select_menu).add_embed(results[0].format()), false).await
+    ctx.respond(MessageResponse::from(select_menu).add_embed(results[0].format()), false).await
 }

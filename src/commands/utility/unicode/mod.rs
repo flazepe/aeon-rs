@@ -1,6 +1,7 @@
 mod list;
 mod search;
 
+use crate::structs::command::AeonCommand;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -39,11 +40,7 @@ pub fn get_command() -> Command {
 		],
 	)]
     async fn unicode(input: CommandInput, res: CommandResponder) {
-        match input.subcommand.as_deref().unwrap_or("") {
-            "list" => list::run(input, res).await?,
-            "search" => search::run(input, res).await?,
-            _ => {},
-        };
+        AeonCommand::new(input, res).subcommand("list", list::run).subcommand("search", search::run).run().await?;
     }
 
     unicode

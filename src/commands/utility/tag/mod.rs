@@ -7,7 +7,7 @@ mod toggle_alias;
 mod toggle_nsfw;
 mod view;
 
-use crate::structs::database::tags::Tags;
+use crate::structs::{command::AeonCommand, database::tags::Tags};
 use anyhow::Context;
 use slashook::{
     command,
@@ -158,17 +158,17 @@ pub fn get_command() -> Command {
                 .await?;
         }
 
-        match input.custom_id.as_deref().unwrap_or_else(|| input.subcommand.as_deref().unwrap_or("")) {
-            "create" => create::run(input, res).await?,
-            "delete" => delete::run(input, res).await?,
-            "edit" => edit::run(input, res).await?,
-            "list" => list::run(input, res).await?,
-            "meta" => meta::run(input, res).await?,
-            "toggle-alias" => toggle_alias::run(input, res).await?,
-            "toggle-nsfw" => toggle_nsfw::run(input, res).await?,
-            "view" => view::run(input, res).await?,
-            _ => {},
-        };
+        AeonCommand::new(input, res)
+            .subcommand("create", create::run)
+            .subcommand("delete", delete::run)
+            .subcommand("edit", edit::run)
+            .subcommand("list", list::run)
+            .subcommand("meta", meta::run)
+            .subcommand("toggle-alias", toggle_alias::run)
+            .subcommand("toggle-nsfw", toggle_nsfw::run)
+            .subcommand("view", view::run)
+            .run()
+            .await?;
     }
 
     tag

@@ -1,4 +1,9 @@
-use crate::{statics::REQWEST, structs::interaction::Interaction, traits::ArgGetters};
+use crate::{
+    statics::REQWEST,
+    structs::{command::AeonCommand, command_context::CommandContext},
+    traits::ArgGetters,
+};
+use anyhow::Result;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -18,25 +23,28 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn calculate(input: CommandInput, res: CommandResponder) {
-        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-        let expression = input.get_string_arg("expression")?;
-
-        let body = match expression.chars().all(|char| char.is_numeric()) {
-            true => REQWEST.get(format!("http://numbersapi.com/{expression}")).send().await?,
-            false => REQWEST.get("https://api.mathjs.org/v4/").query(&[("expr", expression.as_str())]).send().await?,
-        }
-        .text()
-        .await?
-        .replace("`", "｀")
-        .chars()
-        .take(1000)
-        .collect::<String>();
-
-        match body.is_empty() || body.contains("Error") {
-            true => interaction.respond_error("Invalid expression.", true).await?,
-            false => interaction.respond_success(format!("`{body}`"), false).await?,
-        };
+        AeonCommand::new(input, res).main(run).run().await?;
     }
 
     calculate
+}
+
+async fn run(ctx: CommandContext) -> Result<()> {
+    let expression = ctx.input.get_string_arg("expression")?;
+
+    let body = match expression.chars().all(|char| char.is_numeric()) {
+        true => REQWEST.get(format!("http://numbersapi.com/{expression}")).send().await?,
+        false => REQWEST.get("https://api.mathjs.org/v4/").query(&[("expr", expression.as_str())]).send().await?,
+    }
+    .text()
+    .await?
+    .replace("`", "｀")
+    .chars()
+    .take(1000)
+    .collect::<String>();
+
+    match body.is_empty() || body.contains("Error") {
+        true => ctx.respond_error("Invalid expression.", true).await,
+        false => ctx.respond_success(format!("`{body}`"), false).await,
+    }
 }

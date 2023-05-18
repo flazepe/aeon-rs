@@ -1,4 +1,8 @@
-use crate::{functions::add_reminder_select_options, structs::interaction::Interaction};
+use crate::{
+    functions::add_reminder_select_options,
+    structs::{command::AeonCommand, command_context::CommandContext},
+};
+use anyhow::Result;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -14,27 +18,28 @@ pub fn get_command() -> Command {
 		command_type = ApplicationCommandType::MESSAGE,
 	)]
     async fn reminder_set_message(input: CommandInput, res: CommandResponder) {
-        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
-        interaction
-            .respond(
-                Components::new().add_select_menu(
-                    add_reminder_select_options(SelectMenu::new(SelectMenuType::STRING))
-                        .set_id(
-                            "reminder",
-                            format!(
-                                "{}/{}/{}",
-                                input.guild_id.as_ref().unwrap_or(&"@me".into()),
-                                input.channel_id.as_ref().unwrap(),
-                                input.target_message.as_ref().unwrap().id,
-                            ),
-                        )
-                        .set_placeholder("Select time to remind about message"),
-                ),
-                true,
-            )
-            .await?;
+        AeonCommand::new(input, res).main(run).run().await?;
     }
 
     reminder_set_message
+}
+
+async fn run(ctx: CommandContext) -> Result<()> {
+    ctx.respond(
+        Components::new().add_select_menu(
+            add_reminder_select_options(SelectMenu::new(SelectMenuType::STRING))
+                .set_id(
+                    "reminder",
+                    format!(
+                        "{}/{}/{}",
+                        ctx.input.guild_id.as_ref().unwrap_or(&"@me".into()),
+                        ctx.input.channel_id.as_ref().unwrap(),
+                        ctx.input.target_message.as_ref().unwrap().id,
+                    ),
+                )
+                .set_placeholder("Select time to remind about message"),
+        ),
+        true,
+    )
+    .await
 }

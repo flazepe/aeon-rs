@@ -1,7 +1,8 @@
 use crate::{
-    structs::{interaction::Interaction, scraping::distrowatch::Distro},
+    structs::{command::AeonCommand, command_context::CommandContext, scraping::distrowatch::Distro},
     traits::ArgGetters,
 };
+use anyhow::Result;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -22,13 +23,15 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn distrowatch(input: CommandInput, res: CommandResponder) {
-        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
-        match Distro::get(input.get_string_arg("distro")?).await {
-            Ok(distro) => interaction.respond(distro.format(), false).await?,
-            Err(error) => interaction.respond_error(error, true).await?,
-        };
+        AeonCommand::new(input, res).main(run).run().await?;
     }
 
     distrowatch
+}
+
+async fn run(ctx: CommandContext) -> Result<()> {
+    match Distro::get(ctx.input.get_string_arg("distro")?).await {
+        Ok(distro) => ctx.respond(distro.format(), false).await,
+        Err(error) => ctx.respond_error(error, true).await,
+    }
 }

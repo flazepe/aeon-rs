@@ -1,19 +1,16 @@
 use crate::{
     statics::{CONFIG, REQWEST},
-    structs::interaction::Interaction,
+    structs::command_context::CommandContext,
     traits::ArgGetters,
 };
 use anyhow::Result;
 use reqwest::Method;
 use serde_json::{from_str, Value};
-use slashook::commands::{CommandInput, CommandResponder};
 
-pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
+pub async fn run(ctx: CommandContext) -> Result<()> {
     let mut request = REQWEST
         .request(
-            match input.get_string_arg("method").unwrap_or("GET".into()).as_ref() {
+            match ctx.input.get_string_arg("method").unwrap_or("GET".into()).as_ref() {
                 "GET" => Method::GET,
                 "POST" => Method::POST,
                 "PUT" => Method::PUT,
@@ -25,11 +22,11 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                 "TRACE" => Method::TRACE,
                 _ => Method::GET,
             },
-            format!("https://discord.com/api/{}", input.get_string_arg("endpoint")?),
+            format!("https://discord.com/api/{}", ctx.input.get_string_arg("endpoint")?),
         )
         .header("authorization", format!("Bot {}", CONFIG.bot.token));
 
-    if let Ok(body) = input.get_string_arg("body") {
+    if let Ok(body) = ctx.input.get_string_arg("body") {
         request = request
             .header(
                 "content-type",
@@ -43,13 +40,12 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
 
     match request.send().await {
         Ok(response) => {
-            interaction
-                .respond(
-                    format!("```js\n{}```", response.text().await.unwrap_or("No response.".into()).chars().take(1991).collect::<String>()),
-                    true,
-                )
-                .await
+            ctx.respond(
+                format!("```js\n{}```", response.text().await.unwrap_or("No response.".into()).chars().take(1991).collect::<String>()),
+                true,
+            )
+            .await
         },
-        Err(error) => interaction.respond_error(format!("```{error}```"), true).await,
+        Err(error) => ctx.respond_error(format!("```{error}```"), true).await,
     }
 }

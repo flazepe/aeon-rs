@@ -1,17 +1,15 @@
 use crate::{
     statics::{colors::PRIMARY_COLOR, REQWEST},
-    structs::{duration::Duration, interaction::Interaction},
+    structs::{command_context::CommandContext, duration::Duration},
 };
 use anyhow::Result;
 use slashook::{
     chrono::{Datelike, Duration as ChronoDuration, TimeZone, Utc},
-    commands::{CommandInput, CommandResponder},
     structs::embeds::Embed,
 };
 use std::time::{SystemTime, UNIX_EPOCH};
 
-pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+pub async fn run(ctx: CommandContext) -> Result<()> {
     let now = Utc::now();
 
     let mut embed = Embed::new().set_color(PRIMARY_COLOR)?.set_description(format!(
@@ -33,5 +31,5 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
         );
     }
 
-    interaction.respond(embed, false).await
+    ctx.respond(embed, false).await
 }

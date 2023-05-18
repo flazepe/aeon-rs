@@ -1,15 +1,12 @@
 use crate::{
-    structs::{api::steam::Steam, interaction::Interaction},
+    structs::{api::steam::Steam, command_context::CommandContext},
     traits::ArgGetters,
 };
 use anyhow::Result;
-use slashook::commands::{CommandInput, CommandResponder};
 
-pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
-    match Steam::get_user(input.get_string_arg("user")?).await {
-        Ok(user) => interaction.respond(user.format(), false).await,
-        Err(error) => interaction.respond_error(error, true).await,
+pub async fn run(ctx: CommandContext) -> Result<()> {
+    match Steam::get_user(ctx.input.get_string_arg("user")?).await {
+        Ok(user) => ctx.respond(user.format(), false).await,
+        Err(error) => ctx.respond_error(error, true).await,
     }
 }

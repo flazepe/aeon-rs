@@ -3,6 +3,7 @@ mod list;
 mod select_menu;
 mod set;
 
+use crate::structs::command::AeonCommand;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -61,17 +62,18 @@ pub fn get_command() -> Command {
             },
         ],
     )]
-    async fn reminder(input: CommandInput, res: CommandResponder) {
+    async fn reminder(mut input: CommandInput, res: CommandResponder) {
         if input.is_string_select() {
-            return select_menu::run(input, res).await?;
+            input.subcommand = Some("select-menu".into());
         }
 
-        match input.subcommand.as_deref().unwrap_or("") {
-            "delete" => delete::run(input, res).await?,
-            "list" => list::run(input, res).await?,
-            "set" => set::run(input, res).await?,
-            _ => {},
-        };
+        AeonCommand::new(input, res)
+            .subcommand("delete", delete::run)
+            .subcommand("list", list::run)
+            .subcommand("set", set::run)
+            .subcommand("select-menu", select_menu::run)
+            .run()
+            .await?;
     }
 
     reminder

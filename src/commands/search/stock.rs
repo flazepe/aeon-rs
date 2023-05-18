@@ -1,7 +1,8 @@
 use crate::{
-    structs::{interaction::Interaction, scraping::stock::Stock},
+    structs::{command::AeonCommand, command_context::CommandContext, scraping::stock::Stock},
     traits::ArgGetters,
 };
+use anyhow::Result;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -22,16 +23,18 @@ pub fn get_command() -> Command {
 		],
 	)]
     async fn stock(input: CommandInput, res: CommandResponder) {
-        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
-        // We have to defer since scraping this takes a bit of time
-        res.defer(false).await?;
-
-        match Stock::get(input.get_string_arg("ticker")?).await {
-            Ok(stock) => interaction.respond(stock.format(), false).await?,
-            Err(error) => interaction.respond_error(error, true).await?,
-        };
+        AeonCommand::new(input, res).main(run).run().await?;
     }
 
     stock
+}
+
+async fn run(ctx: CommandContext) -> Result<()> {
+    // We have to defer since scraping this takes a bit of time
+    ctx.res.defer(false).await?;
+
+    match Stock::get(ctx.input.get_string_arg("ticker")?).await {
+        Ok(stock) => ctx.respond(stock.format(), false).await,
+        Err(error) => ctx.respond_error(error, true).await,
+    }
 }

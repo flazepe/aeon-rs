@@ -3,6 +3,7 @@ mod signups;
 mod status;
 mod uptime;
 
+use crate::structs::command::AeonCommand;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -70,13 +71,13 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn heliohost(input: CommandInput, res: CommandResponder) {
-        match input.subcommand.as_deref().unwrap_or("") {
-            "load" => load::run(input, res).await?,
-            "signups" => signups::run(input, res).await?,
-            "status" => status::run(input, res).await?,
-            "uptime" => uptime::run(input, res).await?,
-            _ => {},
-        };
+        AeonCommand::new(input, res)
+            .subcommand("load", load::run)
+            .subcommand("signups", signups::run)
+            .subcommand("status", status::run)
+            .subcommand("uptime", uptime::run)
+            .run()
+            .await?;
     }
 
     heliohost

@@ -1,10 +1,11 @@
 pub mod api;
 pub mod client;
+pub mod command;
+pub mod command_context;
 pub mod config;
 pub mod database;
 pub mod duration;
 pub mod gateway;
-pub mod interaction;
 pub mod scraping;
 pub mod select_menu;
 pub mod snipes;

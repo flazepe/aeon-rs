@@ -1,7 +1,8 @@
 use crate::{
-    structs::{api::ip_info::IPInfo, interaction::Interaction},
+    structs::{api::ip_info::IPInfo, command::AeonCommand, command_context::CommandContext},
     traits::ArgGetters,
 };
+use anyhow::Result;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -22,13 +23,15 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn ip(input: CommandInput, res: CommandResponder) {
-        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
-        match IPInfo::get(input.get_string_arg("ip")?).await {
-            Ok(ip_info) => interaction.respond(ip_info.format(), false).await?,
-            Err(error) => interaction.respond_error(error, true).await?,
-        };
+        AeonCommand::new(input, res).main(run).run().await?;
     }
 
     ip
+}
+
+async fn run(ctx: CommandContext) -> Result<()> {
+    match IPInfo::get(ctx.input.get_string_arg("ip")?).await {
+        Ok(ip_info) => ctx.respond(ip_info.format(), false).await,
+        Err(error) => ctx.respond_error(error, true).await,
+    }
 }

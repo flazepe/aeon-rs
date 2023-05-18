@@ -1,6 +1,7 @@
 mod message;
 mod reaction;
 
+use crate::structs::command::AeonCommand;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -58,11 +59,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn snipe(input: CommandInput, res: CommandResponder) {
-        match input.subcommand.as_deref().unwrap_or("") {
-            "message" => message::run(input, res).await?,
-            "reaction" => reaction::run(input, res).await?,
-            _ => {},
-        };
+        AeonCommand::new(input, res).subcommand("message", message::run).subcommand("reaction", reaction::run).run().await?;
     }
 
     snipe

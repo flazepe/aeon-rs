@@ -1,19 +1,16 @@
-use crate::{statics::REQWEST, structs::interaction::Interaction, traits::ArgGetters};
+use crate::{statics::REQWEST, structs::command_context::CommandContext, traits::ArgGetters};
 use anyhow::Result;
-use slashook::commands::{CommandInput, CommandResponder};
 
-pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-    let server = input.get_string_arg("server")?;
+pub async fn run(ctx: CommandContext) -> Result<()> {
+    let server = ctx.input.get_string_arg("server")?;
 
-    interaction
-        .respond(
-            format!(
-                "{}'s uptime is `{}`.",
-                server,
-                REQWEST.get(format!("https://heliohost.org/load/uptime_{server}.html").to_lowercase()).send().await?.text().await?.trim(),
-            ),
-            false,
-        )
-        .await
+    ctx.respond(
+        format!(
+            "{}'s uptime is `{}`.",
+            server,
+            REQWEST.get(format!("https://heliohost.org/load/uptime_{server}.html").to_lowercase()).send().await?.text().await?.trim(),
+        ),
+        false,
+    )
+    .await
 }

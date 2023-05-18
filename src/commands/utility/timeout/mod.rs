@@ -1,6 +1,7 @@
 mod remove;
 mod set;
 
+use crate::structs::command::AeonCommand;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -47,11 +48,7 @@ pub fn get_command() -> Command {
 		],
 	)]
     async fn timeout(input: CommandInput, res: CommandResponder) {
-        match input.subcommand.as_deref().unwrap_or("") {
-            "remove" => remove::run(input, res).await?,
-            "set" => set::run(input, res).await?,
-            _ => {},
-        };
+        AeonCommand::new(input, res).subcommand("remove", remove::run).subcommand("set", set::run).run().await?;
     }
 
     timeout

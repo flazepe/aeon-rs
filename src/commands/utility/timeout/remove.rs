@@ -1,24 +1,21 @@
-use crate::{structs::interaction::Interaction, traits::ArgGetters};
+use crate::{structs::command_context::CommandContext, traits::ArgGetters};
 use anyhow::Result;
 use serde_json::json;
-use slashook::{
-    commands::{CommandInput, CommandResponder},
-    structs::guilds::GuildMember,
-};
+use slashook::structs::guilds::GuildMember;
 
-pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-    let user = input.get_user_arg("member")?;
+pub async fn run(ctx: CommandContext) -> Result<()> {
+    let user = ctx.input.get_user_arg("member")?;
 
-    match input
+    match ctx
+        .input
         .rest
         .patch::<GuildMember, _>(
-            format!("guilds/{}/members/{}", input.guild_id.as_ref().unwrap(), &user.id),
+            format!("guilds/{}/members/{}", ctx.input.guild_id.as_ref().unwrap(), &user.id),
             json!({ "communication_disabled_until": null }),
         )
         .await
     {
-        Ok(_) => interaction.respond_success(format!("Removed timeout for {}.", user.mention()), false).await,
-        Err(error) => interaction.respond_error(error, true).await,
+        Ok(_) => ctx.respond_success(format!("Removed timeout for {}.", user.mention()), false).await,
+        Err(error) => ctx.respond_error(error, true).await,
     }
 }

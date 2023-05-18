@@ -1,11 +1,9 @@
-use crate::{statics::REQWEST, structs::interaction::Interaction, traits::ArgGetters};
+use crate::{statics::REQWEST, structs::command_context::CommandContext, traits::ArgGetters};
 use anyhow::Result;
 use nipper::Document;
-use slashook::commands::{CommandInput, CommandResponder};
 
-pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-    let user = input.get_string_arg("user")?;
+pub async fn run(ctx: CommandContext) -> Result<()> {
+    let user = ctx.input.get_string_arg("user")?;
     let response = REQWEST.get("https://heliohost.org/status/").query(&[("u", user.as_str())]).send().await?;
     let url = response.url().to_string();
 
@@ -16,7 +14,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
     };
 
     match status.is_empty() || status.contains("no account") {
-        true => interaction.respond_error("Account not found.", true).await,
-        false => interaction.respond(format!("[{user}]({url})\n{status}"), false).await,
+        true => ctx.respond_error("Account not found.", true).await,
+        false => ctx.respond(format!("[{user}]({url})\n{status}"), false).await,
     }
 }

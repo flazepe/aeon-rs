@@ -1,43 +1,33 @@
 use crate::{
-    structs::{database::reminders::Reminders, interaction::Interaction},
+    structs::{command_context::CommandContext, database::reminders::Reminders},
     traits::ArgGetters,
 };
 use anyhow::Result;
-use slashook::{
-    commands::{CommandInput, CommandResponder},
-    structs::interactions::ApplicationCommandOptionChoice,
-};
+use std::collections::HashMap;
 
-pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+pub async fn run(ctx: CommandContext) -> Result<()> {
     let reminders = Reminders::new();
-    let entries = reminders.get_many(&input.user.id).await.unwrap_or(vec![]);
+    let entries = reminders.get_many(&ctx.input.user.id).await.unwrap_or(vec![]);
 
-    if input.is_autocomplete() {
-        return Ok(res
-            .autocomplete(
-                entries
-                    .iter()
-                    .enumerate()
-                    .map(|(index, entry)| {
-                        ApplicationCommandOptionChoice::new(
-                            format!("{}. {}", index + 1, entry.reminder).chars().take(100).collect::<String>(),
-                            (index + 1).to_string(),
-                        )
-                    })
-                    .collect::<Vec<ApplicationCommandOptionChoice>>(),
+    if ctx.input.is_autocomplete() {
+        return ctx
+            .hashmap_autocomplete(
+                (HashMap::from_iter(entries.iter().enumerate().map(|(index, entry)| {
+                    ((index + 1).to_string(), format!("{}. {}", index + 1, entry.reminder).chars().take(100).collect::<String>())
+                })) as HashMap<String, String>)
+                    .iter(),
             )
-            .await?);
+            .await;
     }
 
-    match entries.get(match input.get_string_arg("entry")?.parse::<usize>() {
+    match entries.get(match ctx.input.get_string_arg("entry")?.parse::<usize>() {
         Ok(index) => index - 1,
-        Err(_) => return interaction.respond_error("Please enter a valid number.", true).await,
+        Err(_) => return ctx.respond_error("Please enter a valid number.", true).await,
     }) {
         Some(entry) => {
             reminders.delete(entry._id).await?;
-            interaction.respond_success("Gone.", true).await
+            ctx.respond_success("Gone.", true).await
         },
-        None => interaction.respond_error("Invalid entry.", true).await,
+        None => ctx.respond_error("Invalid entry.", true).await,
     }
 }

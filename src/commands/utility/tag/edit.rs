@@ -1,37 +1,37 @@
 use crate::{
-    structs::{database::tags::Tags, interaction::Interaction},
+    structs::{command_context::CommandContext, database::tags::Tags},
     traits::ArgGetters,
 };
 use anyhow::Result;
 use slashook::{
-    commands::{CommandInput, CommandResponder, Modal},
+    commands::Modal,
     structs::components::{Components, TextInput, TextInputStyle},
 };
 
-pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
+pub async fn run(ctx: CommandContext) -> Result<()> {
     let tags = Tags::new();
 
-    match input.is_modal_submit() {
+    match ctx.input.is_modal_submit() {
         true => match tags
             .edit(
-                input.get_string_arg("tag")?,
-                input.guild_id.as_ref().unwrap(),
-                input.get_string_arg("name")?,
-                input.get_string_arg("content")?,
-                input.member.as_ref().unwrap(),
+                ctx.input.get_string_arg("tag")?,
+                ctx.input.guild_id.as_ref().unwrap(),
+                ctx.input.get_string_arg("name")?,
+                ctx.input.get_string_arg("content")?,
+                ctx.input.member.as_ref().unwrap(),
             )
             .await
         {
-            Ok(response) => interaction.respond_success(response, true).await,
-            Err(error) => interaction.respond_error(error, true).await,
+            Ok(response) => ctx.respond_success(response, true).await,
+            Err(error) => ctx.respond_error(error, true).await,
         },
         false => match tags
-            .get(input.get_string_arg("tag")?, input.guild_id.as_ref().unwrap())
+            .get(ctx.input.get_string_arg("tag")?, ctx.input.guild_id.as_ref().unwrap())
             .await
-            .and_then(|tag| Tags::validate_tag_modifier(tag, input.member.as_ref().unwrap()))
+            .and_then(|tag| Tags::validate_tag_modifier(tag, ctx.input.member.as_ref().unwrap()))
         {
-            Ok(tag) => Ok(res
+            Ok(tag) => Ok(ctx
+                .res
                 .open_modal(
                     Modal::new("tag", "edit", "Edit Tag").set_components(
                         Components::new()
@@ -57,7 +57,7 @@ pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
                     ),
                 )
                 .await?),
-            Err(error) => interaction.respond_error(error, true).await,
+            Err(error) => ctx.respond_error(error, true).await,
         },
     }
 }

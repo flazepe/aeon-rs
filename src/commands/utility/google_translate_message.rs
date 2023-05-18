@@ -1,4 +1,5 @@
-use crate::structs::{api::google::Google, interaction::Interaction, stringified_message::StringifiedMessage};
+use crate::structs::{api::google::Google, command::AeonCommand, command_context::CommandContext, stringified_message::StringifiedMessage};
+use anyhow::Result;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -11,13 +12,15 @@ pub fn get_command() -> Command {
 		command_type = ApplicationCommandType::MESSAGE,
 	)]
     async fn google_translate_message(input: CommandInput, res: CommandResponder) {
-        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
-        match Google::translate(StringifiedMessage::from(input.target_message.as_ref().unwrap().clone()), "auto", "en").await {
-            Ok(translation) => interaction.respond(translation.format(), false).await?,
-            Err(error) => interaction.respond_error(error, true).await?,
-        };
+        AeonCommand::new(input, res).main(run).run().await?;
     }
 
     google_translate_message
+}
+
+async fn run(ctx: CommandContext) -> Result<()> {
+    match Google::translate(StringifiedMessage::from(ctx.input.target_message.as_ref().unwrap().clone()), "auto", "en").await {
+        Ok(translation) => ctx.respond(translation.format(), false).await,
+        Err(error) => ctx.respond_error(error, true).await,
+    }
 }

@@ -1,7 +1,7 @@
 mod request;
 mod status;
 
-use crate::statics::FLAZEPE_ID;
+use crate::structs::command::AeonCommand;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -53,15 +53,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn code(input: CommandInput, res: CommandResponder) {
-        if input.user.id != FLAZEPE_ID {
-            return res.send_message("No").await?;
-        }
-
-        match input.custom_id.as_deref().map_or_else(|| input.subcommand.as_deref().unwrap(), |custom_id| custom_id) {
-            "status" => status::run(input, res).await?,
-            "request" => request::run(input, res).await?,
-            _ => {},
-        };
+        AeonCommand::new(input, res).owner_only().subcommand("status", status::run).subcommand("request", request::run).run().await?;
     }
 
     code

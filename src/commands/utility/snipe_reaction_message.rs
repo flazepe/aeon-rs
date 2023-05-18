@@ -1,4 +1,5 @@
-use crate::structs::{interaction::Interaction, snipes::ReactionSnipes};
+use crate::structs::{command::AeonCommand, command_context::CommandContext, snipes::ReactionSnipes};
+use anyhow::Result;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -12,13 +13,15 @@ pub fn get_command() -> Command {
         dm_permission = false,
     )]
     async fn snipe_reaction_message(input: CommandInput, res: CommandResponder) {
-        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
-        match ReactionSnipes::new(input.guild_id.as_ref().unwrap(), &input.target_message.as_ref().unwrap().id).to_response() {
-            Ok(response) => interaction.respond(response, false).await?,
-            Err(error) => interaction.respond_error(error, true).await?,
-        };
+        AeonCommand::new(input, res).main(run).run().await?;
     }
 
     snipe_reaction_message
+}
+
+async fn run(ctx: CommandContext) -> Result<()> {
+    match ReactionSnipes::new(ctx.input.guild_id.as_ref().unwrap(), &ctx.input.target_message.as_ref().unwrap().id).to_response() {
+        Ok(response) => ctx.respond(response, false).await,
+        Err(error) => ctx.respond_error(error, true).await,
+    }
 }

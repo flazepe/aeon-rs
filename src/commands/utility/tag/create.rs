@@ -1,31 +1,30 @@
 use crate::{
-    structs::{database::tags::Tags, interaction::Interaction},
+    structs::{command_context::CommandContext, database::tags::Tags},
     traits::ArgGetters,
 };
 use anyhow::Result;
 use slashook::{
-    commands::{CommandInput, CommandResponder, Modal},
+    commands::Modal,
     structs::components::{Components, TextInput, TextInputStyle},
 };
 
-pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
-    match input.is_modal_submit() {
+pub async fn run(ctx: CommandContext) -> Result<()> {
+    match ctx.input.is_modal_submit() {
         true => match Tags::new()
             .create(
-                input.get_string_arg("tag")?,
-                input.guild_id.as_ref().unwrap(),
-                &input.user.id,
-                input.get_string_arg("content")?,
-                input.member.as_ref().unwrap(),
+                ctx.input.get_string_arg("tag")?,
+                ctx.input.guild_id.as_ref().unwrap(),
+                &ctx.input.user.id,
+                ctx.input.get_string_arg("content")?,
+                ctx.input.member.as_ref().unwrap(),
             )
             .await
         {
-            Ok(response) => interaction.respond_success(response, true).await,
-            Err(error) => interaction.respond_error(error, true).await,
+            Ok(response) => ctx.respond_success(response, true).await,
+            Err(error) => ctx.respond_error(error, true).await,
         },
-        false => Ok(res
+        false => Ok(ctx
+            .res
             .open_modal(
                 Modal::new("tag", "create", "Create Tag").set_components(
                     Components::new()

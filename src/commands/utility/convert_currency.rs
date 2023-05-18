@@ -1,10 +1,12 @@
 use crate::{
     structs::{
         api::exchange_rate::{statics::EXCHANGE_RATE_CURRENCIES, ExchangeRateConversion},
-        interaction::Interaction,
+        command::AeonCommand,
+        command_context::CommandContext,
     },
     traits::ArgGetters,
 };
+use anyhow::Result;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -39,23 +41,25 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn convert_currency(input: CommandInput, res: CommandResponder) {
-        let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
-        if input.is_autocomplete() {
-            return interaction.hashmap_autocomplete(EXCHANGE_RATE_CURRENCIES.iter()).await?;
-        }
-
-        match ExchangeRateConversion::get(
-            input.get_f64_arg("amount")?,
-            input.get_string_arg("origin-currency")?,
-            input.get_string_arg("target-currency")?,
-        )
-        .await
-        {
-            Ok(exchange_rate_conversion) => interaction.respond_success(exchange_rate_conversion.format(), false).await?,
-            Err(error) => interaction.respond_error(error, true).await?,
-        };
+        AeonCommand::new(input, res).main(run).run().await?;
     }
 
     convert_currency
+}
+
+async fn run(ctx: CommandContext) -> Result<()> {
+    if ctx.input.is_autocomplete() {
+        return ctx.hashmap_autocomplete(EXCHANGE_RATE_CURRENCIES.iter()).await;
+    }
+
+    match ExchangeRateConversion::get(
+        ctx.input.get_f64_arg("amount")?,
+        ctx.input.get_string_arg("origin-currency")?,
+        ctx.input.get_string_arg("target-currency")?,
+    )
+    .await
+    {
+        Ok(exchange_rate_conversion) => ctx.respond_success(exchange_rate_conversion.format(), false).await,
+        Err(error) => ctx.respond_error(error, true).await,
+    }
 }

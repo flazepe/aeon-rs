@@ -16,18 +16,18 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-pub struct Interaction<'a> {
-    input: &'a CommandInput,
-    res: &'a CommandResponder,
+pub struct CommandContext {
+    pub input: CommandInput,
+    pub res: CommandResponder,
     verified: bool,
 }
 
-impl<'a> Interaction<'a> {
-    pub fn new(input: &'a CommandInput, res: &'a CommandResponder) -> Interaction<'a> {
+impl CommandContext {
+    pub fn new(input: CommandInput, res: CommandResponder) -> Self {
         Self { input, res, verified: false }
     }
 
-    pub async fn verify(mut self) -> Result<Interaction<'a>> {
+    pub async fn verify(mut self) -> Result<Self> {
         // Ignore verification for autocomplete
         if self.input.is_autocomplete() {
             return Ok(self);

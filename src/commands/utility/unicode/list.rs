@@ -1,12 +1,9 @@
 use crate::{
-    structs::{interaction::Interaction, unicode::UnicodeCharacters},
+    structs::{command_context::CommandContext, unicode::UnicodeCharacters},
     traits::ArgGetters,
 };
 use anyhow::Result;
-use slashook::commands::{CommandInput, CommandResponder};
 
-pub async fn run(input: CommandInput, res: CommandResponder) -> Result<()> {
-    let Ok(interaction) = Interaction::new(&input, &res).verify().await else { return Ok(()); };
-
-    interaction.respond(UnicodeCharacters::get(input.get_string_arg("text")?).format(), false).await
+pub async fn run(ctx: CommandContext) -> Result<()> {
+    ctx.respond(UnicodeCharacters::get(ctx.input.get_string_arg("text")?).format(), false).await
 }
