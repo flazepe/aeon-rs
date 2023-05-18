@@ -1,8 +1,8 @@
-use crate::{statics::REQWEST, structs::command_context::CommandContext, traits::ArgGetters};
+use crate::{statics::REQWEST, structs::command_context::CommandContext};
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let server = ctx.input.get_string_arg("server")?;
+    let server = ctx.get_string_arg("server")?;
 
     ctx.respond(
         format!(

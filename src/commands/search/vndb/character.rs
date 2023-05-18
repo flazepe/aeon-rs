@@ -1,15 +1,12 @@
-use crate::{
-    structs::{api::vndb::Vndb, command_context::CommandContext, select_menu::SelectMenu},
-    traits::ArgGetters,
-};
+use crate::structs::{api::vndb::Vndb, command_context::CommandContext, select_menu::SelectMenu};
 use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    if ctx.input.get_bool_arg("search").unwrap_or(false) {
+    if ctx.get_bool_arg("search").unwrap_or(false) {
         let mut select_menu = SelectMenu::new("vndb", "character", "Select a character…", None::<String>);
 
-        for result in match Vndb::search_character(ctx.input.get_string_arg("character")?).await {
+        for result in match Vndb::search_character(ctx.get_string_arg("character")?).await {
             Ok(results) => results,
             Err(error) => return ctx.respond_error(error, true).await,
         } {
@@ -24,7 +21,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             let mut split = ctx.input.values.as_ref().unwrap()[0].split("/");
             (split.next().unwrap().into(), split.next().unwrap_or("").into())
         },
-        false => (ctx.input.get_string_arg("character")?, "".into()),
+        false => (ctx.get_string_arg("character")?, "".into()),
     };
 
     let character = match Vndb::search_character(query).await {

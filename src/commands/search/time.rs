@@ -1,7 +1,4 @@
-use crate::{
-    structs::{api::virtualearth::TimeZoneLocation, command::AeonCommand, command_context::CommandContext},
-    traits::ArgGetters,
-};
+use crate::structs::{api::virtualearth::TimeZoneLocation, command::AeonCommand, command_context::CommandContext};
 use anyhow::Result;
 use slashook::{
     command,
@@ -30,7 +27,7 @@ pub fn get_command() -> Command {
 }
 
 async fn run(ctx: CommandContext) -> Result<()> {
-    match TimeZoneLocation::get(ctx.input.get_string_arg("location")?).await {
+    match TimeZoneLocation::get(ctx.get_string_arg("location")?).await {
         Ok(timezone) => ctx.respond(timezone.format(), false).await,
         Err(error) => ctx.respond_error(error, true).await,
     }

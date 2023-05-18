@@ -1,7 +1,4 @@
-use crate::{
-    structs::{command_context::CommandContext, database::tags::Tags},
-    traits::ArgGetters,
-};
+use crate::structs::{command_context::CommandContext, database::tags::Tags};
 use anyhow::Result;
 use slashook::{
     commands::Modal,
@@ -14,10 +11,10 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     match ctx.input.is_modal_submit() {
         true => match tags
             .edit(
-                ctx.input.get_string_arg("tag")?,
+                ctx.get_string_arg("tag")?,
                 ctx.input.guild_id.as_ref().unwrap(),
-                ctx.input.get_string_arg("name")?,
-                ctx.input.get_string_arg("content")?,
+                ctx.get_string_arg("name")?,
+                ctx.get_string_arg("content")?,
                 ctx.input.member.as_ref().unwrap(),
             )
             .await
@@ -26,7 +23,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             Err(error) => ctx.respond_error(error, true).await,
         },
         false => match tags
-            .get(ctx.input.get_string_arg("tag")?, ctx.input.guild_id.as_ref().unwrap())
+            .get(ctx.get_string_arg("tag")?, ctx.input.guild_id.as_ref().unwrap())
             .await
             .and_then(|tag| Tags::validate_tag_modifier(tag, ctx.input.member.as_ref().unwrap()))
         {

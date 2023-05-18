@@ -1,7 +1,4 @@
-use crate::{
-    structs::{command_context::CommandContext, database::reminders::Reminders, duration::Duration},
-    traits::ArgGetters,
-};
+use crate::structs::{command_context::CommandContext, database::reminders::Reminders, duration::Duration};
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
@@ -29,7 +26,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     );
 
     let reminder = {
-        let mut reminder = ctx.input.get_string_arg("reminder").unwrap_or("Do something".into());
+        let mut reminder = ctx.get_string_arg("reminder").unwrap_or("Do something".into());
 
         if ctx.input.is_string_select() {
             if let Some(parsed_reminder) = || -> Option<&String> { ctx.input.message.as_ref()?.embeds.get(0)?.description.as_ref() }() {
@@ -45,18 +42,16 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         // DM if select menu's message was from an interaction
         |message| message.interaction.is_some(),
     ) || ctx.input.guild_id.is_none()
-        || ctx.input.get_bool_arg("dm").unwrap_or(false);
+        || ctx.get_bool_arg("dm").unwrap_or(false);
 
     match Reminders::new()
         .set(
             &ctx.input.user.id,
             &url,
             Duration::new()
-                .parse(
-                    ctx.input.values.as_ref().map_or(ctx.input.get_string_arg("time").unwrap_or("".into()), |values| values[0].to_string()),
-                )
+                .parse(ctx.input.values.as_ref().map_or(ctx.get_string_arg("time").unwrap_or("".into()), |values| values[0].to_string()))
                 .unwrap_or(Duration::new()),
-            Duration::new().parse(ctx.input.get_string_arg("interval").unwrap_or("".into())).unwrap_or(Duration::new()),
+            Duration::new().parse(ctx.get_string_arg("interval").unwrap_or("".into())).unwrap_or(Duration::new()),
             &reminder,
             dm,
         )

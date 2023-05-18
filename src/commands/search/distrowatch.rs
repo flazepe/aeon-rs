@@ -1,7 +1,4 @@
-use crate::{
-    structs::{command::AeonCommand, command_context::CommandContext, scraping::distrowatch::Distro},
-    traits::ArgGetters,
-};
+use crate::structs::{command::AeonCommand, command_context::CommandContext, scraping::distrowatch::Distro};
 use anyhow::Result;
 use slashook::{
     command,
@@ -30,7 +27,7 @@ pub fn get_command() -> Command {
 }
 
 async fn run(ctx: CommandContext) -> Result<()> {
-    match Distro::get(ctx.input.get_string_arg("distro")?).await {
+    match Distro::get(ctx.get_string_arg("distro")?).await {
         Ok(distro) => ctx.respond(distro.format(), false).await,
         Err(error) => ctx.respond_error(error, true).await,
     }

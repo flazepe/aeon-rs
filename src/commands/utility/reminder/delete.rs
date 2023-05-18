@@ -1,7 +1,4 @@
-use crate::{
-    structs::{command_context::CommandContext, database::reminders::Reminders},
-    traits::ArgGetters,
-};
+use crate::structs::{command_context::CommandContext, database::reminders::Reminders};
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
@@ -16,7 +13,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             .await;
     }
 
-    match entries.get(match ctx.input.get_string_arg("entry")?.parse::<usize>() {
+    match entries.get(match ctx.get_string_arg("entry")?.parse::<usize>() {
         Ok(index) => index - 1,
         Err(_) => return ctx.respond_error("Please enter a valid number.", true).await,
     }) {

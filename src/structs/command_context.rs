@@ -1,14 +1,16 @@
-use crate::{
-    statics::{
-        emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
-        CACHE,
-    },
-    traits::ArgGetters,
+use crate::statics::{
+    emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
+    CACHE,
 };
 use anyhow::{bail, Context, Result};
 use slashook::{
     commands::{CommandInput, CommandResponder, MessageResponse},
-    structs::interactions::ApplicationCommandOptionChoice,
+    structs::{
+        channels::{Attachment, Channel},
+        guilds::Role,
+        interactions::ApplicationCommandOptionChoice,
+        users::User,
+    },
 };
 use std::{
     fmt::Display,
@@ -41,7 +43,7 @@ impl CommandContext {
         }
 
         // Only add cooldown to non-search commands
-        if !self.input.get_bool_arg("search").unwrap_or(false) {
+        if !self.get_bool_arg("search").unwrap_or(false) {
             CACHE
                 .cooldowns
                 .write()
@@ -101,5 +103,49 @@ impl CommandContext {
                     .collect(),
             )
             .await?)
+    }
+
+    pub fn get_string_arg<T: ToString>(&self, arg: T) -> Result<String> {
+        Ok(self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_string().context("Could not convert arg to String.")?)
+    }
+
+    pub fn get_i64_arg<T: ToString>(&self, arg: T) -> Result<i64> {
+        Ok(self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_i64().context("Could not convert arg to i64.")?)
+    }
+
+    pub fn get_bool_arg<T: ToString>(&self, arg: T) -> Result<bool> {
+        Ok(self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_bool().context("Could not convert arg to bool.")?)
+    }
+
+    pub fn get_user_arg<T: ToString>(&self, arg: T) -> Result<&User> {
+        Ok(self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_user().context("Could not convert arg to User.")?)
+    }
+
+    pub fn get_channel_arg<T: ToString>(&self, arg: T) -> Result<&Channel> {
+        Ok(self
+            .input
+            .args
+            .get(&arg.to_string())
+            .context("Could not get arg.")?
+            .as_channel()
+            .context("Could not convert arg to Channel.")?)
+    }
+
+    pub fn get_role_arg<T: ToString>(&self, arg: T) -> Result<&Role> {
+        Ok(self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_role().context("Could not convert arg to Role.")?)
+    }
+
+    pub fn get_f64_arg<T: ToString>(&self, arg: T) -> Result<f64> {
+        Ok(self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_f64().context("Could not convert arg to f64.")?)
+    }
+
+    pub fn get_attachment_arg<T: ToString>(&self, arg: T) -> Result<&Attachment> {
+        Ok(self
+            .input
+            .args
+            .get(&arg.to_string())
+            .context("Could not get arg.")?
+            .as_attachment()
+            .context("Could not convert arg to Attachment.")?)
     }
 }

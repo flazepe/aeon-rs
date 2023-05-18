@@ -1,15 +1,12 @@
-use crate::{
-    structs::{api::steam::Steam, command_context::CommandContext, select_menu::SelectMenu},
-    traits::ArgGetters,
-};
+use crate::structs::{api::steam::Steam, command_context::CommandContext, select_menu::SelectMenu};
 use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    if ctx.input.get_bool_arg("search").unwrap_or(false) {
+    if ctx.get_bool_arg("search").unwrap_or(false) {
         let mut select_menu = SelectMenu::new("steam", "game", "Select a game…", None::<String>);
 
-        for result in match Steam::search_game(ctx.input.get_string_arg("game")?).await {
+        for result in match Steam::search_game(ctx.get_string_arg("game")?).await {
             Ok(results) => results,
             Err(error) => return ctx.respond_error(error, true).await,
         } {
@@ -24,7 +21,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             let mut split = ctx.input.values.as_ref().unwrap()[0].split("/");
             (split.next().unwrap().into(), split.next().unwrap_or("").into())
         },
-        false => (ctx.input.get_string_arg("game")?, "".into()),
+        false => (ctx.get_string_arg("game")?, "".into()),
     };
 
     let game = match ctx.input.is_string_select() {

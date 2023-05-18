@@ -1,7 +1,4 @@
-use crate::{
-    structs::{api::vndb::Vndb, command_context::CommandContext, select_menu::SelectMenu},
-    traits::ArgGetters,
-};
+use crate::structs::{api::vndb::Vndb, command_context::CommandContext, select_menu::SelectMenu};
 use anyhow::Result;
 use slashook::commands::MessageResponse;
 
@@ -10,7 +7,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         return ctx.respond(Vndb::search_tag(&ctx.input.values.as_ref().unwrap()[0]).await?.remove(0).format(), false).await;
     }
 
-    let results = match Vndb::search_tag(ctx.input.get_string_arg("tag")?).await {
+    let results = match Vndb::search_tag(ctx.get_string_arg("tag")?).await {
         Ok(results) => results,
         Err(error) => return ctx.respond_error(error, true).await,
     };

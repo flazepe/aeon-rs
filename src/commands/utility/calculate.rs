@@ -1,7 +1,6 @@
 use crate::{
     statics::REQWEST,
     structs::{command::AeonCommand, command_context::CommandContext},
-    traits::ArgGetters,
 };
 use anyhow::Result;
 use slashook::{
@@ -30,7 +29,7 @@ pub fn get_command() -> Command {
 }
 
 async fn run(ctx: CommandContext) -> Result<()> {
-    let expression = ctx.input.get_string_arg("expression")?;
+    let expression = ctx.get_string_arg("expression")?;
 
     let body = match expression.chars().all(|char| char.is_numeric()) {
         true => REQWEST.get(format!("http://numbersapi.com/{expression}")).send().await?,

@@ -1,10 +1,10 @@
-use crate::{structs::command_context::CommandContext, traits::ArgGetters};
+use crate::structs::command_context::CommandContext;
 use anyhow::Result;
 use serde_json::json;
 use slashook::structs::guilds::GuildMember;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let user = ctx.input.get_user_arg("member")?;
+    let user = ctx.get_user_arg("member")?;
 
     match ctx
         .input

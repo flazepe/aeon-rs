@@ -1,9 +1,9 @@
-use crate::{statics::REQWEST, structs::command_context::CommandContext, traits::ArgGetters};
+use crate::{statics::REQWEST, structs::command_context::CommandContext};
 use anyhow::Result;
 use nipper::Document;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let user = ctx.input.get_string_arg("user")?;
+    let user = ctx.get_string_arg("user")?;
     let response = REQWEST.get("https://heliohost.org/status/").query(&[("u", user.as_str())]).send().await?;
     let url = response.url().to_string();
 

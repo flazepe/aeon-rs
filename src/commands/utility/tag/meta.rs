@@ -2,13 +2,13 @@ use crate::{
     functions::{format_timestamp, TimestampFormat},
     macros::yes_no,
     structs::{command_context::CommandContext, database::tags::Tags},
-    traits::{ArgGetters, Tag},
+    traits::Tag,
 };
 use anyhow::Result;
 use slashook::structs::users::User;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    match Tags::new().get(ctx.input.get_string_arg("tag")?, ctx.input.guild_id.as_ref().unwrap()).await {
+    match Tags::new().get(ctx.get_string_arg("tag")?, ctx.input.guild_id.as_ref().unwrap()).await {
         Ok(tag) => {
             let aliases = tag.aliases.iter().map(|alias| format!("`{alias}`")).collect::<Vec<String>>().join(", ");
 

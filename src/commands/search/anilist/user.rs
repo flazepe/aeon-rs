@@ -1,7 +1,4 @@
-use crate::{
-    structs::{api::anilist::AniList, command_context::CommandContext, select_menu::SelectMenu},
-    traits::ArgGetters,
-};
+use crate::structs::{api::anilist::AniList, command_context::CommandContext, select_menu::SelectMenu};
 use anyhow::Result;
 use slashook::commands::MessageResponse;
 
@@ -11,7 +8,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             let mut split = ctx.input.values.as_ref().unwrap()[0].split("/");
             (split.next().unwrap().into(), split.next().unwrap_or("").into())
         },
-        false => (ctx.input.get_string_arg("user")?, "".into()),
+        false => (ctx.get_string_arg("user")?, "".into()),
     };
 
     let user = match ctx.input.is_string_select() {

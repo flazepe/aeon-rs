@@ -4,7 +4,6 @@ use crate::{
         api::ordr::{statics::ORDR_SKINS, OrdrRender},
         command_context::CommandContext,
     },
-    traits::ArgGetters,
 };
 use anyhow::Result;
 
@@ -20,15 +19,11 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     ctx.res.defer(false).await?;
 
     match OrdrRender::new(
-        match ctx
-            .input
-            .get_string_arg("replay-url")
-            .or(ctx.input.get_attachment_arg("replay-file").map(|attachment| attachment.url.clone()))
-        {
+        match ctx.get_string_arg("replay-url").or(ctx.get_attachment_arg("replay-file").map(|attachment| attachment.url.clone())) {
             Ok(url) => url,
             Err(_) => return ctx.respond_error("Please provide an image URL or file.", true).await,
         },
-        ctx.input.get_string_arg("skin").ok(),
+        ctx.get_string_arg("skin").ok(),
     )
     .await
     {

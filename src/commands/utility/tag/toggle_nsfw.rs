@@ -1,12 +1,9 @@
-use crate::{
-    structs::{command_context::CommandContext, database::tags::Tags},
-    traits::ArgGetters,
-};
+use crate::structs::{command_context::CommandContext, database::tags::Tags};
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     match Tags::new()
-        .toggle_nsfw(ctx.input.get_string_arg("tag")?, ctx.input.guild_id.as_ref().unwrap(), ctx.input.member.as_ref().unwrap())
+        .toggle_nsfw(ctx.get_string_arg("tag")?, ctx.input.guild_id.as_ref().unwrap(), ctx.input.member.as_ref().unwrap())
         .await
     {
         Ok(response) => ctx.respond_success(response, true).await,

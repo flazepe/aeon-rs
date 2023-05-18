@@ -1,9 +1,6 @@
-use crate::{
-    structs::{
-        api::google::{statics::GOOGLE_TRANSLATE_LANGUAGES, Google},
-        command_context::CommandContext,
-    },
-    traits::ArgGetters,
+use crate::structs::{
+    api::google::{statics::GOOGLE_TRANSLATE_LANGUAGES, Google},
+    command_context::CommandContext,
 };
 use anyhow::Result;
 
@@ -13,9 +10,9 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     }
 
     match Google::translate(
-        ctx.input.get_string_arg("text")?,
-        ctx.input.get_string_arg("origin-language").unwrap_or("auto".into()),
-        ctx.input.get_string_arg("target-language").unwrap_or("en".into()),
+        ctx.get_string_arg("text")?,
+        ctx.get_string_arg("origin-language").unwrap_or("auto".into()),
+        ctx.get_string_arg("target-language").unwrap_or("en".into()),
     )
     .await
     {

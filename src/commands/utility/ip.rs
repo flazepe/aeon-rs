@@ -1,7 +1,4 @@
-use crate::{
-    structs::{api::ip_info::IPInfo, command::AeonCommand, command_context::CommandContext},
-    traits::ArgGetters,
-};
+use crate::structs::{api::ip_info::IPInfo, command::AeonCommand, command_context::CommandContext};
 use anyhow::Result;
 use slashook::{
     command,
@@ -30,7 +27,7 @@ pub fn get_command() -> Command {
 }
 
 async fn run(ctx: CommandContext) -> Result<()> {
-    match IPInfo::get(ctx.input.get_string_arg("ip")?).await {
+    match IPInfo::get(ctx.get_string_arg("ip")?).await {
         Ok(ip_info) => ctx.respond(ip_info.format(), false).await,
         Err(error) => ctx.respond_error(error, true).await,
     }

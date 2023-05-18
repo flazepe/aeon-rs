@@ -1,7 +1,4 @@
-use crate::{
-    structs::{api::localdown::LocalDownNovel, command::AeonCommand, command_context::CommandContext, select_menu::SelectMenu},
-    traits::ArgGetters,
-};
+use crate::structs::{api::localdown::LocalDownNovel, command::AeonCommand, command_context::CommandContext, select_menu::SelectMenu};
 use anyhow::Result;
 use slashook::{
     command,
@@ -37,7 +34,7 @@ async fn run(ctx: CommandContext) -> Result<()> {
         };
     }
 
-    let results = match LocalDownNovel::search(ctx.input.get_string_arg("novel")?).await {
+    let results = match LocalDownNovel::search(ctx.get_string_arg("novel")?).await {
         Ok(results) => results,
         Err(error) => return ctx.respond_error(error, true).await,
     };

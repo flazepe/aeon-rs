@@ -1,7 +1,4 @@
-use crate::{
-    structs::{api::jisho::JishoSearch, command::AeonCommand, command_context::CommandContext, select_menu::SelectMenu},
-    traits::ArgGetters,
-};
+use crate::structs::{api::jisho::JishoSearch, command::AeonCommand, command_context::CommandContext, select_menu::SelectMenu};
 use anyhow::Result;
 use slashook::{
     command,
@@ -34,7 +31,7 @@ async fn run(ctx: CommandContext) -> Result<()> {
         return ctx.respond(JishoSearch::get(&ctx.input.values.as_ref().unwrap()[0]).await?.format(), false).await;
     }
 
-    let results = match JishoSearch::search(ctx.input.get_string_arg("query")?).await {
+    let results = match JishoSearch::search(ctx.get_string_arg("query")?).await {
         Ok(results) => results,
         Err(error) => return ctx.respond_error(error, true).await,
     };

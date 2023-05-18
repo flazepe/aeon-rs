@@ -5,7 +5,6 @@ use crate::{
         command::AeonCommand,
         command_context::CommandContext,
     },
-    traits::ArgGetters,
 };
 use anyhow::Result;
 use slashook::{
@@ -43,7 +42,7 @@ async fn run(ctx: CommandContext) -> Result<()> {
     }
 
     // This had to be defined first
-    let programming_language = ctx.input.get_string_arg("programming-language").ok().or(CACHE
+    let programming_language = ctx.get_string_arg("programming-language").ok().or(CACHE
         .last_tio_programming_languages
         .read()
         .unwrap()
@@ -63,7 +62,7 @@ async fn run(ctx: CommandContext) -> Result<()> {
         true => {
             ctx.res.defer(false).await?;
 
-            match Tio::new(programming_language, ctx.input.get_string_arg("code")?).run().await {
+            match Tio::new(programming_language, ctx.get_string_arg("code")?).run().await {
                 Ok(tio) => ctx.respond(tio.format(), false).await,
                 Err(error) => ctx.respond_error(error, true).await,
             }

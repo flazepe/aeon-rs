@@ -1,10 +1,7 @@
-use crate::{
-    structs::{
-        api::exchange_rate::{statics::EXCHANGE_RATE_CURRENCIES, ExchangeRateConversion},
-        command::AeonCommand,
-        command_context::CommandContext,
-    },
-    traits::ArgGetters,
+use crate::structs::{
+    api::exchange_rate::{statics::EXCHANGE_RATE_CURRENCIES, ExchangeRateConversion},
+    command::AeonCommand,
+    command_context::CommandContext,
 };
 use anyhow::Result;
 use slashook::{
@@ -53,9 +50,9 @@ async fn run(ctx: CommandContext) -> Result<()> {
     }
 
     match ExchangeRateConversion::get(
-        ctx.input.get_f64_arg("amount")?,
-        ctx.input.get_string_arg("origin-currency")?,
-        ctx.input.get_string_arg("target-currency")?,
+        ctx.get_f64_arg("amount")?,
+        ctx.get_string_arg("origin-currency")?,
+        ctx.get_string_arg("target-currency")?,
     )
     .await
     {

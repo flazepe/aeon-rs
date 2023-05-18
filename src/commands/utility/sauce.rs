@@ -1,7 +1,4 @@
-use crate::{
-    structs::{api::saucenao::SauceNAOSearch, command::AeonCommand, command_context::CommandContext},
-    traits::ArgGetters,
-};
+use crate::structs::{api::saucenao::SauceNAOSearch, command::AeonCommand, command_context::CommandContext};
 use anyhow::Result;
 use slashook::{
     command,
@@ -35,8 +32,7 @@ pub fn get_command() -> Command {
 
 async fn run(ctx: CommandContext) -> Result<()> {
     match SauceNAOSearch::query(
-        match ctx.input.get_string_arg("image-url").or(ctx.input.get_attachment_arg("image-file").map(|attachment| attachment.url.clone()))
-        {
+        match ctx.get_string_arg("image-url").or(ctx.get_attachment_arg("image-file").map(|attachment| attachment.url.clone())) {
             Ok(url) => url,
             Err(_) => return ctx.respond_error("Please provide an image URL or file.", true).await,
         },

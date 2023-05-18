@@ -1,7 +1,4 @@
-use crate::{
-    structs::{command::AeonCommand, command_context::CommandContext, scraping::stock::Stock},
-    traits::ArgGetters,
-};
+use crate::structs::{command::AeonCommand, command_context::CommandContext, scraping::stock::Stock};
 use anyhow::Result;
 use slashook::{
     command,
@@ -33,7 +30,7 @@ async fn run(ctx: CommandContext) -> Result<()> {
     // We have to defer since scraping this takes a bit of time
     ctx.res.defer(false).await?;
 
-    match Stock::get(ctx.input.get_string_arg("ticker")?).await {
+    match Stock::get(ctx.get_string_arg("ticker")?).await {
         Ok(stock) => ctx.respond(stock.format(), false).await,
         Err(error) => ctx.respond_error(error, true).await,
     }

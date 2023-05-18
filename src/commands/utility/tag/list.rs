@@ -2,13 +2,13 @@ use crate::{
     functions::limit_string,
     statics::colors::PRIMARY_COLOR,
     structs::{command_context::CommandContext, database::tags::Tags},
-    traits::{ArgGetters, AvatarURL, Tag},
+    traits::{AvatarURL, Tag},
 };
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let author = ctx.input.get_user_arg("author").ok();
+    let author = ctx.get_user_arg("author").ok();
 
     match Tags::new().search(ctx.input.guild_id.as_ref().unwrap(), author.map(|user| &user.id)).await {
         Ok(tags) => {
@@ -22,7 +22,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                             .filter(|tag| {
                                 format!("{}{}", tag.name, tag.content)
                                     .to_lowercase()
-                                    .contains(&ctx.input.get_string_arg("query").unwrap_or("".into()).to_lowercase())
+                                    .contains(&ctx.get_string_arg("query").unwrap_or("".into()).to_lowercase())
                             })
                             .map(|tag| format!("`{}`", tag.name))
                             .collect::<Vec<String>>()

@@ -1,9 +1,6 @@
-use crate::{
-    structs::{
-        command_context::CommandContext,
-        duration::{statics::SECS_PER_DAY, Duration},
-    },
-    traits::ArgGetters,
+use crate::structs::{
+    command_context::CommandContext,
+    duration::{statics::SECS_PER_DAY, Duration},
 };
 use anyhow::Result;
 use serde_json::json;
@@ -13,13 +10,13 @@ use slashook::{
 };
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    match Duration::new().parse(ctx.input.get_string_arg("duration")?) {
+    match Duration::new().parse(ctx.get_string_arg("duration")?) {
         Ok(duration) => {
             if duration.total_secs < 30 || duration.total_secs > SECS_PER_DAY * 28 {
                 return ctx.respond_error("Time cannot be under 30 seconds or over 28 days.", true).await;
             }
 
-            let user = ctx.input.get_user_arg("member")?;
+            let user = ctx.get_user_arg("member")?;
 
             match ctx
                 .input
