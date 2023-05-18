@@ -180,6 +180,7 @@ impl OrdrRender {
                 }
                 .boxed()
             })
+            .reconnect(true)
             .connect()
             .await?;
 
