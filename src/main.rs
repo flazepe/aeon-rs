@@ -30,7 +30,7 @@ async fn main() -> Result<()> {
 
     // Spawn gateway client
     spawn(GatewayClient::new().create_shards());
-    println!("[GATEWAY] Spawned gateway client.");
+    println!("[GATEWAY] Spawned client.");
 
     // Spawn ordr socket
     spawn(OrdrRender::connect());

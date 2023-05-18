@@ -1,6 +1,5 @@
 use crate::{
-    functions::limit_string,
-    macros::plural,
+    functions::{limit_string, plural},
     statics::colors::PRIMARY_COLOR,
     structs::api::vndb::{statics::VISUAL_NOVEL_FIELDS, Vndb},
 };
@@ -532,7 +531,7 @@ impl VndbVisualNovel {
             .add_field("Popularity", format!("{:.0}%", self.popularity), true)
             .add_field(
                 "Rating",
-                format!("{} ({})", self.rating.map_or("N/A".into(), |rating| format!("{rating:.0}%")), plural!(self.vote_count, "vote")),
+                format!("{} ({})", self.rating.map_or("N/A".into(), |rating| format!("{rating:.0}%")), plural(self.vote_count, "vote")),
                 true,
             )
             .add_field(
@@ -540,7 +539,7 @@ impl VndbVisualNovel {
                 format!(
                     "{} ({})",
                     self.length.as_ref().map_or("N/A".into(), |length| length.to_string()),
-                    plural!(self.length_votes, "vote")
+                    plural(self.length_votes, "vote")
                 ),
                 true,
             )

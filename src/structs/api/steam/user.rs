@@ -1,6 +1,6 @@
 use crate::{
-    functions::{format_timestamp, TimestampFormat},
-    macros::{plural, yes_no},
+    functions::{format_timestamp, plural, TimestampFormat},
+    macros::yes_no,
     structs::api::steam::{
         statics::{STEAM_COUNTRIES, STEAM_EMBED_COLOR, STEAM_USER_STATES},
         user_bans::SteamUserBans,
@@ -164,12 +164,7 @@ impl SteamUser {
                 .add_field("Community Banned", yes_no!(bans.community_banned), true)
                 .add_field(
                     "Vac Banned",
-                    format!(
-                        "{} ({}, {})",
-                        yes_no!(bans.vac_banned),
-                        plural!(bans.vac_bans, "VAC ban"),
-                        plural!(bans.game_bans, "game ban")
-                    ),
+                    format!("{} ({}, {})", yes_no!(bans.vac_banned), plural(bans.vac_bans, "VAC ban"), plural(bans.game_bans, "game ban")),
                     true,
                 )
                 .add_field("Days Since Last Ban", bans.days_since_last_ban.separate_with_commas(), true);

@@ -4,6 +4,7 @@ use regex::Captures;
 use serde_json::Value;
 use slashook::structs::components::{SelectMenu, SelectOption};
 use std::fmt::Display;
+use thousands::Separable;
 
 pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
     for (label, value) in [
@@ -64,4 +65,56 @@ pub fn limit_string<T: ToString, U: ToString>(string: T, delimiter: U, limit: us
     }
 
     split.join(&delimiter)
+}
+
+// This does not account for irregular nouns for now
+pub fn plural<T: ToString, U: ToString>(amount: T, singular: U) -> String {
+    let amount = amount.to_string();
+    let mut subject = singular.to_string().to_lowercase();
+    let second_last_letter = subject.chars().skip(subject.len().max(2) - 2).take(1).collect::<String>();
+
+    if amount != "1".to_string() {
+        loop {
+            // -s/-ch/-sh/-x/-z
+            if ["s", "ch", "sh", "x", "z"].iter().any(|entry| subject.ends_with(entry))
+                    // -consonant + o with some exceptions
+                    || (!["a", "e", "i", "o", "u"].contains(&second_last_letter.as_str())
+                        && subject.ends_with("o")
+                        && !["piano", "photo"].contains(&subject.as_str()))
+            {
+                subject = format!("{}es", subject);
+                break;
+            }
+
+            // -f/-fe with some exceptions
+            if ["f", "fe"].iter().any(|entry| subject.ends_with(entry))
+                && !["belief", "cliff", "relief", "roof"].contains(&subject.as_str())
+            {
+                subject = format!(
+                    "{}ves",
+                    subject
+                        .chars()
+                        .take(match subject.ends_with("fe") {
+                            true => subject.len() - 2,
+                            false => subject.len() - 1,
+                        })
+                        .collect::<String>()
+                );
+
+                break;
+            }
+
+            // -consonant + y
+            if !["a", "e", "i", "o", "u"].contains(&second_last_letter.as_str()) && subject.ends_with("y") {
+                subject = format!("{}ies", subject.chars().take(subject.len() - 1).collect::<String>());
+                break;
+            }
+
+            // Regular nouns
+            subject = format!("{}s", subject);
+            break;
+        }
+    }
+
+    format!("{} {subject}", amount.separate_with_commas())
 }

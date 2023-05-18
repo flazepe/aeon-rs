@@ -1,6 +1,5 @@
 use crate::{
-    functions::{format_timestamp, TimestampFormat},
-    macros::plural,
+    functions::{format_timestamp, plural, TimestampFormat},
     statics::{colors::PRIMARY_COLOR, CACHE},
     structs::command_context::CommandContext,
 };
@@ -23,18 +22,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                     .add_field("Process Started", format_timestamp(process.start_time(), TimestampFormat::Full), false)
                     .add_field("Memory", bytes_to_mb(process.memory()), false)
                     .add_field("Virtual Memory", bytes_to_mb(process.virtual_memory()), false)
-                    .add_field(
-                        "Cache",
-                        [
-                            plural!(CACHE.channels.read().unwrap().len(), "channel"),
-                            plural!(sum_cache_len(CACHE.channels.read().unwrap().iter()), "message",),
-                            plural!(sum_cache_len(CACHE.snipes.read().unwrap().iter()), "snipe"),
-                            plural!(sum_cache_len(CACHE.edit_snipes.read().unwrap().iter()), "edit snipe"),
-                            plural!(sum_cache_len(CACHE.reaction_snipes.read().unwrap().iter()), "reaction snipe"),
-                        ]
-                        .join("\n"),
-                        false,
-                    ),
+                    .add_field("Cache", get_cache_list().join("\n"), false),
                 false,
             )
             .await
@@ -49,4 +37,14 @@ fn bytes_to_mb(bytes: u64) -> String {
 
 fn sum_cache_len<T: Clone>(iter: Iter<String, Vec<T>>) -> usize {
     iter.map(|(_, vec)| vec.len()).reduce(|acc, cur| acc + cur).unwrap_or(0)
+}
+
+fn get_cache_list() -> [String; 5] {
+    [
+        plural(CACHE.channels.read().unwrap().len(), "channel"),
+        plural(sum_cache_len(CACHE.channels.read().unwrap().iter()), "message"),
+        plural(sum_cache_len(CACHE.snipes.read().unwrap().iter()), "snipe"),
+        plural(sum_cache_len(CACHE.edit_snipes.read().unwrap().iter()), "edit snipe"),
+        plural(sum_cache_len(CACHE.reaction_snipes.read().unwrap().iter()), "reaction snipe"),
+    ]
 }

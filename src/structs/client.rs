@@ -10,9 +10,9 @@ impl AeonClient {
     pub fn new() -> Self {
         Self {
             slashook: SlashookClient::new(SlashookConfig {
-                bot_token: Some(String::from(&CONFIG.bot.token)),
-                client_id: Some(String::from(&CONFIG.bot.client_id)),
-                public_key: String::from(&CONFIG.bot.public_key),
+                bot_token: Some(CONFIG.bot.token.clone()),
+                client_id: Some(CONFIG.bot.client_id.clone()),
+                public_key: CONFIG.bot.public_key.clone(),
                 port: 2931,
                 ..Default::default()
             }),

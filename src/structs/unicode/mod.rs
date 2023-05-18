@@ -1,6 +1,6 @@
 pub mod statics;
 
-use crate::{macros::plural, structs::unicode::statics::CONTROL_CHARACTERS};
+use crate::{functions::plural, structs::unicode::statics::CONTROL_CHARACTERS};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::Client;
@@ -56,7 +56,7 @@ impl UnicodeCharacters {
                 continue;
             }
 
-            let mut name = String::from("UNKNOWN");
+            let mut name = "UNKNOWN".into();
 
             if let Some(character_name) = CONTROL_CHARACTERS.get(format!("{:X}", character as u32).as_str()) {
                 name = character_name.to_string();
@@ -76,6 +76,6 @@ impl UnicodeCharacters {
         let unicode_characters =
             self.unicode_characters.iter().take(20).map(|unicode_character| unicode_character.format()).collect::<Vec<String>>();
 
-        format!("Showing first {}:\n\n{}", plural!(unicode_characters.len(), "character"), unicode_characters.join("\n"))
+        format!("Showing first {}:\n\n{}", plural(unicode_characters.len(), "character"), unicode_characters.join("\n"))
     }
 }
