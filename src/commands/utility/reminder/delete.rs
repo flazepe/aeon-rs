@@ -10,7 +10,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     if ctx.input.is_autocomplete() {
         return ctx
-            .hashmap_autocomplete(entries.iter().enumerate().map(|(index, entry)| {
+            .autocomplete(entries.iter().enumerate().map(|(index, entry)| {
                 ((index + 1).to_string(), format!("{}. {}", index + 1, entry.reminder).chars().take(100).collect::<String>())
             }))
             .await;

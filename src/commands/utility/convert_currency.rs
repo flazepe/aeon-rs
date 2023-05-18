@@ -49,7 +49,7 @@ pub fn get_command() -> Command {
 
 async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.input.is_autocomplete() {
-        return ctx.hashmap_autocomplete(EXCHANGE_RATE_CURRENCIES.iter()).await;
+        return ctx.autocomplete(EXCHANGE_RATE_CURRENCIES.iter()).await;
     }
 
     match ExchangeRateConversion::get(

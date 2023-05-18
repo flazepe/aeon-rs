@@ -9,7 +9,7 @@ use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.input.is_autocomplete() {
-        return ctx.hashmap_autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
+        return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
     }
 
     match Google::translate(

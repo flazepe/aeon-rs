@@ -10,7 +10,7 @@ use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.input.is_autocomplete() {
-        return ctx.hashmap_autocomplete(ORDR_SKINS.iter()).await;
+        return ctx.autocomplete(ORDR_SKINS.iter()).await;
     }
 
     if CACHE.ordr_rendering_users.read().unwrap().contains_key(&ctx.input.user.id) {

@@ -39,7 +39,7 @@ pub fn get_command() -> Command {
 
 async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.input.is_autocomplete() {
-        return ctx.hashmap_autocomplete(TIO_PROGRAMMING_LANGUAGES.iter()).await;
+        return ctx.autocomplete(TIO_PROGRAMMING_LANGUAGES.iter()).await;
     }
 
     // This had to be defined first

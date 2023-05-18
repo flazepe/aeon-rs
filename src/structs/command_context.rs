@@ -82,7 +82,7 @@ impl CommandContext {
         self.respond(format!("{SUCCESS_EMOJI} {response}"), ephemeral).await
     }
 
-    pub async fn hashmap_autocomplete<T: Iterator<Item = (K, V)>, K: ToString, V: ToString>(&self, iter: T) -> Result<()> {
+    pub async fn autocomplete<T: Iterator<Item = (K, V)>, K: ToString, V: ToString>(&self, iter: T) -> Result<()> {
         let value = self
             .input
             .args
