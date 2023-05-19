@@ -61,8 +61,11 @@ impl AniListManga {
             .set_title(format!(
                 ":flag_{}: {} ({})",
                 self.country_of_origin.to_lowercase(),
-                self.title.romaji,
-                self.format.as_ref().map_or("TBA".into(), |format| AniList::format_enum_value(format))
+                match self.title.romaji.len() > 230 {
+                    true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>()),
+                    false => self.title.romaji.clone(),
+                },
+                self.format.as_ref().map_or("TBA".into(), |format| AniList::format_enum_value(format)),
             ))
             .set_url(&self.site_url)
     }

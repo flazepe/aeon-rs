@@ -521,7 +521,14 @@ impl VndbVisualNovel {
                 true => "".into(),
                 false => image.url.to_string(),
             }))
-            .set_title(format!("{} ({})", self.title.chars().take(240).collect::<String>(), self.dev_status.to_string()))
+            .set_title(format!(
+                "{} ({})",
+                match self.title.len() > 230 {
+                    true => format!("{}…", self.title.chars().take(229).collect::<String>()),
+                    false => self.title.clone(),
+                },
+                self.dev_status.to_string(),
+            ))
             .set_url(format!("https://vndb.org/{}", self.id))
     }
 
