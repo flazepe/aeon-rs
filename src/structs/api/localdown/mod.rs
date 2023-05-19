@@ -88,7 +88,7 @@ impl LocalDownNovel {
                     .chars()
                     .map(|char| match [' ', '-'].contains(&char) {
                         true => '-',
-                        false => match char.is_ascii_alphabetic() {
+                        false => match char.is_ascii_alphanumeric() {
                             true => char,
                             false => '_',
                         },
