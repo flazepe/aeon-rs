@@ -39,8 +39,19 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     match request.send().await {
         Ok(response) => {
+            let text = response.text().await.unwrap_or("No response.".into());
+
             ctx.respond(
-                format!("```js\n{}```", response.text().await.unwrap_or("No response.".into()).chars().take(1991).collect::<String>()),
+                format!(
+                    "```js\n{}```",
+                    match from_str::<Value>(text.as_str()) {
+                        Ok(json) => format!("{json:#}"),
+                        Err(_) => text,
+                    }
+                    .chars()
+                    .take(1991)
+                    .collect::<String>()
+                ),
                 true,
             )
             .await
