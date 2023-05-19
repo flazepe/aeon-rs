@@ -93,7 +93,7 @@ impl LocalDownNovel {
                         self.other_names
                             .chars()
                             .skip(1)
-                            .take(2.max(self.other_names.len()) - 2)
+                            .take(2.max(self.other_names.chars().count()) - 2)
                             .collect::<String>()
                             .replace("', ", "\", ")
                             .replace(", '", ", \"")
