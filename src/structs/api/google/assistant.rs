@@ -30,7 +30,7 @@ use tonic::{
 };
 
 impl Google {
-    pub async fn query_assistant<T: ToString>(query: T) -> Result<Vec<u8>> {
+    pub async fn query_assistant<T: ToString>(query: T) -> Result<(Vec<u8>, Vec<String>)> {
         let token = Builder::new()
             .json(
                 json!({
@@ -123,10 +123,15 @@ impl Google {
 
                 let screenshot = page.screenshot(ScreenshotParams::builder().build()).await?;
 
+                let suggestions = page
+                    .evaluate(r#"[...document.querySelectorAll(".suggestion")].map(element => element.innerText);"#)
+                    .await?
+                    .into_value::<Vec<String>>()?;
+
                 browser.close().await?;
                 handle.await?;
 
-                return Ok(screenshot);
+                return Ok((screenshot, suggestions));
             }
 
             /*
