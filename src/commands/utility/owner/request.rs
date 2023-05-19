@@ -1,10 +1,11 @@
 use crate::{
-    statics::{CONFIG, REQWEST},
+    statics::{colors::PRIMARY_COLOR, CONFIG, REQWEST},
     structs::command_context::CommandContext,
 };
 use anyhow::Result;
 use reqwest::Method;
 use serde_json::{from_str, Value};
+use slashook::structs::embeds::Embed;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let mut request = REQWEST
@@ -42,16 +43,16 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             let text = response.text().await.unwrap_or("No response.".into());
 
             ctx.respond(
-                format!(
+                Embed::new().set_color(PRIMARY_COLOR)?.set_description(format!(
                     "```js\n{}```",
                     match from_str::<Value>(text.as_str()) {
                         Ok(json) => format!("{json:#}"),
                         Err(_) => text,
                     }
                     .chars()
-                    .take(1991)
-                    .collect::<String>()
-                ),
+                    .take(4087)
+                    .collect::<String>(),
+                )),
                 true,
             )
             .await
