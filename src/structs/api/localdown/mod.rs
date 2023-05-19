@@ -1,3 +1,5 @@
+mod statics;
+
 use crate::{
     statics::{colors::PRIMARY_COLOR, CACHE, REQWEST},
     traits::LimitedVec,
@@ -6,6 +8,7 @@ use anyhow::{bail, Result};
 use serde::Deserialize;
 use serde_json::from_str;
 use slashook::structs::embeds::Embed;
+use statics::GENRES;
 
 #[derive(Clone, Deserialize)]
 pub struct LocalDownNovel {
@@ -113,7 +116,16 @@ impl LocalDownNovel {
                 .collect::<Vec<String>>()
                 .join("\n"),
             )
-            .add_field("Genre", &self.genres, false)
+            .add_field(
+                "Genre",
+                self.genres
+                    .split(", ")
+                    .map(|genre| GENRES.get(&genre))
+                    .map(|genre| genre.unwrap_or(&"").to_string())
+                    .collect::<Vec<String>>()
+                    .join(", "),
+                false,
+            )
             .add_field("Publisher", &self.publisher, false)
             .set_footer("Powered by Project LocalDown API", None::<String>)
     }

@@ -1,0 +1,42 @@
+use once_cell::sync::Lazy;
+use std::collections::HashMap;
+
+pub static GENRES: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
+    HashMap::from([
+        ("action", "Action"),
+        ("adult", "Adult"),
+        ("adventure", "Adventure"),
+        ("comedy", "Comedy"),
+        ("drama", "Drama"),
+        ("ecchi", "Ecchi"),
+        ("fantasy", "Fantasy"),
+        ("genderbender", "Gender Bender"),
+        ("harem", "Harem"),
+        ("historical", "Historical"),
+        ("horror", "Horror"),
+        ("josei", "Josei"),
+        ("martialarts", "Martial Arts"),
+        ("mature", "Mature"),
+        ("mecha", "Mecha"),
+        ("mystery", "Mystery"),
+        ("psychological", "Psychological"),
+        ("romance", "Romance"),
+        ("schoollife", "School Life"),
+        ("sci-fi", "Sci-fi"),
+        ("seinen", "Seinen"),
+        ("shoujo", "Shoujo"),
+        ("shoujoai", "Shoujo Ai"),
+        ("shounen", "Shounen"),
+        ("shounenai", "Shounen Ai"),
+        ("sliceoflife", "Slice of Life"),
+        ("smut", "Smut"),
+        ("sports", "Sports"),
+        ("supernatural", "Supernatural"),
+        ("tragedy", "Tragedy"),
+        ("wuxia", "Wuxia"),
+        ("xianxia", "Xianxia"),
+        ("xuanhuan", "Xuanhuan"),
+        ("yaoi", "Yaoi"),
+        ("yuri", "Yuri"),
+    ])
+});
