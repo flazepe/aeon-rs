@@ -47,7 +47,7 @@ impl AeonCommand {
         let Ok(ctx) = CommandContext::new(self.input, self.res).verify().await else { return Ok(()); };
 
         if self.owner_only && ctx.input.user.id != FLAZEPE_ID {
-            return ctx.respond_error("This command is owner only.", true).await;
+            return ctx.respond_error("This command is owner-only.", true).await;
         }
 
         if let Some(main) = self.main {
