@@ -120,8 +120,8 @@ impl LocalDownNovel {
                 "Genre",
                 self.genres
                     .split(", ")
-                    .map(|genre| GENRES.get(&genre))
-                    .map(|genre| genre.unwrap_or(&"").to_string())
+                    .map(|genre| GENRES.get(&genre).unwrap_or(&"").to_string()) // unwrap_or()'d just in case
+                    .filter(|genre| !genre.is_empty()) // Edge case
                     .collect::<Vec<String>>()
                     .join(", "),
                 false,
