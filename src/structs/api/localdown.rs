@@ -73,7 +73,7 @@ impl LocalDownNovel {
             .set_title(format!(
                 "{} ({})",
                 match self.title.len() > 249 {
-                    true => format!("{}…", self.title.chars().take(248).collect::<String>()),
+                    true => format!("{}…", self.title.chars().take(248).collect::<String>().trim()),
                     false => self.title.clone(),
                 },
                 self.start_year,

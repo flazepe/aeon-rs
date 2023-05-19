@@ -524,7 +524,7 @@ impl VndbVisualNovel {
             .set_title(format!(
                 "{} ({})",
                 match self.title.len() > 230 {
-                    true => format!("{}…", self.title.chars().take(229).collect::<String>()),
+                    true => format!("{}…", self.title.chars().take(229).collect::<String>().trim()),
                     false => self.title.clone(),
                 },
                 self.dev_status.to_string(),

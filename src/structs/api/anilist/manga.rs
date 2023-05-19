@@ -62,7 +62,7 @@ impl AniListManga {
                 ":flag_{}: {} ({})",
                 self.country_of_origin.to_lowercase(),
                 match self.title.romaji.len() > 230 {
-                    true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>()),
+                    true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
                     false => self.title.romaji.clone(),
                 },
                 self.format.as_ref().map_or("TBA".into(), |format| AniList::format_enum_value(format)),
