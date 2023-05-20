@@ -1,7 +1,6 @@
 use crate::structs::{
     command::AeonCommand, command_context::CommandContext, stringified_message::StringifiedMessage, unicode::UnicodeCharacters,
 };
-use anyhow::Result;
 use once_cell::sync::Lazy;
 use slashook::{
     command,
@@ -9,11 +8,12 @@ use slashook::{
     structs::interactions::ApplicationCommandType,
 };
 
-async fn run(ctx: CommandContext) -> Result<()> {
-    ctx.respond(UnicodeCharacters::get(StringifiedMessage::from(ctx.input.target_message.as_ref().unwrap().clone())).format(), false).await
-}
-
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().main(run));
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
+    AeonCommand::new().main(|ctx: CommandContext| async move {
+        ctx.respond(UnicodeCharacters::get(StringifiedMessage::from(ctx.input.target_message.as_ref().unwrap().clone())).format(), false)
+            .await
+    })
+});
 
 pub fn get_command() -> Command {
     #[command(

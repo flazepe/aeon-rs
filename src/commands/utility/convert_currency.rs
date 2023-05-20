@@ -3,7 +3,6 @@ use crate::structs::{
     command::AeonCommand,
     command_context::CommandContext,
 };
-use anyhow::Result;
 use once_cell::sync::Lazy;
 use slashook::{
     command,
@@ -11,24 +10,24 @@ use slashook::{
     structs::interactions::InteractionOptionType,
 };
 
-async fn run(ctx: CommandContext) -> Result<()> {
-    if ctx.input.is_autocomplete() {
-        return ctx.autocomplete(EXCHANGE_RATE_CURRENCIES.iter()).await;
-    }
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
+    AeonCommand::new().main(|ctx: CommandContext| async move {
+        if ctx.input.is_autocomplete() {
+            return ctx.autocomplete(EXCHANGE_RATE_CURRENCIES.iter()).await;
+        }
 
-    match ExchangeRateConversion::get(
-        ctx.get_f64_arg("amount")?,
-        ctx.get_string_arg("origin-currency")?,
-        ctx.get_string_arg("target-currency")?,
-    )
-    .await
-    {
-        Ok(exchange_rate_conversion) => ctx.respond_success(exchange_rate_conversion.format(), false).await,
-        Err(error) => ctx.respond_error(error, true).await,
-    }
-}
-
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().main(run));
+        match ExchangeRateConversion::get(
+            ctx.get_f64_arg("amount")?,
+            ctx.get_string_arg("origin-currency")?,
+            ctx.get_string_arg("target-currency")?,
+        )
+        .await
+        {
+            Ok(exchange_rate_conversion) => ctx.respond_success(exchange_rate_conversion.format(), false).await,
+            Err(error) => ctx.respond_error(error, true).await,
+        }
+    })
+});
 
 pub fn get_command() -> Command {
     #[command(

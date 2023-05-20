@@ -1,5 +1,4 @@
 use crate::structs::{api::saucenao::SauceNAOSearch, command::AeonCommand, command_context::CommandContext};
-use anyhow::Result;
 use once_cell::sync::Lazy;
 use slashook::{
     command,
@@ -7,21 +6,21 @@ use slashook::{
     structs::interactions::InteractionOptionType,
 };
 
-async fn run(ctx: CommandContext) -> Result<()> {
-    match SauceNAOSearch::query(
-        match ctx.get_string_arg("image-url").or(ctx.get_attachment_arg("image-file").map(|attachment| attachment.url.clone())) {
-            Ok(url) => url,
-            Err(_) => return ctx.respond_error("Please provide an image URL or file.", true).await,
-        },
-    )
-    .await
-    {
-        Ok(saucenao_search) => ctx.respond(saucenao_search.format(), false).await,
-        Err(error) => ctx.respond_error(error, true).await,
-    }
-}
-
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().main(run));
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
+    AeonCommand::new().main(|ctx: CommandContext| async move {
+        match SauceNAOSearch::query(
+            match ctx.get_string_arg("image-url").or(ctx.get_attachment_arg("image-file").map(|attachment| attachment.url.clone())) {
+                Ok(url) => url,
+                Err(_) => return ctx.respond_error("Please provide an image URL or file.", true).await,
+            },
+        )
+        .await
+        {
+            Ok(saucenao_search) => ctx.respond(saucenao_search.format(), false).await,
+            Err(error) => ctx.respond_error(error, true).await,
+        }
+    })
+});
 
 pub fn get_command() -> Command {
     #[command(

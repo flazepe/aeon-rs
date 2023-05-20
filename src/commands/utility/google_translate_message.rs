@@ -1,5 +1,4 @@
 use crate::structs::{api::google::Google, command::AeonCommand, command_context::CommandContext, stringified_message::StringifiedMessage};
-use anyhow::Result;
 use once_cell::sync::Lazy;
 use slashook::{
     command,
@@ -7,14 +6,14 @@ use slashook::{
     structs::interactions::ApplicationCommandType,
 };
 
-async fn run(ctx: CommandContext) -> Result<()> {
-    match Google::translate(StringifiedMessage::from(ctx.input.target_message.as_ref().unwrap().clone()), "auto", "en").await {
-        Ok(translation) => ctx.respond(translation.format(), false).await,
-        Err(error) => ctx.respond_error(error, true).await,
-    }
-}
-
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().main(run));
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
+    AeonCommand::new().main(|ctx: CommandContext| async move {
+        match Google::translate(StringifiedMessage::from(ctx.input.target_message.as_ref().unwrap().clone()), "auto", "en").await {
+            Ok(translation) => ctx.respond(translation.format(), false).await,
+            Err(error) => ctx.respond_error(error, true).await,
+        }
+    })
+});
 
 pub fn get_command() -> Command {
     #[command(

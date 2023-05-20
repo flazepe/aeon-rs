@@ -1,5 +1,4 @@
 use crate::structs::{command::AeonCommand, command_context::CommandContext, scraping::stock::Stock};
-use anyhow::Result;
 use once_cell::sync::Lazy;
 use slashook::{
     command,
@@ -7,17 +6,19 @@ use slashook::{
     structs::interactions::InteractionOptionType,
 };
 
-async fn run(ctx: CommandContext) -> Result<()> {
-    // We have to defer since scraping this takes a bit of time
-    ctx.res.defer(false).await?;
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
+    AeonCommand::new().main(|ctx: CommandContext| {
+        async move {
+            // We have to defer since scraping this takes a bit of time
+            ctx.res.defer(false).await?;
 
-    match Stock::get(ctx.get_string_arg("ticker")?).await {
-        Ok(stock) => ctx.respond(stock.format(), false).await,
-        Err(error) => ctx.respond_error(error, true).await,
-    }
-}
-
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().main(run));
+            match Stock::get(ctx.get_string_arg("ticker")?).await {
+                Ok(stock) => ctx.respond(stock.format(), false).await,
+                Err(error) => ctx.respond_error(error, true).await,
+            }
+        }
+    })
+});
 
 pub fn get_command() -> Command {
     #[command(
