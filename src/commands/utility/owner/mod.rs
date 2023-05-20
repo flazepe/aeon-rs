@@ -10,17 +10,13 @@ use slashook::{
 };
 
 static COMMAND: Lazy<AeonCommand> =
-    Lazy::new(|| AeonCommand::new().owner_only().subcommand("status", status::run).subcommand("request", request::run));
+    Lazy::new(|| AeonCommand::new().owner_only().subcommand("request", request::run).subcommand("status", status::run));
 
 pub fn get_command() -> Command {
     #[command(
         name = "owner",
         description = "Owner commands.",
         subcommands = [
-            {
-                name = "status",
-                description = "Sends the process status.",
-            },
 			{
                 name = "request",
                 description = "Creates a request to the Discord API.",
@@ -53,6 +49,10 @@ pub fn get_command() -> Command {
 						],
                     },
 				],
+            },
+            {
+                name = "status",
+                description = "Sends the process status.",
             },
         ],
     )]
