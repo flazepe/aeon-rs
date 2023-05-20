@@ -2,11 +2,14 @@ mod album;
 mod song;
 
 use crate::structs::command::AeonCommand;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
+
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().subcommand("album", album::run).subcommand("song", song::run));
 
 pub fn get_command() -> Command {
     #[command(
@@ -50,7 +53,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn spotify(input: CommandInput, res: CommandResponder) {
-        AeonCommand::new(input, res).subcommand("album", album::run).subcommand("song", song::run).run().await?;
+        COMMAND.run(input, res).await?;
     }
 
     spotify

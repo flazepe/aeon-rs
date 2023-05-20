@@ -4,11 +4,20 @@ mod select_menu;
 mod set;
 
 use crate::structs::command::AeonCommand;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
+
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
+    AeonCommand::new()
+        .subcommand("delete", delete::run)
+        .subcommand("list", list::run)
+        .subcommand("set", set::run)
+        .subcommand("select-menu", select_menu::run)
+});
 
 pub fn get_command() -> Command {
     #[command(
@@ -67,13 +76,7 @@ pub fn get_command() -> Command {
             input.subcommand = Some("select-menu".into());
         }
 
-        AeonCommand::new(input, res)
-            .subcommand("delete", delete::run)
-            .subcommand("list", list::run)
-            .subcommand("set", set::run)
-            .subcommand("select-menu", select_menu::run)
-            .run()
-            .await?;
+        COMMAND.run(input, res).await?;
     }
 
     reminder

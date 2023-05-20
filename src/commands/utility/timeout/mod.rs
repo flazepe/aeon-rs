@@ -2,11 +2,14 @@ mod remove;
 mod set;
 
 use crate::structs::command::AeonCommand;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
     structs::{interactions::InteractionOptionType, Permissions},
 };
+
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().subcommand("remove", remove::run).subcommand("set", set::run));
 
 pub fn get_command() -> Command {
     #[command(
@@ -48,7 +51,7 @@ pub fn get_command() -> Command {
 		],
 	)]
     async fn timeout(input: CommandInput, res: CommandResponder) {
-        AeonCommand::new(input, res).subcommand("remove", remove::run).subcommand("set", set::run).run().await?;
+        COMMAND.run(input, res).await?;
     }
 
     timeout

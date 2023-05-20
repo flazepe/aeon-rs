@@ -3,6 +3,7 @@ use crate::{
     structs::{command::AeonCommand, command_context::CommandContext},
 };
 use anyhow::Result;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
@@ -12,13 +13,15 @@ use slashook::{
     },
 };
 
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().main(run));
+
 pub fn get_command() -> Command {
     #[command(
 		name = "Remind me",
 		command_type = ApplicationCommandType::MESSAGE,
 	)]
     async fn reminder_set_message(input: CommandInput, res: CommandResponder) {
-        AeonCommand::new(input, res).main(run).run().await?;
+        COMMAND.run(input, res).await?;
     }
 
     reminder_set_message

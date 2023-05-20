@@ -2,11 +2,15 @@ mod render_replay;
 mod user;
 
 use crate::structs::command::AeonCommand;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
 };
+
+static COMMAND: Lazy<AeonCommand> =
+    Lazy::new(|| AeonCommand::new().subcommand("render-replay", render_replay::run).subcommand("user", user::run));
 
 pub fn get_command() -> Command {
     #[command(
@@ -61,7 +65,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn osu(input: CommandInput, res: CommandResponder) {
-        AeonCommand::new(input, res).subcommand("render-replay", render_replay::run).subcommand("user", user::run).run().await?;
+        COMMAND.run(input, res).await?;
     }
 
     osu

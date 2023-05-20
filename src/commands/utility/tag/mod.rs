@@ -9,11 +9,24 @@ mod view;
 
 use crate::structs::{command::AeonCommand, database::tags::Tags};
 use anyhow::Context;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
 };
+
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
+    AeonCommand::new()
+        .subcommand("create", create::run)
+        .subcommand("delete", delete::run)
+        .subcommand("edit", edit::run)
+        .subcommand("list", list::run)
+        .subcommand("meta", meta::run)
+        .subcommand("toggle-alias", toggle_alias::run)
+        .subcommand("toggle-nsfw", toggle_nsfw::run)
+        .subcommand("view", view::run)
+});
 
 pub fn get_command() -> Command {
     #[command(
@@ -158,17 +171,7 @@ pub fn get_command() -> Command {
                 .await?;
         }
 
-        AeonCommand::new(input, res)
-            .subcommand("create", create::run)
-            .subcommand("delete", delete::run)
-            .subcommand("edit", edit::run)
-            .subcommand("list", list::run)
-            .subcommand("meta", meta::run)
-            .subcommand("toggle-alias", toggle_alias::run)
-            .subcommand("toggle-nsfw", toggle_nsfw::run)
-            .subcommand("view", view::run)
-            .run()
-            .await?;
+        COMMAND.run(input, res).await?;
     }
 
     tag

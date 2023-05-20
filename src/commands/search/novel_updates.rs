@@ -1,30 +1,11 @@
 use crate::structs::{api::localdown::LocalDownNovel, command::AeonCommand, command_context::CommandContext, select_menu::SelectMenu};
 use anyhow::Result;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder, MessageResponse},
     structs::interactions::InteractionOptionType,
 };
-
-pub fn get_command() -> Command {
-    #[command(
-		name = "novel-updates",
-		description = "Fetches a novel from Novel Updates.",
-		options = [
-			{
-				name = "novel",
-				description = "The novel",
-				option_type = InteractionOptionType::STRING,
-				required = true,
-			},
-		],
-	)]
-    async fn localdown(input: CommandInput, res: CommandResponder) {
-        AeonCommand::new(input, res).main(run).run().await?;
-    }
-
-    localdown
-}
 
 async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.input.is_string_select() {
@@ -53,4 +34,26 @@ async fn run(ctx: CommandContext) -> Result<()> {
         false,
     )
     .await
+}
+
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().main(run));
+
+pub fn get_command() -> Command {
+    #[command(
+		name = "novel-updates",
+		description = "Fetches a novel from Novel Updates.",
+		options = [
+			{
+				name = "novel",
+				description = "The novel",
+				option_type = InteractionOptionType::STRING,
+				required = true,
+			},
+		],
+	)]
+    async fn localdown(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(input, res).await?;
+    }
+
+    localdown
 }

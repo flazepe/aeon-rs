@@ -3,30 +3,12 @@ use crate::{
     structs::{command::AeonCommand, command_context::CommandContext},
 };
 use anyhow::Result;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
-
-pub fn get_command() -> Command {
-    #[command(
-        name = "calculate",
-        description = "Calculates a mathematics expression.",
-        options = [
-            {
-                name = "expression",
-                description = "The expression",
-                option_type = InteractionOptionType::STRING,
-            },
-        ],
-    )]
-    async fn calculate(input: CommandInput, res: CommandResponder) {
-        AeonCommand::new(input, res).main(run).run().await?;
-    }
-
-    calculate
-}
 
 async fn run(ctx: CommandContext) -> Result<()> {
     let expression = ctx.get_string_arg("expression")?;
@@ -46,4 +28,25 @@ async fn run(ctx: CommandContext) -> Result<()> {
         true => ctx.respond_error("Invalid expression.", true).await,
         false => ctx.respond_success(format!("`{body}`"), false).await,
     }
+}
+
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().main(run));
+
+pub fn get_command() -> Command {
+    #[command(
+        name = "calculate",
+        description = "Calculates a mathematics expression.",
+        options = [
+            {
+                name = "expression",
+                description = "The expression",
+                option_type = InteractionOptionType::STRING,
+            },
+        ],
+    )]
+    async fn calculate(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(input, res).await?;
+    }
+
+    calculate
 }

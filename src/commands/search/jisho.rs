@@ -1,30 +1,11 @@
 use crate::structs::{api::jisho::JishoSearch, command::AeonCommand, command_context::CommandContext, select_menu::SelectMenu};
 use anyhow::Result;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder, MessageResponse},
     structs::interactions::InteractionOptionType,
 };
-
-pub fn get_command() -> Command {
-    #[command(
-		name = "jisho",
-		description = "Searches Jisho.",
-		options = [
-			{
-				name = "query",
-				description = "The query",
-				option_type = InteractionOptionType::STRING,
-				required = true,
-			},
-		],
-	)]
-    async fn jisho(input: CommandInput, res: CommandResponder) {
-        AeonCommand::new(input, res).main(run).run().await?;
-    }
-
-    jisho
-}
 
 async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.input.is_string_select() {
@@ -43,4 +24,26 @@ async fn run(ctx: CommandContext) -> Result<()> {
     }
 
     ctx.respond(MessageResponse::from(select_menu).add_embed(results[0].format()), false).await
+}
+
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().main(run));
+
+pub fn get_command() -> Command {
+    #[command(
+		name = "jisho",
+		description = "Searches Jisho.",
+		options = [
+			{
+				name = "query",
+				description = "The query",
+				option_type = InteractionOptionType::STRING,
+				required = true,
+			},
+		],
+	)]
+    async fn jisho(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(input, res).await?;
+    }
+
+    jisho
 }

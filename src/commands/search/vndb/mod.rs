@@ -4,11 +4,20 @@ mod tag;
 mod visual_novel;
 
 use crate::structs::command::AeonCommand;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
+
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
+    AeonCommand::new()
+        .subcommand("character", character::run)
+        .subcommand("tag", tag::run)
+        .subcommand("trait", character_trait::run)
+        .subcommand("visual-novel", visual_novel::run)
+});
 
 pub fn get_command() -> Command {
     #[command(
@@ -76,13 +85,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn vndb(input: CommandInput, res: CommandResponder) {
-        AeonCommand::new(input, res)
-            .subcommand("character", character::run)
-            .subcommand("tag", tag::run)
-            .subcommand("trait", character_trait::run)
-            .subcommand("visual-novel", visual_novel::run)
-            .run()
-            .await?;
+        COMMAND.run(input, res).await?;
     }
 
     vndb

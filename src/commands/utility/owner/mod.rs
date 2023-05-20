@@ -2,11 +2,15 @@ mod request;
 mod status;
 
 use crate::structs::command::AeonCommand;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
 };
+
+static COMMAND: Lazy<AeonCommand> =
+    Lazy::new(|| AeonCommand::new().owner_only().subcommand("status", status::run).subcommand("request", request::run));
 
 pub fn get_command() -> Command {
     #[command(
@@ -53,7 +57,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn code(input: CommandInput, res: CommandResponder) {
-        AeonCommand::new(input, res).owner_only().subcommand("status", status::run).subcommand("request", request::run).run().await?;
+        COMMAND.run(input, res).await?;
     }
 
     code

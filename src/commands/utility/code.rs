@@ -7,6 +7,7 @@ use crate::{
     },
 };
 use anyhow::Result;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder, Modal},
@@ -15,26 +16,6 @@ use slashook::{
         interactions::InteractionOptionType,
     },
 };
-
-pub fn get_command() -> Command {
-    #[command(
-        name = "code",
-        description = "Runs a code.",
-        options = [
-            {
-                name = "programming-language",
-                description = "The programming language",
-                option_type = InteractionOptionType::STRING,
-                autocomplete = true,
-            },
-        ],
-    )]
-    async fn code(input: CommandInput, res: CommandResponder) {
-        AeonCommand::new(input, res).main(run).run().await?;
-    }
-
-    code
-}
 
 async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.input.is_autocomplete() {
@@ -74,4 +55,26 @@ async fn run(ctx: CommandContext) -> Result<()> {
             ))
             .await?),
     }
+}
+
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().main(run));
+
+pub fn get_command() -> Command {
+    #[command(
+        name = "code",
+        description = "Runs a code.",
+        options = [
+            {
+                name = "programming-language",
+                description = "The programming language",
+                option_type = InteractionOptionType::STRING,
+                autocomplete = true,
+            },
+        ],
+    )]
+    async fn code(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(input, res).await?;
+    }
+
+    code
 }

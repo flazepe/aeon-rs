@@ -2,11 +2,18 @@ use crate::structs::{
     command::AeonCommand, command_context::CommandContext, stringified_message::StringifiedMessage, unicode::UnicodeCharacters,
 };
 use anyhow::Result;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
     structs::interactions::ApplicationCommandType,
 };
+
+async fn run(ctx: CommandContext) -> Result<()> {
+    ctx.respond(UnicodeCharacters::get(StringifiedMessage::from(ctx.input.target_message.as_ref().unwrap().clone())).format(), false).await
+}
+
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().main(run));
 
 pub fn get_command() -> Command {
     #[command(
@@ -14,12 +21,8 @@ pub fn get_command() -> Command {
         command_type = ApplicationCommandType::MESSAGE,
     )]
     async fn unicode_message(input: CommandInput, res: CommandResponder) {
-        AeonCommand::new(input, res).main(run).run().await?;
+        COMMAND.run(input, res).await?;
     }
 
     unicode_message
-}
-
-async fn run(ctx: CommandContext) -> Result<()> {
-    ctx.respond(UnicodeCharacters::get(StringifiedMessage::from(ctx.input.target_message.as_ref().unwrap().clone())).format(), false).await
 }

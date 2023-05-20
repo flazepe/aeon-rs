@@ -4,11 +4,20 @@ mod status;
 mod uptime;
 
 use crate::structs::command::AeonCommand;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
 };
+
+static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
+    AeonCommand::new()
+        .subcommand("load", load::run)
+        .subcommand("signups", signups::run)
+        .subcommand("status", status::run)
+        .subcommand("uptime", uptime::run)
+});
 
 pub fn get_command() -> Command {
     #[command(
@@ -71,13 +80,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn heliohost(input: CommandInput, res: CommandResponder) {
-        AeonCommand::new(input, res)
-            .subcommand("load", load::run)
-            .subcommand("signups", signups::run)
-            .subcommand("status", status::run)
-            .subcommand("uptime", uptime::run)
-            .run()
-            .await?;
+        COMMAND.run(input, res).await?;
     }
 
     heliohost

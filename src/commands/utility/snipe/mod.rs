@@ -2,11 +2,15 @@ mod message;
 mod reaction;
 
 use crate::structs::command::AeonCommand;
+use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command, CommandInput, CommandResponder},
     structs::{channels::ChannelType, interactions::InteractionOptionType},
 };
+
+static COMMAND: Lazy<AeonCommand> =
+    Lazy::new(|| AeonCommand::new().subcommand("message", message::run).subcommand("reaction", reaction::run));
 
 pub fn get_command() -> Command {
     #[command(
@@ -59,7 +63,7 @@ pub fn get_command() -> Command {
         ],
     )]
     async fn snipe(input: CommandInput, res: CommandResponder) {
-        AeonCommand::new(input, res).subcommand("message", message::run).subcommand("reaction", reaction::run).run().await?;
+        COMMAND.run(input, res).await?;
     }
 
     snipe
