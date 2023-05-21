@@ -21,7 +21,7 @@ impl AvatarURL for User {
     }
 
     fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String {
-        match self.avatar_url(format, size) {
+        match AvatarURL::avatar_url(self, format, size) {
             Some(avatar_url) => avatar_url,
             None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.parse::<u64>().unwrap() >> 22) % 5),
         }
@@ -42,7 +42,7 @@ impl AvatarURL for TwilightUser {
     }
 
     fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String {
-        match self.avatar_url(format, size) {
+        match AvatarURL::avatar_url(self, format, size) {
             Some(avatar_url) => avatar_url,
             None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.to_string().parse::<u64>().unwrap() >> 22) % 5),
         }
