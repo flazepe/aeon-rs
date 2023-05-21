@@ -9,6 +9,14 @@ pub trait AvatarURL {
 
 impl AvatarURL for User {
     fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String> {
+        let mut format = format.to_string();
+
+        if let Some(avatar) = self.avatar.as_ref() {
+            if format.as_str() == "gif" && !avatar.starts_with("a_") {
+                format = "png".into();
+            }
+        }
+
         self.avatar_url(format, size)
     }
 
@@ -22,6 +30,14 @@ impl AvatarURL for User {
 
 impl AvatarURL for TwilightUser {
     fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String> {
+        let mut format = format.to_string();
+
+        if let Some(avatar) = self.avatar.as_ref() {
+            if format.as_str() == "gif" && !avatar.is_animated() {
+                format = "png".into();
+            }
+        }
+
         self.avatar.as_ref().map(|a| format!("https://cdn.discordapp.com/avatars/{}/{a}.{format}?size={size}", self.id))
     }
 
