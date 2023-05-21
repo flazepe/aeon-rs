@@ -16,6 +16,7 @@ mod tag;
 mod timeout;
 mod unicode;
 mod unicode_message;
+mod user;
 
 use slashook::commands::Command;
 
@@ -39,5 +40,6 @@ pub fn get_commands() -> Vec<Command> {
         timeout::get_command(),
         unicode::get_command(),
         unicode_message::get_command(),
+        user::get_command(),
     ]
 }
