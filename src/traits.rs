@@ -37,7 +37,9 @@ impl AvatarURL for TwilightUser {
             }
         }
 
-        self.avatar.as_ref().map(|a| format!("https://cdn.discordapp.com/avatars/{}/{a}.{format}?size={}", self.id, size.to_string()))
+        self.avatar
+            .as_ref()
+            .map(|avatar| format!("https://cdn.discordapp.com/avatars/{}/{avatar}.{format}?size={}", self.id, size.to_string()))
     }
 
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
