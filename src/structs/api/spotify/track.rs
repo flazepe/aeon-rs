@@ -120,7 +120,7 @@ impl SpotifyFullTrack {
                             match audio_features.mode == 0 {
                                 true => "Minor",
                                 false => "Major",
-                            }
+                            },
                         )
                     }),
                     true,
@@ -140,7 +140,7 @@ impl SpotifyFullTrack {
                             match audio_features.mode == 0 {
                                 true => "A",
                                 false => "B",
-                            }
+                            },
                         )
                     }),
                     true,

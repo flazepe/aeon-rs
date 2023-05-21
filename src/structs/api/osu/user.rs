@@ -236,7 +236,7 @@ impl Display for OsuMode {
                 OsuMode::Taiko => "osu!taiko",
                 OsuMode::Fruits => "osu!catch",
                 OsuMode::Mania => "osu!mania",
-            }
+            },
         )
     }
 }
@@ -382,7 +382,7 @@ impl OsuUser {
                         match self.has_supported {
                             true => "has supported before",
                             false => "had never supported before",
-                        }
+                        },
                     ),
                 },
                 false,

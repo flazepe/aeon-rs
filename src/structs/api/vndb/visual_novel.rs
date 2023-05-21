@@ -37,7 +37,7 @@ impl Display for VndbDevStatus {
             match self {
                 VndbDevStatus::InDevelopment => "In development".into(),
                 _ => format!("{self:?}"),
-            }
+            },
         )
     }
 }
@@ -212,7 +212,7 @@ impl Display for VndbLanguage {
                 VndbLanguage::ChineseSimplified => "Chinese Simplified",
                 VndbLanguage::ChineseTraditional => "Chinese Traditional",
                 _ => default.as_str(),
-            }
+            },
         )
     }
 }
@@ -406,7 +406,7 @@ impl Display for VndbPlatform {
                 VndbPlatform::XboxXS => "Xbox X/S",
                 VndbPlatform::OtherMobile => "Other (mobile)",
                 _ => original.as_str(),
-            }
+            },
         )
     }
 }
@@ -446,7 +446,7 @@ impl Display for VndbLength {
                 VndbLength::Medium => "Medium: 10 - 30 hours",
                 VndbLength::Long => "Long: 30 - 50 hours",
                 VndbLength::VeryLong => "Very long: > 50 hours",
-            }
+            },
         )
     }
 }

@@ -190,7 +190,7 @@ impl AniListAnime {
                         match character.voice_actors.get(0) {
                             Some(voice_actor) => format!("\nVoiced by [{}]({})", voice_actor.name.full, voice_actor.site_url),
                             None => "".into(),
-                        }
+                        },
                     )
                 })
                 .collect::<Vec<String>>()

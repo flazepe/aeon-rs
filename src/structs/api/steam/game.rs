@@ -220,7 +220,7 @@ impl SteamGame {
                         match release_date.coming_soon {
                             true => " (coming soon)",
                             false => "",
-                        }
+                        },
                     )
                 }),
                 false,

@@ -264,7 +264,7 @@ impl Tags {
             match nsfw {
                 true => "NSFW",
                 false => "non-NSFW",
-            }
+            },
         ))
     }
 

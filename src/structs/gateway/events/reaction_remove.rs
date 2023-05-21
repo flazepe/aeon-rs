@@ -32,7 +32,7 @@ impl EventHandler {
                             match animated {
                                 true => "gif",
                                 false => "png",
-                            }
+                            },
                         )
                     },
                     ReactionType::Unicode { name } => {

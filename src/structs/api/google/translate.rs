@@ -75,7 +75,7 @@ impl Google {
                 match origin_language.0 == &"auto" {
                     true => " (detected)",
                     false => "",
-                }
+                },
             ),
             target_language: target_language.1.to_string(),
             translation: google_translate_response

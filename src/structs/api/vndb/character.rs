@@ -54,7 +54,7 @@ impl Display for VndbCharacterRole {
                 VndbCharacterRole::Primary => "Main character",
                 VndbCharacterRole::Side => "Side character",
                 VndbCharacterRole::Appears => "Makes an appearance",
-            }
+            },
         )
     }
 }

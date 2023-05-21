@@ -31,7 +31,7 @@ impl Display for VndbTagCategory {
             match self {
                 VndbTagCategory::SexualContext => "Sexual Content".into(),
                 _ => format!("{self:?}"),
-            }
+            },
         )
     }
 }

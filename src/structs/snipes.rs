@@ -61,7 +61,7 @@ impl Snipes {
                                     match line.is_empty() {
                                         true => "<empty>",
                                         false => line,
-                                    }
+                                    },
                                 ))
                                 .collect::<Vec<String>>()
                                 .join("\n")

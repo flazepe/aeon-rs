@@ -104,7 +104,7 @@ impl SauceNAOSearch {
                                 true => "".into(),
                                 false => format!("\n{joined}"),
                             }
-                        }
+                        },
                     )
                 })
                 .take(5)
