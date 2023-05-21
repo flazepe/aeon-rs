@@ -8,15 +8,20 @@ pub trait AvatarURL {
 
 impl AvatarURL for User {
     fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String> {
-        let mut format = format.to_string();
+        let format = format.to_string();
 
-        if let Some(avatar) = self.avatar.as_ref() {
-            if format.as_str() == "gif" && !avatar.starts_with("a_") {
-                format = "png".into();
-            }
-        }
-
-        self.avatar_url(format, size)
+        self.avatar.as_ref().map(|avatar| {
+            format!(
+                "https://cdn.discordapp.com/avatars/{}/{}.{}?size={}",
+                self.id,
+                avatar,
+                match format == "gif".to_string() && !avatar.starts_with("a_") {
+                    true => "png".into(),
+                    false => format,
+                },
+                size.to_string()
+            )
+        })
     }
 
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
@@ -29,17 +34,20 @@ impl AvatarURL for User {
 
 impl AvatarURL for TwilightUser {
     fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String> {
-        let mut format = format.to_string();
+        let format = format.to_string();
 
-        if let Some(avatar) = self.avatar.as_ref() {
-            if format.as_str() == "gif" && !avatar.is_animated() {
-                format = "png".into();
-            }
-        }
-
-        self.avatar
-            .as_ref()
-            .map(|avatar| format!("https://cdn.discordapp.com/avatars/{}/{avatar}.{format}?size={}", self.id, size.to_string()))
+        self.avatar.as_ref().map(|avatar| {
+            format!(
+                "https://cdn.discordapp.com/avatars/{}/{}.{}?size={}",
+                self.id,
+                avatar,
+                match format == "gif".to_string() && !avatar.is_animated() {
+                    true => "png".into(),
+                    false => format,
+                },
+                size.to_string()
+            )
+        })
     }
 
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
