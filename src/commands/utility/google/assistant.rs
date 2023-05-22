@@ -15,7 +15,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             let mut response = MessageResponse::from(File::new("image.png", image));
 
             if !suggestions.is_empty() {
-                let mut select_menu = SelectMenu::new("google", "assistant", "Select a suggestion…", None::<String>);
+                let mut select_menu = SelectMenu::new("google", "assistant", "Try saying…", None::<String>);
 
                 for suggestion in suggestions {
                     select_menu = select_menu.add_option(&suggestion, &suggestion, None::<String>);
