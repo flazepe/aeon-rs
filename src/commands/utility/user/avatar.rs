@@ -26,8 +26,8 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     ctx.respond(
         MessageResponse::from(match avatar.contains("guild") {
             true => format!(
-                "**Showing member's server avatar**. Member's user avatar is available here:\n<{}>",
-                user.display_avatar_url("gif", 4096),
+                "**Showing member's server avatar**. To view member's user avatar, set `force-user-avatar` to `true`.\n<{}>",
+                avatar,
             ),
             false => "".into(),
         })
