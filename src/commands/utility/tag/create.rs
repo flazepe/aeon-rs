@@ -25,7 +25,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             .open_modal(
                 Modal::new("tag", "create", "Create Tag").set_components(
                     Components::new()
-                        .add_text_input(TextInput::new().set_id("tag").set_max_length(30).set_label("Tag"))
+                        .add_text_input(TextInput::new().set_id("tag").set_max_length(32).set_label("Tag"))
                         .add_row()
                         .add_text_input(
                             TextInput::new()

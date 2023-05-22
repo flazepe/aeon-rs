@@ -97,7 +97,7 @@ impl Tags {
         }
 
         if self.tags.count_documents(doc! { "guild_id": guild_id.to_string() }, None).await? == 100 {
-            bail!("I'm sure 100 tags are enough for your server...");
+            bail!("I'm sure 100 tags are enough for your server.");
         }
 
         let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
@@ -282,8 +282,8 @@ impl Tags {
         let name = name.to_string().to_lowercase();
 
         // This should be handled by Discord but I'm adding it anyway
-        if name.len() > 30 {
-            bail!("Tag name length must not exceed 30 characters.");
+        if name.len() > 32 {
+            bail!("Tag name length must not exceed 32 characters.");
         }
 
         if name.contains("`") {
