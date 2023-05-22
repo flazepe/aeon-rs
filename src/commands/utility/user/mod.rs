@@ -25,6 +25,11 @@ pub fn get_command() -> SlashookCommand {
 						description = "The user",
 						option_type = InteractionOptionType::USER,
 					},
+					{
+						name = "force-user-avatar",
+						description = "Whether to force showing user avatar instead of server avatar",
+						option_type = InteractionOptionType::BOOLEAN,
+					},
 				],
 			},
 			{

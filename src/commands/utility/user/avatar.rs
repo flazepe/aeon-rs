@@ -18,7 +18,10 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         None => None,
     };
 
-    let avatar = guild_avatar.unwrap_or(user.display_avatar_url("gif", 4096));
+    let avatar = match ctx.get_bool_arg("force-user-avatar").unwrap_or(false) {
+        true => user.display_avatar_url("gif", 4096),
+        false => guild_avatar.unwrap_or(user.display_avatar_url("gif", 4096)),
+    };
 
     ctx.respond(
         MessageResponse::from(match avatar.contains("guild") {
