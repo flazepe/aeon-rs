@@ -47,7 +47,7 @@ impl Google {
             Channel::from_static("https://embeddedassistant.googleapis.com")
                 .tls_config(
                     ClientTlsConfig::new()
-                        .ca_certificate(Certificate::from_pem(read("google/roots.pem").await?.as_slice()))
+                        .ca_certificate(Certificate::from_pem(read("google/gsr1.pem").await?.as_slice()))
                         .domain_name("embeddedassistant.googleapis.com"),
                 )?
                 .connect()
