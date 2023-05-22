@@ -24,13 +24,13 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     };
 
     ctx.respond(
-        MessageResponse::from(match avatar.contains("guild") {
-            true => format!(
-                "**Showing member's server avatar**. To view member's user avatar, set `force-user-avatar` to `true`.\n<{}>",
-                avatar,
-            ),
-            false => "".into(),
-        })
+        MessageResponse::from(format!(
+            "{}{avatar}",
+            match avatar.contains("guild") {
+                true => "**Showing member's server avatar**. To view member's user avatar, set `force-user-avatar` to `true`.\n",
+                false => "",
+            },
+        ))
         .add_file(File::new(
             format!(
                 "image.{}",
