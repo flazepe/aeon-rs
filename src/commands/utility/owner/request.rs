@@ -40,14 +40,17 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     match request.send().await {
         Ok(response) => {
-            let text = response.text().await.unwrap_or("No response.".into());
+            let text = response.text().await.unwrap_or("An error occurred while encoding text.".into());
 
             ctx.respond(
                 Embed::new().set_color(PRIMARY_COLOR)?.set_description(format!(
                     "```js\n{}```",
                     match from_str::<Value>(text.as_str()) {
                         Ok(json) => format!("{json:#}"),
-                        Err(_) => text,
+                        Err(_) => match text.is_empty() {
+                            true => "No response.".into(),
+                            false => text,
+                        },
                     }
                     .chars()
                     .take(4087)
