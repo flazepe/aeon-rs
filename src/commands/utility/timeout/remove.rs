@@ -10,7 +10,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         .input
         .rest
         .patch::<GuildMember, _>(
-            format!("guilds/{}/members/{}", ctx.input.guild_id.as_ref().unwrap(), &user.id),
+            format!("guilds/{}/members/{}", ctx.input.guild_id.as_ref().unwrap(), user.id),
             json!({ "communication_disabled_until": null }),
         )
         .await
