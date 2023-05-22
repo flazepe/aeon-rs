@@ -205,7 +205,7 @@ impl Reminders {
             .await?;
 
         Ok(format!(
-            "I will remind you about [{}](<https://discord.com/channels/{}>) in {time}{}. Make sure I {}.",
+            "I will remind you about {}[*](<https://discord.com/channels/{}>) in {time}{}. Make sure I {}.",
             reminder.to_string(),
             url.to_string(),
             match interval.total_secs > 0 {
