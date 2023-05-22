@@ -215,7 +215,7 @@ impl SteamGame {
                         "{}{}",
                         format_timestamp(
                             NaiveDateTime::parse_from_str(&format!("{} 00:00", release_date.date), "%b %-d, %Y %R").unwrap().timestamp(),
-                            TimestampFormat::Full
+                            TimestampFormat::Full,
                         ),
                         match release_date.coming_soon {
                             true => " (coming soon)",
@@ -263,7 +263,7 @@ impl SteamGame {
                                 format!(
                                     "[{}](https://store.steampowered.com/tags/en/{})",
                                     category.description,
-                                    category.description.replace(" ", "+")
+                                    category.description.replace(" ", "+"),
                                 )
                             })
                             .collect::<Vec<String>>()
@@ -284,7 +284,7 @@ impl SteamGame {
                                 format!(
                                     "[{}](https://store.steampowered.com/genre/{}/)",
                                     genre.description,
-                                    genre.description.replace(" ", "+")
+                                    genre.description.replace(" ", "+"),
                                 )
                             })
                             .collect::<Vec<String>>()

@@ -98,7 +98,7 @@ pub fn plural<T: ToString, U: ToString>(amount: T, singular: U) -> String {
                             true => subject.len() - 2,
                             false => subject.len() - 1,
                         })
-                        .collect::<String>()
+                        .collect::<String>(),
                 );
 
                 break;

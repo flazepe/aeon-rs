@@ -154,7 +154,7 @@ impl AniList {
                     Media(id: $id) {{
                         {ANILIST_MANGA_FIELDS}
                     }}
-                }}"
+                }}",
             ),
             json!({ "id": id }),
         )
@@ -176,7 +176,7 @@ impl AniList {
                             {ANILIST_MANGA_FIELDS}
                         }}
                     }}
-                }}"
+                }}",
             ),
             json!({ "search": search.to_string() }),
         )

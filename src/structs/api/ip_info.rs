@@ -55,7 +55,7 @@ impl IPInfo {
             .filter(|entry| !entry.is_empty())
             .collect::<Vec<String>>()
             .join("\n"),
-            ip = self.ip
+            ip = self.ip,
         )
     }
 }

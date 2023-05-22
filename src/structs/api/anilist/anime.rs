@@ -102,7 +102,7 @@ impl AniListAnime {
                         "".into(),
                         |node| format!(
                             "\nNext episode airs <t:{}:R>",
-                            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() + node.time_until_airing.unwrap() as u64
+                            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() + node.time_until_airing.unwrap() as u64,
                         ),
                     )
                 ),
@@ -123,7 +123,7 @@ impl AniListAnime {
                 format!(
                     "{}{}",
                     self.episodes.map_or("TBA".into(), |episodes| episodes.to_string()),
-                    self.duration.map_or("".into(), |duration| format!(" ({duration} minutes per episode)"))
+                    self.duration.map_or("".into(), |duration| format!(" ({duration} minutes per episode)")),
                 ),
                 true,
             )
@@ -213,7 +213,7 @@ impl AniList {
                     Media(id: $id) {{
                         {ANILIST_ANIME_FIELDS}
                     }}
-                }}"
+                }}",
             ),
             json!({ "id": id }),
         )
@@ -235,7 +235,7 @@ impl AniList {
                             {ANILIST_ANIME_FIELDS}
                         }}
                     }}
-                }}"
+                }}",
             ),
             json!({ "search": search.to_string() }),
         )

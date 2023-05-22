@@ -19,7 +19,7 @@ impl AvatarURL for User {
                     true => "png".into(),
                     false => format,
                 },
-                size.to_string()
+                size.to_string(),
             )
         })
     }
@@ -45,7 +45,7 @@ impl AvatarURL for TwilightUser {
                     true => "png".into(),
                     false => format,
                 },
-                size.to_string()
+                size.to_string(),
             )
         })
     }

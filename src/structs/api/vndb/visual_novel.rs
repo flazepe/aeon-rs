@@ -546,7 +546,7 @@ impl VndbVisualNovel {
                 format!(
                     "{} ({})",
                     self.length.as_ref().map_or("N/A".into(), |length| length.to_string()),
-                    plural(self.length_votes, "vote")
+                    plural(self.length_votes, "vote"),
                 ),
                 true,
             )

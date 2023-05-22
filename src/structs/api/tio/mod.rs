@@ -52,7 +52,7 @@ impl Tio {
                     vec!["TIO_OPTIONS", "0"],
                     vec![".code.tio", &self.code.len().to_string(), &self.code],
                     vec![".input.tio", "0"],
-                    vec!["args", "0"]
+                    vec!["args", "0"],
                 ]
                 .iter_mut()
                 .map(|values| {
@@ -64,11 +64,11 @@ impl Tio {
                             true => "F",
                             false => "V",
                         },
-                        values.join("\0")
+                        values.join("\0"),
                     )
                 })
                 .collect::<Vec<String>>()
-                .join("\0")
+                .join("\0"),
             )
             .as_bytes(),
         )?;

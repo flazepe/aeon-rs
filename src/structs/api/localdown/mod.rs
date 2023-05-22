@@ -94,7 +94,7 @@ impl LocalDownNovel {
                         },
                     })
                     .filter(|char| char != &'_')
-                    .collect::<String>()
+                    .collect::<String>(),
             ))
             .set_description(
                 from_str::<Vec<String>>(
@@ -106,7 +106,7 @@ impl LocalDownNovel {
                             .take(2.max(self.other_names.chars().count()) - 2)
                             .collect::<String>()
                             .replace("', ", "\", ")
-                            .replace(", '", ", \"")
+                            .replace(", '", ", \""),
                     )
                     .as_str(),
                 )

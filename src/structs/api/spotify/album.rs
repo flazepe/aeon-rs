@@ -106,7 +106,7 @@ impl SpotifyFullAlbum {
                     Spotify::format_duration(
                         self.tracks.items.iter().map(|track| track.duration_ms).reduce(|acc, cur| acc + cur).unwrap_or(0),
                     ),
-                    plural(self.total_tracks, "song")
+                    plural(self.total_tracks, "song"),
                 ),
                 false,
             )
@@ -125,7 +125,7 @@ impl SpotifyFullAlbum {
                                 SpotifyCopyrightType::Copyright => COPYRIGHT_EMOJI,
                                 SpotifyCopyrightType::Phonogram => PHONOGRAM_EMOJI,
                             },
-                            COPYRIGHT_REGEX.replace_all(&copyright.text, "")
+                            COPYRIGHT_REGEX.replace_all(&copyright.text, ""),
                         )
                     })
                     .collect::<Vec<String>>()
@@ -153,7 +153,7 @@ impl SpotifyFullAlbum {
                         ),
                         track.name,
                         track.external_urls.spotify,
-                        Spotify::format_duration(track.duration_ms)
+                        Spotify::format_duration(track.duration_ms),
                     )
                 })
                 .collect::<Vec<String>>()

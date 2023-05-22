@@ -139,7 +139,7 @@ impl SteamUser {
                             "{}, ",
                             country.states.get(state_code.as_str()).unwrap_or(&"Unknown"),
                         )),
-                        country.name
+                        country.name,
                     ),
                     None => "N/A".into(),
                 },
@@ -152,7 +152,7 @@ impl SteamUser {
                         "[{}](https://store.steampowered.com/app/{}){}",
                         game_extra_info,
                         self.game_id.unwrap_or(0),
-                        format!("\n{}", self.game_server_ip.as_ref().unwrap_or(&"".into())).trim()
+                        format!("\n{}", self.game_server_ip.as_ref().unwrap_or(&"".into())).trim(),
                     )
                 }),
                 true,

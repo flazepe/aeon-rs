@@ -263,7 +263,7 @@ impl OsuUser {
                         3 => format!("{OSU_SUPPORTER_3_EMOJI} "),
                         _ => "".into(),
                     },
-                    self.username
+                    self.username,
                 )
                 .trim(),
             )
@@ -276,9 +276,9 @@ impl OsuUser {
             .add_field(
                 "Rank",
                 format!(
-                    "{} (#{} peak)",
-                    self.statistics.global_rank.map_or("-".into(), |global_rank| format!("#{}", global_rank.separate_with_commas())),
-                    self.rank_highest.rank.separate_with_commas()
+                    "#{} (#{} peak)",
+                    self.statistics.global_rank.map_or("-".into(), |global_rank| format!("{}", global_rank.separate_with_commas())),
+                    self.rank_highest.rank.separate_with_commas(),
                 ),
                 true,
             )

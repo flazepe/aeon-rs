@@ -24,22 +24,14 @@ impl EventHandler {
                 "<@{}> - {}\n{}",
                 reaction.user_id,
                 match reaction.emoji {
-                    ReactionType::Custom { name, id, animated } => {
-                        format!(
-                            "[{}](https://cdn.discordapp.com/emojis/{}.{})",
-                            name.unwrap_or("<deleted>".into()),
-                            id,
-                            match animated {
-                                true => "gif",
-                                false => "png",
-                            },
-                        )
+                    ReactionType::Custom { name, id, animated: _ } => {
+                        format!("[{}](https://cdn.discordapp.com/emojis/{})", name.unwrap_or("<deleted>".into()), id)
                     },
                     ReactionType::Unicode { name } => {
                         name
                     },
                 },
-                format_timestamp(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(), TimestampFormat::Full)
+                format_timestamp(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(), TimestampFormat::Full),
             ));
 
             // Limit

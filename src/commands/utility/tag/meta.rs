@@ -24,7 +24,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                         false => aliases,
                     },
                     yes_no!(tag.nsfw),
-                    format_timestamp(tag.updated_timestamp, TimestampFormat::Full)
+                    format_timestamp(tag.updated_timestamp, TimestampFormat::Full),
                 ),
                 true,
             )

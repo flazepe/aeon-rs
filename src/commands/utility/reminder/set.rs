@@ -19,7 +19,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                 "{}/{}/{}",
                 ctx.input.guild_id.as_ref().unwrap_or(&"@me".into()),
                 ctx.input.channel_id.as_ref().unwrap(),
-                original_message.id
+                original_message.id,
             )
         },
         |custom_id| custom_id.to_string(),

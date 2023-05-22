@@ -64,7 +64,7 @@ impl Snipes {
                                     },
                                 ))
                                 .collect::<Vec<String>>()
-                                .join("\n")
+                                .join("\n"),
                         )
                     })
                     .collect::<Vec<String>>()

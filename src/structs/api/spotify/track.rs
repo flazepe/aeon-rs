@@ -63,7 +63,7 @@ impl SpotifyFullTrack {
                     true => format!("{EXPLICIT_EMOJI} "),
                     false => "".into(),
                 },
-                self.name
+                self.name,
             ))
             .set_url(&self.external_urls.spotify)
     }
@@ -85,7 +85,7 @@ impl SpotifyFullTrack {
                 "Album",
                 format!(
                     "[{}]({}) (disc {}, track {})",
-                    self.album.name, self.album.external_urls.spotify, self.disc_number, self.track_number
+                    self.album.name, self.album.external_urls.spotify, self.disc_number, self.track_number,
                 ),
                 false,
             )
@@ -94,7 +94,7 @@ impl SpotifyFullTrack {
                 format!(
                     "{}{}",
                     Spotify::format_duration(self.duration_ms),
-                    self.preview_url.as_ref().map_or("".into(), |preview_url| format!(" - [Preview]({preview_url})"))
+                    self.preview_url.as_ref().map_or("".into(), |preview_url| format!(" - [Preview]({preview_url})")),
                 ),
                 false,
             )

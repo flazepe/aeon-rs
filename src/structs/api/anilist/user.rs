@@ -123,7 +123,7 @@ impl AniListUser {
                         "[{}]({}){}",
                         anime.title.romaji,
                         anime.site_url,
-                        anime.format.as_ref().map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format)))
+                        anime.format.as_ref().map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format))),
                     )
                 })
                 .collect::<Vec<String>>()
@@ -144,7 +144,7 @@ impl AniListUser {
                         "[{}]({}){}",
                         manga.title.romaji,
                         manga.site_url,
-                        manga.format.as_ref().map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format)))
+                        manga.format.as_ref().map_or("".into(), |format| format!(" ({})", AniList::format_enum_value(format))),
                     )
                 })
                 .collect::<Vec<String>>()
@@ -191,7 +191,7 @@ impl AniList {
 					User(name: $search) {{
 						{ANILIST_USER_FIELDS}
 					}}
-				}}"
+				}}",
             ),
             json!({ "search": name.to_string() }),
         )
