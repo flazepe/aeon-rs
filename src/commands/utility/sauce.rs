@@ -1,13 +1,13 @@
-use crate::structs::{api::saucenao::SauceNAOSearch, command::AeonCommand, command_context::CommandContext};
+use crate::structs::{api::saucenao::SauceNAOSearch, command::Command, command_context::CommandContext};
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
-    AeonCommand::new().main(|ctx: CommandContext| async move {
+static COMMAND: Lazy<Command> = Lazy::new(|| {
+    Command::new().main(|ctx: CommandContext| async move {
         match SauceNAOSearch::query(
             match ctx.get_string_arg("image-url").or(ctx.get_attachment_arg("image-file").map(|attachment| attachment.url.clone())) {
                 Ok(url) => url,
@@ -22,7 +22,7 @@ static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
     })
 });
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
 		name = "sauce",
 		description = "Fetches sauce from an image.",

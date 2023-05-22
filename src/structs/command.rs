@@ -5,23 +5,23 @@ use slashook::commands::{CommandInput, CommandResponder};
 use std::collections::HashMap;
 use tokio::spawn;
 
-pub trait AeonCommandFn: Send + Sync {
+pub trait CommandFn: Send + Sync {
     fn call(&self, ctx: CommandContext) -> BoxFuture<'static, Result<()>>;
 }
 
-impl<T: Fn(CommandContext) -> U + Send + Sync, U: Future<Output = Result<()>> + Send + 'static> AeonCommandFn for T {
+impl<T: Fn(CommandContext) -> U + Send + Sync, U: Future<Output = Result<()>> + Send + 'static> CommandFn for T {
     fn call(&self, ctx: CommandContext) -> BoxFuture<'static, Result<()>> {
         Box::pin(self(ctx))
     }
 }
 
-pub struct AeonCommand {
+pub struct Command {
     owner_only: bool,
-    main: Option<Box<dyn AeonCommandFn>>,
-    subcommands: HashMap<String, Box<dyn AeonCommandFn>>,
+    main: Option<Box<dyn CommandFn>>,
+    subcommands: HashMap<String, Box<dyn CommandFn>>,
 }
 
-impl AeonCommand {
+impl Command {
     pub fn new() -> Self {
         Self { owner_only: false, main: None, subcommands: HashMap::new() }
     }
@@ -31,12 +31,12 @@ impl AeonCommand {
         self
     }
 
-    pub fn main<T: AeonCommandFn + 'static>(mut self, func: T) -> Self {
+    pub fn main<T: CommandFn + 'static>(mut self, func: T) -> Self {
         self.main = Some(Box::new(func));
         self
     }
 
-    pub fn subcommand<T: ToString, U: AeonCommandFn + 'static>(mut self, name: T, func: U) -> Self {
+    pub fn subcommand<T: ToString, U: CommandFn + 'static>(mut self, name: T, func: U) -> Self {
         self.subcommands.insert(name.to_string(), Box::new(func));
         self
     }

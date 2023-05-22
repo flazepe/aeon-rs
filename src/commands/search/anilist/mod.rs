@@ -2,18 +2,18 @@ mod anime;
 mod manga;
 mod user;
 
-use crate::structs::command::AeonCommand;
+use crate::structs::command::Command;
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
-static COMMAND: Lazy<AeonCommand> =
-    Lazy::new(|| AeonCommand::new().subcommand("anime", anime::run).subcommand("manga", manga::run).subcommand("user", user::run));
+static COMMAND: Lazy<Command> =
+    Lazy::new(|| Command::new().subcommand("anime", anime::run).subcommand("manga", manga::run).subcommand("user", user::run));
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
         name = "anilist",
         description = "Fetches various resources from AniList.",

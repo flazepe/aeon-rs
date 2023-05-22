@@ -3,23 +3,23 @@ mod list;
 mod select_menu;
 mod set;
 
-use crate::structs::command::AeonCommand;
+use crate::structs::command::Command;
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
-    AeonCommand::new()
+static COMMAND: Lazy<Command> = Lazy::new(|| {
+    Command::new()
         .subcommand("delete", delete::run)
         .subcommand("list", list::run)
         .subcommand("set", set::run)
         .subcommand("select-menu", select_menu::run)
 });
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
         name = "reminder",
         description = "Manages your reminders.",

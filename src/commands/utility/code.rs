@@ -2,22 +2,22 @@ use crate::{
     statics::CACHE,
     structs::{
         api::tio::{statics::TIO_PROGRAMMING_LANGUAGES, Tio},
-        command::AeonCommand,
+        command::Command,
         command_context::CommandContext,
     },
 };
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder, Modal},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder, Modal},
     structs::{
         components::{Components, TextInput, TextInputStyle},
         interactions::InteractionOptionType,
     },
 };
 
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
-    AeonCommand::new().main(|ctx: CommandContext| {
+static COMMAND: Lazy<Command> = Lazy::new(|| {
+    Command::new().main(|ctx: CommandContext| {
         async move {
             if ctx.input.is_autocomplete() {
                 return ctx.autocomplete(TIO_PROGRAMMING_LANGUAGES.iter()).await;
@@ -63,7 +63,7 @@ static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
     })
 });
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
         name = "code",
         description = "Runs a code.",

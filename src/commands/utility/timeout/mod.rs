@@ -1,17 +1,17 @@
 mod remove;
 mod set;
 
-use crate::structs::command::AeonCommand;
+use crate::structs::command::Command;
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::{interactions::InteractionOptionType, Permissions},
 };
 
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().subcommand("remove", remove::run).subcommand("set", set::run));
+static COMMAND: Lazy<Command> = Lazy::new(|| Command::new().subcommand("remove", remove::run).subcommand("set", set::run));
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
 		name = "timeout",
 		description = "Manages members' timeout.",

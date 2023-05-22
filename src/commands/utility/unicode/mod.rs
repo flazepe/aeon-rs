@@ -1,17 +1,17 @@
 mod list;
 mod search;
 
-use crate::structs::command::AeonCommand;
+use crate::structs::command::Command;
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().subcommand("list", list::run).subcommand("search", search::run));
+static COMMAND: Lazy<Command> = Lazy::new(|| Command::new().subcommand("list", list::run).subcommand("search", search::run));
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
 		name = "unicode",
 		description = "Does operations with unicode.",

@@ -1,17 +1,17 @@
 use crate::structs::{
     api::exchange_rate::{statics::EXCHANGE_RATE_CURRENCIES, ExchangeRateConversion},
-    command::AeonCommand,
+    command::Command,
     command_context::CommandContext,
 };
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
-    AeonCommand::new().main(|ctx: CommandContext| async move {
+static COMMAND: Lazy<Command> = Lazy::new(|| {
+    Command::new().main(|ctx: CommandContext| async move {
         if ctx.input.is_autocomplete() {
             return ctx.autocomplete(EXCHANGE_RATE_CURRENCIES.iter()).await;
         }
@@ -29,7 +29,7 @@ static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
     })
 });
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
         name = "convert-currency",
         description = "Converts a currency to another currency.",

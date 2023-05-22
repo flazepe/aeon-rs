@@ -1,13 +1,13 @@
-use crate::structs::{api::jisho::JishoSearch, command::AeonCommand, command_context::CommandContext, select_menu::SelectMenu};
+use crate::structs::{api::jisho::JishoSearch, command::Command, command_context::CommandContext, select_menu::SelectMenu};
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder, MessageResponse},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder, MessageResponse},
     structs::interactions::InteractionOptionType,
 };
 
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
-    AeonCommand::new().main(|ctx: CommandContext| async move {
+static COMMAND: Lazy<Command> = Lazy::new(|| {
+    Command::new().main(|ctx: CommandContext| async move {
         if ctx.input.is_string_select() {
             return ctx.respond(JishoSearch::get(&ctx.input.values.as_ref().unwrap()[0]).await?.format(), false).await;
         }
@@ -27,7 +27,7 @@ static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
     })
 });
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
 		name = "jisho",
 		description = "Searches Jisho.",

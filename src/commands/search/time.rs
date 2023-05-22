@@ -1,13 +1,13 @@
-use crate::structs::{api::virtualearth::TimeZoneLocation, command::AeonCommand, command_context::CommandContext};
+use crate::structs::{api::virtualearth::TimeZoneLocation, command::Command, command_context::CommandContext};
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
-    AeonCommand::new().main(|ctx: CommandContext| async move {
+static COMMAND: Lazy<Command> = Lazy::new(|| {
+    Command::new().main(|ctx: CommandContext| async move {
         match TimeZoneLocation::get(ctx.get_string_arg("location")?).await {
             Ok(timezone) => ctx.respond(timezone.format(), false).await,
             Err(error) => ctx.respond_error(error, true).await,
@@ -15,7 +15,7 @@ static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
     })
 });
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
 		name = "time",
 		description = "Fetches time and date based on the given location.",

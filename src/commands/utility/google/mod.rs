@@ -2,19 +2,19 @@ mod assistant;
 mod dns;
 mod translate;
 
-use crate::structs::{api::google::statics::GOOGLE_DNS_RECORD_TYPES, command::AeonCommand};
+use crate::structs::{api::google::statics::GOOGLE_DNS_RECORD_TYPES, command::Command};
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
 };
 
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
-    AeonCommand::new().subcommand("assistant", assistant::run).subcommand("dns", dns::run).subcommand("translate", translate::run)
+static COMMAND: Lazy<Command> = Lazy::new(|| {
+    Command::new().subcommand("assistant", assistant::run).subcommand("dns", dns::run).subcommand("translate", translate::run)
 });
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
         name = "google",
         description = "Google commands.",

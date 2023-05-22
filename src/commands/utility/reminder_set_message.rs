@@ -1,19 +1,19 @@
 use crate::{
     functions::add_reminder_select_options,
-    structs::{command::AeonCommand, command_context::CommandContext},
+    structs::{command::Command, command_context::CommandContext},
 };
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::{
         components::{Components, SelectMenu, SelectMenuType},
         interactions::ApplicationCommandType,
     },
 };
 
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
-    AeonCommand::new().main({
+static COMMAND: Lazy<Command> = Lazy::new(|| {
+    Command::new().main({
         |ctx: CommandContext| async move {
             ctx.respond(
                 Components::new().add_select_menu(
@@ -36,7 +36,7 @@ static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
     })
 });
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
 		name = "Remind me",
 		command_type = ApplicationCommandType::MESSAGE,

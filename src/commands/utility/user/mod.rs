@@ -1,17 +1,17 @@
 mod avatar;
 mod banner;
 
-use crate::structs::command::AeonCommand;
+use crate::structs::command::Command;
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| AeonCommand::new().subcommand("avatar", avatar::run).subcommand("banner", banner::run));
+static COMMAND: Lazy<Command> = Lazy::new(|| Command::new().subcommand("avatar", avatar::run).subcommand("banner", banner::run));
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
 		name = "user",
 		description = "Fetches various resources on a Discord user.",

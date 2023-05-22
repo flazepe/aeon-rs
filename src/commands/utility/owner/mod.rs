@@ -1,18 +1,18 @@
 mod request;
 mod status;
 
-use crate::structs::command::AeonCommand;
+use crate::structs::command::Command;
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
 };
 
-static COMMAND: Lazy<AeonCommand> =
-    Lazy::new(|| AeonCommand::new().owner_only().subcommand("request", request::run).subcommand("status", status::run));
+static COMMAND: Lazy<Command> =
+    Lazy::new(|| Command::new().owner_only().subcommand("request", request::run).subcommand("status", status::run));
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
         name = "owner",
         description = "Owner commands.",

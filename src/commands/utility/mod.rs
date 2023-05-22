@@ -18,9 +18,9 @@ mod unicode;
 mod unicode_message;
 mod user;
 
-use slashook::commands::Command;
+use slashook::commands::Command as SlashookCommand;
 
-pub fn get_commands() -> Vec<Command> {
+pub fn get_commands() -> Vec<SlashookCommand> {
     vec![
         calculate::get_command(),
         convert_currency::get_command(),

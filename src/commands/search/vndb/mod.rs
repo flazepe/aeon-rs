@@ -3,23 +3,23 @@ mod character_trait;
 mod tag;
 mod visual_novel;
 
-use crate::structs::command::AeonCommand;
+use crate::structs::command::Command;
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
-    AeonCommand::new()
+static COMMAND: Lazy<Command> = Lazy::new(|| {
+    Command::new()
         .subcommand("character", character::run)
         .subcommand("tag", tag::run)
         .subcommand("trait", character_trait::run)
         .subcommand("visual-novel", visual_novel::run)
 });
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
         name = "vndb",
         description = "Searches for various resources from Visual Novel Database.",

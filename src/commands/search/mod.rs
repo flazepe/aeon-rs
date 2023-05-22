@@ -8,9 +8,9 @@ mod stock;
 mod time;
 mod vndb;
 
-use slashook::commands::Command;
+use slashook::commands::Command as SlashookCommand;
 
-pub fn get_commands() -> Vec<Command> {
+pub fn get_commands() -> Vec<SlashookCommand> {
     vec![
         anilist::get_command(),
         distrowatch::get_command(),

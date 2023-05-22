@@ -1,16 +1,16 @@
 use crate::{
     statics::REQWEST,
-    structs::{command::AeonCommand, command_context::CommandContext},
+    structs::{command::Command, command_context::CommandContext},
 };
 use once_cell::sync::Lazy;
 use slashook::{
     command,
-    commands::{Command, CommandInput, CommandResponder},
+    commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
 
-static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
-    AeonCommand::new().main(|ctx: CommandContext| async move {
+static COMMAND: Lazy<Command> = Lazy::new(|| {
+    Command::new().main(|ctx: CommandContext| async move {
         let expression = ctx.get_string_arg("expression")?;
 
         let body = match expression.chars().all(|char| char.is_numeric()) {
@@ -31,7 +31,7 @@ static COMMAND: Lazy<AeonCommand> = Lazy::new(|| {
     })
 });
 
-pub fn get_command() -> Command {
+pub fn get_command() -> SlashookCommand {
     #[command(
         name = "calculate",
         description = "Calculates a mathematics expression.",
