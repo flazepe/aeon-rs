@@ -65,7 +65,7 @@ impl Google {
                     device_model_id: CONFIG.api.google_assistant.device_model_id.clone(),
                 }),
                 dialog_state_in: Some(DialogStateIn {
-                    conversation_state: vec![0],
+                    conversation_state: vec![],
                     language_code: "en-US".to_string(),
                     device_location: Some(DeviceLocation {
                         r#type: Some(DeviceLocationType::Coordinates(
@@ -133,14 +133,6 @@ impl Google {
 
                 return Ok((screenshot, suggestions));
             }
-
-            /*
-            if let Some(dialog_state_out) = message.dialog_state_out {
-                if !dialog_state_out.supplemental_display_text.is_empty() {
-                    println!({}", dialog_state_out.supplemental_display_text);
-                }
-            }
-            */
         }
 
         bail!("Could not get response.")
