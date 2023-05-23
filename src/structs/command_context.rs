@@ -7,7 +7,6 @@ use slashook::{
     commands::{CommandInput, CommandResponder, MessageResponse},
     structs::{
         channels::{Attachment, Channel},
-        components::Components,
         guilds::Role,
         interactions::ApplicationCommandOptionChoice,
         users::User,
