@@ -1,12 +1,12 @@
 use crate::structs::{api::google::Google, command_context::CommandContext, select_menu::SelectMenu};
 use anyhow::Result;
-use slashook::{
-    commands::MessageResponse,
-    structs::{channels::AllowedMentions, utils::File},
-};
+use slashook::{commands::MessageResponse, structs::utils::File};
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    ctx.res.defer(false).await?;
+    match ctx.input.is_string_select() {
+        true => ctx.res.defer_update().await?,
+        false => ctx.res.defer(false).await?,
+    };
 
     match Google::query_assistant(match ctx.input.is_string_select() {
         true => ctx.input.values.as_ref().unwrap()[0].clone(),
@@ -16,10 +16,6 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     {
         Ok((image, suggestions)) => {
             let mut response = MessageResponse::from(File::new("image.png", image));
-
-            if ctx.input.is_string_select() {
-                response = response.set_content(ctx.input.user.mention()).set_allowed_mentions(AllowedMentions::new());
-            }
 
             if !suggestions.is_empty() {
                 let mut select_menu = SelectMenu::new("google", "assistant", "Try saying…", None::<String>);
