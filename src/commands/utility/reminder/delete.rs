@@ -2,8 +2,7 @@ use crate::structs::{command_context::CommandContext, database::reminders::Remin
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let reminders = Reminders::new();
-    let entries = reminders.get_many(&ctx.input.user.id).await.unwrap_or(vec![]);
+    let entries = Reminders::get_many(&ctx.input.user.id).await.unwrap_or(vec![]);
 
     if ctx.input.is_autocomplete() {
         return ctx
@@ -18,7 +17,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         Err(_) => return ctx.respond_error("Please enter a valid number.", true).await,
     }) {
         Some(entry) => {
-            reminders.delete(entry._id).await?;
+            Reminders::delete(entry._id).await?;
             ctx.respond_success("Gone.", true).await
         },
         None => ctx.respond_error("Invalid entry.", true).await,

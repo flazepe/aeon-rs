@@ -44,18 +44,17 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     ) || ctx.input.guild_id.is_none()
         || ctx.get_bool_arg("dm").unwrap_or(false);
 
-    match Reminders::new()
-        .set(
-            &ctx.input.user.id,
-            &url,
-            Duration::new()
-                .parse(ctx.input.values.as_ref().map_or(ctx.get_string_arg("time").unwrap_or("".into()), |values| values[0].to_string()))
-                .unwrap_or(Duration::new()),
-            Duration::new().parse(ctx.get_string_arg("interval").unwrap_or("".into())).unwrap_or(Duration::new()),
-            &reminder,
-            dm,
-        )
-        .await
+    match Reminders::set(
+        &ctx.input.user.id,
+        &url,
+        Duration::new()
+            .parse(ctx.input.values.as_ref().map_or(ctx.get_string_arg("time").unwrap_or("".into()), |values| values[0].to_string()))
+            .unwrap_or(Duration::new()),
+        Duration::new().parse(ctx.get_string_arg("interval").unwrap_or("".into())).unwrap_or(Duration::new()),
+        &reminder,
+        dm,
+    )
+    .await
     {
         Ok(response) => ctx.respond_success(response, false).await,
         Err(error) => ctx.respond_error(error, true).await,

@@ -7,7 +7,7 @@ use anyhow::Result;
 use slashook::structs::embeds::Embed;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    match Reminders::new().get_many(&ctx.input.user.id).await {
+    match Reminders::get_many(&ctx.input.user.id).await {
         Ok(reminders) => {
             ctx.respond(
                 Embed::new().set_color(PRIMARY_COLOR)?.set_description(

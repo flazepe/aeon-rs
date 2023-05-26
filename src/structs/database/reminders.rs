@@ -1,19 +1,15 @@
 use crate::{
     functions::add_reminder_select_options,
-    statics::{colors::NOTICE_COLOR, CONFIG, MONGODB},
+    statics::{colors::NOTICE_COLOR, COLLECTIONS, REST},
     structs::duration::{statics::SECS_PER_MONTH, Duration},
 };
 use anyhow::{bail, Result};
 use futures::stream::TryStreamExt;
-use mongodb::{
-    bson::{doc, oid::ObjectId},
-    Collection,
-};
+use mongodb::bson::{doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use slashook::{
     commands::MessageResponse,
-    rest::Rest,
     structs::{
         channels::{Channel, Message},
         components::{Components, SelectMenu, SelectMenuType},
@@ -36,30 +32,23 @@ pub struct Reminder {
     pub dm: bool,
 }
 
-pub struct Reminders {
-    rest: Option<Rest>,
-    reminders: Collection<Reminder>,
-}
+pub struct Reminders {}
 
 impl Reminders {
-    pub fn new() -> Self {
-        Self { rest: None, reminders: MONGODB.get().unwrap().collection::<Reminder>("reminders") }
-    }
-
-    pub async fn poll(mut self) -> Result<()> {
+    pub async fn poll() -> Result<()> {
         loop {
             let current_timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
 
-            for mut reminder in self
+            for mut reminder in COLLECTIONS
                 .reminders
                 .find(doc! { "timestamp": { "$lte": current_timestamp as i64 } }, None)
                 .await?
                 .try_collect::<Vec<Reminder>>()
                 .await?
             {
-                match self.handle(&reminder).await {
+                match Self::handle(&reminder).await {
                     Ok(_) => {
-                        self.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
+                        COLLECTIONS.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
 
                         if reminder.interval > 0 {
                             // To prevent spam and keeping precision, while loop is needed to ensure that the new timestamp isn't behind the current timestamp
@@ -67,7 +56,7 @@ impl Reminders {
                                 reminder.timestamp += reminder.interval;
                             }
 
-                            self.reminders.insert_one(&reminder, None).await?;
+                            COLLECTIONS.reminders.insert_one(&reminder, None).await?;
                         }
                     },
                     Err(error) => {
@@ -79,7 +68,7 @@ impl Reminders {
                             .iter()
                             .find(|message| error.contains(&message.to_string()))
                         {
-                            self.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
+                            COLLECTIONS.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
                             println!("[REMINDERS] Deleted reminder {} due to fatal error \"{fatal_error}\".", reminder._id);
                         }
                     },
@@ -90,11 +79,7 @@ impl Reminders {
         }
     }
 
-    async fn handle(&mut self, reminder: &Reminder) -> Result<()> {
-        if self.rest.is_none() {
-            self.rest = Some(Rest::with_token(CONFIG.bot.token.clone()));
-        }
-
+    async fn handle(reminder: &Reminder) -> Result<()> {
         let mut response = MessageResponse::from(match reminder.dm {
             true => "".into(),
             false => format!("<@{}>", reminder.user_id),
@@ -118,17 +103,10 @@ impl Reminders {
         }
 
         Message::create(
-            self.rest.as_ref().unwrap(),
+            &REST,
             match reminder.dm && !reminder.url.contains("@me") {
                 // If the reminder should be DM'd but was created inside a guild channel, we have to create a new DM channel
-                true => {
-                    self.rest
-                        .as_ref()
-                        .unwrap()
-                        .post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": reminder.user_id }))
-                        .await?
-                        .id
-                },
+                true => REST.post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": reminder.user_id })).await?.id,
                 // Else, just grab channel ID from the URL
                 false => reminder.url.split("/").skip(1).next().unwrap().to_string(),
             },
@@ -139,8 +117,8 @@ impl Reminders {
         Ok(())
     }
 
-    pub async fn get_many<T: ToString>(&self, user_id: T) -> Result<Vec<Reminder>> {
-        let reminders = self
+    pub async fn get_many<T: ToString>(user_id: T) -> Result<Vec<Reminder>> {
+        let reminders = COLLECTIONS
             .reminders
             .find(
                 doc! {
@@ -160,7 +138,6 @@ impl Reminders {
     }
 
     pub async fn set<T: ToString, U: ToString, V: ToString>(
-        &self,
         user_id: T,
         url: U,
         time: Duration,
@@ -168,7 +145,7 @@ impl Reminders {
         reminder: V,
         dm: bool,
     ) -> Result<String> {
-        if self.reminders.count_documents(doc! { "user_id": user_id.to_string() }, None).await? >= 10 {
+        if COLLECTIONS.reminders.count_documents(doc! { "user_id": user_id.to_string() }, None).await? >= 10 {
             bail!("You can only have up to 10 reminders.");
         }
 
@@ -189,7 +166,8 @@ impl Reminders {
             bail!("Unsupported message.");
         }
 
-        self.reminders
+        COLLECTIONS
+            .reminders
             .insert_one(
                 &Reminder {
                     _id: ObjectId::new(),
@@ -219,8 +197,8 @@ impl Reminders {
         ))
     }
 
-    pub async fn delete(&self, id: ObjectId) -> Result<()> {
-        self.reminders.delete_one(doc! { "_id": id }, None).await?;
+    pub async fn delete(id: ObjectId) -> Result<()> {
+        COLLECTIONS.reminders.delete_one(doc! { "_id": id }, None).await?;
         Ok(())
     }
 }

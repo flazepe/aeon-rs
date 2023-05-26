@@ -158,8 +158,7 @@ pub fn get_command() -> SlashookCommand {
 
             return res
                 .autocomplete(
-                    Tags::new()
-                        .search(input.guild_id.unwrap(), None::<String>)
+                    Tags::search(input.guild_id.unwrap(), None::<String>)
                         .await
                         .unwrap_or(vec![])
                         .iter()

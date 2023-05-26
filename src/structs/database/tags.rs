@@ -1,10 +1,7 @@
-use crate::statics::{FLAZEPE_ID, MONGODB};
+use crate::statics::{COLLECTIONS, FLAZEPE_ID};
 use anyhow::{bail, Result};
 use futures::stream::TryStreamExt;
-use mongodb::{
-    bson::{doc, oid::ObjectId},
-    Collection,
-};
+use mongodb::bson::{doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};
 use slashook::structs::{guilds::GuildMember, Permissions};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -22,19 +19,13 @@ pub struct Tag {
     pub updated_timestamp: u64,
 }
 
-pub struct Tags {
-    tags: Collection<Tag>,
-}
+pub struct Tags {}
 
 impl Tags {
-    pub fn new() -> Self {
-        Self { tags: MONGODB.get().unwrap().collection::<Tag>("tags") }
-    }
-
-    pub async fn get<T: ToString, U: ToString>(&self, name: T, guild_id: U) -> Result<Tag> {
+    pub async fn get<T: ToString, U: ToString>(name: T, guild_id: U) -> Result<Tag> {
         let name = name.to_string().to_lowercase();
 
-        match self
+        match COLLECTIONS
             .tags
             .find_one(
                 doc! {
@@ -50,8 +41,8 @@ impl Tags {
         }
     }
 
-    pub async fn search<T: ToString, U: ToString>(&self, guild_id: T, author_id: Option<U>) -> Result<Vec<Tag>> {
-        let tags = self
+    pub async fn search<T: ToString, U: ToString>(guild_id: T, author_id: Option<U>) -> Result<Vec<Tag>> {
+        let tags = COLLECTIONS
             .tags
             .find(
                 match author_id {
@@ -77,7 +68,6 @@ impl Tags {
     }
 
     pub async fn create<T: ToString, U: ToString + Copy, V: ToString + Copy, W: ToString>(
-        &self,
         name: T,
         guild_id: U,
         author_id: V,
@@ -90,19 +80,20 @@ impl Tags {
             bail!("Only members with the Manage Messages permission can create tags.");
         }
 
-        let name = Tags::validate_tag_name(name)?;
+        let name = Self::validate_tag_name(name)?;
 
-        if self.get(&name, guild_id).await.is_ok() {
+        if Self::get(&name, guild_id).await.is_ok() {
             bail!("Tag already exists.");
         }
 
-        if self.tags.count_documents(doc! { "guild_id": guild_id.to_string() }, None).await? == 100 {
+        if COLLECTIONS.tags.count_documents(doc! { "guild_id": guild_id.to_string() }, None).await? == 100 {
             bail!("I'm sure 100 tags are enough for your server.");
         }
 
         let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
 
-        self.tags
+        COLLECTIONS
+            .tags
             .insert_one(
                 Tag {
                     _id: ObjectId::new(),
@@ -122,10 +113,11 @@ impl Tags {
         Ok("Created.".into())
     }
 
-    pub async fn delete<T: ToString, U: ToString>(&self, name: T, guild_id: U, modifier: &GuildMember) -> Result<String> {
-        let tag = Tags::validate_tag_modifier(self.get(name, guild_id).await?, modifier)?;
+    pub async fn delete<T: ToString, U: ToString>(name: T, guild_id: U, modifier: &GuildMember) -> Result<String> {
+        let tag = Self::validate_tag_modifier(Self::get(name, guild_id).await?, modifier)?;
 
-        self.tags
+        COLLECTIONS
+            .tags
             .delete_one(
                 doc! {
                     "name": tag.name,
@@ -139,14 +131,13 @@ impl Tags {
     }
 
     pub async fn edit<T: ToString, U: ToString + Copy, V: ToString, W: ToString>(
-        &self,
         name: T,
         guild_id: U,
         new_name: V,
         content: W,
         modifier: &GuildMember,
     ) -> Result<String> {
-        let tag = Tags::validate_tag_modifier(self.get(name, guild_id).await?, modifier)?;
+        let tag = Self::validate_tag_modifier(Self::get(name, guild_id).await?, modifier)?;
 
         let name = {
             let new_name = new_name.to_string();
@@ -154,9 +145,9 @@ impl Tags {
             match new_name.is_empty() {
                 true => tag.name.clone(),
                 false => {
-                    let new_name = Tags::validate_tag_name(new_name)?;
+                    let new_name = Self::validate_tag_name(new_name)?;
 
-                    if self.get(&new_name, guild_id).await.is_ok() {
+                    if Self::get(&new_name, guild_id).await.is_ok() {
                         bail!("Tag with that new name already exists.");
                     }
 
@@ -171,7 +162,8 @@ impl Tags {
             bail!("No changes detected.");
         }
 
-        self.tags
+        COLLECTIONS
+            .tags
             .update_one(
                 doc! {
                     "name": tag.name,
@@ -191,13 +183,12 @@ impl Tags {
     }
 
     pub async fn toggle_alias<T: ToString, U: ToString + Copy, V: ToString>(
-        &self,
         name: T,
         guild_id: U,
         alias: V,
         modifier: &GuildMember,
     ) -> Result<String> {
-        let mut tag = Tags::validate_tag_modifier(self.get(name, guild_id).await?, modifier)?;
+        let mut tag = Tags::validate_tag_modifier(Self::get(name, guild_id).await?, modifier)?;
         let alias = Tags::validate_tag_name(alias)?;
         let new = !tag.aliases.contains(&alias);
 
@@ -207,7 +198,7 @@ impl Tags {
                     bail!("Maximum alias amount reached.");
                 }
 
-                if self.get(&alias, guild_id).await.is_ok() {
+                if Self::get(&alias, guild_id).await.is_ok() {
                     bail!("Tag with that new alias already exists.");
                 }
 
@@ -216,7 +207,8 @@ impl Tags {
             false => tag.aliases = tag.aliases.into_iter().filter(|entry| entry != &alias).collect(),
         }
 
-        self.tags
+        COLLECTIONS
+            .tags
             .update_one(
                 doc! {
                     "name": &tag.name,
@@ -238,11 +230,12 @@ impl Tags {
         })
     }
 
-    pub async fn toggle_nsfw<T: ToString, U: ToString>(&self, name: T, guild_id: U, modifier: &GuildMember) -> Result<String> {
-        let tag = Tags::validate_tag_modifier(self.get(name, guild_id).await?, modifier)?;
+    pub async fn toggle_nsfw<T: ToString, U: ToString>(name: T, guild_id: U, modifier: &GuildMember) -> Result<String> {
+        let tag = Self::validate_tag_modifier(Self::get(name, guild_id).await?, modifier)?;
         let nsfw = !tag.nsfw;
 
-        self.tags
+        COLLECTIONS
+            .tags
             .update_one(
                 doc! {
                     "name": &tag.name,

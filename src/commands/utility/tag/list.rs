@@ -10,7 +10,7 @@ use slashook::structs::embeds::Embed;
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let author = ctx.get_user_arg("author").ok();
 
-    match Tags::new().search(ctx.input.guild_id.as_ref().unwrap(), author.map(|user| &user.id)).await {
+    match Tags::search(ctx.input.guild_id.as_ref().unwrap(), author.map(|user| &user.id)).await {
         Ok(tags) => {
             ctx.respond(
                 Embed::new()

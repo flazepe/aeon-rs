@@ -7,15 +7,14 @@ use slashook::{
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     match ctx.input.is_modal_submit() {
-        true => match Tags::new()
-            .create(
-                ctx.get_string_arg("tag")?,
-                ctx.input.guild_id.as_ref().unwrap(),
-                &ctx.input.user.id,
-                ctx.get_string_arg("content")?,
-                ctx.input.member.as_ref().unwrap(),
-            )
-            .await
+        true => match Tags::create(
+            ctx.get_string_arg("tag")?,
+            ctx.input.guild_id.as_ref().unwrap(),
+            &ctx.input.user.id,
+            ctx.get_string_arg("content")?,
+            ctx.input.member.as_ref().unwrap(),
+        )
+        .await
         {
             Ok(response) => ctx.respond_success(response, true).await,
             Err(error) => ctx.respond_error(error, true).await,

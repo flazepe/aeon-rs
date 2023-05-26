@@ -1,30 +1,28 @@
-use crate::statics::MONGODB;
+use crate::statics::COLLECTIONS;
 use anyhow::Result;
 use mongodb::{
     bson::{doc, to_document},
     options::UpdateOptions,
-    Collection,
 };
 use reqwest::RequestBuilder;
 use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Deserialize)]
-struct RawOauthToken {
+struct RawOAuthToken {
     access_token: String,
     token_type: String,
     expires_in: u64,
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct OauthToken {
+pub struct OAuthToken {
     pub _id: String,
     pub token: String,
     pub expires_at: u64,
 }
 
 pub struct OAuth {
-    oauth: Collection<OauthToken>,
     name: String,
     request: RequestBuilder,
     timestamp: u64,
@@ -32,24 +30,20 @@ pub struct OAuth {
 
 impl OAuth {
     pub fn new<T: ToString>(name: T, request: RequestBuilder) -> Self {
-        Self {
-            oauth: MONGODB.get().unwrap().collection::<OauthToken>("oauth"),
-            name: name.to_string(),
-            request,
-            timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
-        }
+        Self { name: name.to_string(), request, timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() }
     }
 
-    async fn generate_token(self) -> Result<OauthToken> {
-        let token = self.request.send().await?.json::<RawOauthToken>().await?;
+    async fn generate_token(self) -> Result<OAuthToken> {
+        let token = self.request.send().await?.json::<RawOAuthToken>().await?;
 
-        let token = OauthToken {
+        let token = OAuthToken {
             _id: self.name.clone(),
             token: format!("{} {}", token.token_type, token.access_token),
             expires_at: self.timestamp + token.expires_in,
         };
 
-        self.oauth
+        COLLECTIONS
+            .oauth
             .update_one(
                 doc! {
                     "_id": self.name,
@@ -65,7 +59,7 @@ impl OAuth {
     }
 
     pub async fn get_token(self) -> Result<String> {
-        Ok(match self.oauth.find_one(doc! { "_id": &self.name }, None).await? {
+        Ok(match COLLECTIONS.oauth.find_one(doc! { "_id": &self.name }, None).await? {
             Some(token) => {
                 match token.expires_at > self.timestamp {
                     true => token,

@@ -25,7 +25,7 @@ async fn main() -> Result<()> {
     println!("[DATABASE] Connected to MongoDB.");
 
     // Reminders
-    spawn(Reminders::new().poll());
+    spawn(Reminders::poll());
     println!("[REMINDERS] Started polling reminders.");
 
     // Spawn gateway client

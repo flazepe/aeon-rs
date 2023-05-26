@@ -6,7 +6,7 @@ use slashook::{
 };
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    match Tags::new().get(ctx.get_string_arg("tag")?, ctx.input.guild_id.as_ref().unwrap()).await {
+    match Tags::get(ctx.get_string_arg("tag")?, ctx.input.guild_id.as_ref().unwrap()).await {
         Ok(tag) => {
             if tag.nsfw {
                 if !Channel::fetch(&ctx.input.rest, ctx.input.channel_id.as_ref().unwrap())

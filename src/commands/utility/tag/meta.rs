@@ -8,7 +8,7 @@ use anyhow::Result;
 use slashook::structs::users::User;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    match Tags::new().get(ctx.get_string_arg("tag")?, ctx.input.guild_id.as_ref().unwrap()).await {
+    match Tags::get(ctx.get_string_arg("tag")?, ctx.input.guild_id.as_ref().unwrap()).await {
         Ok(tag) => {
             let aliases = tag.aliases.iter().map(|alias| format!("`{alias}`")).collect::<Vec<String>>().join(", ");
 

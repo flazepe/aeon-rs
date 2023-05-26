@@ -2,11 +2,16 @@ pub mod colors;
 pub mod emojis;
 pub mod regex;
 
-use crate::structs::{config::Config, gateway::cache::Cache};
+use crate::structs::{
+    config::Config,
+    database::{oauth::OAuthToken, reminders::Reminder, tags::Tag, Collections},
+    gateway::cache::Cache,
+};
 use async_once_cell::OnceCell as AsyncOnceCell;
 use mongodb::Database;
 use once_cell::sync::Lazy;
 use reqwest::Client;
+use slashook::rest::Rest;
 use std::{collections::HashMap, fs::read_to_string, sync::RwLock};
 use toml::from_str;
 
@@ -25,5 +30,13 @@ pub static CACHE: Lazy<Cache> = Lazy::new(|| Cache {
 });
 
 pub static CONFIG: Lazy<Config> = Lazy::new(|| from_str(&read_to_string("config.toml").unwrap()).unwrap());
+pub static REST: Lazy<Rest> = Lazy::new(|| Rest::with_token(CONFIG.bot.token.clone()));
 pub static MONGODB: AsyncOnceCell<Database> = AsyncOnceCell::new();
+
+pub static COLLECTIONS: Lazy<Collections> = Lazy::new(|| Collections {
+    oauth: MONGODB.get().unwrap().collection::<OAuthToken>("oauth"),
+    reminders: MONGODB.get().unwrap().collection::<Reminder>("oauth"),
+    tags: MONGODB.get().unwrap().collection::<Tag>("oauth"),
+});
+
 pub static REQWEST: Lazy<Client> = Lazy::new(|| Client::new());
