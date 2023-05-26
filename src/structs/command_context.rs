@@ -7,6 +7,7 @@ use slashook::{
     commands::{CommandInput, CommandResponder, MessageResponse},
     structs::{
         channels::{Attachment, Channel},
+        components::Components,
         guilds::Role,
         interactions::ApplicationCommandOptionChoice,
         users::User,
@@ -77,11 +78,25 @@ impl CommandContext {
     }
 
     pub async fn respond_error<T: Display>(&self, response: T, ephemeral: bool) -> Result<()> {
-        self.respond(MessageResponse::from(format!("{ERROR_EMOJI} {response}")).clear_embeds().clear_attachments(), ephemeral).await
+        self.respond(
+            MessageResponse::from(format!("{ERROR_EMOJI} {response}"))
+                .set_components(Components::empty())
+                .clear_embeds()
+                .clear_attachments(),
+            ephemeral,
+        )
+        .await
     }
 
     pub async fn respond_success<T: Display>(&self, response: T, ephemeral: bool) -> Result<()> {
-        self.respond(MessageResponse::from(format!("{SUCCESS_EMOJI} {response}")).clear_embeds().clear_attachments(), ephemeral).await
+        self.respond(
+            MessageResponse::from(format!("{SUCCESS_EMOJI} {response}"))
+                .set_components(Components::empty())
+                .clear_embeds()
+                .clear_attachments(),
+            ephemeral,
+        )
+        .await
     }
 
     pub async fn autocomplete<T: Iterator<Item = (K, V)>, K: ToString, V: ToString>(&self, iter: T) -> Result<()> {
