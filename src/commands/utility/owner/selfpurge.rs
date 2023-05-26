@@ -11,7 +11,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         Err(_) => Channel::fetch(&ctx.input.rest, ctx.input.channel_id.as_ref().unwrap()).await?,
     };
 
-    let mut messages = match channel.fetch_messages(&ctx.input.rest, MessageFetchOptions::new()).await {
+    let mut messages = match channel.fetch_messages(&ctx.input.rest, MessageFetchOptions::new().set_limit(100)).await {
         Ok(messages) => messages,
         Err(_) => return ctx.respond_error("An error occurred while trying to fetch messages.", true).await,
     };
