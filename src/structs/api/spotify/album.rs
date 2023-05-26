@@ -141,19 +141,16 @@ impl SpotifyFullAlbum {
                 .iter()
                 .map(|track| {
                     format!(
-                        "`{}.` [{}]({}) [{}]",
-                        format!(
-                            "{}{:0pad_length$}",
-                            match self.tracks.items.iter().any(|track| track.disc_number == 2) {
-                                true => format!("{}-", track.disc_number),
-                                false => "".into(),
-                            },
-                            track.track_number,
-                            pad_length = self.tracks.items.len().to_string().len(),
-                        ),
+                        "`{}{:0pad_length$}.` [{}]({}) [{}]",
+                        match self.tracks.items.iter().any(|track| track.disc_number == 2) {
+                            true => format!("{}-", track.disc_number),
+                            false => "".into(),
+                        },
+                        track.track_number,
                         track.name,
                         track.external_urls.spotify,
                         Spotify::format_duration(track.duration_ms),
+                        pad_length = self.tracks.items.len().to_string().len(),
                     )
                 })
                 .collect::<Vec<String>>()
@@ -195,7 +192,7 @@ impl Spotify {
         let query = query.to_string();
 
         match query.contains("album") {
-            true => Ok(vec![Spotify::get_simple_album(query.split("/").last().unwrap().split("?").next().unwrap()).await?]),
+            true => Ok(vec![Spotify::get_simple_album(query.split('/').last().unwrap().split('?').next().unwrap()).await?]),
             false => {
                 let results = Spotify::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}")).await?.albums.items;
 

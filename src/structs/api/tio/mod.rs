@@ -60,9 +60,9 @@ impl Tio {
 
                     format!(
                         "{}{key}\0{}",
-                        match key.starts_with(".") {
-                            true => "F",
-                            false => "V",
+                        match key.starts_with('.') {
+                            true => 'F',
+                            false => 'V',
                         },
                         values.join("\0"),
                     )
@@ -75,8 +75,7 @@ impl Tio {
 
         let mut result = vec![];
 
-        GzDecoder::new(&mut result)
-            .write_all(&REQWEST.post("https://tio.run/cgi-bin/run/api/").body(body).send().await?.bytes().await?.to_vec())?;
+        GzDecoder::new(&mut result).write_all(&REQWEST.post("https://tio.run/cgi-bin/run/api/").body(body).send().await?.bytes().await?)?;
 
         let result = String::from_utf8(result)?;
         let result = result.replace(&result.chars().take(16).collect::<String>(), "");

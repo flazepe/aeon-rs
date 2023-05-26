@@ -185,7 +185,7 @@ impl Spotify {
         let query = query.to_string();
 
         match query.contains("track") {
-            true => Ok(vec![Spotify::get_track(query.split("/").last().unwrap().split("?").next().unwrap()).await?]),
+            true => Ok(vec![Spotify::get_track(query.split('/').last().unwrap().split('?').next().unwrap()).await?]),
             false => {
                 let results = Spotify::query::<_, SpotifySearchTrackResponse>(format!("search?type=track&q={query}")).await?.tracks.items;
 

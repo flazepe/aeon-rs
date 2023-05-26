@@ -116,7 +116,7 @@ impl OrdrRender {
         // 8 minutes timeout
         SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() - start_time < 480 &&
             // Break if the state is no longer a progress
-            state.contains("%")
+            state.contains('%')
         {
             renders = CACHE.ordr_renders.read().unwrap().clone();
             state = renders.get(&self.render_id.unwrap()).unwrap();
@@ -137,45 +137,36 @@ impl OrdrRender {
         ClientBuilder::new("https://ordr-ws.issou.best")
             .on("render_progress_json", |payload, _, _| {
                 async {
-                    match payload {
-                        Some(Payload::Json(value)) => {
-                            let render = from_value::<OrdrWsRenderProgress>(value).unwrap();
+                    if let Some(Payload::Json(value)) = payload {
+                        let render = from_value::<OrdrWsRenderProgress>(value).unwrap();
 
-                            if render.progress.contains("0%") && CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
-                                CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.progress);
-                            }
-                        },
-                        _ => {},
+                        if render.progress.contains("0%") && CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
+                            CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.progress);
+                        }
                     }
                 }
                 .boxed()
             })
             .on("render_done_json", |payload, _, _| {
                 async {
-                    match payload {
-                        Some(Payload::Json(value)) => {
-                            let render = from_value::<OrdrWsRenderDone>(value).unwrap();
+                    if let Some(Payload::Json(value)) = payload {
+                        let render = from_value::<OrdrWsRenderDone>(value).unwrap();
 
-                            if CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
-                                CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.video_url);
-                            }
-                        },
-                        _ => {},
+                        if CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
+                            CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.video_url);
+                        }
                     }
                 }
                 .boxed()
             })
             .on("render_failed_json", |payload, _, _| {
                 async {
-                    match payload {
-                        Some(Payload::Json(value)) => {
-                            let render = from_value::<OrdrWsRenderFailed>(value).unwrap();
+                    if let Some(Payload::Json(value)) = payload {
+                        let render = from_value::<OrdrWsRenderFailed>(value).unwrap();
 
-                            if CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
-                                CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.error_message);
-                            }
-                        },
-                        _ => {},
+                        if CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
+                            CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.error_message);
+                        }
                     }
                 }
                 .boxed()

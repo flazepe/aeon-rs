@@ -1,4 +1,4 @@
-use crate::statics::{REQWEST, CONFIG};
+use crate::statics::{CONFIG, REQWEST};
 use anyhow::{bail, Result};
 use serde::Deserialize;
 
@@ -79,6 +79,6 @@ impl TimeZoneLocation {
 
     pub fn format(&self) -> String {
         let timezone = &self.time_zone[0];
-        format!("It is `{} UTC {}` in {}.", timezone.converted_time.local_time.replace("T", " "), timezone.utc_offset, self.place_name)
+        format!("It is `{} UTC {}` in {}.", timezone.converted_time.local_time.replace('T', " "), timezone.utc_offset, self.place_name)
     }
 }

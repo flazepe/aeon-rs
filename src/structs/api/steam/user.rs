@@ -6,11 +6,11 @@ use crate::{
         user_bans::SteamUserBans,
         Steam,
     },
+    traits::Commas,
 };
 use anyhow::{Context, Result};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
-use thousands::Separable;
 
 #[derive(Deserialize)]
 struct SteamUsersResponse {
@@ -98,7 +98,7 @@ impl SteamUser {
     pub fn format(&self) -> Embed {
         let mut vanity = self.profile_url.clone();
 
-        vanity = vanity.chars().take(vanity.len() - 1).collect::<String>().split("/").last().unwrap_or("None").to_string();
+        vanity = vanity.chars().take(vanity.len() - 1).collect::<String>().split('/').last().unwrap_or("None").to_string();
 
         let mut embed = Embed::new()
             .set_color(STEAM_EMBED_COLOR)
@@ -167,7 +167,7 @@ impl SteamUser {
                     format!("{} ({}, {})", yes_no!(bans.vac_banned), plural(bans.vac_bans, "VAC ban"), plural(bans.game_bans, "game ban")),
                     true,
                 )
-                .add_field("Days Since Last Ban", bans.days_since_last_ban.separate_with_commas(), true);
+                .add_field("Days Since Last Ban", bans.days_since_last_ban.commas(), true);
         }
 
         embed
@@ -178,7 +178,7 @@ impl Steam {
     pub async fn get_user<T: ToString>(id: T) -> Result<SteamUser> {
         let mut id = id.to_string();
 
-        if !id.chars().into_iter().all(|char| char.is_numeric()) {
+        if !id.chars().all(|char| char.is_numeric()) {
             id = Steam::get_user_vanity(&id).await?;
         }
 

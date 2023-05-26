@@ -3,12 +3,12 @@ use crate::{
     macros::yes_no,
     statics::colors::PRIMARY_COLOR,
     structs::api::vndb::{statics::TRAIT_FIELDS, Vndb},
+    traits::Commas,
 };
 use anyhow::{bail, Result};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::structs::embeds::Embed;
-use thousands::Separable;
 
 #[derive(Deserialize)]
 pub struct VndbTrait {
@@ -34,7 +34,7 @@ impl VndbTrait {
             .add_field("Description", limit_string(Vndb::clean_bbcode(&self.description), "\n", 1024), false)
             .add_field("Searchable", yes_no!(self.searchable), true)
             .add_field("Applicable", yes_no!(self.applicable), true)
-            .add_field("Character Count", self.char_count.separate_with_commas(), true)
+            .add_field("Character Count", self.char_count.commas(), true)
     }
 }
 
@@ -44,7 +44,7 @@ impl Vndb {
 
         let results = Vndb::query(
             "trait",
-            match query.starts_with("i") && query.chars().skip(1).all(|char| char.is_numeric()) {
+            match query.starts_with('i') && query.chars().skip(1).all(|char| char.is_numeric()) {
                 true => json!({
                     "filters": ["id", "=", query],
                     "fields": TRAIT_FIELDS,

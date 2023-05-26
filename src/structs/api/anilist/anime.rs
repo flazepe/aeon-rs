@@ -70,7 +70,7 @@ impl AniListAnime {
                     true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
                     false => self.title.romaji.clone(),
                 },
-                self.format.as_ref().map_or("TBA".into(), |format| AniList::format_enum_value(format)),
+                self.format.as_ref().map_or("TBA".into(), AniList::format_enum_value),
             ))
             .set_url(&self.site_url)
     }
@@ -131,7 +131,7 @@ impl AniListAnime {
                 "Twitter Hashtag",
                 self.hashtag.as_ref().map_or("N/A".into(), |hashtag| {
                     hashtag
-                        .split(" ")
+                        .split(' ')
                         .map(|hashtag| format!("[{hashtag}](https://twitter.com/hashtag/{})", hashtag.chars().skip(1).collect::<String>()))
                         .collect::<Vec<String>>()
                         .join(", ")
@@ -142,7 +142,7 @@ impl AniListAnime {
                 "Genre",
                 self.genres
                     .iter()
-                    .map(|genre| format!("[{genre}](https://anilist.co/search/anime?genres={})", genre.replace(" ", "+")))
+                    .map(|genre| format!("[{genre}](https://anilist.co/search/anime?genres={})", genre.replace(' ', "+")))
                     .collect::<Vec<String>>()
                     .join(", "),
                 true,

@@ -48,7 +48,7 @@ impl IPInfo {
                 .filter(|entry| !entry.is_empty())
                 .collect::<Vec<String>>()
                 .join(", "),
-                self.loc.as_ref().unwrap_or(&"".into()).clone().replace(",", ", "),
+                self.loc.as_ref().unwrap_or(&"".into()).clone().replace(',', ", "),
                 self.org.as_ref().unwrap_or(&"".into()).clone(),
             ]
             .into_iter()

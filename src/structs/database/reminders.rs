@@ -108,7 +108,7 @@ impl Reminders {
                 // If the reminder should be DM'd but was created inside a guild channel, we have to create a new DM channel
                 true => REST.post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": reminder.user_id })).await?.id,
                 // Else, just grab channel ID from the URL
-                false => reminder.url.split("/").skip(1).next().unwrap().to_string(),
+                false => reminder.url.split('/').nth(1).unwrap().to_string(),
             },
             response,
         )
@@ -162,7 +162,7 @@ impl Reminders {
         }
 
         // For older snooze messages
-        if !url.to_string().contains("/") {
+        if !url.to_string().contains('/') {
             bail!("Unsupported message.");
         }
 

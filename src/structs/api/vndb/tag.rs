@@ -3,13 +3,13 @@ use crate::{
     macros::yes_no,
     statics::colors::PRIMARY_COLOR,
     structs::api::vndb::{statics::TAG_FIELDS, Vndb},
+    traits::Commas,
 };
 use anyhow::{bail, Result};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::structs::embeds::Embed;
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use thousands::Separable;
 
 #[derive(Debug, Deserialize)]
 pub enum VndbTagCategory {
@@ -53,13 +53,13 @@ impl VndbTag {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_title(format!("{} ({})", self.name, self.category.to_string()))
+            .set_title(format!("{} ({})", self.name, self.category))
             .set_url(format!("https://vndb.org/{}", self.id))
             .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n"))
             .add_field("Description", limit_string(Vndb::clean_bbcode(&self.description), "\n", 1024), false)
             .add_field("Searchable", yes_no!(self.searchable), true)
             .add_field("Applicable", yes_no!(self.applicable), true)
-            .add_field("Visual Novel Count", self.vn_count.separate_with_commas(), true)
+            .add_field("Visual Novel Count", self.vn_count.commas(), true)
     }
 }
 
@@ -69,7 +69,7 @@ impl Vndb {
 
         let results = Vndb::query(
             "tag",
-            match query.starts_with("g") && query.chars().skip(1).all(|char| char.is_numeric()) {
+            match query.starts_with('g') && query.chars().skip(1).all(|char| char.is_numeric()) {
                 true => json!({
                     "filters": ["id", "=", query],
                     "fields": TAG_FIELDS,

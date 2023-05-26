@@ -1,9 +1,8 @@
 pub mod statics;
 
-use crate::{statics::REQWEST, structs::api::exchange_rate::statics::EXCHANGE_RATE_CURRENCIES};
+use crate::{statics::REQWEST, structs::api::exchange_rate::statics::EXCHANGE_RATE_CURRENCIES, traits::Commas};
 use anyhow::{Context, Result};
 use serde::Deserialize;
-use thousands::Separable;
 
 #[derive(Deserialize)]
 struct ExchangeRateConversionResponse {
@@ -29,7 +28,7 @@ impl ExchangeRateConversion {
 
         Ok(Self {
             origin_currency: format!("{} ({})", origin_currency.1, origin_currency.0),
-            amount: amount.clone(),
+            amount,
             target_currency: format!("{} ({})", target_currency.1, target_currency.0),
             conversion: (REQWEST
                 .get("https://api.exchangerate.host/convert")
@@ -49,9 +48,9 @@ impl ExchangeRateConversion {
     pub fn format(&self) -> String {
         format!(
             "{} {} = `{} {}`.",
-            format!("{:.2}", self.amount).separate_with_commas(),
+            format!("{:.2}", self.amount).commas(),
             self.origin_currency,
-            format!("{:.2}", self.conversion).separate_with_commas(),
+            format!("{:.2}", self.conversion).commas(),
             self.target_currency,
         )
     }

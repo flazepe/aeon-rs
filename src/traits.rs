@@ -15,7 +15,7 @@ impl AvatarURL for User {
                 "https://cdn.discordapp.com/avatars/{}/{}.{}?size={}",
                 self.id,
                 avatar,
-                match format == "gif".to_string() && !avatar.starts_with("a_") {
+                match format == "gif" && !avatar.starts_with("a_") {
                     true => "png".into(),
                     false => format,
                 },
@@ -41,7 +41,7 @@ impl AvatarURL for TwilightUser {
                 "https://cdn.discordapp.com/avatars/{}/{}.{}?size={}",
                 self.id,
                 avatar,
-                match format == "gif".to_string() && !avatar.is_animated() {
+                match format == "gif" && !avatar.is_animated() {
                     true => "png".into(),
                     false => format,
                 },
@@ -87,5 +87,34 @@ impl Tag for User {
 impl Tag for TwilightUser {
     fn tag(&self) -> String {
         format!("{}#{}", self.name, self.discriminator())
+    }
+}
+
+pub trait Commas {
+    fn commas(&self) -> String;
+}
+
+impl<T: ToString> Commas for T {
+    fn commas(&self) -> String {
+        let string = self.to_string();
+        let mut split = string.split(".");
+
+        let integral = split.next().unwrap().to_string();
+        let fractional = split.collect::<String>();
+
+        let mut formatted_integral = String::new();
+
+        for (index, char) in integral.chars().enumerate() {
+            if (integral.len() - index) % 3 == 0 && index != 0 {
+                formatted_integral += ",";
+            }
+
+            formatted_integral += &char.to_string();
+        }
+
+        match fractional.is_empty() {
+            true => formatted_integral,
+            false => format!("{formatted_integral}.{fractional}"),
+        }
     }
 }

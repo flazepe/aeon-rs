@@ -38,7 +38,7 @@ impl Distro {
             Ok(document
                 .select(&format!("td.TablesTitle li:nth-child({n})"))
                 .text()
-                .split(":")
+                .split(':')
                 .last()
                 .context(format!("Could not get table nth child value for {n}."))?
                 .to_string())

@@ -29,7 +29,7 @@ impl SelectMenu {
         if let Some(default) = self.default.as_ref() {
             // AUEGUGHHHHHHHHH
             option.set_default(
-                (default.is_empty() && !value.contains("/")) || (!default.is_empty() && value.split("/").last().unwrap() == default),
+                (default.is_empty() && !value.contains('/')) || (!default.is_empty() && value.split('/').last().unwrap() == default),
             );
         }
 

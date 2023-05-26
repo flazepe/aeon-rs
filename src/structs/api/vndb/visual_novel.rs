@@ -527,7 +527,7 @@ impl VndbVisualNovel {
                     true => format!("{}…", self.title.chars().take(229).collect::<String>().trim()),
                     false => self.title.clone(),
                 },
-                self.dev_status.to_string(),
+                self.dev_status,
             ))
             .set_url(format!("https://vndb.org/{}", self.id))
     }
@@ -589,7 +589,7 @@ impl Vndb {
 
         let results = Vndb::query(
             "vn",
-            match query.starts_with("v") && query.chars().skip(1).all(|char| char.is_numeric()) {
+            match query.starts_with('v') && query.chars().skip(1).all(|char| char.is_numeric()) {
                 true => json!({
                     "filters": ["id", "=", query],
                     "fields": VISUAL_NOVEL_FIELDS,

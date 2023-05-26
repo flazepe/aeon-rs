@@ -29,11 +29,11 @@ pub struct SteamUserBans {
 
 impl Steam {
     pub async fn get_user_bans<T: ToString>(id: T) -> Result<SteamUserBans> {
-        Ok(Steam::query::<_, _, SteamUserBansResponse>("GetPlayerBans/v1/", &[("steamids", id.to_string().as_str())])
+        Steam::query::<_, _, SteamUserBansResponse>("GetPlayerBans/v1/", &[("steamids", id.to_string().as_str())])
             .await?
             .players
             .into_iter()
             .next()
-            .context("User not found.")?)
+            .context("User not found.")
     }
 }

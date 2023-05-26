@@ -201,7 +201,7 @@ impl SteamGame {
                 Document::from(&self.short_description)
                     .select("body")
                     .text()
-                    .split("\n")
+                    .split('\n')
                     .map(|str| str.to_string())
                     .collect::<Vec<String>>()
                     .join("\n"),
@@ -263,7 +263,7 @@ impl SteamGame {
                                 format!(
                                     "[{}](https://store.steampowered.com/tags/en/{})",
                                     category.description,
-                                    category.description.replace(" ", "+"),
+                                    category.description.replace(' ', "+"),
                                 )
                             })
                             .collect::<Vec<String>>()
@@ -284,7 +284,7 @@ impl SteamGame {
                                 format!(
                                     "[{}](https://store.steampowered.com/genre/{}/)",
                                     genre.description,
-                                    genre.description.replace(" ", "+"),
+                                    genre.description.replace(' ', "+"),
                                 )
                             })
                             .collect::<Vec<String>>()

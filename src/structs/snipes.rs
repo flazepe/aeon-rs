@@ -45,7 +45,7 @@ impl Snipes {
                     false => "snipes.txt",
                 },
                 snipes
-                    .into_iter()
+                    .iter()
                     .rev()
                     .map(|message| {
                         format!(
@@ -55,7 +55,7 @@ impl Snipes {
                             DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string()).unwrap().to_rfc2822(),
                             StringifiedMessage::from(message.clone())
                                 .to_string()
-                                .split("\n")
+                                .split('\n')
                                 .map(|line| format!(
                                     "\t{}",
                                     match line.is_empty() {
@@ -95,7 +95,7 @@ impl ReactionSnipes {
         Self { guild_id: guild_id.to_string(), message_id: message_id.to_string() }
     }
 
-    pub fn to_response(self) -> Result<MessageResponse> {
+    pub fn to_response(&self) -> Result<MessageResponse> {
         let empty_vec = vec![];
         let reaction_snipes = CACHE.reaction_snipes.read().unwrap();
         let reaction_snipes = reaction_snipes.get(&format!("{}/{}", self.guild_id, self.message_id)).unwrap_or(&empty_vec);

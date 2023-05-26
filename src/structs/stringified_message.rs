@@ -73,7 +73,7 @@ impl Display for StringifiedMessage {
 
         for embed in &self.embeds {
             if let Some(author_name) = embed.author_name.as_ref() {
-                text += &format!("\n**{}**", escape_markdown(&author_name));
+                text += &format!("\n**{}**", escape_markdown(author_name));
             }
 
             if let Some(title) = embed.title.as_ref() {
@@ -92,7 +92,7 @@ impl Display for StringifiedMessage {
                 .join("");
 
             if let Some(footer_text) = embed.footer_text.as_ref() {
-                text += &format!("\n**{}**", escape_markdown(&footer_text));
+                text += &format!("\n**{}**", escape_markdown(footer_text));
             }
         }
 

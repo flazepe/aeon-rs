@@ -65,7 +65,7 @@ impl AniListManga {
                     true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
                     false => self.title.romaji.clone(),
                 },
-                self.format.as_ref().map_or("TBA".into(), |format| AniList::format_enum_value(format)),
+                self.format.as_ref().map_or("TBA".into(), AniList::format_enum_value),
             ))
             .set_url(&self.site_url)
     }
@@ -78,14 +78,14 @@ impl AniListManga {
                 format!("{} ({})", AniList::format_airing_date(&self.start_date, &self.end_date), AniList::format_enum_value(&self.status)),
                 false,
             )
-            .add_field("Chapters", format!("{}", self.chapters.map_or("TBA".into(), |chapters| chapters.to_string())), true)
-            .add_field("Volumes", format!("{}", self.volumes.map_or("TBA".into(), |volumes| volumes.to_string())), true)
+            .add_field("Chapters", self.chapters.map_or("TBA".into(), |chapters| chapters.to_string()), true)
+            .add_field("Volumes", self.volumes.map_or("TBA".into(), |volumes| volumes.to_string()), true)
             .add_field("Licensed", yes_no!(self.is_licensed), true)
             .add_field(
                 "Genre",
                 self.genres
                     .iter()
-                    .map(|genre| format!("[{genre}](https://anilist.co/search/anime?genres={})", genre.replace(" ", "+")))
+                    .map(|genre| format!("[{genre}](https://anilist.co/search/anime?genres={})", genre.replace(' ', "+")))
                     .collect::<Vec<String>>()
                     .join(", "),
                 true,

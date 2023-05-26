@@ -75,7 +75,7 @@ impl Tags {
         modifier: &GuildMember,
     ) -> Result<String> {
         if !modifier.permissions.unwrap_or(Permissions::empty()).contains(Permissions::MANAGE_MESSAGES)
-            && author_id.to_string() != FLAZEPE_ID.to_string()
+            && author_id.to_string() != FLAZEPE_ID
         {
             bail!("Only members with the Manage Messages permission can create tags.");
         }
@@ -204,7 +204,7 @@ impl Tags {
 
                 tag.aliases.push(alias.clone());
             },
-            false => tag.aliases = tag.aliases.into_iter().filter(|entry| entry != &alias).collect(),
+            false => tag.aliases.retain(|entry| entry != &alias),
         }
 
         COLLECTIONS
@@ -279,7 +279,7 @@ impl Tags {
             bail!("Tag name length must not exceed 32 characters.");
         }
 
-        if name.contains("`") {
+        if name.contains('`') {
             bail!("Tag name must not contain `.");
         }
 

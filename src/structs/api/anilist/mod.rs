@@ -38,7 +38,7 @@ impl AniList {
 
     pub fn format_enum_value<T: Debug>(value: T) -> String {
         format!("{value:?}")
-            .split("_")
+            .split('_')
             .map(|word| match ["ONA", "OVA", "TV"].contains(&word) {
                 true => word.into(),
                 false => format!("{}{}", word.chars().next().unwrap(), word.chars().skip(1).collect::<String>().to_lowercase()),
@@ -75,7 +75,7 @@ impl AniList {
             Document::from(&description.map(|description| description.to_string()).unwrap_or("N/A".into()))
                 .select("body")
                 .text()
-                .split("\n")
+                .split('\n')
                 .map(|str| str.to_string())
                 .collect::<Vec<String>>()
                 .join("\n"),

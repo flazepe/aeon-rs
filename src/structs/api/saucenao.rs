@@ -85,11 +85,11 @@ impl SauceNAOSearch {
                                 match &result.data.part {
                                     Some(part) => format!(
                                         "{} {}",
-                                        match part.chars().into_iter().all(|char| char.is_numeric()) {
+                                        match part.chars().all(|char| char.is_numeric()) {
                                             true => "Episode",
                                             false => "",
                                         },
-                                        part.replace("-", "").trim(),
+                                        part.replace('-', "").trim(),
                                     ),
                                     None => "".into(),
                                 },

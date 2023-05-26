@@ -1,10 +1,12 @@
-use crate::statics::{regex::MARKDOWN_REGEX, REQWEST};
+use crate::{
+    statics::{regex::MARKDOWN_REGEX, REQWEST},
+    traits::Commas,
+};
 use anyhow::Result;
 use regex::Captures;
 use serde_json::Value;
 use slashook::structs::components::{SelectMenu, SelectOption};
 use std::fmt::Display;
-use thousands::Separable;
 
 pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
     for (label, value) in [
@@ -25,7 +27,7 @@ pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
 
 pub fn escape_markdown<T: ToString>(string: T) -> String {
     MARKDOWN_REGEX
-        .replace_all(&string.to_string(), |caps: &Captures| match caps[0].starts_with("\\") {
+        .replace_all(&string.to_string(), |caps: &Captures| match caps[0].starts_with('\\') {
             true => caps[0].to_string(),
             false => format!("\\{}", caps[0].to_string()),
         })
@@ -116,5 +118,5 @@ pub fn plural<T: ToString, U: ToString>(amount: T, singular: U) -> String {
         }
     }
 
-    format!("{} {subject}", amount.separate_with_commas())
+    format!("{} {subject}", amount.commas())
 }

@@ -2,6 +2,7 @@ use crate::{
     functions::limit_string,
     statics::colors::PRIMARY_COLOR,
     structs::api::vndb::{statics::CHARACTER_FIELDS, visual_novel::VndbImage, Vndb},
+    traits::Commas,
 };
 use anyhow::{bail, Result};
 use serde::Deserialize;
@@ -12,7 +13,6 @@ use std::{
     collections::HashMap,
     fmt::{Display, Formatter, Result as FmtResult},
 };
-use thousands::Separable;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -138,11 +138,11 @@ impl VndbCharacter {
                 }),
                 true,
             )
-            .add_field("Age", self.age.map_or("N/A".into(), |age| age.separate_with_commas()), true)
+            .add_field("Age", self.age.map_or("N/A".into(), |age| age.commas()), true)
             .add_field("Birthday", self.birthday.map_or("N/A".into(), |birthday| format!("{}/{}", birthday.0, birthday.1)), true)
             .add_field("Blood Type", self.blood_type.as_ref().map_or("N/A".into(), |blood_type| format!("{blood_type:?}")), true)
-            .add_field("Height", self.height.map_or("N/A".into(), |height| format!("{} cm", height.separate_with_commas())), true)
-            .add_field("Weight", self.weight.map_or("N/A".into(), |weight| format!("{} kg", weight.separate_with_commas())), true)
+            .add_field("Height", self.height.map_or("N/A".into(), |height| format!("{} cm", height.commas())), true)
+            .add_field("Weight", self.weight.map_or("N/A".into(), |weight| format!("{} kg", weight.commas())), true)
             .add_field(
                 "Bust",
                 self.bust.map_or("N/A".into(), |bust| {
@@ -196,7 +196,7 @@ impl Vndb {
 
         let results = Vndb::query(
             "character",
-            match query.starts_with("c") && query.chars().skip(1).all(|char| char.is_numeric()) {
+            match query.starts_with('c') && query.chars().skip(1).all(|char| char.is_numeric()) {
                 true => json!({
                     "filters": ["id", "=", query],
                     "fields": CHARACTER_FIELDS,

@@ -5,7 +5,7 @@ use slashook::commands::MessageResponse;
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let (query, section): (String, String) = match ctx.input.is_string_select() {
         true => {
-            let mut split = ctx.input.values.as_ref().unwrap()[0].split("/");
+            let mut split = ctx.input.values.as_ref().unwrap()[0].split('/');
             (split.next().unwrap().into(), split.next().unwrap_or("").into())
         },
         false => (format!("{}|{}", ctx.get_string_arg("user")?, ctx.get_string_arg("mode").unwrap_or("default".into())), "".into()),

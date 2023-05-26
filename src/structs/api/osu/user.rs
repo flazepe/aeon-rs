@@ -6,12 +6,12 @@ use crate::{
         OSU_S_EMOJI, OSU_XH_EMOJI, OSU_X_EMOJI,
     },
     structs::{api::osu::Osu, duration::Duration},
+    traits::Commas,
 };
 use anyhow::{bail, Result};
 use serde::Deserialize;
 use slashook::{chrono::DateTime, structs::embeds::Embed};
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use thousands::Separable;
 
 #[derive(Deserialize)]
 pub struct OsuUser {
@@ -246,7 +246,7 @@ impl OsuUser {
         Embed::new()
             .set_color("#ff69b4")
             .unwrap_or_default()
-            .set_thumbnail(match self.avatar_url.starts_with("/") {
+            .set_thumbnail(match self.avatar_url.starts_with('/') {
                 true => format!("https://osu.ppy.sh{}", self.avatar_url),
                 false => self.avatar_url.clone(),
             })
@@ -277,8 +277,8 @@ impl OsuUser {
                 "Rank",
                 format!(
                     "#{} (#{} peak)",
-                    self.statistics.global_rank.map_or("-".into(), |global_rank| format!("{}", global_rank.separate_with_commas())),
-                    self.rank_highest.rank.separate_with_commas(),
+                    self.statistics.global_rank.map_or("-".into(), |global_rank| global_rank.commas()),
+                    self.rank_highest.rank.commas(),
                 ),
                 true,
             )
@@ -324,39 +324,35 @@ impl OsuUser {
 
     pub fn format_statistics(&self) -> Embed {
         self._format()
-            .add_field("Performance Points", format!("{}pp", format!("{:.2}", self.statistics.pp).separate_with_commas()), true)
+            .add_field("Performance Points", format!("{}pp", format!("{:.2}", self.statistics.pp).commas()), true)
             .add_field("Accuracy", format!("{:.2}%", self.statistics.hit_accuracy), true)
             .add_field("Level", format!("{} ({}%)", self.statistics.level.current, self.statistics.level.progress), true)
-            .add_field("Total Hits", self.statistics.total_hits.separate_with_commas(), true)
-            .add_field("Maximum Combo", self.statistics.maximum_combo.separate_with_commas(), true)
-            .add_field("First Place Ranks", self.scores_first_count.separate_with_commas(), true)
+            .add_field("Total Hits", self.statistics.total_hits.commas(), true)
+            .add_field("Maximum Combo", self.statistics.maximum_combo.commas(), true)
+            .add_field("First Place Ranks", self.scores_first_count.commas(), true)
             .add_field(
                 "Score",
-                format!(
-                    "{} ({} ranked)",
-                    self.statistics.total_score.separate_with_commas(),
-                    self.statistics.ranked_score.separate_with_commas(),
-                ),
+                format!("{} ({} ranked)", self.statistics.total_score.commas(), self.statistics.ranked_score.commas(),),
                 false,
             )
             .add_field(
                 "Play Count",
                 format!(
                     "{} ({})",
-                    self.statistics.play_count.separate_with_commas(),
+                    self.statistics.play_count.commas(),
                     Duration::new().parse(format!("{}s", self.statistics.play_time)).unwrap(),
                 ),
                 false,
             )
-            .add_field("Replays Watched by Others", self.statistics.replays_watched_by_others.separate_with_commas(), false)
+            .add_field("Replays Watched by Others", self.statistics.replays_watched_by_others.commas(), false)
             .add_field(
                 "Grades",
                 [
-                    format!("{OSU_X_EMOJI} {}", self.statistics.grade_counts.ss.separate_with_commas()),
-                    format!("{OSU_XH_EMOJI} {}", self.statistics.grade_counts.ssh.separate_with_commas()),
-                    format!("{OSU_S_EMOJI} {}", self.statistics.grade_counts.s.separate_with_commas()),
-                    format!("{OSU_SH_EMOJI} {}", self.statistics.grade_counts.sh.separate_with_commas()),
-                    format!("{OSU_A_EMOJI} {}", self.statistics.grade_counts.a.separate_with_commas()),
+                    format!("{OSU_X_EMOJI} {}", self.statistics.grade_counts.ss.commas()),
+                    format!("{OSU_XH_EMOJI} {}", self.statistics.grade_counts.ssh.commas()),
+                    format!("{OSU_S_EMOJI} {}", self.statistics.grade_counts.s.commas()),
+                    format!("{OSU_SH_EMOJI} {}", self.statistics.grade_counts.sh.commas()),
+                    format!("{OSU_A_EMOJI} {}", self.statistics.grade_counts.a.commas()),
                 ]
                 .join("\n"),
                 false,
@@ -388,18 +384,14 @@ impl OsuUser {
                 false,
             )
             .add_field("Bot", yes_no!(self.is_bot), true)
-            .add_field(
-                "Forum Posts",
-                format!("[{}](https://osu.ppy.sh/users/{}/posts)", self.post_count.separate_with_commas(), self.id),
-                true,
-            )
-            .add_field("Comments", self.comments_count.separate_with_commas(), true)
+            .add_field("Forum Posts", format!("[{}](https://osu.ppy.sh/users/{}/posts)", self.post_count.commas(), self.id), true)
+            .add_field("Comments", self.comments_count.commas(), true)
             .add_field(
                 "Kudosu!",
                 format!(
                     "[{} ({} available)](https://osu.ppy.sh/users/{}#kudosu)",
-                    self.kudosu.total.separate_with_commas(),
-                    self.kudosu.available.separate_with_commas(),
+                    self.kudosu.total.commas(),
+                    self.kudosu.available.commas(),
                     self.id,
                 ),
                 false,
@@ -407,12 +399,12 @@ impl OsuUser {
             .add_field(
                 "Beatmaps",
                 [
-                    format!("{} favorite", self.favourite_beatmapset_count.separate_with_commas()),
-                    format!("{} ranked and approved", self.ranked_and_approved_beatmapset_count.separate_with_commas()),
-                    format!("{} as guest", self.guest_beatmapset_count.separate_with_commas()),
-                    format!("{} loved", self.loved_beatmapset_count.separate_with_commas()),
-                    format!("{} pending", self.unranked_beatmapset_count.separate_with_commas()),
-                    format!("{} graveyarded", self.graveyard_beatmapset_count.separate_with_commas()),
+                    format!("{} favorite", self.favourite_beatmapset_count.commas()),
+                    format!("{} ranked and approved", self.ranked_and_approved_beatmapset_count.commas()),
+                    format!("{} as guest", self.guest_beatmapset_count.commas()),
+                    format!("{} loved", self.loved_beatmapset_count.commas()),
+                    format!("{} pending", self.unranked_beatmapset_count.commas()),
+                    format!("{} graveyarded", self.graveyard_beatmapset_count.commas()),
                 ]
                 .join("\n"),
                 false,

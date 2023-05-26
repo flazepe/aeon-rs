@@ -19,7 +19,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
         }
         .text()
         .await?
-        .replace("`", "｀")
+        .replace('`', "｀")
         .chars()
         .take(1000)
         .collect::<String>();

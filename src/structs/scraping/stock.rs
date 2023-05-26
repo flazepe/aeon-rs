@@ -53,7 +53,7 @@ impl Stock {
                 .select("#quote-header-info span")
                 .first()
                 .text()
-                .split(" ")
+                .split(' ')
                 .last()
                 .context("Could not get currency.")?
                 .to_string(),

@@ -92,7 +92,7 @@ impl Google {
         let domain = domain.to_string().to_lowercase().replace("http://", "").replace("https://", "");
 
         let dns_response = REQWEST
-            .get(format!("https://dns.google/resolve"))
+            .get("https://dns.google/resolve")
             .query(&[("type", record_type.to_string().as_str()), ("name", domain.to_string().as_str())])
             .send()
             .await?
