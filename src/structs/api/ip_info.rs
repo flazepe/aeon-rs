@@ -38,18 +38,18 @@ impl IPInfo {
         format!(
             "[{ip}](<https://whatismyipaddress.com/ip/{ip}>)\n{}",
             [
-                self.hostname.as_ref().unwrap_or(&"".into()).clone(),
+                self.hostname.clone().unwrap_or("".into()),
                 [
-                    self.city.as_ref().unwrap_or(&"".into()).clone(),
-                    self.region.as_ref().unwrap_or(&"".into()).clone(),
-                    self.country.as_ref().unwrap_or(&"".into()).clone(),
+                    self.city.clone().unwrap_or("".into()),
+                    self.region.clone().unwrap_or("".into()),
+                    self.country.clone().unwrap_or("".into()),
                 ]
                 .into_iter()
                 .filter(|entry| !entry.is_empty())
                 .collect::<Vec<String>>()
                 .join(", "),
-                self.loc.as_ref().unwrap_or(&"".into()).clone().replace(',', ", "),
-                self.org.as_ref().unwrap_or(&"".into()).clone(),
+                self.loc.clone().unwrap_or("".into()).replace(',', ", "),
+                self.org.clone().unwrap_or("".into()),
             ]
             .into_iter()
             .filter(|entry| !entry.is_empty())
