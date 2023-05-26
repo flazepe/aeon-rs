@@ -97,24 +97,20 @@ pub trait Commas {
 impl<T: ToString> Commas for T {
     fn commas(&self) -> String {
         let string = self.to_string();
-        let mut split = string.split(".");
+        let (integer, fraction) = string.split_once('.').unwrap_or((&string, ""));
+        let mut formatted_integer = String::new();
 
-        let integral = split.next().unwrap().to_string();
-        let fractional = split.collect::<String>();
-
-        let mut formatted_integral = String::new();
-
-        for (index, char) in integral.chars().enumerate() {
-            if (integral.len() - index) % 3 == 0 && index != 0 {
-                formatted_integral += ",";
+        for (index, char) in integer.chars().enumerate() {
+            if (integer.len() - index) % 3 == 0 && index != 0 {
+                formatted_integer += ",";
             }
 
-            formatted_integral += &char.to_string();
+            formatted_integer += &char.to_string();
         }
 
-        match fractional.is_empty() {
-            true => formatted_integral,
-            false => format!("{formatted_integral}.{fractional}"),
+        match fraction.is_empty() {
+            true => formatted_integer,
+            false => format!("{formatted_integer}.{fraction}"),
         }
     }
 }
