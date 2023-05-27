@@ -44,5 +44,5 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         },
     };
 
-    ctx.respond_success(format!("Deleted {}", plural(messages.len(), "message")), true).await
+    ctx.respond_success(format!("Deleted {}.", plural(messages.len(), "message")), true).await
 }
