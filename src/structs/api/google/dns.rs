@@ -93,7 +93,7 @@ impl Google {
 
         let dns_response = REQWEST
             .get("https://dns.google/resolve")
-            .query(&[("type", record_type.to_string().as_str()), ("name", domain.to_string().as_str())])
+            .query(&[("type", record_type.to_string()), ("name", domain.to_string())])
             .send()
             .await?
             .json::<GoogleDNSQuery>()

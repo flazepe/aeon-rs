@@ -24,7 +24,7 @@ impl Stock {
             let document = Document::from(
                 &Client::new()
                     .get("https://finance.yahoo.com/lookup/equity")
-                    .query(&[("s", ticker.to_string().as_str())])
+                    .query(&[("s", ticker.to_string())])
                     .send()
                     .await?
                     .text()

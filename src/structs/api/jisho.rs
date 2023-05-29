@@ -60,7 +60,7 @@ impl JishoSearch {
     pub async fn get<T: Display>(slug: T) -> Result<Self> {
         let mut results = REQWEST
             .get("https://jisho.org/api/v1/search/words")
-            .query(&[("slug", slug.to_string().as_str())])
+            .query(&[("slug", slug.to_string())])
             .send()
             .await?
             .json::<JishoSearchResult>()
@@ -77,7 +77,7 @@ impl JishoSearch {
     pub async fn search<T: ToString>(query: T) -> Result<Vec<Self>> {
         let results = REQWEST
             .get("https://jisho.org/api/v1/search/words")
-            .query(&[("keyword", query.to_string().as_str())])
+            .query(&[("keyword", query.to_string())])
             .send()
             .await?
             .json::<JishoSearchResult>()

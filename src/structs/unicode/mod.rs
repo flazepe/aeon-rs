@@ -14,9 +14,8 @@ pub struct UnicodeCharacter {
 
 impl UnicodeCharacter {
     pub async fn get<T: ToString>(name: T) -> Result<Self> {
-        let document = Document::from(
-            &Client::new().get("https://symbl.cc/en/search/").query(&[("q", name.to_string().as_str())]).send().await?.text().await?,
-        );
+        let document =
+            Document::from(&Client::new().get("https://symbl.cc/en/search/").query(&[("q", name.to_string())]).send().await?.text().await?);
 
         let name = document.select("h2").first().text().trim().to_string();
 

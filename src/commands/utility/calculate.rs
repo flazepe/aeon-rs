@@ -15,7 +15,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
 
         let body = match expression.chars().all(|char| char.is_numeric()) {
             true => REQWEST.get(format!("http://numbersapi.com/{expression}")).send().await?,
-            false => REQWEST.get("https://api.mathjs.org/v4/").query(&[("expr", expression.as_str())]).send().await?,
+            false => REQWEST.get("https://api.mathjs.org/v4/").query(&[("expr", expression)]).send().await?,
         }
         .text()
         .await?

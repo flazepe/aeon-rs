@@ -16,7 +16,7 @@ impl Steam {
     pub async fn query<T: Display, U: Serialize + ?Sized, V: DeserializeOwned>(endpoint: T, query: &U) -> Result<V> {
         Ok(REQWEST
             .get(format!("http://api.steampowered.com/ISteamUser/{endpoint}"))
-            .query(&[("key", CONFIG.api.steam_key.as_str())])
+            .query(&[("key", &CONFIG.api.steam_key)])
             .query(&query)
             .send()
             .await?

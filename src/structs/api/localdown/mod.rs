@@ -33,7 +33,7 @@ impl LocalDownNovel {
     pub async fn search<T: ToString>(query: T) -> Result<Vec<LocalDownNovelSearchResult>> {
         let results = REQWEST
             .get("https://api.ahnafzamil.com/localdown/novels/search")
-            .query(&[("q", query.to_string().as_str())])
+            .query(&[("q", query.to_string())])
             .header("user-agent", "yes")
             .send()
             .await?

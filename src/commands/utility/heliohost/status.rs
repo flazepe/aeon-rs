@@ -4,7 +4,7 @@ use nipper::Document;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let user = ctx.get_string_arg("user")?;
-    let response = REQWEST.get("https://heliohost.org/status/").query(&[("u", user.as_str())]).send().await?;
+    let response = REQWEST.get("https://heliohost.org/status/").query(&[("u", &user)]).send().await?;
     let url = response.url().to_string();
 
     let status = {

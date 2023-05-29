@@ -32,11 +32,7 @@ impl ExchangeRateConversion {
             target_currency: format!("{} ({})", target_currency.1, target_currency.0),
             conversion: (REQWEST
                 .get("https://api.exchangerate.host/convert")
-                .query(&[
-                    ("amount", amount.to_string().as_str()),
-                    ("from", origin_currency.0.to_string().as_str()),
-                    ("to", target_currency.0.to_string().as_str()),
-                ])
+                .query(&[("amount", amount.to_string()), ("from", origin_currency.0.to_string()), ("to", target_currency.0.to_string())])
                 .send()
                 .await?
                 .json::<ExchangeRateConversionResponse>()

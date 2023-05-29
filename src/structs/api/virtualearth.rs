@@ -61,7 +61,7 @@ impl TimeZoneLocation {
     pub async fn get<T: ToString>(location: T) -> Result<Self> {
         let timezones = &mut REQWEST
             .get("https://dev.virtualearth.net/REST/v1/TimeZone/")
-            .query(&[("key", CONFIG.api.virtualearth_key.as_str()), ("query", location.to_string().as_str())])
+            .query(&[("key", &CONFIG.api.virtualearth_key), ("query", &location.to_string())])
             .send()
             .await?
             .json::<TimeZoneResponse>()

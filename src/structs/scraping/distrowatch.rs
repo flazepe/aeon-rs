@@ -21,7 +21,7 @@ impl Distro {
         let document = Document::from(
             &Client::new()
                 .get("https://distrowatch.com/table.php")
-                .query(&[("distribution", name.to_string().as_str())])
+                .query(&[("distribution", name.to_string())])
                 .send()
                 .await?
                 .text()
