@@ -50,10 +50,10 @@ impl Display for VndbCharacterRole {
             f,
             "{}",
             match self {
-                VndbCharacterRole::Main => "Protagonist",
-                VndbCharacterRole::Primary => "Main character",
-                VndbCharacterRole::Side => "Side character",
-                VndbCharacterRole::Appears => "Makes an appearance",
+                Self::Main => "Protagonist",
+                Self::Primary => "Main character",
+                Self::Side => "Side character",
+                Self::Appears => "Makes an appearance",
             },
         )
     }

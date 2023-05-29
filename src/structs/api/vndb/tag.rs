@@ -29,7 +29,7 @@ impl Display for VndbTagCategory {
             f,
             "{}",
             match self {
-                VndbTagCategory::SexualContext => "Sexual Content".into(),
+                Self::SexualContext => "Sexual Content".into(),
                 _ => format!("{self:?}"),
             },
         )

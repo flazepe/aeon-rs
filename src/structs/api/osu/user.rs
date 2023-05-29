@@ -232,10 +232,10 @@ impl Display for OsuMode {
             f,
             "{}",
             match self {
-                OsuMode::Osu => "osu!",
-                OsuMode::Taiko => "osu!taiko",
-                OsuMode::Fruits => "osu!catch",
-                OsuMode::Mania => "osu!mania",
+                Self::Osu => "osu!",
+                Self::Taiko => "osu!taiko",
+                Self::Fruits => "osu!catch",
+                Self::Mania => "osu!mania",
             },
         )
     }
