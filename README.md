@@ -1,4 +1,4 @@
-# [Aeon](https://aeon.js.org/)
+# [Aeon](https://aeon.js.org)
 
 A Discord bot written in Rust using [Slashook](https://github.com/tonkku107/slashook).
 
@@ -6,14 +6,14 @@ A Discord bot written in Rust using [Slashook](https://github.com/tonkku107/slas
 
 ### Search
 
--   [AniList](https://anilist.co/) anime, manga, and user lookup
--   [Distrowatch](https://distrowatch.com/) distribution lookup
--   [Jisho](https://jisho.org/) dictionary lookup
--   [Spotify](https://open.spotify.com/) song and album lookup
--   [Steam](https://steamcommunity.com/) user and game lookup
+-   [AniList](https://anilist.co) anime, manga, and user lookup
+-   [Distrowatch](https://distrowatch.com) distribution lookup
+-   [Jisho](https://jisho.org) dictionary lookup
+-   [Spotify](https://open.spotify.com) song and album lookup
+-   [Steam](https://steamcommunity.com) user and game lookup
 -   Stock lookup
 -   Time and date lookup for any location
--   [vndb](https://vndb.org/) visual novels, characters, tags, and traits lookup
+-   [vndb](https://vndb.org) visual novels, characters, tags, and traits lookup
 
 ### Utility
 
