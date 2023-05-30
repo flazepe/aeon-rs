@@ -1,7 +1,6 @@
-use crate::statics::colors::PRIMARY_COLOR;
+use crate::statics::{colors::PRIMARY_COLOR, REQWEST};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
-use reqwest::Client;
 use slashook::structs::embeds::Embed;
 
 pub struct Distro {
@@ -19,7 +18,7 @@ pub struct Distro {
 impl Distro {
     pub async fn get<T: ToString>(name: T) -> Result<Self> {
         let document = Document::from(
-            &Client::new()
+            &REQWEST
                 .get("https://distrowatch.com/table.php")
                 .query(&[("distribution", name.to_string())])
                 .send()

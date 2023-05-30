@@ -29,7 +29,7 @@ pub fn escape_markdown<T: ToString>(string: T) -> String {
     MARKDOWN_REGEX
         .replace_all(&string.to_string(), |caps: &Captures| match caps[0].starts_with('\\') {
             true => caps[0].to_string(),
-            false => format!("\\{}", caps[0].to_string()),
+            false => format!("\\{}", &caps[0]),
         })
         .to_string()
 }
@@ -75,13 +75,13 @@ pub fn plural<T: ToString, U: ToString>(amount: T, singular: U) -> String {
     let mut subject = singular.to_string().to_lowercase();
     let second_last_letter = subject.chars().skip(subject.len().max(2) - 2).take(1).collect::<String>();
 
-    if amount != "1".to_string() {
+    if amount != "1" {
         loop {
             // -s/-ch/-sh/-x/-z
             if ["s", "ch", "sh", "x", "z"].iter().any(|entry| subject.ends_with(entry))
                     // -consonant + o with some exceptions
                     || (!["a", "e", "i", "o", "u"].contains(&second_last_letter.as_str())
-                        && subject.ends_with("o")
+                        && subject.ends_with('o')
                         && !["piano", "photo"].contains(&subject.as_str()))
             {
                 subject = format!("{}es", subject);
@@ -107,7 +107,7 @@ pub fn plural<T: ToString, U: ToString>(amount: T, singular: U) -> String {
             }
 
             // -consonant + y
-            if !["a", "e", "i", "o", "u"].contains(&second_last_letter.as_str()) && subject.ends_with("y") {
+            if !["a", "e", "i", "o", "u"].contains(&second_last_letter.as_str()) && subject.ends_with('y') {
                 subject = format!("{}ies", subject.chars().take(subject.len() - 1).collect::<String>());
                 break;
             }

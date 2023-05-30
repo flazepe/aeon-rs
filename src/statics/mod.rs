@@ -39,4 +39,4 @@ pub static COLLECTIONS: Lazy<Collections> = Lazy::new(|| Collections {
     tags: MONGODB.get().unwrap().collection::<Tag>("oauth"),
 });
 
-pub static REQWEST: Lazy<Client> = Lazy::new(|| Client::new());
+pub static REQWEST: Lazy<Client> = Lazy::new(Client::new);

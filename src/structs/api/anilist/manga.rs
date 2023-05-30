@@ -90,7 +90,7 @@ impl AniListManga {
                     .join(", "),
                 true,
             )
-            .add_field("Source", self.source.as_ref().map_or("N/A".into(), |source| AniList::format_enum_value(source)), true)
+            .add_field("Source", self.source.as_ref().map_or("N/A".into(), AniList::format_enum_value), true)
             .add_field(
                 "Score",
                 {

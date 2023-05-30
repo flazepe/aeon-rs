@@ -15,7 +15,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                 result.id,
                 Some(format!(
                     "{} - {}",
-                    result.format.map_or("TBA".into(), |format| AniList::format_enum_value(format)),
+                    result.format.map_or("TBA".into(), AniList::format_enum_value),
                     AniList::format_enum_value(result.status),
                 )),
             );
@@ -40,13 +40,12 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         },
     };
 
-    if anime.is_adult {
-        if !Channel::fetch(&ctx.input.rest, ctx.input.channel_id.as_ref().unwrap())
+    if anime.is_adult
+        && !Channel::fetch(&ctx.input.rest, ctx.input.channel_id.as_ref().unwrap())
             .await
             .map_or(false, |channel| channel.nsfw.unwrap_or(false))
-        {
-            return ctx.respond_error("NSFW channels only.", true).await;
-        }
+    {
+        return ctx.respond_error("NSFW channels only.", true).await;
     }
 
     ctx.respond(

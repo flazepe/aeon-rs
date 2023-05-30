@@ -7,6 +7,4 @@ fn main() -> () {
         .compile(&["google/assistant/embedded/v1alpha2/embedded_assistant.proto"], &["proto"])
         .unwrap();
     */
-
-    ()
 }

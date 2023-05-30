@@ -29,7 +29,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
                 .read()
                 .unwrap()
                 .get(&ctx.input.user.id)
-                .map(|programming_language| programming_language.clone()));
+                .cloned());
 
             let programming_language = match programming_language {
                 Some(programming_language) => {

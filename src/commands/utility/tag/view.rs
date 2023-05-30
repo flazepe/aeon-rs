@@ -8,13 +8,12 @@ use slashook::{
 pub async fn run(ctx: CommandContext) -> Result<()> {
     match Tags::get(ctx.get_string_arg("tag")?, ctx.input.guild_id.as_ref().unwrap()).await {
         Ok(tag) => {
-            if tag.nsfw {
-                if !Channel::fetch(&ctx.input.rest, ctx.input.channel_id.as_ref().unwrap())
+            if tag.nsfw
+                && !Channel::fetch(&ctx.input.rest, ctx.input.channel_id.as_ref().unwrap())
                     .await
                     .map_or(false, |channel| channel.nsfw.unwrap_or(false))
-                {
-                    return ctx.respond_error("NSFW channels only.", true).await;
-                }
+            {
+                return ctx.respond_error("NSFW channels only.", true).await;
             }
 
             ctx.respond(MessageResponse::from(tag.content).set_allowed_mentions(AllowedMentions::new()), false).await

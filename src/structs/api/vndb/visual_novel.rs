@@ -218,6 +218,7 @@ impl Display for VndbLanguage {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(non_camel_case_types)]
 pub enum VndbPlatform {
     #[serde(rename = "win")]
     Windows,
@@ -558,7 +559,7 @@ impl VndbVisualNovel {
     pub fn format_description(&self) -> Embed {
         self._format().set_description(limit_string(
             Vndb::clean_bbcode(self.description.as_ref().unwrap_or(&"N/A".into()))
-                .split("\n")
+                .split('\n')
                 .map(|str| str.to_string())
                 .collect::<Vec<String>>()
                 .join("\n"),
