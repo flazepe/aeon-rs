@@ -18,7 +18,7 @@ pub fn get_command() -> SlashookCommand {
         subcommands = [
             {
                 name = "album",
-                description = "Fetches an album from Steam.",
+                description = "Fetches an album from Spotify.",
                 options = [
                     {
                         name = "album",
@@ -35,7 +35,7 @@ pub fn get_command() -> SlashookCommand {
             },
             {
                 name = "song",
-                description = "Fetches a song from Steam.",
+                description = "Fetches a song from Spotify.",
                 options = [
                     {
                         name = "song",
