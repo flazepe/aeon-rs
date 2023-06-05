@@ -7,7 +7,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use twilight_model::{channel::message::ReactionType, gateway::payload::incoming::ReactionRemove};
 
 impl EventHandler {
-    pub fn on_reaction_remove(reaction: Box<ReactionRemove>) {
+    pub async fn on_reaction_remove(reaction: Box<ReactionRemove>) {
         let reaction = reaction.0;
 
         if let Some(guild_id) = reaction.guild_id {

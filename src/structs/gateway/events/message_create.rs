@@ -2,7 +2,7 @@ use crate::{statics::CACHE, structs::gateway::events::handler::EventHandler, tra
 use twilight_model::gateway::payload::incoming::MessageCreate;
 
 impl EventHandler {
-    pub fn on_message_create(message: Box<MessageCreate>) {
+    pub async fn on_message_create(message: Box<MessageCreate>) {
         let message = message.0;
 
         let mut channels = CACHE.channels.write().unwrap();
