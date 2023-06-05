@@ -3,7 +3,7 @@ use twilight_gateway::{stream::ShardRef, Event};
 pub struct EventHandler {}
 
 impl<'a> EventHandler {
-    pub async fn handle(event: Event, _shard: ShardRef<'a>) {
+    pub async fn handle(event: Event, _: ShardRef<'a>) {
         match event {
             Event::MessageCreate(message) => Self::on_message_create(message).await,
             Event::MessageDelete(message) => Self::on_message_delete(message).await,

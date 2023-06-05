@@ -9,10 +9,20 @@ impl EventHandler {
     pub async fn on_reaction_add(reaction: Box<ReactionAdd>) {
         let reaction = reaction.0;
 
+        if !["🗑️", "❌", "🇽", "delete"].contains(
+            &match reaction.emoji {
+                ReactionType::Custom { name, animated: _, id: _ } => name.unwrap_or("".into()),
+                ReactionType::Unicode { name } => name,
+            }
+            .as_str(),
+        ) {
+            return;
+        }
+
         let mut author_id = None;
         let mut user_id = None;
 
-        // Find message from cache
+        // Find message in cache
         {
             let channels = CACHE.channels.read().unwrap();
 
@@ -36,16 +46,7 @@ impl EventHandler {
             user_id = Some(interaction.user.id);
         }
 
-        if author_id.unwrap() == CONFIG.bot.client_id
-            && user_id.unwrap() == reaction.user_id.to_string()
-            && ["🗑️", "❌", "🇽", "delete"].contains(
-                &match reaction.emoji {
-                    ReactionType::Custom { name, animated: _, id: _ } => name.unwrap_or("".into()),
-                    ReactionType::Unicode { name } => name,
-                }
-                .as_str(),
-            )
-        {
+        if author_id.unwrap() == CONFIG.bot.client_id && user_id.unwrap() == reaction.user_id.to_string() {
             REST.delete::<Message>(format!("channels/{}/messages/{}", reaction.channel_id, reaction.message_id)).await.ok();
         }
     }
