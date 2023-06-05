@@ -63,7 +63,7 @@ pub struct AniListUserResponse {
 pub struct AniListUser {
     pub id: u64,
     pub site_url: String,
-    pub avatar: Option<AniListImage>,
+    pub avatar: AniListImage,
     pub name: String,
     pub created_at: u64,
     pub updated_at: u64,
@@ -79,7 +79,7 @@ impl AniListUser {
         Embed::new()
             .set_color(ANILIST_EMBED_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.avatar.as_ref().map_or(&"".into(), |avatar| &avatar.large))
+            .set_thumbnail(&self.avatar.large)
             .set_title(&self.name)
             .set_url(&self.site_url)
     }
