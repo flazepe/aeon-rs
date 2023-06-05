@@ -8,7 +8,7 @@ use twilight_model::{channel::message::ReactionType, gateway::payload::incoming:
 impl EventHandler {
     pub async fn on_reaction_add(reaction: Box<ReactionAdd>) {
         let reaction = reaction.0;
-        let Ok(message) = Message::fetch(&REST, reaction.channel_id,  reaction.message_id).await else { return; };
+        let Ok(message) = Message::fetch(&REST, reaction.channel_id, reaction.message_id).await else { return; };
         let Some(interaction) = message.interaction.as_ref() else { return; };
 
         if message.author.id == CONFIG.bot.client_id
