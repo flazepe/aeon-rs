@@ -13,6 +13,7 @@ saucenao_key = "saucenao_key"
 spotify_token = "spotify_token"
 steam_key = "steam_key"
 virtualearth_key = "virtualearth_key"
+waaai_key = "waaai_key"
 
 [api.google_assistant]
 client_id = "client_id"

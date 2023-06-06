@@ -29,6 +29,7 @@ pub struct APIConfig {
     pub spotify_token: String,
     pub steam_key: String,
     pub virtualearth_key: String,
+    pub waaai_key: String,
 }
 
 #[derive(Deserialize)]
