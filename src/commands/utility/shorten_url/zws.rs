@@ -13,7 +13,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         ["url"]
         .as_str()
     {
-        Some(url) => ctx.respond_success(format!("`{url}`"), false).await,
+        Some(url) => ctx.respond_success(format!("`{url}`"), true).await,
         None => ctx.respond_error("Invalid URL.", true).await,
     }
 }

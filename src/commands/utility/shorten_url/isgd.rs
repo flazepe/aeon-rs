@@ -25,7 +25,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         .await?;
 
     match body.starts_with("http") {
-        true => ctx.respond_success(format!("<{body}>"), false).await,
+        true => ctx.respond_success(format!("<{body}>"), true).await,
         false => ctx.respond_error(body.trim_start_matches("Error: "), true).await,
     }
 }

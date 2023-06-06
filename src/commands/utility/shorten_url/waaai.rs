@@ -26,7 +26,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         .await?;
 
     match json["data"]["link"].as_str() {
-        Some(url) => ctx.respond_success(format!("<{url}>"), false).await,
+        Some(url) => ctx.respond_success(format!("<{url}>"), true).await,
         None => ctx.respond_error("Custom ID already exists.", true).await,
     }
 }
