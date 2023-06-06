@@ -28,7 +28,7 @@ pub fn get_command() -> SlashookCommand {
         subcommands = [
             {
                 name = "cdpt",
-                description = "Uses cdpt.in URL shortener.",
+                description = "Shortens a URL using cdpt.in.",
                 options = [
                     {
                         name = "url",
@@ -40,7 +40,7 @@ pub fn get_command() -> SlashookCommand {
             },
 			{
                 name = "cleanurl",
-                description = "Uses cleanuri.com URL shortener.",
+                description = "Shortens a URL using cleanuri.com.",
                 options = [
                     {
                         name = "url",
@@ -52,7 +52,7 @@ pub fn get_command() -> SlashookCommand {
             },
 			{
                 name = "isgd",
-                description = "Uses is.gd URL shortener.",
+                description = "Shortens a URL using is.gd. Works for any protocol",
                 options = [
                     {
                         name = "url",
@@ -79,7 +79,7 @@ pub fn get_command() -> SlashookCommand {
             },
 			{
                 name = "waaai",
-                description = "Uses waa.ai URL shortener.",
+                description = "Shortens a URL using waa.ai.",
                 options = [
                     {
                         name = "url",
@@ -96,7 +96,7 @@ pub fn get_command() -> SlashookCommand {
             },
 			{
                 name = "zws",
-                description = "Uses zws.im URL shortener.",
+                description = "Shortens a URL using zws.im.",
                 options = [
                     {
                         name = "url",
