@@ -2,7 +2,7 @@ use crate::{statics::REQWEST, structs::command_context::CommandContext};
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let url = REQWEST
+    let body = REQWEST
         .post("https://is.gd/create.php")
         .query(&[
             ("format", "simple".into()),
@@ -24,8 +24,8 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         .text()
         .await?;
 
-    match url.starts_with("http") {
-        true => ctx.respond_success(format!("<{url}>"), false).await,
-        false => ctx.respond_error("Invalid URL.", true).await,
+    match body.starts_with("http") {
+        true => ctx.respond_success(format!("<{body}>"), false).await,
+        false => ctx.respond_error(body.trim_start_matches("Error: "), true).await,
     }
 }
