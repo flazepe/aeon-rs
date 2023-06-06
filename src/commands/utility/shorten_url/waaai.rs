@@ -18,14 +18,15 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         .json(&json!({
             "url": url,
             "custom_code": ctx.get_string_arg("custom-id").unwrap_or("".into()),
+            "private": ctx.get_bool_arg("hash").unwrap_or(false),
         }))
         .send()
         .await?
         .json::<Value>()
         .await?;
 
-    match json["success"].as_bool().unwrap_or(false) {
-        true => ctx.respond_success(format!("<{}>", json["data"]["link"].as_str().unwrap()), false).await,
-        false => ctx.respond_error("Custom ID already exists.", true).await,
+    match json["data"]["link"].as_str() {
+        Some(url) => ctx.respond_success(format!("<{url}>"), false).await,
+        None => ctx.respond_error("Custom ID already exists.", true).await,
     }
 }

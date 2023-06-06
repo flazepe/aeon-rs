@@ -92,6 +92,11 @@ pub fn get_command() -> SlashookCommand {
                         description = "The custom ID",
                         option_type = InteractionOptionType::STRING,
                     },
+                    {
+                        name = "hash",
+                        description = "Whether to include a hash after the ID. Should not be used with a custom ID",
+                        option_type = InteractionOptionType::BOOLEAN,
+                    },
                 ],
             },
 			{
