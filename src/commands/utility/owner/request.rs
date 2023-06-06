@@ -27,15 +27,10 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         .header("authorization", format!("Bot {}", CONFIG.bot.token));
 
     if let Ok(body) = ctx.get_string_arg("body") {
-        request = request
-            .header(
-                "content-type",
-                match from_str::<Value>(&body).is_ok() {
-                    true => "application/json",
-                    false => "application/x-www-form-urlencoded",
-                },
-            )
-            .body(body);
+        request = match from_str::<Value>(&body).is_ok() {
+            true => request.json(&body),
+            false => request.form(&body),
+        };
     }
 
     match request.send().await {

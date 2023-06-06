@@ -18,12 +18,12 @@ impl Osu {
                 "authorization",
                 OAuth::new(
                     "osu",
-                    REQWEST.post("https://osu.ppy.sh/oauth/token").header("content-type", "application/x-www-form-urlencoded").body(
-                        format!(
-                            "client_id={}&client_secret={}&grant_type=client_credentials&scope=public",
-                            CONFIG.api.osu.client_id, CONFIG.api.osu.client_secret,
-                        ),
-                    ),
+                    REQWEST.post("https://osu.ppy.sh/oauth/token").form(&[
+                        ("client_id", &CONFIG.api.osu.client_id),
+                        ("client_secret", &CONFIG.api.osu.client_secret),
+                        ("grant_type", &"client_credentials".into()),
+                        ("scope", &"public".into()),
+                    ]),
                 )
                 .get_token()
                 .await?,

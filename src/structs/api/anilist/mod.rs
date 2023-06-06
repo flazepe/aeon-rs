@@ -22,14 +22,10 @@ impl AniList {
     async fn query<T: ToString, U: DeserializeOwned>(query: T, variables: Value) -> Result<U> {
         Ok(REQWEST
             .post("https://graphql.anilist.co")
-            .header("content-type", "application/json")
-            .body(
-                json!({
-                    "query": query.to_string(),
-                    "variables": variables
-                })
-                .to_string(),
-            )
+            .json(&json!({
+                "query": query.to_string(),
+                "variables": variables,
+            }))
             .send()
             .await?
             .json::<U>()

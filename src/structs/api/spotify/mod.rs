@@ -24,9 +24,8 @@ impl Spotify {
                     "spotify",
                     REQWEST
                         .post("https://accounts.spotify.com/api/token")
-                        .header("content-type", "application/x-www-form-urlencoded")
                         .header("authorization", format!("Basic {}", CONFIG.api.spotify_token))
-                        .body("grant_type=client_credentials"),
+                        .form(&[("grant_type", "client_credentials")]),
                 )
                 .get_token()
                 .await?,

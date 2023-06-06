@@ -60,31 +60,27 @@ impl OrdrRender {
 
         let text = REQWEST
             .post("https://apis.issou.best/ordr/renders")
-            .header("content-type", "application/json")
-            .body(
-                json!({
-                    "replayURL": replay_url.to_string(),
-                    "username": "Aeon",
-                    "resolution": "1920x1080",
+            .json(&json!({
+                "replayURL": replay_url.to_string(),
+                "username": "Aeon",
+                "resolution": "1920x1080",
 
-                    "skin": skin,
-                    "useSkinColors": "true",
-                    "useBeatmapColors": "false",
+                "skin": skin,
+                "useSkinColors": "true",
+                "useBeatmapColors": "false",
 
-                    "introBGDim": "100",
-                    "inGameBGDim": "100",
-                    "breakBGDim": "50",
+                "introBGDim": "100",
+                "inGameBGDim": "100",
+                "breakBGDim": "50",
 
-                    "loadStoryboard": "false",
-                    "sliderSnakingOut": "false",
+                "loadStoryboard": "false",
+                "sliderSnakingOut": "false",
 
-                    "showDanserLogo": "false",
-                    "showHitCounter": "true",
+                "showDanserLogo": "false",
+                "showHitCounter": "true",
 
-                    "verificationKey": CONFIG.api.ordr_key,
-                })
-                .to_string(),
-            )
+                "verificationKey": CONFIG.api.ordr_key,
+            }))
             .send()
             .await?
             .text()

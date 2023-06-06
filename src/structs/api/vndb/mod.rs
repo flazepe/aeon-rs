@@ -22,14 +22,7 @@ pub struct Vndb {}
 
 impl Vndb {
     async fn query<T: Display, U: DeserializeOwned>(endpoint: T, query: Value) -> Result<VndbResponse<U>> {
-        Ok(REQWEST
-            .post(format!("https://api.vndb.org/kana/{endpoint}"))
-            .header("content-type", "application/json")
-            .body(query.to_string())
-            .send()
-            .await?
-            .json::<VndbResponse<U>>()
-            .await?)
+        Ok(REQWEST.post(format!("https://api.vndb.org/kana/{endpoint}")).json(&query).send().await?.json::<VndbResponse<U>>().await?)
     }
 
     pub fn clean_bbcode<T: ToString>(string: T) -> String {
