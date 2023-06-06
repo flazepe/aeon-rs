@@ -24,6 +24,7 @@ A Discord bot written in Rust using [Slashook](https://github.com/tonkku107/slas
 -   Execute a code in various programming languages
 -   IP address lookup
 -   Reminders with DM, interval, snooze, and message context command support
+-   Shorten a URL using multiple services
 -   Tags system with autocomplete
 -   Time out server members with a precise duration (up to 28 days)
 -   Translate a text to another language using chat input or message context

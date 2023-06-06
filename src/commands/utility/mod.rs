@@ -10,6 +10,7 @@ mod owner;
 mod reminder;
 mod reminder_set_message;
 mod sauce;
+mod shorten_url;
 mod snipe;
 mod snipe_reaction_message;
 mod tag;
@@ -34,6 +35,7 @@ pub fn get_commands() -> Vec<SlashookCommand> {
         reminder::get_command(),
         reminder_set_message::get_command(),
         sauce::get_command(),
+        shorten_url::get_command(),
         snipe::get_command(),
         snipe_reaction_message::get_command(),
         tag::get_command(),
