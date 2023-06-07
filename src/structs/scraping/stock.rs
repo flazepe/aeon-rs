@@ -1,7 +1,6 @@
-use crate::statics::colors::PRIMARY_COLOR;
+use crate::statics::{colors::PRIMARY_COLOR, REQWEST};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
-use reqwest::{get, Client};
 use slashook::structs::embeds::Embed;
 
 struct YahooFinanceLookupAttributes {
@@ -22,16 +21,10 @@ impl Stock {
     pub async fn get<T: ToString>(ticker: T) -> Result<Self> {
         let attributes = {
             let document = Document::from(
-                &Client::new()
-                    .get("https://finance.yahoo.com/lookup/equity")
-                    .query(&[("s", ticker.to_string())])
-                    .send()
-                    .await?
-                    .text()
-                    .await?,
+                &REQWEST.get("https://finance.yahoo.com/lookup/equity").query(&[("s", ticker.to_string())]).send().await?.text().await?,
             );
 
-            let selection = &document.select("td a");
+            let selection = document.select("td a");
 
             if selection.nodes().is_empty() {
                 bail!("Ticker not found.");
@@ -44,7 +37,7 @@ impl Stock {
             }
         };
 
-        let document = Document::from(&get(format!("https://finance.yahoo.com{}", attributes.href)).await?.text().await?);
+        let document = Document::from(&REQWEST.get(format!("https://finance.yahoo.com{}", attributes.href)).send().await?.text().await?);
 
         Ok(Self {
             name: format!("{} ({})", attributes.title, attributes.data_symbol),
