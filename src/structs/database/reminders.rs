@@ -69,7 +69,7 @@ impl Reminders {
                             .find(|message| error.contains(&message.to_string()))
                         {
                             COLLECTIONS.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
-                            println!("[REMINDERS] Deleted reminder {} due to fatal error \"{fatal_error}\".", reminder._id);
+                            println!(r#"[REMINDERS] Deleted reminder {} due to fatal error "{fatal_error}"."#, reminder._id);
                         }
                     },
                 }

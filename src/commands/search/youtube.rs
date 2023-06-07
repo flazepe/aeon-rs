@@ -19,7 +19,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
             .text()
             .await?;
 
-        let id = text.split("videoId\":\"").skip(1).next().unwrap_or("").split('"').next().unwrap();
+        let id = text.split(r#"videoId":""#).skip(1).next().unwrap_or("").split('"').next().unwrap();
 
         if id.is_empty() {
             return ctx.respond_error("Video not found.", true).await;

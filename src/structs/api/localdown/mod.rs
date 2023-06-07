@@ -99,14 +99,14 @@ impl LocalDownNovel {
             .set_description(
                 from_str::<Vec<String>>(
                     format!(
-                        "[\"{}\"]",
+                        r#"["{}"]"#,
                         self.other_names
                             .chars()
                             .skip(1)
                             .take(2.max(self.other_names.chars().count()) - 2)
                             .collect::<String>()
-                            .replace("', ", "\", ")
-                            .replace(", '", ", \""),
+                            .replace("', ", r#"", "#)
+                            .replace(", '", r#", ""#),
                     )
                     .as_str(),
                 )

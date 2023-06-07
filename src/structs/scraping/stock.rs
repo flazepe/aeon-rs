@@ -50,9 +50,9 @@ impl Stock {
                 .last()
                 .context("Could not get currency.")?
                 .to_string(),
-            price: document.select("#quote-header-info [data-field=\"regularMarketPrice\"]").first().text().to_string(),
+            price: document.select(r#"#quote-header-info [data-field="regularMarketPrice"]"#).first().text().to_string(),
             diff: ["regularMarketChange", "regularMarketChangePercent"]
-                .map(|field| document.select(&format!("#quote-header-info [data-field=\"{}\"]", field)).first().text().to_string())
+                .map(|field| document.select(&format!(r#"#quote-header-info [data-field="{}"]"#, field)).first().text().to_string())
                 .join(" "),
         })
     }
