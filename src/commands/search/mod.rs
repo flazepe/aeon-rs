@@ -7,6 +7,7 @@ mod steam;
 mod stock;
 mod time;
 mod vndb;
+mod youtube;
 
 use slashook::commands::Command as SlashookCommand;
 
@@ -21,5 +22,6 @@ pub fn get_commands() -> Vec<SlashookCommand> {
         stock::get_command(),
         time::get_command(),
         vndb::get_command(),
+        youtube::get_command(),
     ]
 }
