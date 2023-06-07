@@ -80,13 +80,19 @@ pub trait Tag {
 
 impl Tag for User {
     fn tag(&self) -> String {
-        format!("{}#{}", self.username, self.discriminator)
+        match self.discriminator == "0" {
+            true => self.username.clone(),
+            false => format!("{}#{}", self.username, self.discriminator),
+        }
     }
 }
 
 impl Tag for TwilightUser {
     fn tag(&self) -> String {
-        format!("{}#{}", self.name, self.discriminator())
+        match self.discriminator == 0 {
+            true => self.name.clone(),
+            false => format!("{}#{}", self.name, self.discriminator()),
+        }
     }
 }
 
