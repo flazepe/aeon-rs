@@ -6,7 +6,7 @@ use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
-    structs::interactions::InteractionOptionType,
+    structs::{channels::Channel, interactions::InteractionOptionType},
 };
 
 static COMMAND: Lazy<Command> = Lazy::new(|| {
@@ -21,9 +21,19 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
 
         let id = text.split("videoId\":\"").skip(1).next().unwrap_or("").split('"').next().unwrap();
 
-        match id.is_empty() {
-            true => ctx.respond_error("Video not found.", true).await,
-            false => ctx.respond(format!("https://www.youtube.com/watch?v={id}"), false).await,
+        if id.is_empty() {
+            return ctx.respond_error("Video not found.", true).await;
+        }
+
+        let url = format!("https://www.youtube.com/watch?v={id}");
+
+        match REQWEST.get(&url).send().await?.text().await?.contains("LOGIN_REQUIRED")
+            && !Channel::fetch(&ctx.input.rest, ctx.input.channel_id.as_ref().unwrap())
+                .await
+                .map_or(false, |channel| channel.nsfw.unwrap_or(false))
+        {
+            true => ctx.respond_error("NSFW channels only.", true).await,
+            false => ctx.respond(url, false).await,
         }
     })
 });
