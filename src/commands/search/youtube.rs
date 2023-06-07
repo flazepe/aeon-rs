@@ -23,7 +23,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
 
         match id.is_empty() {
             true => ctx.respond_error("Video not found.", true).await,
-            false => ctx.respond(format!("https://www.youtube.com/watch?v={}", id), false).await,
+            false => ctx.respond(format!("https://www.youtube.com/watch?v={id}"), false).await,
         }
     })
 });
