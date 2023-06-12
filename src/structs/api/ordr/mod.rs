@@ -41,7 +41,6 @@ pub struct OrdrWsRenderDone {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct OrdrWsRenderFailed {
     #[serde(rename = "renderID")]
     pub render_id: u64,
