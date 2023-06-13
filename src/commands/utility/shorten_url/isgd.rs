@@ -4,6 +4,7 @@ use anyhow::Result;
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let body = REQWEST
         .post("https://is.gd/create.php")
+        .header("user-agent", "yes")
         .query(&[
             ("format", "simple".into()),
             ("url", ctx.get_string_arg("url")?),
