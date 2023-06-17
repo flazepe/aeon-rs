@@ -19,7 +19,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
         }
 
         let body =
-            match REQWEST.get("https://api.mathjs.org/v4/").query(&[("expr", expression)]).timeout(Duration::from_secs(3)).send().await {
+            match REQWEST.get("https://api.mathjs.org/v4/").query(&[("expr", expression)]).timeout(Duration::from_secs(2)).send().await {
                 Ok(response) => response.text().await?,
                 Err(_) => return ctx.respond_error("Calculation took too long.", true).await,
             };
