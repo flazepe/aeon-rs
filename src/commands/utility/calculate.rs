@@ -8,25 +8,25 @@ use slashook::{
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::InteractionOptionType,
 };
+use std::time::Duration;
 
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         let expression = ctx.get_string_arg("expression")?;
 
-        let body = match expression.chars().all(|char| char.is_numeric()) {
-            true => REQWEST.get(format!("http://numbersapi.com/{expression}")).send().await?,
-            false => REQWEST.get("https://api.mathjs.org/v4/").query(&[("expr", expression)]).send().await?,
+        if expression.chars().all(|char| char.is_numeric()) {
+            return ctx.respond(REQWEST.get(format!("http://numbersapi.com/{expression}")).send().await?.text().await?, false).await;
         }
-        .text()
-        .await?
-        .replace('`', "｀")
-        .chars()
-        .take(1000)
-        .collect::<String>();
+
+        let body =
+            match REQWEST.get("https://api.mathjs.org/v4/").query(&[("expr", expression)]).timeout(Duration::from_secs(3)).send().await {
+                Ok(response) => response.text().await?,
+                Err(_) => return ctx.respond_error("Calculation took too long.", true).await,
+            };
 
         match body.is_empty() || body.contains("Error") {
             true => ctx.respond_error("Invalid expression.", true).await,
-            false => ctx.respond_success(format!("`{body}`"), false).await,
+            false => ctx.respond_success(format!("`{}`", body.chars().take(1000).collect::<String>().replace('`', "｀")), false).await,
         }
     })
 });
