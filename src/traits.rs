@@ -27,7 +27,13 @@ impl AvatarURL for User {
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
         match AvatarURL::avatar_url(self, format, size) {
             Some(avatar_url) => avatar_url,
-            None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.parse::<u64>().unwrap() >> 22) % 5),
+            None => format!(
+                "https://cdn.discordapp.com/embed/avatars/{}.png",
+                match self.discriminator == "0" {
+                    true => self.id.parse::<u64>().unwrap() >> 22,
+                    false => self.discriminator.parse::<u64>().unwrap(),
+                } % 5,
+            ),
         }
     }
 }
@@ -53,7 +59,13 @@ impl AvatarURL for TwilightUser {
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
         match AvatarURL::avatar_url(self, format, size) {
             Some(avatar_url) => avatar_url,
-            None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.to_string().parse::<u64>().unwrap() >> 22) % 5),
+            None => format!(
+                "https://cdn.discordapp.com/embed/avatars/{}.png",
+                match self.discriminator == 0 {
+                    true => self.id.to_string().parse::<u64>().unwrap() >> 22,
+                    false => self.discriminator as u64,
+                } % 5,
+            ),
         }
     }
 }
