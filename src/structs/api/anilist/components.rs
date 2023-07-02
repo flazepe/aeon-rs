@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 // Page queries
 #[derive(Deserialize)]
@@ -59,11 +60,17 @@ pub struct AniListCharacterNode {
 }
 
 #[derive(Debug, Deserialize)]
-#[allow(non_camel_case_types)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListCharacterRole {
-    MAIN,
-    SUPPORTING,
-    BACKGROUND,
+    Main,
+    Supporting,
+    Background,
+}
+
+impl Display for AniListCharacterRole {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        write!(f, "{self:?}")
+    }
 }
 
 #[derive(Deserialize)]
@@ -91,21 +98,37 @@ pub struct AniListRelationNode {
 }
 
 #[derive(Debug, Deserialize)]
-#[allow(non_camel_case_types)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListRelationType {
-    ADAPTATION,
-    PREQUEL,
-    SEQUEL,
-    PARENT,
-    SIDE_STORY,
-    CHARACTER,
-    SUMMARY,
-    ALTERNATIVE,
-    SPIN_OFF,
-    OTHER,
-    SOURCE,
-    COMPILATION,
-    CONTAINS,
+    Adaptation,
+    Prequel,
+    Sequel,
+    Parent,
+    SideStory,
+    Character,
+    Summary,
+    Alternative,
+    SpinOff,
+    Other,
+    Source,
+    Compilation,
+    Contains,
+}
+
+impl Display for AniListRelationType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        let original = format!("{self:?}");
+
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::SideStory => "Side Story",
+                Self::SpinOff => "Spin Off",
+                _ => original.as_str(),
+            },
+        )
+    }
 }
 
 // Others
@@ -128,18 +151,37 @@ pub struct AniListExternalLink {
 }
 
 #[derive(Debug, Deserialize)]
-#[allow(non_camel_case_types)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListFormat {
-    TV,
-    TV_SHORT,
-    MOVIE,
-    SPECIAL,
-    OVA,
-    ONA,
-    MUSIC,
-    MANGA,
-    NOVEL,
-    ONE_SHOT,
+    Tv,
+    TvShort,
+    Movie,
+    Special,
+    Ova,
+    Ona,
+    Music,
+    Manga,
+    Novel,
+    OneShot,
+}
+
+impl Display for AniListFormat {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        let original = format!("{self:?}");
+
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Tv => "TV",
+                Self::TvShort => "TV Short",
+                Self::Ova => "OVA",
+                Self::Ona => "ONA",
+                Self::OneShot => "One Shot",
+                _ => original.as_str(),
+            },
+        )
+    }
 }
 
 #[derive(Deserialize)]
@@ -175,46 +217,87 @@ pub struct AniListRanking {
 
 #[derive(Debug, Deserialize)]
 pub enum AniListRankingType {
-    POPULAR,
-    RATED,
+    Popular,
+    Rated,
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListSeason {
-    WINTER,
-    SPRING,
-    SUMMER,
-    FALL,
+    Winter,
+    Spring,
+    Summer,
+    Fall,
+}
+
+impl Display for AniListSeason {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        write!(f, "{self:?}")
+    }
 }
 
 #[derive(Debug, Deserialize)]
-#[allow(non_camel_case_types)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListSource {
-    ORIGINAL,
-    MANGA,
-    LIGHT_NOVEL,
-    VISUAL_NOVEL,
-    VIDEO_GAME,
-    OTHER,
-    NOVEL,
-    DOUJINSHI,
-    ANIME,
-    WEB_NOVEL,
-    LIVE_ACTION,
-    GAME,
-    COMIC,
-    MULTIMEDIA_PROJECT,
-    PICTURE_BOOK,
+    Original,
+    Manga,
+    LightNovel,
+    VisualNovel,
+    VideoGame,
+    Other,
+    Novel,
+    Doujinshi,
+    Anime,
+    WebNovel,
+    LiveAction,
+    Game,
+    Comic,
+    MultimediaProject,
+    PictureBook,
+}
+
+impl Display for AniListSource {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        let original = format!("{self:?}");
+
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::LightNovel => "Light Novel",
+                Self::VisualNovel => "Visual Novel",
+                Self::VideoGame => "Video Game",
+                Self::WebNovel => "Web Novel",
+                Self::LiveAction => "Live Action",
+                Self::MultimediaProject => "Multimedia Project",
+                Self::PictureBook => "Picture Book",
+                _ => original.as_str(),
+            },
+        )
+    }
 }
 
 #[derive(Debug, Deserialize)]
-#[allow(non_camel_case_types)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListStatus {
-    FINISHED,
-    RELEASING,
-    NOT_YET_RELEASED,
-    CANCELLED,
-    HIATUS,
+    Finished,
+    Releasing,
+    NotYetReleased,
+    Cancelled,
+    Hiatus,
+}
+
+impl Display for AniListStatus {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::NotYetReleased => "Not Yet Released".into(),
+                _ => format!("{self:?}"),
+            },
+        )
+    }
 }
 
 #[derive(Deserialize)]

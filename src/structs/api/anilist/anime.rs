@@ -70,7 +70,7 @@ impl AniListAnime {
                     true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
                     false => self.title.romaji.clone(),
                 },
-                self.format.as_ref().map_or("TBA".into(), AniList::format_enum_value),
+                self.format.as_ref().map_or("TBA".into(), |format| format.to_string()),
             ))
             .set_url(&self.site_url)
     }
@@ -83,8 +83,7 @@ impl AniListAnime {
                 format!(
                     "{}{} ({}){}",
                     self.season.as_ref().map_or("".into(), |season| format!(
-                        "Premiered {} {}{}\n",
-                        AniList::format_enum_value(season),
+                        "Premiered {season} {}{}\n",
                         self.season_year.unwrap(),
                         self.trailer.as_ref().map_or("".into(), |trailer| format!(
                             " - [Trailer]({}{})",
@@ -94,10 +93,10 @@ impl AniListAnime {
                                 site => format!("https://www.google.com/search?q={site}+"),
                             },
                             trailer.id,
-                        ))
+                        )),
                     )),
                     AniList::format_airing_date(&self.start_date, &self.end_date),
-                    AniList::format_enum_value(&self.status),
+                    &self.status,
                     self.airing_schedule.nodes.iter().find(|node| node.time_until_airing.map_or(false, |time| time > 0)).map_or(
                         "".into(),
                         |node| format!(
@@ -147,7 +146,7 @@ impl AniListAnime {
                     .join(", "),
                 true,
             )
-            .add_field("Source", self.source.as_ref().map_or("N/A".into(), AniList::format_enum_value), true)
+            .add_field("Source", self.source.as_ref().map_or("N/A".into(), |source| source.to_string()), true)
             .add_field(
                 "Score",
                 {
@@ -186,7 +185,7 @@ impl AniListAnime {
                         "[{}]({}) ({}){}",
                         character.node.name.full,
                         character.node.site_url,
-                        AniList::format_enum_value(&character.role),
+                        &character.role,
                         match character.voice_actors.get(0) {
                             Some(voice_actor) => format!("\nVoiced by [{}]({})", voice_actor.name.full, voice_actor.site_url),
                             None => "".into(),

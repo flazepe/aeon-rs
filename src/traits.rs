@@ -1,12 +1,12 @@
 use slashook::structs::users::User;
 use twilight_model::user::User as TwilightUser;
 
-pub trait AvatarURL {
+pub trait AvatarUrl {
     fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String>;
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String;
 }
 
-impl AvatarURL for User {
+impl AvatarUrl for User {
     fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String> {
         let format = format.to_string();
 
@@ -25,7 +25,7 @@ impl AvatarURL for User {
     }
 
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
-        match AvatarURL::avatar_url(self, format, size) {
+        match AvatarUrl::avatar_url(self, format, size) {
             Some(avatar_url) => avatar_url,
             None => format!(
                 "https://cdn.discordapp.com/embed/avatars/{}.png",
@@ -38,7 +38,7 @@ impl AvatarURL for User {
     }
 }
 
-impl AvatarURL for TwilightUser {
+impl AvatarUrl for TwilightUser {
     fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String> {
         let format = format.to_string();
 
@@ -57,7 +57,7 @@ impl AvatarURL for TwilightUser {
     }
 
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
-        match AvatarURL::avatar_url(self, format, size) {
+        match AvatarUrl::avatar_url(self, format, size) {
             Some(avatar_url) => avatar_url,
             None => format!(
                 "https://cdn.discordapp.com/embed/avatars/{}.png",

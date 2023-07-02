@@ -13,11 +13,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             select_menu = select_menu.add_option(
                 result.title.romaji,
                 result.id,
-                Some(format!(
-                    "{} - {}",
-                    result.format.map_or("TBA".into(), AniList::format_enum_value),
-                    AniList::format_enum_value(result.status),
-                )),
+                Some(format!("{} - {}", result.format.map_or("TBA".into(), |format| format.to_string()), result.status)),
             );
         }
 

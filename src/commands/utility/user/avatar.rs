@@ -1,4 +1,4 @@
-use crate::{statics::REQWEST, structs::command_context::CommandContext, traits::AvatarURL};
+use crate::{statics::REQWEST, structs::command_context::CommandContext, traits::AvatarUrl};
 use anyhow::Result;
 use slashook::{
     commands::MessageResponse,

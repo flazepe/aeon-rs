@@ -65,7 +65,7 @@ impl AniListManga {
                     true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
                     false => self.title.romaji.clone(),
                 },
-                self.format.as_ref().map_or("TBA".into(), AniList::format_enum_value),
+                self.format.as_ref().map_or("TBA".into(), |format| format.to_string()),
             ))
             .set_url(&self.site_url)
     }
@@ -73,11 +73,7 @@ impl AniListManga {
     pub fn format(&self) -> Embed {
         self._format()
             .set_description(self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n"))
-            .add_field(
-                "Published",
-                format!("{} ({})", AniList::format_airing_date(&self.start_date, &self.end_date), AniList::format_enum_value(&self.status)),
-                false,
-            )
+            .add_field("Published", format!("{} ({})", AniList::format_airing_date(&self.start_date, &self.end_date), &self.status), false)
             .add_field("Chapters", self.chapters.map_or("TBA".into(), |chapters| chapters.to_string()), true)
             .add_field("Volumes", self.volumes.map_or("TBA".into(), |volumes| volumes.to_string()), true)
             .add_field("Licensed", yes_no!(self.is_licensed), true)
@@ -90,7 +86,7 @@ impl AniListManga {
                     .join(", "),
                 true,
             )
-            .add_field("Source", self.source.as_ref().map_or("N/A".into(), AniList::format_enum_value), true)
+            .add_field("Source", self.source.as_ref().map_or("N/A".into(), |source| source.to_string()), true)
             .add_field(
                 "Score",
                 {
@@ -120,25 +116,16 @@ impl AniListManga {
     }
 
     pub fn format_characters(&self) -> Embed {
-        self._format().set_description(
-            limit_string(
-                self.characters
-                    .edges
-                    .iter()
-                    .map(|character| {
-                        format!(
-                            "[{}]({}) ({})",
-                            character.node.name.full,
-                            character.node.site_url,
-                            AniList::format_enum_value(&character.role),
-                        )
-                    })
-                    .collect::<Vec<String>>()
-                    .join("\n"),
-                "\n",
-                4096,
-            ),
-        )
+        self._format().set_description(limit_string(
+            self.characters
+                .edges
+                .iter()
+                .map(|character| format!("[{}]({}) ({})", character.node.name.full, character.node.site_url, &character.role))
+                .collect::<Vec<String>>()
+                .join("\n"),
+            "\n",
+            4096,
+        ))
     }
 
     pub fn format_relations(&self) -> Embed {
