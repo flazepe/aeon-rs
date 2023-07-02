@@ -216,6 +216,7 @@ pub struct AniListRanking {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListRankingType {
     Popular,
     Rated,
