@@ -218,7 +218,6 @@ impl Display for VndbLanguage {
 }
 
 #[derive(Debug, Deserialize)]
-#[allow(non_camel_case_types)]
 pub enum VndbPlatform {
     #[serde(rename = "win")]
     Windows,
@@ -227,28 +226,28 @@ pub enum VndbPlatform {
     Linux,
 
     #[serde(rename = "mac")]
-    MacOS,
+    Macos,
 
     #[serde(rename = "web")]
     Website,
 
     #[serde(rename = "tdo")]
-    TDO,
+    Tdo,
 
     #[serde(rename = "ios")]
-    IOS,
+    Ios,
 
     #[serde(rename = "and")]
     Android,
 
     #[serde(rename = "bdp")]
-    BDPlayer,
+    BdPlayer,
 
     #[serde(rename = "dos")]
-    DOS,
+    Dos,
 
     #[serde(rename = "dvd")]
-    DVDPlayer,
+    DvdPlayer,
 
     #[serde(rename = "drc")]
     Dreamcast,
@@ -260,13 +259,13 @@ pub enum VndbPlatform {
     SuperFamicom,
 
     #[serde(rename = "fm7")]
-    FM7,
+    Fm7,
 
     #[serde(rename = "fm8")]
-    FM8,
+    Fm8,
 
     #[serde(rename = "fmt")]
-    FMTowns,
+    FmTowns,
 
     #[serde(rename = "gba")]
     GameBoyAdvance,
@@ -275,10 +274,10 @@ pub enum VndbPlatform {
     GameBoyColor,
 
     #[serde(rename = "msx")]
-    MSX,
+    Msx,
 
     #[serde(rename = "nds")]
-    NintendoDS,
+    NintendoDs,
 
     #[serde(rename = "swi")]
     NintendoSwitch,
@@ -290,19 +289,19 @@ pub enum VndbPlatform {
     NintendoWiiU,
 
     #[serde(rename = "n3d")]
-    Nintendo3DS,
+    Nintendo3ds,
 
     #[serde(rename = "p88")]
-    PC88,
+    Pc88,
 
     #[serde(rename = "p98")]
-    PC98,
+    Pc98,
 
     #[serde(rename = "pce")]
-    PCEngine,
+    PcEngine,
 
     #[serde(rename = "pcf")]
-    PCFX,
+    Pcfx,
 
     #[serde(rename = "psp")]
     PlayStationPortable,
@@ -329,13 +328,13 @@ pub enum VndbPlatform {
     SegaMegaDrive,
 
     #[serde(rename = "scd")]
-    SegaMegaCD,
+    SegaMegaCd,
 
     #[serde(rename = "sat")]
     SegaSaturn,
 
     #[serde(rename = "vnd")]
-    VNDS,
+    Vnds,
 
     #[serde(rename = "x1s")]
     SharpX1,
@@ -353,7 +352,7 @@ pub enum VndbPlatform {
     XboxOne,
 
     #[serde(rename = "xxs")]
-    XboxXS,
+    XboxXs,
 
     #[serde(rename = "mob")]
     OtherMobile,
@@ -370,26 +369,28 @@ impl Display for VndbPlatform {
             f,
             "{}",
             match self {
-                Self::MacOS => "Mac OS",
-                Self::TDO => "3DO",
-                Self::IOS => "Apple iProduct",
-                Self::BDPlayer => "Blu-ray Player",
-                Self::DVDPlayer => "DVD Player",
+                Self::Macos => "Mac OS",
+                Self::Tdo => "3DO",
+                Self::Ios => "Apple iProduct",
+                Self::BdPlayer => "Blu-ray Player",
+                Self::Dos => "DOS",
+                Self::DvdPlayer => "DVD Player",
                 Self::SuperFamicom => "Super Famicom",
-                Self::FM7 => "FM-7",
-                Self::FM8 => "FM-8",
-                Self::FMTowns => "FM Towns",
+                Self::Fm7 => "FM-7",
+                Self::Fm8 => "FM-8",
+                Self::FmTowns => "FM Towns",
                 Self::GameBoyAdvance => "Game Boy Advance",
                 Self::GameBoyColor => "Game Boy Color",
-                Self::NintendoDS => "Nintendo DS",
+                Self::Msx => "MSX",
+                Self::NintendoDs => "Nintendo DS",
                 Self::NintendoSwitch => "Nintendo Switch",
                 Self::NintendoWii => "Nintendo Wii",
                 Self::NintendoWiiU => "Nintendo Wii U",
-                Self::Nintendo3DS => "Nintendo 3DS",
-                Self::PC88 => "PC-88",
-                Self::PC98 => "PC-98",
-                Self::PCEngine => "PC Engine",
-                Self::PCFX => "PC-FX",
+                Self::Nintendo3ds => "Nintendo 3DS",
+                Self::Pc88 => "PC-88",
+                Self::Pc98 => "PC-98",
+                Self::PcEngine => "PC Engine",
+                Self::Pcfx => "PC-FX",
                 Self::PlayStationPortable => "PlayStation Portable",
                 Self::PlayStation1 => "PlayStation 1",
                 Self::PlayStation2 => "PlayStation 2",
@@ -398,13 +399,14 @@ impl Display for VndbPlatform {
                 Self::PlayStation5 => "PlayStation 5",
                 Self::PlayStationVita => "PlayStation Vita",
                 Self::SegaMegaDrive => "Sega Mega Drive",
-                Self::SegaMegaCD => "Sega Mega-CD",
+                Self::SegaMegaCd => "Sega Mega-CD",
                 Self::SegaSaturn => "Sega Saturn",
+                Self::Vnds => "VNDS",
                 Self::SharpX1 => "Sharp X1",
                 Self::SharpX68000 => "Sharp X68000",
                 Self::Xbox360 => "Xbox 360",
                 Self::XboxOne => "Xbox One",
-                Self::XboxXS => "Xbox X/S",
+                Self::XboxXs => "Xbox X/S",
                 Self::OtherMobile => "Other (mobile)",
                 _ => original.as_str(),
             },

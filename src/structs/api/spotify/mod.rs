@@ -6,7 +6,7 @@ mod track;
 use crate::{
     statics::{CONFIG, REQWEST},
     structs::api::spotify::statics::SPOTIFY_EMBED_COLOR,
-    structs::database::oauth::OAuth,
+    structs::database::oauth::Oauth,
 };
 use anyhow::Result;
 use serde::de::DeserializeOwned;
@@ -20,7 +20,7 @@ impl Spotify {
             .get(format!("https://api.spotify.com/v1/{endpoint}"))
             .header(
                 "authorization",
-                OAuth::new(
+                Oauth::new(
                     "spotify",
                     REQWEST
                         .post("https://accounts.spotify.com/api/token")

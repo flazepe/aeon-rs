@@ -1,4 +1,4 @@
-use crate::structs::{api::ip_info::IPInfo, command::Command, command_context::CommandContext};
+use crate::structs::{api::ip_info::IpInfo, command::Command, command_context::CommandContext};
 use once_cell::sync::Lazy;
 use slashook::{
     command,
@@ -8,7 +8,7 @@ use slashook::{
 
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
-        match IPInfo::get(ctx.get_string_arg("ip")?).await {
+        match IpInfo::get(ctx.get_string_arg("ip")?).await {
             Ok(ip_info) => ctx.respond(ip_info.format(), false).await,
             Err(error) => ctx.respond_error(error, true).await,
         }

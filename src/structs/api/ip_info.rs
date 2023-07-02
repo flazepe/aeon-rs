@@ -3,17 +3,17 @@ use anyhow::{bail, Result};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
-pub struct IPInfoError {
+pub struct IpInfoError {
     pub title: String,
     pub message: String,
 }
 
 #[derive(Deserialize)]
-pub struct IPInfo {
+pub struct IpInfo {
     pub bogon: Option<bool>,
     pub city: Option<String>,
     pub country: Option<String>,
-    pub error: Option<IPInfoError>,
+    pub error: Option<IpInfoError>,
     pub hostname: Option<String>,
     pub ip: String,
     pub loc: Option<String>,
@@ -23,7 +23,7 @@ pub struct IPInfo {
     pub timezone: Option<String>,
 }
 
-impl IPInfo {
+impl IpInfo {
     pub async fn get<T: ToString>(ip: T) -> Result<Self> {
         let response = REQWEST.get(format!("https://ipinfo.io/{}/json", ip.to_string().replace(['/', '?'], ""))).send().await?;
 

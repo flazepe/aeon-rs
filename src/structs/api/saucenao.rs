@@ -4,7 +4,7 @@ use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 
 #[derive(Deserialize)]
-pub struct SauceNAOHeader {
+pub struct SauceNaoHeader {
     pub similarity: String,
     pub thumbnail: String,
     pub index_id: u64,
@@ -14,7 +14,7 @@ pub struct SauceNAOHeader {
 }
 
 #[derive(Deserialize)]
-pub struct SauceNAOData {
+pub struct SauceNaoData {
     pub est_time: Option<String>,
     pub ext_urls: Option<Vec<String>>,
     pub gelbooru_id: Option<u64>,
@@ -27,17 +27,17 @@ pub struct SauceNAOData {
 }
 
 #[derive(Deserialize)]
-pub struct SauceNAOResult {
-    pub header: SauceNAOHeader,
-    pub data: SauceNAOData,
+pub struct SauceNaoResult {
+    pub header: SauceNaoHeader,
+    pub data: SauceNaoData,
 }
 
 #[derive(Deserialize)]
-pub struct SauceNAOSearch {
-    pub results: Vec<SauceNAOResult>,
+pub struct SauceNaoSearch {
+    pub results: Vec<SauceNaoResult>,
 }
 
-impl SauceNAOSearch {
+impl SauceNaoSearch {
     pub async fn query<T: ToString>(url: T) -> Result<Self> {
         let search = REQWEST
             .get("https://saucenao.com/search.php")

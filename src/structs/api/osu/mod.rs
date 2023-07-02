@@ -2,7 +2,7 @@ mod user;
 
 use crate::{
     statics::{CONFIG, REQWEST},
-    structs::database::oauth::OAuth,
+    structs::database::oauth::Oauth,
 };
 use anyhow::Result;
 use serde::de::DeserializeOwned;
@@ -16,7 +16,7 @@ impl Osu {
             .get(format!("https://osu.ppy.sh/api/v2/{endpoint}"))
             .header(
                 "authorization",
-                OAuth::new(
+                Oauth::new(
                     "osu",
                     REQWEST.post("https://osu.ppy.sh/oauth/token").form(&[
                         ("client_id", &CONFIG.api.osu.client_id),

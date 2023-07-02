@@ -10,7 +10,7 @@ use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 
 #[derive(Deserialize)]
-pub struct GoogleDNSRecord {
+pub struct GoogleDnsRecord {
     pub name: String,
 
     #[serde(rename = "type")]
@@ -23,7 +23,7 @@ pub struct GoogleDNSRecord {
 }
 
 #[derive(Deserialize)]
-pub struct GoogleDNSQuestion {
+pub struct GoogleDnsQuestion {
     pub name: String,
 
     #[serde(rename = "type")]
@@ -32,7 +32,7 @@ pub struct GoogleDNSQuestion {
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct GoogleDNSQuery {
+pub struct GoogleDnsQuery {
     pub status: u8,
 
     #[serde(rename = "TC")]
@@ -50,20 +50,20 @@ pub struct GoogleDNSQuery {
     #[serde(rename = "CD")]
     pub cd: bool,
 
-    pub question: Vec<GoogleDNSQuestion>,
-    pub answer: Option<Vec<GoogleDNSRecord>>,
-    pub authority: Option<Vec<GoogleDNSRecord>>,
+    pub question: Vec<GoogleDnsQuestion>,
+    pub answer: Option<Vec<GoogleDnsRecord>>,
+    pub authority: Option<Vec<GoogleDnsRecord>>,
     pub comment: Option<String>,
 }
 
-pub struct GoogleDNS {
+pub struct GoogleDns {
     pub domain: String,
     pub record_type: String,
     pub comment: Option<String>,
-    pub records: Vec<GoogleDNSRecord>,
+    pub records: Vec<GoogleDnsRecord>,
 }
 
-impl GoogleDNS {
+impl GoogleDns {
     pub fn format(&self) -> Embed {
         Embed::new()
             .set_color(PRIMARY_COLOR)
@@ -82,7 +82,7 @@ impl GoogleDNS {
 }
 
 impl Google {
-    pub async fn query_dns<T: ToString, U: ToString>(record_type: T, domain: U) -> Result<GoogleDNS> {
+    pub async fn query_dns<T: ToString, U: ToString>(record_type: T, domain: U) -> Result<GoogleDns> {
         let record_type = record_type.to_string();
 
         if !GOOGLE_DNS_RECORD_TYPES.contains(&record_type.as_str()) {
@@ -96,7 +96,7 @@ impl Google {
             .query(&[("type", record_type.to_string()), ("name", domain.to_string())])
             .send()
             .await?
-            .json::<GoogleDNSQuery>()
+            .json::<GoogleDnsQuery>()
             .await?;
 
         if dns_response.status != 0 {
@@ -109,6 +109,6 @@ impl Google {
             bail!("No DNS records found.");
         }
 
-        Ok(GoogleDNS { domain: domain.to_string(), record_type, comment: dns_response.comment, records })
+        Ok(GoogleDns { domain: domain.to_string(), record_type, comment: dns_response.comment, records })
     }
 }

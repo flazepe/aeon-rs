@@ -9,34 +9,34 @@ use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Deserialize)]
-struct RawOAuthToken {
+struct RawOauthToken {
     access_token: String,
     token_type: String,
     expires_in: u64,
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct OAuthToken {
+pub struct OauthToken {
     pub _id: String,
     pub token: String,
     pub expires_at: u64,
 }
 
-pub struct OAuth {
+pub struct Oauth {
     name: String,
     request: RequestBuilder,
     timestamp: u64,
 }
 
-impl OAuth {
+impl Oauth {
     pub fn new<T: ToString>(name: T, request: RequestBuilder) -> Self {
         Self { name: name.to_string(), request, timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() }
     }
 
-    async fn generate_token(self) -> Result<OAuthToken> {
-        let token = self.request.send().await?.json::<RawOAuthToken>().await?;
+    async fn generate_token(self) -> Result<OauthToken> {
+        let token = self.request.send().await?.json::<RawOauthToken>().await?;
 
-        let token = OAuthToken {
+        let token = OauthToken {
             _id: self.name.clone(),
             token: format!("{} {}", token.token_type, token.access_token),
             expires_at: self.timestamp + token.expires_in,

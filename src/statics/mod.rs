@@ -4,7 +4,7 @@ pub mod regex;
 
 use crate::structs::{
     config::Config,
-    database::{oauth::OAuthToken, reminders::Reminder, tags::Tag, Collections},
+    database::{oauth::OauthToken, reminders::Reminder, tags::Tag, Collections},
     gateway::cache::Cache,
 };
 use async_once_cell::OnceCell as AsyncOnceCell;
@@ -34,7 +34,7 @@ pub static REST: Lazy<Rest> = Lazy::new(|| Rest::with_token(CONFIG.bot.token.clo
 pub static MONGODB: AsyncOnceCell<Database> = AsyncOnceCell::new();
 
 pub static COLLECTIONS: Lazy<Collections> = Lazy::new(|| Collections {
-    oauth: MONGODB.get().unwrap().collection::<OAuthToken>("oauth"),
+    oauth: MONGODB.get().unwrap().collection::<OauthToken>("oauth"),
     reminders: MONGODB.get().unwrap().collection::<Reminder>("oauth"),
     tags: MONGODB.get().unwrap().collection::<Tag>("oauth"),
 });
