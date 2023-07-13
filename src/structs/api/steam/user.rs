@@ -163,7 +163,7 @@ impl SteamUser {
             embed = embed
                 .add_field("Community Banned", yes_no!(bans.community_banned), true)
                 .add_field(
-                    "Vac Banned",
+                    "VAC Banned",
                     format!("{} ({}, {})", yes_no!(bans.vac_banned), plural(bans.vac_bans, "VAC ban"), plural(bans.game_bans, "game ban")),
                     true,
                 )
