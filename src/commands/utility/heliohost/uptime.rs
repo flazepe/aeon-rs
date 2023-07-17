@@ -6,7 +6,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     ctx.respond(
         format!(
-            "{}'s uptime is `{}`.",
+            "{}'s uptime is `{}%`.",
             server,
             REQWEST.get(format!("https://heliohost.org/load/uptime_{server}.html").to_lowercase()).send().await?.text().await?.trim(),
         ),
