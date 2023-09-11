@@ -4,7 +4,6 @@ use crate::{
     traits::AvatarUrl,
 };
 use anyhow::Result;
-use serde::Serialize;
 use serde_json::to_string;
 use slashook::structs::utils::File;
 use tokio::process::Command;
@@ -37,7 +36,6 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                     "nori" => SongActivityStyle::Nori,
                     "rovi" => SongActivityStyle::Rovi,
                     "vxc" => SongActivityStyle::Vxc,
-
                     // Default card style is nori's
                     _ => SongActivityStyle::Nori,
                 };
@@ -59,16 +57,4 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         },
         None => ctx.respond_error(format!("No Spotify activity found for <@{}>.", user.id), true).await,
     }
-}
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SongCardInput {
-    pub service: String,
-    pub style: String,
-    pub title: String,
-    pub artist: String,
-    pub album: String,
-    pub album_cover: String,
-    pub timestamps: (u64, u64),
 }
