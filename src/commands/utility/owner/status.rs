@@ -39,12 +39,13 @@ fn sum_cache_len<T: Clone>(iter: Iter<String, Vec<T>>) -> usize {
     iter.map(|(_, vec)| vec.len()).reduce(|acc, cur| acc + cur).unwrap_or(0)
 }
 
-fn get_cache_list() -> [String; 5] {
+fn get_cache_list() -> [String; 6] {
     [
         plural(CACHE.channels.read().unwrap().len(), "channel"),
         plural(sum_cache_len(CACHE.channels.read().unwrap().iter()), "message"),
         plural(sum_cache_len(CACHE.snipes.read().unwrap().iter()), "snipe"),
         plural(sum_cache_len(CACHE.edit_snipes.read().unwrap().iter()), "edit snipe"),
         plural(sum_cache_len(CACHE.reaction_snipes.read().unwrap().iter()), "reaction snipe"),
+        plural(CACHE.spotify.read().unwrap().len(), "Spotify activity"),
     ]
 }
