@@ -22,7 +22,11 @@ impl GatewayClient {
             &self.client,
             TwilightConfig::builder(
                 CONFIG.bot.token.clone(),
-                Intents::GUILDS | Intents::GUILD_MESSAGE_REACTIONS | Intents::GUILD_MESSAGES | Intents::MESSAGE_CONTENT,
+                Intents::GUILDS
+                    | Intents::GUILD_MESSAGE_REACTIONS
+                    | Intents::GUILD_MESSAGES
+                    | Intents::MESSAGE_CONTENT
+                    | Intents::GUILD_PRESENCES,
             )
             .identify_properties(IdentifyProperties::new("Discord Android", "Google Pixel 7 Pro", "Android 14"))
             .build(),

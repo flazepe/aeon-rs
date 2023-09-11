@@ -9,6 +9,7 @@ impl<'a> EventHandler {
             Event::MessageDelete(message) => Self::on_message_delete(message).await,
             Event::MessageDeleteBulk(data) => Self::on_message_delete_bulk(data).await,
             Event::MessageUpdate(message) => Self::on_message_update(message).await,
+            Event::PresenceUpdate(presennce) => Self::on_presence_update(presennce).await,
             Event::ReactionAdd(reaction) => Self::on_reaction_add(reaction).await,
             Event::ReactionRemove(reaction) => Self::on_reaction_remove(reaction).await,
             _ => {},
