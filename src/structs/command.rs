@@ -3,7 +3,6 @@ use anyhow::Result;
 use futures::{future::BoxFuture, Future};
 use slashook::commands::{CommandInput, CommandResponder};
 use std::collections::HashMap;
-use tokio::spawn;
 
 pub trait CommandFn: Send + Sync {
     fn call(&self, ctx: CommandContext) -> BoxFuture<'static, Result<()>>;
@@ -42,22 +41,28 @@ impl Command {
     }
 
     pub async fn run(&self, input: CommandInput, res: CommandResponder) -> Result<()> {
-        let Ok(ctx) = CommandContext::new(input,res).verify().await else { return Ok(()); };
+        let Ok(ctx) = CommandContext::new(input, res).verify().await else {
+            return Ok(());
+        };
 
         if self.owner_only && ctx.input.user.id != FLAZEPE_ID {
             return ctx.respond_error("This command is owner-only.", true).await;
         }
 
-        if let Some(main) = self.main.as_ref() {
-            spawn(main.call(ctx));
+        if let Some(main) = &self.main {
+            if let Err(error) = main.call(ctx).await {
+                println!("{error}");
+            }
+
             return Ok(());
         }
 
-        if let Some(sub_command) =
+        if let Some(subcommand) =
             self.subcommands.get(&ctx.input.subcommand.as_deref().or(ctx.input.custom_id.as_deref()).unwrap_or("").to_string())
         {
-            spawn(sub_command.call(ctx));
-            return Ok(());
+            if let Err(error) = subcommand.call(ctx).await {
+                println!("{error}");
+            }
         };
 
         Ok(())
