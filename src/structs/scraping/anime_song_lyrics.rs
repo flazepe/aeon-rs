@@ -24,10 +24,15 @@ impl AnimeSongLyrics {
         };
 
         let data = node.text();
-        let mut data = data.split("\n").filter(|str| !str.is_empty());
+        let mut data = data.split('\n').filter(|str| !str.is_empty());
 
-        let Some(anime) = data.next() else { bail!("Could not get song anime."); };
-        let Some(title) = data.next() else { bail!("Could not get song title."); };
+        let Some(anime) = data.next() else {
+            bail!("Could not get song anime.");
+        };
+
+        let Some(title) = data.next() else {
+            bail!("Could not get song title.");
+        };
 
         Ok(Self {
             title: title.trim_start_matches(['-', ':']).trim().to_string(),
