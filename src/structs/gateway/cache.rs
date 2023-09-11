@@ -12,7 +12,7 @@ pub struct SongActivity {
     pub artist: String,
     pub album: String,
     pub album_cover: String,
-    pub timestamps: (u64, u64),
+    pub timestamps: Option<(u64, u64)>,
 }
 
 #[derive(Clone, Serialize)]

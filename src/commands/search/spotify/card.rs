@@ -46,6 +46,11 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                 activity.album_cover = user.display_avatar_url("png", 4096);
             }
 
+            // Collapse if requested
+            if ctx.get_bool_arg("collapse").unwrap_or(false) {
+                activity.timestamps = None;
+            }
+
             ctx.respond(
                 File::new(
                     "image.png",

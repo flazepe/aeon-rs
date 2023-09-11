@@ -72,6 +72,11 @@ pub fn get_command() -> SlashookCommand {
                             ApplicationCommandOptionChoice::new("VXC", "vxc"),
                         ],
                     },
+                    {
+                        name = "collapse",
+                        description = "Whether to collapse the card for supported ones",
+                        option_type = InteractionOptionType::BOOLEAN,
+                    }
                 ],
             },
         ],
