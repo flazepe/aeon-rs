@@ -38,7 +38,7 @@ impl AnimeSongLyrics {
             title: title.trim_start_matches(['-', ':']).trim().to_string(),
             url: node.attr("href").map_or("https://animesonglyrics.com".into(), |href| href.to_string()),
             anime: anime.to_string(),
-            cover: document.select("#songlist img").attr("data-src").map_or(None, |src| Some(src.to_string())),
+            cover: document.select("#songlist img").attr("data-src").map(|src| src.to_string()),
         })
     }
 

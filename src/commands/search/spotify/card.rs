@@ -36,7 +36,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                     "classic" => SongActivityStyle::Classic,
                     "nori" => SongActivityStyle::Nori,
                     "rovi" => SongActivityStyle::Rovi,
-                    "vxc" => SongActivityStyle::VXC,
+                    "vxc" => SongActivityStyle::Vxc,
 
                     // Default card style is nori's
                     _ => SongActivityStyle::Nori,

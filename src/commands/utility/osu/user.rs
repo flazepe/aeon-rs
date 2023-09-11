@@ -11,7 +11,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         false => (format!("{}|{}", ctx.get_string_arg("user")?, ctx.get_string_arg("mode").unwrap_or("default".into())), "".into()),
     };
 
-    let (user, mode) = query.split_once("|").unwrap();
+    let (user, mode) = query.split_once('|').unwrap();
 
     let user = match Osu::get_user(user, mode).await {
         Ok(user) => user,

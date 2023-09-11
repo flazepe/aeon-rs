@@ -32,7 +32,7 @@ pub enum SongActivityStyle {
     Classic,
     Nori,
     Rovi,
-    VXC,
+    Vxc,
 }
 
 pub struct Cache {
