@@ -1,5 +1,5 @@
 mod album;
-mod card;
+mod member;
 mod song;
 
 use crate::structs::command::Command;
@@ -11,7 +11,7 @@ use slashook::{
 };
 
 static COMMAND: Lazy<Command> =
-    Lazy::new(|| Command::new().subcommand("album", album::run).subcommand("card", card::run).subcommand("song", song::run));
+    Lazy::new(|| Command::new().subcommand("album", album::run).subcommand("member", member::run).subcommand("song", song::run));
 
 pub fn get_command() -> SlashookCommand {
     #[command(
@@ -53,7 +53,7 @@ pub fn get_command() -> SlashookCommand {
                 ],
             },
             {
-                name = "card",
+                name = "member",
                 description = "Generates a card from a member's Spotify activity.",
                 options = [
                     {
@@ -62,7 +62,7 @@ pub fn get_command() -> SlashookCommand {
                         option_type = InteractionOptionType::USER,
                     },
                     {
-                        name = "style",
+                        name = "card",
                         description = "The card style",
                         option_type = InteractionOptionType::STRING,
                         choices = [
