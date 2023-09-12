@@ -50,6 +50,17 @@ pub fn get_command() -> SlashookCommand {
                         description = "Whether to search",
                         option_type = InteractionOptionType::BOOLEAN,
                     },
+                    {
+                        name = "card",
+                        description = "Whether to send a card instead. This would be the card style",
+                        option_type = InteractionOptionType::STRING,
+                        choices = [
+                            ApplicationCommandOptionChoice::new("Classic", "classic"),
+                            ApplicationCommandOptionChoice::new("Nori", "nori"),
+                            ApplicationCommandOptionChoice::new("Rovi", "rovi"),
+                            ApplicationCommandOptionChoice::new("VXC", "vxc"),
+                        ],
+                    },
                 ],
             },
             {
@@ -76,7 +87,7 @@ pub fn get_command() -> SlashookCommand {
                         name = "collapse",
                         description = "Whether to collapse the card for supported ones",
                         option_type = InteractionOptionType::BOOLEAN,
-                    }
+                    },
                 ],
             },
         ],

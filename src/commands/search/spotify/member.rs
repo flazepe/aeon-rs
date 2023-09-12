@@ -41,7 +41,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                 };
             }
 
-            // Set to user display avatar if track is local
+            // Set to user display avatar if track has empty album cover
             if activity.album_cover.is_empty() {
                 activity.album_cover = user.display_avatar_url("png", 4096);
             }
