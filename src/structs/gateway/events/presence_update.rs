@@ -1,8 +1,8 @@
 use crate::{
     statics::CACHE,
     structs::gateway::{
-        cache::{SongActivity, SongActivityService, SongActivityStyle},
         events::handler::EventHandler,
+        song_activity::{SongActivity, SongActivityService, SongActivityStyle},
     },
 };
 use twilight_model::gateway::payload::incoming::PresenceUpdate;

@@ -1,6 +1,6 @@
 use crate::{
     statics::{CACHE, CONFIG},
-    structs::{command_context::CommandContext, gateway::cache::SongActivityStyle},
+    structs::command_context::CommandContext,
     traits::AvatarUrl,
 };
 use anyhow::Result;

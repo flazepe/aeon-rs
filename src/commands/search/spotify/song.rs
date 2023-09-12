@@ -3,7 +3,7 @@ use crate::{
     structs::{
         api::spotify::Spotify,
         command_context::CommandContext,
-        gateway::cache::{SongActivity, SongActivityService, SongActivityStyle},
+        gateway::song_activity::{SongActivity, SongActivityService},
         select_menu::SelectMenu,
     },
     traits::AvatarUrl,
