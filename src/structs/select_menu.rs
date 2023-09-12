@@ -27,8 +27,7 @@ impl SelectMenu {
         let mut option = SelectOption::new(label.to_string().chars().take(100).collect::<String>(), &value);
 
         if let Some(default) = self.default.as_ref() {
-            // AUEGUGHHHHHHHHH
-            option.set_default(
+            option = option.set_default(
                 (default.is_empty() && !value.contains('/')) || (!default.is_empty() && value.split('/').last().unwrap() == default),
             );
         }
@@ -38,7 +37,6 @@ impl SelectMenu {
         }
 
         self.options.push(option);
-
         self
     }
 }
