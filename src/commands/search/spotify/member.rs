@@ -31,14 +31,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
             // Set to proper style
             if let Ok(style) = ctx.get_string_arg("style").as_deref() {
-                activity.style = match style {
-                    "classic" => SongActivityStyle::Classic,
-                    "nori" => SongActivityStyle::Nori,
-                    "rovi" => SongActivityStyle::Rovi,
-                    "vxc" => SongActivityStyle::Vxc,
-                    // Default card style is nori's
-                    _ => SongActivityStyle::Nori,
-                };
+                activity.style = style.into();
             }
 
             // Set to user display avatar if track has empty album cover

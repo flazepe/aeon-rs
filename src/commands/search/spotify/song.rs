@@ -55,14 +55,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                             &CONFIG.api.song_card_generator_path,
                             &to_string(&SongActivity {
                                 service: SongActivityService::Spotify,
-                                style: match style {
-                                    "classic" => SongActivityStyle::Classic,
-                                    "nori" => SongActivityStyle::Nori,
-                                    "rovi" => SongActivityStyle::Rovi,
-                                    "vxc" => SongActivityStyle::Vxc,
-                                    // Default card style is nori's
-                                    _ => SongActivityStyle::Nori,
-                                },
+                                style: style.into(),
                                 title: track.name,
                                 artist: track.artists.into_iter().map(|artist| artist.name).collect::<Vec<String>>().join(", "),
                                 album: track.album.name,

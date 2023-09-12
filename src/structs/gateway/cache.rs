@@ -35,6 +35,19 @@ pub enum SongActivityStyle {
     Vxc,
 }
 
+impl From<&str> for SongActivityStyle {
+    fn from(value: &str) -> Self {
+        match value {
+            "classic" => SongActivityStyle::Classic,
+            "nori" => SongActivityStyle::Nori,
+            "rovi" => SongActivityStyle::Rovi,
+            "vxc" => SongActivityStyle::Vxc,
+            // Default card style is nori's
+            _ => SongActivityStyle::Nori,
+        }
+    }
+}
+
 pub struct Cache {
     pub channels: RwLock<HashMap<String, Vec<Message>>>,
     pub snipes: RwLock<HashMap<String, Vec<Message>>>,
