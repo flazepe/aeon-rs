@@ -28,7 +28,7 @@ impl GatewayClient {
                     | Intents::MESSAGE_CONTENT
                     | Intents::GUILD_PRESENCES,
             )
-            .identify_properties(IdentifyProperties::new("Discord Android", "Google Pixel 7 Pro", "Android 14"))
+            .identify_properties(IdentifyProperties::new("Discord Android", "Google Pixel 8 Pro", "Android 14"))
             .build(),
             |_, builder| builder.build(),
         )
