@@ -1,6 +1,6 @@
 use crate::structs::{api::anilist::AniList, command_context::CommandContext, select_menu::SelectMenu};
 use anyhow::Result;
-use slashook::{commands::MessageResponse, structs::channels::Channel};
+use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.get_bool_arg("search").unwrap_or(false) {
@@ -36,11 +36,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         },
     };
 
-    if anime.is_adult
-        && !Channel::fetch(&ctx.input.rest, ctx.input.channel_id.as_ref().unwrap())
-            .await
-            .map_or(false, |channel| channel.nsfw.unwrap_or(false))
-    {
+    if anime.is_adult && !ctx.input.channel.as_ref().and_then(|channel| channel.nsfw).unwrap_or(false) {
         return ctx.respond_error("NSFW channels only.", true).await;
     }
 
