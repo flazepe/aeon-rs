@@ -48,7 +48,9 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         &ctx.input.user.id,
         &url,
         Duration::new()
-            .parse(ctx.input.values.as_ref().map_or(ctx.get_string_arg("time").unwrap_or("".into()), |values| values[0].to_string()))
+            .parse(
+                ctx.input.values.as_ref().map_or_else(|| ctx.get_string_arg("time").unwrap_or("".into()), |values| values[0].to_string()),
+            )
             .unwrap_or(Duration::new()),
         Duration::new().parse(ctx.get_string_arg("interval").unwrap_or("".into())).unwrap_or(Duration::new()),
         &reminder,
