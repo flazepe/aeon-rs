@@ -54,7 +54,7 @@ impl EventHandler {
         }
 
         if author_id.unwrap() == CONFIG.bot.client_id && user_id.unwrap() == reaction.user_id.to_string() {
-            REST.delete::<Message>(format!("channels/{}/messages/{}", reaction.channel_id, reaction.message_id)).await.ok();
+            REST.delete::<()>(format!("channels/{}/messages/{}", reaction.channel_id, reaction.message_id)).await.ok();
         }
     }
 }
