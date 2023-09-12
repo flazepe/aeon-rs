@@ -30,7 +30,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             let mut activity = activity.clone();
 
             // Set to proper style
-            if let Ok(style) = ctx.get_string_arg("style").as_deref() {
+            if let Ok(style) = ctx.get_string_arg("card").as_deref() {
                 activity.style = style.into();
             }
 
