@@ -35,12 +35,12 @@ pub enum SongActivityStyle {
 impl From<&str> for SongActivityStyle {
     fn from(value: &str) -> Self {
         match value {
-            "classic" => SongActivityStyle::Classic,
-            "nori" => SongActivityStyle::Nori,
-            "rovi" => SongActivityStyle::Rovi,
-            "vxc" => SongActivityStyle::Vxc,
+            "classic" => Self::Classic,
+            "nori" => Self::Nori,
+            "rovi" => Self::Rovi,
+            "vxc" => Self::Vxc,
             // Default card style is nori's
-            _ => SongActivityStyle::Nori,
+            _ => Self::Nori,
         }
     }
 }
