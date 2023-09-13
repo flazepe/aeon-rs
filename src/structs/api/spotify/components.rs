@@ -10,7 +10,7 @@ pub enum SpotifyAlbumGroup {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum SpotifyAlbumType {
     Album,
     Single,
@@ -106,7 +106,7 @@ pub struct SpotifyPaging<T> {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum SpotifyReleaseDatePrecision {
     Year,
     Month,

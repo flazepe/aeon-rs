@@ -324,7 +324,7 @@ impl OsuUser {
 
     pub fn format_statistics(&self) -> Embed {
         self._format()
-            .add_field("Performance Points", format!("{}pp", format!("{:.2}", self.statistics.pp).commas()), true)
+            .add_field("PP", format!("{}pp", format!("{:.2}", self.statistics.pp).commas()), true)
             .add_field("Accuracy", format!("{:.2}%", self.statistics.hit_accuracy), true)
             .add_field("Level", format!("{} ({}%)", self.statistics.level.current, self.statistics.level.progress), true)
             .add_field("Total Hits", self.statistics.total_hits.commas(), true)

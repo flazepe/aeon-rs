@@ -18,8 +18,8 @@ impl EventHandler {
                 SongActivity {
                     service: SongActivityService::Spotify,
                     style: SongActivityStyle::Nori,
-                    title: activity.details.as_ref().map_or("No title".into(), |details| details.clone()),
-                    artist: activity.state.as_ref().map_or("No artist".into(), |state| state.replace(';', ",")),
+                    title: activity.details.as_ref().map_or("Unknown".into(), |details| details.clone()),
+                    artist: activity.state.as_ref().map_or("Unknown".into(), |state| state.replace(';', ",")),
                     album: activity
                         .assets
                         .as_ref()

@@ -57,6 +57,6 @@ impl Into<Components> for SelectMenu {
 
 impl From<SelectMenu> for MessageResponse {
     fn from(select_menu: SelectMenu) -> Self {
-        MessageResponse::from(<SelectMenu as Into<Components>>::into(select_menu))
+        Self::from(<SelectMenu as Into<Components>>::into(select_menu))
     }
 }

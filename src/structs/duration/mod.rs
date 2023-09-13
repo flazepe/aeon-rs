@@ -41,7 +41,7 @@ impl Duration {
         self.hours = secs / SECS_PER_HOUR;
 
         secs -= SECS_PER_HOUR * self.hours;
-        self.mins = secs / 60;
+        self.mins = secs / SECS_PER_MIN;
 
         self.secs = secs - SECS_PER_MIN * self.mins;
 
