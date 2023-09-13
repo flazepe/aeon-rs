@@ -8,7 +8,6 @@ use slashook::{
     structs::{
         channels::{Attachment, Channel},
         components::Components,
-        guilds::Role,
         interactions::ApplicationCommandOptionChoice,
         users::User,
     },
@@ -140,9 +139,11 @@ impl CommandContext {
         self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_channel().context("Could not convert arg to Channel.")
     }
 
+    /*
     pub fn get_role_arg<T: ToString>(&self, arg: T) -> Result<&Role> {
         self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_role().context("Could not convert arg to Role.")
     }
+    */
 
     pub fn get_f64_arg<T: ToString>(&self, arg: T) -> Result<f64> {
         self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_f64().context("Could not convert arg to f64.")
