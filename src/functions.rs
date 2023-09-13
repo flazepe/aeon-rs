@@ -53,7 +53,7 @@ pub fn format_timestamp<T: Display>(timestamp: T, format: TimestampFormat) -> St
 }
 
 pub async fn hastebin<T: ToString>(string: T) -> Result<String> {
-    let domain = "https://paste.pythondiscord.com";
+    let domain = "https://haste.zneix.eu";
     let json = REQWEST.post(format!("{domain}/documents")).body(string.to_string()).send().await?.json::<Value>().await?;
     Ok(format!("{domain}/raw/{}", json["key"].as_str().unwrap_or("")))
 }
