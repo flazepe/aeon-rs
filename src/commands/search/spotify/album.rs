@@ -35,7 +35,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     ctx.respond(
         MessageResponse::from(
             SelectMenu::new("spotify", "album", "Select a section…", Some(&section))
-                .add_option("Overview", format!("{}", album.id), None::<String>)
+                .add_option("Overview", &album.id, None::<String>)
                 .add_option("Songs", format!("{}/songs", album.id), None::<String>)
                 .add_option("Available Countries", format!("{}/available-countries", album.id), None::<String>),
         )

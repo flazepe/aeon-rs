@@ -76,7 +76,7 @@ pub fn plural<T: ToString, U: ToString>(amount: T, singular: U) -> String {
     let second_last_letter = subject.chars().skip(subject.len().max(2) - 2).take(1).collect::<String>();
 
     if amount != "1" {
-        loop {
+        subject = || -> _ {
             // -s/-ch/-sh/-x/-z
             if ["s", "ch", "sh", "x", "z"].iter().any(|entry| subject.ends_with(entry))
                     // -consonant + o with some exceptions
@@ -84,15 +84,14 @@ pub fn plural<T: ToString, U: ToString>(amount: T, singular: U) -> String {
                         && subject.ends_with('o')
                         && !["piano", "photo"].contains(&subject.as_str()))
             {
-                subject = format!("{}es", subject);
-                break;
+                return format!("{}es", subject);
             }
 
             // -f/-fe with some exceptions
             if ["f", "fe"].iter().any(|entry| subject.ends_with(entry))
                 && !["belief", "cliff", "relief", "roof"].contains(&subject.as_str())
             {
-                subject = format!(
+                return format!(
                     "{}ves",
                     subject
                         .chars()
@@ -102,20 +101,16 @@ pub fn plural<T: ToString, U: ToString>(amount: T, singular: U) -> String {
                         })
                         .collect::<String>(),
                 );
-
-                break;
             }
 
             // -consonant + y
             if !["a", "e", "i", "o", "u"].contains(&second_last_letter.as_str()) && subject.ends_with('y') {
-                subject = format!("{}ies", subject.chars().take(subject.len() - 1).collect::<String>());
-                break;
+                return format!("{}ies", subject.chars().take(subject.len() - 1).collect::<String>());
             }
 
             // Regular nouns
-            subject = format!("{}s", subject);
-            break;
-        }
+            format!("{}s", subject)
+        }();
     }
 
     format!("{} {subject}", amount.commas())

@@ -41,17 +41,17 @@ impl SelectMenu {
     }
 }
 
-impl Into<Components> for SelectMenu {
-    fn into(self) -> Components {
+impl From<SelectMenu> for Components {
+    fn from(value: SelectMenu) -> Self {
         let mut select_menu = SlashookSelectMenu::new(SelectMenuType::STRING)
-            .set_id(self.command.to_string(), self.id.to_string())
-            .set_placeholder(self.placeholder);
+            .set_id(value.command.to_string(), value.id.to_string())
+            .set_placeholder(value.placeholder);
 
-        for option in self.options.into_iter().take(25) {
+        for option in value.options.into_iter().take(25) {
             select_menu = select_menu.add_option(option);
         }
 
-        Components::new().add_select_menu(select_menu)
+        Self::new().add_select_menu(select_menu)
     }
 }
 

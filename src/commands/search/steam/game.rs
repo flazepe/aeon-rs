@@ -35,7 +35,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     ctx.respond(
         MessageResponse::from(
             SelectMenu::new("steam", "game", "Select a section…", Some(&section))
-                .add_option("Overview", format!("{}", game.id), None::<String>)
+                .add_option("Overview", game.id, None::<String>)
                 .add_option("Developers", format!("{}/developers", game.id), None::<String>)
                 .add_option("Details", format!("{}/details", game.id), None::<String>)
                 .add_option("Featured Achievements", format!("{}/featured-achievements", game.id), None::<String>),

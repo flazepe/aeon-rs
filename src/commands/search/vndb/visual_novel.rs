@@ -32,7 +32,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     ctx.respond(
         MessageResponse::from(
             SelectMenu::new("vndb", "visual-novel", "Select a section…", Some(&section))
-                .add_option("Overview", format!("{}", visual_novel.id), None::<String>)
+                .add_option("Overview", &visual_novel.id, None::<String>)
                 .add_option("Description", format!("{}/description", visual_novel.id), None::<String>)
                 .add_option("Tags", format!("{}/tags", visual_novel.id), None::<String>),
         )

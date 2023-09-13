@@ -22,7 +22,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     ctx.respond(
         MessageResponse::from(
             SelectMenu::new("anilist", "user", "Select a section…", Some(&section))
-                .add_option("Overview", format!("{}", user.name), None::<String>)
+                .add_option("Overview", &user.name, None::<String>)
                 .add_option("About", format!("{}/about", user.name), None::<String>)
                 .add_option("Favorite Anime", format!("{}/favorite-anime", user.name), None::<String>)
                 .add_option("Favorite Manga", format!("{}/favorite-manga", user.name), None::<String>)
