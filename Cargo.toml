@@ -32,4 +32,4 @@ twilight-model = "0.15"
 unicode_names2 = "0.6"
 
 [build-dependencies]
-tonic-build = "0.9"
+# tonic-build = "0.9"
