@@ -52,7 +52,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                     "image.png",
                     Command::new("node")
                         .args([
-                            &CONFIG.api.song_card_generator_path,
+                            "../eien",
                             &to_string(&SongActivity {
                                 service: SongActivityService::Spotify,
                                 style: style.into(),

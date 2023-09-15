@@ -47,7 +47,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             ctx.respond(
                 File::new(
                     "image.png",
-                    Command::new("node").args([&CONFIG.api.song_card_generator_path, &to_string(&activity)?]).output().await?.stdout,
+                    Command::new("node").args(["../eien", &to_string(&activity)?]).output().await?.stdout,
                 ),
                 false,
             )

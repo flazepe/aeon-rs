@@ -26,7 +26,6 @@ pub struct APIConfig {
     pub ordr_key: String,
     pub osu: OsuConfig,
     pub saucenao_key: String,
-    pub song_card_generator_path: String,
     pub spotify_token: String,
     pub steam_key: String,
     pub virtualearth_key: String,
