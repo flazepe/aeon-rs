@@ -41,7 +41,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             }
 
             ctx.respond(
-                File::new("image.png", Command::new("node").args(["../eien", &to_string(&activity)?]).output().await?.stdout),
+                File::new("image.png", Command::new("node").args(["../eien", "song-card", &to_string(&activity)?]).output().await?.stdout),
                 false,
             )
             .await

@@ -52,6 +52,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                     Command::new("node")
                         .args([
                             "../eien",
+                            "song-card",
                             &to_string(&SongActivity {
                                 service: SongActivityService::Spotify,
                                 style: style.into(),
