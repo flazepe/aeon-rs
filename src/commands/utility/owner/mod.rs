@@ -1,3 +1,4 @@
+mod eien;
 mod request;
 mod selfpurge;
 mod status;
@@ -13,6 +14,7 @@ use slashook::{
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new()
         .owner_only()
+        .subcommand("eien", eien::run)
         .subcommand("request", request::run)
         .subcommand("selfpurge", selfpurge::run)
         .subcommand("status", status::run)
@@ -23,6 +25,24 @@ pub fn get_command() -> SlashookCommand {
         name = "owner",
         description = "Owner commands.",
         subcommands = [
+            {
+                name = "eien",
+                description = "For testing Eien.",
+				options = [
+					{
+                        name = "command",
+                        description = "The command",
+                        option_type = InteractionOptionType::STRING,
+						required = true,
+                    },
+					{
+                        name = "args",
+                        description = "The args",
+                        option_type = InteractionOptionType::STRING,
+                        required = true,
+                    },
+				],
+            },
 			{
                 name = "request",
                 description = "Creates a request to the Discord API.",
@@ -79,9 +99,9 @@ pub fn get_command() -> SlashookCommand {
             },
         ],
     )]
-    async fn code(input: CommandInput, res: CommandResponder) {
+    async fn owner(input: CommandInput, res: CommandResponder) {
         COMMAND.run(input, res).await?;
     }
 
-    code
+    owner
 }
