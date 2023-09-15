@@ -4,6 +4,8 @@ use slashook::structs::utils::File;
 use tokio::process::Command;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
+    ctx.res.defer(false).await?;
+
     ctx.respond(
         File::new(
             "image.png",
