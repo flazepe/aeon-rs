@@ -1,8 +1,4 @@
-use crate::{
-    statics::{CACHE, CONFIG},
-    structs::command_context::CommandContext,
-    traits::AvatarUrl,
-};
+use crate::{statics::CACHE, structs::command_context::CommandContext, traits::AvatarUrl};
 use anyhow::Result;
 use serde_json::to_string;
 use slashook::structs::utils::File;
@@ -45,10 +41,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             }
 
             ctx.respond(
-                File::new(
-                    "image.png",
-                    Command::new("node").args(["../eien", &to_string(&activity)?]).output().await?.stdout,
-                ),
+                File::new("image.png", Command::new("node").args(["../eien", &to_string(&activity)?]).output().await?.stdout),
                 false,
             )
             .await

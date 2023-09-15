@@ -1,5 +1,4 @@
 use crate::{
-    statics::CONFIG,
     structs::{
         api::spotify::Spotify,
         command_context::CommandContext,
