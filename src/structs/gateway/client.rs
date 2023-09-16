@@ -6,7 +6,10 @@ use twilight_gateway::{
     Config as TwilightConfig, Intents,
 };
 use twilight_http::Client as TwilightClient;
-use twilight_model::gateway::payload::outgoing::identify::IdentifyProperties;
+use twilight_model::gateway::{
+    payload::outgoing::{identify::IdentifyProperties, update_presence::UpdatePresencePayload},
+    presence::{Activity, ActivityType, Status},
+};
 
 pub struct GatewayClient {
     client: TwilightClient,
@@ -29,6 +32,29 @@ impl GatewayClient {
                     | Intents::GUILD_PRESENCES,
             )
             .identify_properties(IdentifyProperties::new("Discord Android", "Google Pixel 8 Pro", "Android 14"))
+            .presence(UpdatePresencePayload::new(
+                vec![Activity {
+                    application_id: None,
+                    assets: None,
+                    buttons: vec![],
+                    created_at: None,
+                    details: None,
+                    emoji: None,
+                    flags: None,
+                    id: None,
+                    instance: None,
+                    kind: ActivityType::Custom,
+                    name: "yes".into(),
+                    party: None,
+                    secrets: None,
+                    state: Some("I got the new Pixel".into()),
+                    timestamps: None,
+                    url: None,
+                }],
+                false,
+                None,
+                Status::Online,
+            )?)
             .build(),
             |_, builder| builder.build(),
         )
