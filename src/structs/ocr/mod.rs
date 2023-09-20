@@ -25,7 +25,7 @@ impl Ocr {
         let (language_code, language_name) =
             OCR_LANGUAGES.get_key_value(language.to_string().to_lowercase().as_str()).context("Invalid language.")?;
 
-        let mut child = Command::new(r"D:\Data\Bin\Tesseract-OCR\tesseract")
+        let mut child = Command::new("tesseract")
             .args(["stdin", "stdout", "--tessdata-dir", "../tessdata", "-l", language_code, "--dpi", "150", "--psm", "3"])
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
