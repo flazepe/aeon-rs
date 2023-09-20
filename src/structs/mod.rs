@@ -6,6 +6,7 @@ pub mod config;
 pub mod database;
 pub mod duration;
 pub mod gateway;
+pub mod ocr;
 pub mod scraping;
 pub mod select_menu;
 pub mod snipes;
