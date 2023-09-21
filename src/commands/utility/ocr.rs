@@ -1,4 +1,5 @@
 use crate::structs::{
+    api::google::statics::GOOGLE_TRANSLATE_LANGUAGES,
     command_context::CommandContext,
     ocr::{statics::OCR_LANGUAGES, Ocr},
 };
@@ -14,7 +15,10 @@ use slashook::{
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         if ctx.input.is_autocomplete() {
-            return ctx.autocomplete(OCR_LANGUAGES.iter()).await;
+            match ctx.input.focused.as_deref() == Some("origin-language") {
+                true => return ctx.autocomplete(OCR_LANGUAGES.iter()).await, // Origin language must be OCR-supported language
+                false => return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await,
+            }
         }
 
         ctx.res.defer(false).await?;
@@ -24,7 +28,8 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
                 Ok(url) => url,
                 Err(_) => return ctx.respond_error("Please provide an image URL or file.", true).await,
             },
-            ctx.get_string_arg("language").unwrap_or("eng".into()),
+            ctx.get_string_arg("origin-language").unwrap_or("eng".into()),
+            ctx.get_string_arg("target-language").unwrap_or("en".into()),
         )
         .await
         {
@@ -49,12 +54,18 @@ pub fn get_command() -> SlashookCommand {
 				description = "The image file",
 				option_type = InteractionOptionType::ATTACHMENT,
 			},
-			{
-				name = "language",
-				description = "The text language",
-				option_type = InteractionOptionType::STRING,
-				autocomplete = true,
-			},
+            {
+                name = "target-language",
+                description = "The language to translate the text to",
+                option_type = InteractionOptionType::STRING,
+                autocomplete = true,
+            },
+            {
+                name = "origin-language",
+                description = "The text's origin language",
+                option_type = InteractionOptionType::STRING,
+                autocomplete = true,
+            },
         ]
 	)]
     async fn ocr(input: CommandInput, res: CommandResponder) {
