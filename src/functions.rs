@@ -5,8 +5,12 @@ use crate::{
 use anyhow::Result;
 use regex::Captures;
 use serde_json::Value;
-use slashook::structs::components::{SelectMenu, SelectOption};
+use slashook::structs::{
+    components::{SelectMenu, SelectOption},
+    utils::File,
+};
 use std::fmt::Display;
+use tokio::process::Command;
 
 pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
     for (label, value) in [
@@ -23,6 +27,13 @@ pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
     }
 
     select_menu
+}
+
+pub async fn eien<T: ToString>(command: T, extra_args: &[&str]) -> Result<File> {
+    let command = command.to_string();
+    let mut args = vec!["../eien", &command];
+    args.extend_from_slice(extra_args);
+    Ok(File::new("image.png", Command::new("node").args(args).output().await?.stdout))
 }
 
 pub fn escape_markdown<T: ToString>(string: T) -> String {

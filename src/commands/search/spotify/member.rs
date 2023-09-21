@@ -1,8 +1,6 @@
-use crate::{statics::CACHE, structs::command_context::CommandContext, traits::AvatarUrl};
+use crate::{functions::eien, statics::CACHE, structs::command_context::CommandContext, traits::AvatarUrl};
 use anyhow::Result;
 use serde_json::to_string;
-use slashook::structs::utils::File;
-use tokio::process::Command;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let mut user = ctx.get_user_arg("member").unwrap_or(&ctx.input.user);
@@ -40,11 +38,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                 activity.timestamps = None;
             }
 
-            ctx.respond(
-                File::new("image.png", Command::new("node").args(["../eien", "song-card", &to_string(&activity)?]).output().await?.stdout),
-                false,
-            )
-            .await
+            ctx.respond(eien("song-card", &[&to_string(&activity)?]).await?, false).await
         },
         None => ctx.respond_error(format!("No Spotify activity found for <@{}>.", user.id), true).await,
     }

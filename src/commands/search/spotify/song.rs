@@ -1,4 +1,5 @@
 use crate::{
+    functions::eien,
     structs::{
         api::spotify::Spotify,
         command_context::CommandContext,
@@ -9,8 +10,7 @@ use crate::{
 };
 use anyhow::Result;
 use serde_json::to_string;
-use slashook::{commands::MessageResponse, structs::utils::File};
-use tokio::process::Command;
+use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.get_bool_arg("search").unwrap_or(false) {
@@ -47,30 +47,23 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
         return ctx
             .respond(
-                File::new(
-                    "image.png",
-                    Command::new("node")
-                        .args([
-                            "../eien",
-                            "song-card",
-                            &to_string(&SongActivity {
-                                service: SongActivityService::Spotify,
-                                style: style.into(),
-                                title: track.name,
-                                artist: track.artists.into_iter().map(|artist| artist.name).collect::<Vec<String>>().join(", "),
-                                album: track.album.name,
-                                album_cover: track
-                                    .album
-                                    .images
-                                    .get(0)
-                                    .map_or_else(|| ctx.input.user.display_avatar_url("png", 4096), |image| image.url.clone()),
-                                timestamps: None,
-                            })?,
-                        ])
-                        .output()
-                        .await?
-                        .stdout,
-                ),
+                eien(
+                    "song-card",
+                    &[&to_string(&SongActivity {
+                        service: SongActivityService::Spotify,
+                        style: style.into(),
+                        title: track.name,
+                        artist: track.artists.into_iter().map(|artist| artist.name).collect::<Vec<String>>().join(", "),
+                        album: track.album.name,
+                        album_cover: track
+                            .album
+                            .images
+                            .get(0)
+                            .map_or_else(|| ctx.input.user.display_avatar_url("png", 4096), |image| image.url.clone()),
+                        timestamps: None,
+                    })?],
+                )
+                .await?,
                 false,
             )
             .await;
