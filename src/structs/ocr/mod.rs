@@ -1,11 +1,16 @@
 pub mod statics;
 
 use crate::{
+    functions::eien,
     statics::{colors::PRIMARY_COLOR, REQWEST},
     structs::ocr::statics::OCR_LANGUAGES,
 };
 use anyhow::{bail, Context, Result};
-use slashook::structs::embeds::Embed;
+use serde_json::json;
+use slashook::{
+    commands::MessageResponse,
+    structs::{embeds::Embed, utils::File as SlashookFile},
+};
 use std::{
     fs::{write, File},
     process::Stdio,
@@ -16,6 +21,7 @@ pub struct Ocr {
     pub image_url: String,
     pub language: String,
     pub text: String,
+    pub visual_file: SlashookFile,
 }
 
 impl Ocr {
@@ -26,7 +32,22 @@ impl Ocr {
             OCR_LANGUAGES.get_key_value(language.to_string().to_lowercase().as_str()).context("Invalid language.")?;
 
         let mut child = Command::new("tesseract")
-            .args(["stdin", "stdout", "--tessdata-dir", "../tessdata", "-l", language_code, "--dpi", "150", "--psm", "3"])
+            .args([
+                "stdin",
+                "stdout",
+                "-c",
+                "tessedit_create_tsv=1",
+                "-c",
+                "tessedit_create_txt=1",
+                "--tessdata-dir",
+                "../tessdata",
+                "-l",
+                language_code,
+                "--dpi",
+                "150",
+                "--psm",
+                "3",
+            ])
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
@@ -42,24 +63,40 @@ impl Ocr {
         let output = child.wait_with_output().await?;
 
         if !output.stderr.is_empty() {
+            println!("[OCR] {}", String::from_utf8(output.stderr)?);
             bail!("Invalid image.");
         }
 
-        Ok(Self { image_url, language: language_name.to_string(), text: String::from_utf8(output.stdout)? })
+        let stdout = String::from_utf8(output.stdout)?.replace('\r', "");
+        let (tsv, txt) = stdout.split_once("\n\n").context("Could not split tsv and txt.")?;
+
+        Ok(Self {
+            image_url: image_url.clone(),
+            language: language_name.to_string(),
+            text: txt.to_string(),
+            visual_file: eien("ocr", &[&json!({ "image": image_url, "tsv": tsv }).to_string()]).await?,
+        })
     }
 
-    pub fn format(&self) -> Embed {
+    pub fn format(&self) -> MessageResponse {
         let text = self.text.chars().take(4090).collect::<String>().trim().replace('`', "｀");
 
-        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_title(&self.language).set_url(&self.image_url).set_description(
-            format!(
-                "```{}```",
-                match text.is_empty() {
-                    true => "<empty>",
-                    false => &text,
-                },
-            ),
+        MessageResponse::from(
+            Embed::new()
+                .set_color(PRIMARY_COLOR)
+                .unwrap_or_default()
+                .set_title(&self.language)
+                .set_url(&self.image_url)
+                .set_image("attachment://image.png")
+                .set_description(format!(
+                    "```{}```",
+                    match text.is_empty() {
+                        true => "<empty>",
+                        false => &text,
+                    },
+                )),
         )
+        .add_file(self.visual_file.clone())
     }
 
     #[allow(dead_code)]
