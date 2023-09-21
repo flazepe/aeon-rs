@@ -5,7 +5,7 @@ use crate::{
     statics::{colors::PRIMARY_COLOR, REQWEST},
     structs::ocr::statics::OCR_LANGUAGES,
 };
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result};
 use serde_json::json;
 use slashook::{
     commands::MessageResponse,
@@ -64,11 +64,10 @@ impl Ocr {
 
         if !output.stderr.is_empty() {
             println!("[OCR] {}", String::from_utf8(output.stderr)?);
-            bail!("Invalid image.");
         }
 
         let stdout = String::from_utf8(output.stdout)?.replace('\r', "");
-        let (tsv, txt) = stdout.split_once("\n\n").context("Could not split tsv and txt.")?;
+        let (tsv, txt) = stdout.split_once("\n\n").context("Invalid image.")?;
 
         Ok(Self {
             image_url: image_url.clone(),
