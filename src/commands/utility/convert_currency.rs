@@ -1,5 +1,5 @@
 use crate::structs::{
-    api::exchange_rate::{statics::EXCHANGE_RATE_CURRENCIES, ExchangeRateConversion},
+    api::xe::{statics::XE_CURRENCIES, Xe},
     command::Command,
     command_context::CommandContext,
 };
@@ -13,17 +13,12 @@ use slashook::{
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         if ctx.input.is_autocomplete() {
-            return ctx.autocomplete(EXCHANGE_RATE_CURRENCIES.iter()).await;
+            return ctx.autocomplete(XE_CURRENCIES.iter()).await;
         }
 
-        match ExchangeRateConversion::get(
-            ctx.get_f64_arg("amount")?,
-            ctx.get_string_arg("origin-currency")?,
-            ctx.get_string_arg("target-currency")?,
-        )
-        .await
+        match Xe::convert(ctx.get_f64_arg("amount")?, ctx.get_string_arg("origin-currency")?, ctx.get_string_arg("target-currency")?).await
         {
-            Ok(exchange_rate_conversion) => ctx.respond_success(exchange_rate_conversion.format(), false).await,
+            Ok(xe_conversion) => ctx.respond_success(xe_conversion.format(), false).await,
             Err(error) => ctx.respond_error(error, true).await,
         }
     })

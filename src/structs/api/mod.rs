@@ -1,5 +1,4 @@
 pub mod anilist;
-pub mod exchange_rate;
 pub mod google;
 pub mod ip_info;
 pub mod jisho;
@@ -12,3 +11,4 @@ pub mod steam;
 pub mod tio;
 pub mod virtualearth;
 pub mod vndb;
+pub mod xe;
