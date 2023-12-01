@@ -15,7 +15,7 @@ use slashook::{
     structs::{embeds::Embed, utils::File as SlashookFile},
 };
 use std::{
-    fs::{write, File},
+    fs::{create_dir, write, File},
     process::Stdio,
 };
 use tokio::{io::AsyncWriteExt, process::Command};
@@ -120,6 +120,10 @@ impl Ocr {
     }
 
     pub async fn download_trained_data() -> Result<()> {
+        if File::open("../tessdata").is_err() {
+            create_dir("../tessdata")?;
+        }
+
         for (index, (language_code, language_name)) in OCR_LANGUAGES.iter().enumerate() {
             let path = format!("../tessdata/{language_code}.traineddata");
 
@@ -133,9 +137,9 @@ impl Ocr {
                         .bytes()
                         .await?,
                 )?;
-            }
 
-            println!("[OCR] [{}/{}] Downloaded {language_name} trained data.", index + 1, OCR_LANGUAGES.len());
+                println!("[OCR] [{}/{}] Downloaded {language_name} trained data.", index + 1, OCR_LANGUAGES.len());
+            }
         }
 
         Ok(())
