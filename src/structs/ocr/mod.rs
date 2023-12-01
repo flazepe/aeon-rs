@@ -119,7 +119,6 @@ impl Ocr {
         .add_file(self.visual_file.clone())
     }
 
-    #[allow(dead_code)]
     pub async fn download_trained_data() -> Result<()> {
         for (index, (language_code, language_name)) in OCR_LANGUAGES.iter().enumerate() {
             let path = format!("../tessdata/{language_code}.traineddata");
@@ -138,8 +137,6 @@ impl Ocr {
 
             println!("[OCR] [{}/{}] Downloaded {language_name} trained data.", index + 1, OCR_LANGUAGES.len());
         }
-
-        println!("[OCR] Downloaded all trained data.");
 
         Ok(())
     }
