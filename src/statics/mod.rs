@@ -36,8 +36,8 @@ pub static MONGODB: AsyncOnceCell<Database> = AsyncOnceCell::new();
 
 pub static COLLECTIONS: Lazy<Collections> = Lazy::new(|| Collections {
     oauth: MONGODB.get().unwrap().collection::<OauthToken>("oauth"),
-    reminders: MONGODB.get().unwrap().collection::<Reminder>("oauth"),
-    tags: MONGODB.get().unwrap().collection::<Tag>("oauth"),
+    reminders: MONGODB.get().unwrap().collection::<Reminder>("reminders"),
+    tags: MONGODB.get().unwrap().collection::<Tag>("tags"),
 });
 
 pub static REQWEST: Lazy<Client> = Lazy::new(Client::new);
