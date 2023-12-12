@@ -28,10 +28,7 @@ impl EventHandler {
                     album_cover: activity.assets.as_ref().and_then(|assets| assets.large_image.as_ref()).map_or("".into(), |large_image| {
                         format!("https://i.scdn.co/image/{}", large_image.chars().skip(8).collect::<String>())
                     }),
-                    timestamps: Some((
-                        activity.timestamps.as_ref().and_then(|timestamps| timestamps.start).unwrap_or(0),
-                        activity.timestamps.as_ref().and_then(|timestamps| timestamps.end).unwrap_or(0),
-                    )),
+                    timestamps: activity.timestamps.as_ref().map(|timestamps| (timestamps.start.unwrap_or(0), timestamps.end.unwrap_or(0))),
                 },
             ),
             None => spotify.remove(&user_id),
