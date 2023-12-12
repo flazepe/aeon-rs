@@ -30,9 +30,7 @@ impl EventHandler {
                 .get(&reaction.channel_id.to_string())
                 .and_then(|messages| messages.iter().find(|message| message.id == reaction.message_id))
             {
-                let Some(interaction) = message.interaction.as_ref() else {
-                    return;
-                };
+                let Some(interaction) = message.interaction.as_ref() else { return };
 
                 author_id = Some(message.author.id.to_string());
                 user_id = Some(interaction.user.id.to_string());
@@ -41,13 +39,8 @@ impl EventHandler {
 
         // Fetch message if not in cache
         if author_id.is_none() || user_id.is_none() {
-            let Ok(message) = Message::fetch(&REST, reaction.channel_id, reaction.message_id).await else {
-                return;
-            };
-
-            let Some(interaction) = message.interaction else {
-                return;
-            };
+            let Ok(message) = Message::fetch(&REST, reaction.channel_id, reaction.message_id).await else { return };
+            let Some(interaction) = message.interaction else { return };
 
             author_id = Some(message.author.id);
             user_id = Some(interaction.user.id);
