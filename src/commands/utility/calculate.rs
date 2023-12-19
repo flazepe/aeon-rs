@@ -40,6 +40,7 @@ pub fn get_command() -> SlashookCommand {
                 name = "expression",
                 description = "The expression",
                 option_type = InteractionOptionType::STRING,
+                required = true,
             },
         ],
     )]
