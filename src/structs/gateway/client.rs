@@ -32,29 +32,6 @@ impl GatewayClient {
                     | Intents::GUILD_PRESENCES,
             )
             .identify_properties(IdentifyProperties::new("Discord Android", "Google Pixel 8 Pro", "Android 14"))
-            .presence(UpdatePresencePayload::new(
-                vec![Activity {
-                    application_id: None,
-                    assets: None,
-                    buttons: vec![],
-                    created_at: None,
-                    details: None,
-                    emoji: None,
-                    flags: None,
-                    id: None,
-                    instance: None,
-                    kind: ActivityType::Custom,
-                    name: "yes".into(),
-                    party: None,
-                    secrets: None,
-                    state: Some("I got the new Pixel".into()),
-                    timestamps: None,
-                    url: None,
-                }],
-                false,
-                None,
-                Status::Online,
-            )?)
             .build(),
             |_, builder| builder.build(),
         )
