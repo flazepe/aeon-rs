@@ -1,5 +1,6 @@
 mod album;
 pub mod components;
+pub mod lyrics;
 pub mod statics;
 mod track;
 
@@ -12,7 +13,7 @@ use anyhow::Result;
 use serde::de::DeserializeOwned;
 use std::fmt::Display;
 
-pub struct Spotify {}
+pub struct Spotify;
 
 impl Spotify {
     pub async fn query<T: Display, U: DeserializeOwned>(endpoint: T) -> Result<U> {
