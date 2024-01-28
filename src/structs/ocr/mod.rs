@@ -121,7 +121,7 @@ impl Ocr {
 
     pub async fn download_trained_data() -> Result<()> {
         if File::open("../tessdata").is_err() {
-            create_dir("../tessdata")?;
+            create_dir("../tessdata").ok();
         }
 
         for (index, (language_code, language_name)) in OCR_LANGUAGES.iter().enumerate() {
