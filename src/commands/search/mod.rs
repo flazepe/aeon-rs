@@ -1,6 +1,7 @@
 mod anilist;
 mod distrowatch;
 mod jisho;
+mod lyrics;
 mod novel_updates;
 mod spotify;
 mod steam;
@@ -16,6 +17,7 @@ pub fn get_commands() -> Vec<SlashookCommand> {
         anilist::get_command(),
         distrowatch::get_command(),
         jisho::get_command(),
+        lyrics::get_command(),
         novel_updates::get_command(),
         spotify::get_command(),
         steam::get_command(),
