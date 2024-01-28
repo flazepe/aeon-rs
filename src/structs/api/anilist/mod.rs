@@ -16,7 +16,7 @@ use serde_json::{json, Value};
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
 use std::collections::HashMap;
 
-pub struct AniList {}
+pub struct AniList;
 
 impl AniList {
     async fn query<T: ToString, U: DeserializeOwned>(query: T, variables: Value) -> Result<U> {

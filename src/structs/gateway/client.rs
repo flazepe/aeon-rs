@@ -6,23 +6,18 @@ use twilight_gateway::{
     Config as TwilightConfig, Intents,
 };
 use twilight_http::Client as TwilightClient;
-use twilight_model::gateway::{
-    payload::outgoing::{identify::IdentifyProperties, update_presence::UpdatePresencePayload},
-    presence::{Activity, ActivityType, Status},
-};
+use twilight_model::gateway::payload::outgoing::identify::IdentifyProperties;
 
-pub struct GatewayClient {
-    client: TwilightClient,
-}
+pub struct GatewayClient(TwilightClient);
 
 impl GatewayClient {
     pub fn new() -> Self {
-        Self { client: TwilightClient::new(CONFIG.bot.token.clone()) }
+        Self(TwilightClient::new(CONFIG.bot.token.clone()))
     }
 
     pub async fn create_shards(self) -> Result<()> {
         let mut shards = create_recommended(
-            &self.client,
+            &self.0,
             TwilightConfig::builder(
                 CONFIG.bot.token.clone(),
                 Intents::GUILDS

@@ -18,7 +18,7 @@ struct VndbResponse<T> {
     results: Vec<T>,
 }
 
-pub struct Vndb {}
+pub struct Vndb;
 
 impl Vndb {
     async fn query<T: Display, U: DeserializeOwned>(endpoint: T, query: Value) -> Result<VndbResponse<U>> {

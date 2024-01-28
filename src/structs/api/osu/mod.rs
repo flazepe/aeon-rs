@@ -8,7 +8,7 @@ use anyhow::Result;
 use serde::de::DeserializeOwned;
 use std::fmt::Display;
 
-pub struct Osu {}
+pub struct Osu;
 
 impl Osu {
     pub async fn query<T: Display, U: DeserializeOwned>(endpoint: T) -> Result<U> {

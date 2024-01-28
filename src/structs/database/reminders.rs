@@ -32,7 +32,7 @@ pub struct Reminder {
     pub dm: bool,
 }
 
-pub struct Reminders {}
+pub struct Reminders;
 
 impl Reminders {
     pub async fn poll() -> Result<()> {

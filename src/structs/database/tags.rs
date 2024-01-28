@@ -19,7 +19,7 @@ pub struct Tag {
     pub updated_timestamp: u64,
 }
 
-pub struct Tags {}
+pub struct Tags;
 
 impl Tags {
     pub async fn get<T: ToString, U: ToString>(name: T, guild_id: U) -> Result<Tag> {

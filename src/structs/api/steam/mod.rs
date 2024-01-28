@@ -10,7 +10,7 @@ use anyhow::Result;
 use serde::{de::DeserializeOwned, Serialize};
 use std::fmt::Display;
 
-pub struct Steam {}
+pub struct Steam;
 
 impl Steam {
     pub async fn query<T: Display, U: Serialize + ?Sized, V: DeserializeOwned>(endpoint: T, query: &U) -> Result<V> {
