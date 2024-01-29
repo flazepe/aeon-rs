@@ -49,12 +49,12 @@ impl OwnerCommands<'_> {
 
     pub async fn eval(&self) {
         let mut code = self.args.clone();
-        let mut input_type = "commonjs";
+        let mut flags = code.split(' ').last().unwrap_or("").to_string();
 
-        // Module flag
-        if code.ends_with(" -m") {
-            code = code.trim_end_matches(" -m").to_string();
-            input_type = "module";
+        if flags.starts_with('-') && flags.chars().skip(1).all(|char| char.is_alphabetic()) {
+            code = code.trim_end_matches(&flags).trim_end().to_string();
+        } else {
+            flags.clear();
         }
 
         // Codeblock trim
@@ -64,8 +64,14 @@ impl OwnerCommands<'_> {
 
         let mut text = "No result.".to_string();
 
-        if let Ok(output) =
-            Command::new("node").args([if input_type == "commonjs" { "-p" } else { "-e" }, &code, "--input-type", input_type]).output()
+        if let Ok(output) = Command::new("node")
+            .args([
+                if flags.contains('m') { "-e" } else { "-p" },
+                &code,
+                "--input-type",
+                if flags.contains('m') { "module" } else { "commonjs" },
+            ])
+            .output()
         {
             let stdout = String::from_utf8(output.stdout).unwrap_or("".into());
             let stderr = String::from_utf8(output.stderr).unwrap_or("".into());
@@ -81,13 +87,15 @@ impl OwnerCommands<'_> {
             }
         }
 
-        Message::create(
-            &REST,
-            self.message.channel_id,
-            if text.len() > 2000 { MessageResponse::from(File::new("result.txt", text)) } else { MessageResponse::from(text) },
-        )
-        .await
-        .ok();
+        if !flags.contains('s') {
+            Message::create(
+                &REST,
+                self.message.channel_id,
+                if text.len() > 2000 { MessageResponse::from(File::new("result.txt", text)) } else { MessageResponse::from(text) },
+            )
+            .await
+            .ok();
+        }
     }
 
     pub async fn say(&self) {
