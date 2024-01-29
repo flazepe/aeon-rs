@@ -2,12 +2,12 @@ use crate::{
     statics::{FLAZEPE_ID, REST},
     structs::gateway::events::handler::EventHandler,
 };
-use serde_json::json;
+use serde_json::{json, to_string};
 use slashook::{
     commands::MessageResponse,
     structs::{channels::Message, utils::File},
 };
-use std::process::Command;
+use std::{fmt::Display, process::Command};
 use twilight_gateway::stream::ShardRef;
 use twilight_model::gateway::{payload::incoming::MessageCreate, presence::ActivityType, OpCode};
 
@@ -67,7 +67,7 @@ impl OwnerCommands<'_> {
         if let Ok(output) = Command::new("node")
             .args([
                 if flags.contains('m') { "-e" } else { "-p" },
-                &code,
+                &generate_eval_context(to_string(&self.message).unwrap_or("{}".into()), code),
                 "--input-type",
                 if flags.contains('m') { "module" } else { "commonjs" },
             ])
@@ -123,4 +123,27 @@ impl OwnerCommands<'_> {
             .await
             .ok();
     }
+}
+
+fn generate_eval_context<T: Display>(message: T, code: String) -> String {
+    format!(
+        r#"
+            function botFetch(url, options = {{}}) {{
+                if (!url.startsWith("http")) url = `https://discord.com/api/${{url}}`;
+                if (!options.headers) options.headers = {{}};
+
+                try {{
+                    options.headers.authorization = `Bot ${{fs.readFileSync("config.toml", "utf8").split("\n").find(line => line.startsWith("token = ")).split('"')[1]}}`;
+                }} catch {{}}
+
+                if (typeof options.body === "string" && !options.headers["content-type"]) options.headers["content-type"] = "application/json";
+            
+                return fetch(url, options);
+            }}
+
+            const message = {message};
+            
+            {code}
+        "#,
+    )
 }
