@@ -1,5 +1,5 @@
 use crate::{
-    statics::{CACHE, CONFIG, REST},
+    statics::{CACHE, CONFIG, FLAZEPE_ID, REST},
     structs::gateway::events::handler::EventHandler,
 };
 use slashook::structs::channels::Message;
@@ -30,23 +30,27 @@ impl EventHandler {
                 .get(&reaction.channel_id.to_string())
                 .and_then(|messages| messages.iter().find(|message| message.id == reaction.message_id))
             {
-                let Some(interaction) = message.interaction.as_ref() else { return };
-
                 author_id = Some(message.author.id.to_string());
-                user_id = Some(interaction.user.id.to_string());
+
+                if let Some(interaction) = message.interaction.as_ref() {
+                    user_id = Some(interaction.user.id.to_string());
+                }
             }
         }
 
         // Fetch message if not in cache
         if author_id.is_none() || user_id.is_none() {
             let Ok(message) = Message::fetch(&REST, reaction.channel_id, reaction.message_id).await else { return };
-            let Some(interaction) = message.interaction else { return };
-
             author_id = Some(message.author.id);
-            user_id = Some(interaction.user.id);
+
+            if let Some(interaction) = message.interaction {
+                user_id = Some(interaction.user.id);
+            }
         }
 
-        if author_id.unwrap() == CONFIG.bot.client_id && user_id.unwrap() == reaction.user_id.to_string() {
+        let Some(author_id) = author_id else { return };
+
+        if user_id.unwrap_or(FLAZEPE_ID.to_string()) == reaction.user_id.to_string() && author_id == CONFIG.bot.client_id {
             REST.delete::<()>(format!("channels/{}/messages/{}", reaction.channel_id, reaction.message_id)).await.ok();
         }
     }
