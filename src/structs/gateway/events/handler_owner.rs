@@ -66,7 +66,9 @@ impl OwnerCommands<'_> {
 
         let mut text = "No result.".to_string();
 
-        if let Ok(output) = Command::new("node").args(["-e", &code, "--input-type", input_type]).output() {
+        if let Ok(output) =
+            Command::new("node").args([if input_type == "commonjs" { "-p" } else { "-e" }, &code, "--input-type", input_type]).output()
+        {
             let stdout = String::from_utf8(output.stdout).unwrap_or("".into());
             let stderr = String::from_utf8(output.stderr).unwrap_or("".into());
 
