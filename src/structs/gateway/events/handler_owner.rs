@@ -56,12 +56,7 @@ impl OwnerCommands<'_> {
 
         // Codeblock trim
         if code.starts_with("```") {
-            code = code
-                .chars()
-                .skip(if code.starts_with("```js") { 5 } else { 3 })
-                .collect::<String>()
-                .trim_end_matches("```")
-                .replace('`', "\u{200b}`");
+            code = code.trim_end_matches("```").chars().skip(if code.starts_with("```js") { 5 } else { 3 }).collect::<String>();
         }
 
         let mut text = "No result.".to_string();
@@ -83,7 +78,7 @@ impl OwnerCommands<'_> {
             }
         }
 
-        Message::create(&REST, self.message.channel_id, text.chars().take(2000).collect::<String>()).await.ok();
+        Message::create(&REST, self.message.channel_id, text.replace('`', "\u{200b}`").chars().take(2000).collect::<String>()).await.ok();
     }
 
     pub async fn say(&self) {
