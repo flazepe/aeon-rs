@@ -10,11 +10,13 @@ use twilight_model::gateway::{payload::incoming::MessageCreate, presence::Activi
 
 impl<'a> EventHandler {
     pub async fn handle_owner(message: Box<MessageCreate>, shard: ShardRef<'a>) {
-        if message.author.id.to_string() != FLAZEPE_ID || !message.content.to_lowercase().starts_with("aeon ") {
+        let prefix = "";
+
+        if message.author.id.to_string() != FLAZEPE_ID || !message.content.to_lowercase().starts_with(prefix) {
             return;
         }
 
-        let prefixless = message.content.chars().skip(5).collect::<String>();
+        let prefixless = message.content.chars().skip(prefix.len()).collect::<String>();
         let (command, args) = prefixless.split_once(' ').unwrap_or(("", ""));
 
         let mut owner_commands = OwnerCommands { message, shard, args: args.to_string() };
