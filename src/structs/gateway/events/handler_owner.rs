@@ -3,7 +3,10 @@ use crate::{
     structs::gateway::events::handler::EventHandler,
 };
 use serde_json::json;
-use slashook::structs::channels::Message;
+use slashook::{
+    commands::MessageResponse,
+    structs::{channels::Message, utils::File},
+};
 use std::process::Command;
 use twilight_gateway::stream::ShardRef;
 use twilight_model::gateway::{payload::incoming::MessageCreate, presence::ActivityType, OpCode};
@@ -70,15 +73,21 @@ impl OwnerCommands<'_> {
             text = format!("{}", output.status);
 
             if !stdout.trim().is_empty() {
-                text += &format!("\nstdout:```js\n{}```", stdout);
+                text += &format!("\nstdout:\n```js\n{}```", stdout.replace('`', "\u{200b}`"));
             }
 
             if !stderr.trim().is_empty() {
-                text += &format!("\nstderr:```js\n{}```", stderr);
+                text += &format!("\nstderr:\n```js\n{}```", stderr.replace('`', "\u{200b}`"));
             }
         }
 
-        Message::create(&REST, self.message.channel_id, text.replace('`', "\u{200b}`").chars().take(2000).collect::<String>()).await.ok();
+        Message::create(
+            &REST,
+            self.message.channel_id,
+            if text.len() > 2000 { MessageResponse::from(File::new("result.txt", text)) } else { MessageResponse::from(text) },
+        )
+        .await
+        .ok();
     }
 
     pub async fn say(&self) {
