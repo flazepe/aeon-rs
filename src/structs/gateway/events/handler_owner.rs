@@ -27,7 +27,6 @@ impl<'a> EventHandler {
         match command {
             "delete" => owner_commands.delete().await,
             "eval" | "evak" => owner_commands.eval().await,
-            "say" => owner_commands.say().await,
             "status" => owner_commands.status().await,
             _ => {},
         }
@@ -98,10 +97,6 @@ impl OwnerCommands<'_> {
         }
     }
 
-    pub async fn say(&self) {
-        Message::create(&REST, self.message.channel_id.to_string(), &*self.args).await.ok();
-    }
-
     pub async fn status(&mut self) {
         self.shard
             .send(
@@ -142,6 +137,19 @@ fn generate_eval_context<T: Display>(message: T, code: String) -> String {
             }}
 
             const message = {message};
+
+            message.reply = (body, filename, extraPayload = {{}}) => {{
+                if (filename) {{
+                    const formData = new FormData();
+                    formData.append("file", new Blob([body]), filename);
+                    formData.append("payload_json", JSON.stringify(extraPayload))
+                    body = formData;
+                }} else {{
+                    body = JSON.stringify({{ content: body, ...extraPayload }});
+                }}
+
+                return botFetch(`channels/${{message.channel_id}}/messages`, {{ method: "POST", body }});
+            }};
             
             {code}
         "#,
