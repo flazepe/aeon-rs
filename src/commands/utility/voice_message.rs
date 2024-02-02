@@ -8,21 +8,15 @@ use slashook::{
 
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
-        ctx.res.defer(true).await?;
-
-        match VoiceMessage::send(
-            ctx.input.channel_id.as_ref().unwrap_or(&"".into()),
-            None::<String>,
+        VoiceMessage::send(
+            &ctx.res,
             match ctx.get_string_arg("audio-url").or(ctx.get_attachment_arg("audio-file").map(|attachment| attachment.url.clone())) {
                 Ok(url) => url,
                 Err(_) => return ctx.respond_error("Please provide an audio URL or file.", true).await,
             },
+            false,
         )
         .await
-        {
-            Ok(_) => ctx.respond_success("Sent.", true).await,
-            Err(error) => ctx.respond_error(error, true).await,
-        }
     })
 });
 
