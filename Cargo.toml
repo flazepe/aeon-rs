@@ -20,7 +20,7 @@ reqwest = "0.11"
 serde = "1"
 serde_json = "1"
 serde_repr = "0.1"
-slashook = { git = "https://github.com/tonkku107/slashook.git", rev = "408f942" }
+slashook = { git = "https://github.com/tonkku107/slashook.git", rev = "b1d63e6" }
 socketio-rs = "0.1"
 sysinfo = "0.28"
 tokio = "1.26"
