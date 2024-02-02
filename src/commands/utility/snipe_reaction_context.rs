@@ -21,9 +21,9 @@ pub fn get_command() -> SlashookCommand {
         command_type = ApplicationCommandType::MESSAGE,
         dm_permission = false,
     )]
-    async fn snipe_reaction_message(input: CommandInput, res: CommandResponder) {
+    async fn snipe_reaction_context(input: CommandInput, res: CommandResponder) {
         COMMAND.run(input, res).await?;
     }
 
-    snipe_reaction_message
+    snipe_reaction_context
 }

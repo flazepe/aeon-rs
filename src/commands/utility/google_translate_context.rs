@@ -20,9 +20,9 @@ pub fn get_command() -> SlashookCommand {
 		name = "Translate to English",
 		command_type = ApplicationCommandType::MESSAGE,
 	)]
-    async fn google_translate_message(input: CommandInput, res: CommandResponder) {
+    async fn google_translate_context(input: CommandInput, res: CommandResponder) {
         COMMAND.run(input, res).await?;
     }
 
-    google_translate_message
+    google_translate_context
 }

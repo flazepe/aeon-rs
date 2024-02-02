@@ -41,9 +41,9 @@ pub fn get_command() -> SlashookCommand {
 		name = "Remind me",
 		command_type = ApplicationCommandType::MESSAGE,
 	)]
-    async fn reminder_set_message(input: CommandInput, res: CommandResponder) {
+    async fn reminder_set_context(input: CommandInput, res: CommandResponder) {
         COMMAND.run(input, res).await?;
     }
 
-    reminder_set_message
+    reminder_set_context
 }

@@ -20,9 +20,9 @@ pub fn get_command() -> SlashookCommand {
         name = "List Unicodes",
         command_type = ApplicationCommandType::MESSAGE,
     )]
-    async fn unicode_message(input: CommandInput, res: CommandResponder) {
+    async fn unicode_context(input: CommandInput, res: CommandResponder) {
         COMMAND.run(input, res).await?;
     }
 
-    unicode_message
+    unicode_context
 }
