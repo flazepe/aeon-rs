@@ -11,4 +11,5 @@ pub mod steam;
 pub mod tio;
 pub mod virtualearth;
 pub mod vndb;
+pub mod voice_message;
 pub mod xe;

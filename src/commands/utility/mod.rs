@@ -19,6 +19,8 @@ mod timeout;
 mod unicode;
 mod unicode_context;
 mod user;
+mod voice_message;
+mod voice_message_context;
 
 use slashook::commands::Command as SlashookCommand;
 
@@ -45,5 +47,7 @@ pub fn get_commands() -> Vec<SlashookCommand> {
         unicode::get_command(),
         unicode_context::get_command(),
         user::get_command(),
+        voice_message::get_command(),
+        voice_message_context::get_command(),
     ]
 }
