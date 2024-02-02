@@ -31,7 +31,7 @@ impl VoiceMessage {
                        "filename": "voice-message.ogg",
                        "uploaded_filename": attachments.attachments[0].upload_filename,
                        "duration_secs": 0,
-                       "waveform": ""
+                       "waveform": "",
                    }],
                    "flags": 1 << 13,
                    "message_reference": match message_id.as_ref() {
