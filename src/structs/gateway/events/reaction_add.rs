@@ -33,7 +33,9 @@ impl EventHandler {
                 author_id = Some(message.author.id.to_string());
 
                 if let Some(interaction) = message.interaction.as_ref() {
-                    user_id = Some(interaction.user.id.to_string());
+                    if !message.content.contains("voice message") {
+                        user_id = Some(interaction.user.id.to_string());
+                    }
                 }
             }
         }
@@ -44,7 +46,9 @@ impl EventHandler {
             author_id = Some(message.author.id);
 
             if let Some(interaction) = message.interaction {
-                user_id = Some(interaction.user.id);
+                if !message.content.contains("voice message") {
+                    user_id = Some(interaction.user.id);
+                }
             }
         }
 
