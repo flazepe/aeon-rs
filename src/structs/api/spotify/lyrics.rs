@@ -39,7 +39,7 @@ impl SpotifyLyricsWithTrack {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.track.album.images.get(0).map_or(&"".into(), |image: &super::components::SpotifyImage| &image.url))
+            .set_thumbnail(self.track.album.images.first().map_or(&"".into(), |image: &super::components::SpotifyImage| &image.url))
             .set_author(
                 self.track.artists[0].name.chars().take(256).collect::<String>(),
                 Some(&self.track.artists[0].external_urls.spotify),

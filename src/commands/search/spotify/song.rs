@@ -58,7 +58,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                         album_cover: track
                             .album
                             .images
-                            .get(0)
+                            .first()
                             .map_or_else(|| ctx.input.user.display_avatar_url("png", 4096), |image| image.url.clone()),
                         timestamps: None,
                     })?],

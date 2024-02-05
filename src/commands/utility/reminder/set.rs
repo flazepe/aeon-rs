@@ -29,7 +29,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         let mut reminder = ctx.get_string_arg("reminder").unwrap_or("Do something".into());
 
         if ctx.input.is_string_select() {
-            if let Some(parsed_reminder) = || -> Option<&String> { ctx.input.message.as_ref()?.embeds.get(0)?.description.as_ref() }() {
+            if let Some(parsed_reminder) = || -> Option<&String> { ctx.input.message.as_ref()?.embeds.first()?.description.as_ref() }() {
                 reminder = parsed_reminder.to_string();
             };
         }

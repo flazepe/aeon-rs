@@ -186,7 +186,7 @@ impl AniListAnime {
                         character.node.name.full,
                         character.node.site_url,
                         &character.role,
-                        match character.voice_actors.get(0) {
+                        match character.voice_actors.first() {
                             Some(voice_actor) => format!("\nVoiced by [{}]({})", voice_actor.name.full, voice_actor.site_url),
                             None => "".into(),
                         },

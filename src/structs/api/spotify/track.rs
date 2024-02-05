@@ -56,7 +56,7 @@ impl SpotifyFullTrack {
         Embed::new()
             .set_color(SPOTIFY_EMBED_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.album.images.get(0).map_or(&"".into(), |image| &image.url))
+            .set_thumbnail(self.album.images.first().map_or(&"".into(), |image| &image.url))
             .set_title(format!(
                 "{}{}",
                 match self.explicit {

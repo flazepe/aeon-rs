@@ -10,7 +10,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         VoiceMessage::send(
             &ctx.res,
-            match ctx.input.target_message.as_ref().unwrap().attachments.get(0) {
+            match ctx.input.target_message.as_ref().unwrap().attachments.first() {
                 Some(attachment) => &attachment.url,
                 None => return ctx.respond_error("Please provide an audio URL or file.", true).await,
             },

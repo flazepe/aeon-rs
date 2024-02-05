@@ -110,7 +110,7 @@ impl LocalDownNovel {
                     )
                     .as_str(),
                 )
-                .unwrap_or(vec![])
+                .unwrap_or_default()
                 .iter()
                 .map(|name| format!("_{name}_"))
                 .collect::<Vec<String>>()

@@ -33,7 +33,7 @@ impl From<Message> for StringifiedMessage {
                     author_name: embed.author.map(|author| author.name),
                     fields: embed
                         .fields
-                        .unwrap_or(vec![])
+                        .unwrap_or_default()
                         .into_iter()
                         .map(|field| (field.name, field.value))
                         .collect::<Vec<(String, String)>>(),
