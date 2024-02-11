@@ -27,6 +27,7 @@ pub enum SongActivityService {
 #[serde(rename_all = "lowercase")]
 pub enum SongActivityStyle {
     Classic,
+    Modern,
     Nori,
     Rovi,
     Vxc,
@@ -36,6 +37,7 @@ impl From<&str> for SongActivityStyle {
     fn from(value: &str) -> Self {
         match value {
             "classic" => Self::Classic,
+            "modern" => Self::Modern,
             "nori" => Self::Nori,
             "rovi" => Self::Rovi,
             "vxc" => Self::Vxc,
