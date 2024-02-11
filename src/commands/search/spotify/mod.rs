@@ -56,6 +56,7 @@ pub fn get_command() -> SlashookCommand {
                         option_type = InteractionOptionType::STRING,
                         choices = [
                             ApplicationCommandOptionChoice::new("Classic", "classic"),
+                            ApplicationCommandOptionChoice::new("Modern", "modern"),
                             ApplicationCommandOptionChoice::new("Nori", "nori"),
                             ApplicationCommandOptionChoice::new("Rovi", "rovi"),
                             ApplicationCommandOptionChoice::new("VXC", "vxc"),
