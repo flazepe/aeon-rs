@@ -1,5 +1,5 @@
 use crate::{
-    functions::{format_timestamp, plural, TimestampFormat},
+    functions::{format_timestamp, label_num, TimestampFormat},
     statics::{colors::PRIMARY_COLOR, CACHE},
     structs::command_context::CommandContext,
 };
@@ -40,11 +40,11 @@ fn sum_cache_len<T: Iterator<Item = (U, V)>, U: ToString, V: IntoIterator<Item =
 
 fn get_cache_list() -> [String; 6] {
     [
-        plural(CACHE.channels.read().unwrap().len(), "channel"),
-        plural(sum_cache_len(CACHE.channels.read().unwrap().iter()), "message"),
-        plural(sum_cache_len(CACHE.snipes.read().unwrap().iter()), "snipe"),
-        plural(sum_cache_len(CACHE.edit_snipes.read().unwrap().iter()), "edit snipe"),
-        plural(sum_cache_len(CACHE.reaction_snipes.read().unwrap().iter()), "reaction snipe"),
-        plural(CACHE.spotify.read().unwrap().len(), "Spotify activity"),
+        label_num(CACHE.channels.read().unwrap().len(), "channel", "channels"),
+        label_num(sum_cache_len(CACHE.channels.read().unwrap().iter()), "message", "messages"),
+        label_num(sum_cache_len(CACHE.snipes.read().unwrap().iter()), "snipe", "snipes"),
+        label_num(sum_cache_len(CACHE.edit_snipes.read().unwrap().iter()), "edit snipe", "edit snipes"),
+        label_num(sum_cache_len(CACHE.reaction_snipes.read().unwrap().iter()), "reaction snipe", "reaction snipes"),
+        label_num(CACHE.spotify.read().unwrap().len(), "Spotify activity", "Spotify activities"),
     ]
 }

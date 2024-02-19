@@ -1,7 +1,7 @@
 pub mod statics;
 
 use crate::{
-    functions::plural,
+    functions::label_num,
     structs::duration::statics::{SECS_PER_DAY, SECS_PER_HOUR, SECS_PER_MIN, SECS_PER_MONTH, SECS_PER_WEEK, SECS_PER_YEAR},
 };
 use anyhow::Result;
@@ -55,37 +55,37 @@ impl Display for Duration {
 
         // Years
         if self.years > 0 {
-            units.push(plural(self.years, "year"));
+            units.push(label_num(self.years, "year", "years"));
         }
 
         // Months
         if self.months > 0 {
-            units.push(plural(self.months, "month"));
+            units.push(label_num(self.months, "month", "months"));
         }
 
         // Minutes
         if self.weeks > 0 {
-            units.push(plural(self.weeks, "week"));
+            units.push(label_num(self.weeks, "week", "weeks"));
         }
 
         // Days
         if self.days > 0 {
-            units.push(plural(self.days, "day"));
+            units.push(label_num(self.days, "day", "days"));
         }
 
         // Hours
         if self.hours > 0 {
-            units.push(plural(self.hours, "hour"));
+            units.push(label_num(self.hours, "hour", "hours"));
         }
 
         // Minutes
         if self.mins > 0 {
-            units.push(plural(self.mins, "min"));
+            units.push(label_num(self.mins, "min", "mins"));
         }
 
         // Secs
         if self.secs > 0 {
-            units.push(plural(self.secs, "sec"));
+            units.push(label_num(self.secs, "sec", "secs"));
         }
 
         write!(f, "{}", units.join(", "))

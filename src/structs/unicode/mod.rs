@@ -1,6 +1,6 @@
 pub mod statics;
 
-use crate::{functions::plural, structs::unicode::statics::CONTROL_CHARACTERS};
+use crate::{functions::label_num, structs::unicode::statics::CONTROL_CHARACTERS};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::Client;
@@ -75,6 +75,6 @@ impl UnicodeCharacters {
         let unicode_characters =
             self.unicode_characters.iter().take(20).map(|unicode_character| unicode_character.format()).collect::<Vec<String>>();
 
-        format!("Showing first {}:\n\n{}", plural(unicode_characters.len(), "character"), unicode_characters.join("\n"))
+        format!("Showing first {}:\n\n{}", label_num(unicode_characters.len(), "character", "characters"), unicode_characters.join("\n"))
     }
 }

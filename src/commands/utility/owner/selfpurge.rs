@@ -1,4 +1,4 @@
-use crate::{functions::plural, statics::CONFIG, structs::command_context::CommandContext};
+use crate::{functions::label_num, statics::CONFIG, structs::command_context::CommandContext};
 use anyhow::Result;
 use slashook::{
     chrono::{Duration, Utc},
@@ -44,5 +44,5 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         },
     };
 
-    ctx.respond_success(format!("Deleted {}.", plural(messages.len(), "message")), true).await
+    ctx.respond_success(format!("Deleted {}.", label_num(messages.len(), "message", "messages")), true).await
 }

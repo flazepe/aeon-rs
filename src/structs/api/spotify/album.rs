@@ -1,5 +1,5 @@
 use crate::{
-    functions::{format_timestamp, limit_strings, plural, TimestampFormat},
+    functions::{format_timestamp, label_num, limit_strings, TimestampFormat},
     statics::{
         emojis::{COPYRIGHT_EMOJI, FIRE_EMOJI, PHONOGRAM_EMOJI},
         regex::COPYRIGHT_REGEX,
@@ -106,7 +106,7 @@ impl SpotifyFullAlbum {
                     Spotify::format_duration(
                         self.tracks.items.iter().map(|track| track.duration_ms).reduce(|acc, cur| acc + cur).unwrap_or(0),
                     ),
-                    plural(self.total_tracks, "song"),
+                    label_num(self.total_tracks, "song", "songs"),
                 ),
                 false,
             )

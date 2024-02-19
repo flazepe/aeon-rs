@@ -1,5 +1,5 @@
 use crate::{
-    functions::plural,
+    functions::label_num,
     statics::{colors::PRIMARY_COLOR, CACHE},
     structs::stringified_message::StringifiedMessage,
     traits::{AvatarUrl, Tag},
@@ -104,7 +104,11 @@ impl ReactionSnipes {
             bail!("No reaction snipes found.");
         }
 
-        Ok(MessageResponse::from(format!("Last {} for `{}`:", plural(reaction_snipes.len(), "reaction snipe"), self.message_id))
-            .add_embed(Embed::new().set_color(PRIMARY_COLOR)?.set_description(reaction_snipes.join("\n\n"))))
+        Ok(MessageResponse::from(format!(
+            "Last {} for `{}`:",
+            label_num(reaction_snipes.len(), "reaction snipe", "reaction snipes"),
+            self.message_id,
+        ))
+        .add_embed(Embed::new().set_color(PRIMARY_COLOR)?.set_description(reaction_snipes.join("\n\n"))))
     }
 }

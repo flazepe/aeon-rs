@@ -80,49 +80,7 @@ pub fn limit_strings<T: IntoIterator<Item = U>, U: ToString, V: ToString>(iterab
     strings.join(&delimiter)
 }
 
-// This does not account for irregular nouns for now
-pub fn plural<T: ToString, U: ToString>(amount: T, singular: U) -> String {
+pub fn label_num<T: ToString, U: ToString, V: ToString>(amount: T, singular: U, plural: V) -> String {
     let amount = amount.to_string();
-    let mut subject = singular.to_string().to_lowercase();
-    let second_last_letter = subject.chars().skip(subject.len().max(2) - 2).take(1).collect::<String>();
-
-    if amount != "1" {
-        subject = || -> _ {
-            // -s/-ch/-sh/-x/-z
-            if ["s", "ch", "sh", "x", "z"].iter().any(|entry| subject.ends_with(entry))
-                    // -consonant + o with some exceptions
-                    || (!["a", "e", "i", "o", "u"].contains(&second_last_letter.as_str())
-                        && subject.ends_with('o')
-                        && !["piano", "photo"].contains(&subject.as_str()))
-            {
-                return format!("{}es", subject);
-            }
-
-            // -f/-fe with some exceptions
-            if ["f", "fe"].iter().any(|entry| subject.ends_with(entry))
-                && !["belief", "cliff", "relief", "roof"].contains(&subject.as_str())
-            {
-                return format!(
-                    "{}ves",
-                    subject
-                        .chars()
-                        .take(match subject.ends_with("fe") {
-                            true => subject.len() - 2,
-                            false => subject.len() - 1,
-                        })
-                        .collect::<String>(),
-                );
-            }
-
-            // -consonant + y
-            if !["a", "e", "i", "o", "u"].contains(&second_last_letter.as_str()) && subject.ends_with('y') {
-                return format!("{}ies", subject.chars().take(subject.len() - 1).collect::<String>());
-            }
-
-            // Regular nouns
-            format!("{}s", subject)
-        }();
-    }
-
-    format!("{} {subject}", amount.commas())
+    format!("{} {}", amount.commas(), if amount == "1" { singular.to_string() } else { plural.to_string() })
 }
