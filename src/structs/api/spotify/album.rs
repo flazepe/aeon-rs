@@ -1,5 +1,5 @@
 use crate::{
-    functions::{format_timestamp, limit_string, plural, TimestampFormat},
+    functions::{format_timestamp, limit_strings, plural, TimestampFormat},
     statics::{
         emojis::{COPYRIGHT_EMOJI, FIRE_EMOJI, PHONOGRAM_EMOJI},
         regex::COPYRIGHT_REGEX,
@@ -135,26 +135,21 @@ impl SpotifyFullAlbum {
     }
 
     pub fn format_tracks(&self) -> Embed {
-        self._format().set_description(limit_string(
-            self.tracks
-                .items
-                .iter()
-                .map(|track| {
-                    format!(
-                        "`{}{:0pad_length$}.` [{}]({}) [{}]",
-                        match self.tracks.items.iter().any(|track| track.disc_number == 2) {
-                            true => format!("{}-", track.disc_number),
-                            false => "".into(),
-                        },
-                        track.track_number,
-                        track.name,
-                        track.external_urls.spotify,
-                        Spotify::format_duration(track.duration_ms),
-                        pad_length = self.tracks.items.len().to_string().len(),
-                    )
-                })
-                .collect::<Vec<String>>()
-                .join("\n"),
+        self._format().set_description(limit_strings(
+            self.tracks.items.iter().map(|track| {
+                format!(
+                    "`{}{:0pad_length$}.` [{}]({}) [{}]",
+                    match self.tracks.items.iter().any(|track| track.disc_number == 2) {
+                        true => format!("{}-", track.disc_number),
+                        false => "".into(),
+                    },
+                    track.track_number,
+                    track.name,
+                    track.external_urls.spotify,
+                    Spotify::format_duration(track.duration_ms),
+                    pad_length = self.tracks.items.len().to_string().len(),
+                )
+            }),
             "\n",
             4096,
         ))

@@ -1,5 +1,5 @@
 use crate::{
-    functions::limit_string,
+    functions::limit_strings,
     macros::yes_no,
     structs::api::anilist::{
         components::{
@@ -116,13 +116,11 @@ impl AniListManga {
     }
 
     pub fn format_characters(&self) -> Embed {
-        self._format().set_description(limit_string(
+        self._format().set_description(limit_strings(
             self.characters
                 .edges
                 .iter()
-                .map(|character| format!("[{}]({}) ({})", character.node.name.full, character.node.site_url, &character.role))
-                .collect::<Vec<String>>()
-                .join("\n"),
+                .map(|character| format!("[{}]({}) ({})", character.node.name.full, character.node.site_url, &character.role)),
             "\n",
             4096,
         ))

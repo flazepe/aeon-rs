@@ -1,5 +1,5 @@
 use crate::{
-    functions::limit_string,
+    functions::limit_strings,
     statics::colors::PRIMARY_COLOR,
     structs::api::vndb::{statics::CHARACTER_FIELDS, visual_novel::VndbImage, Vndb},
     traits::Commas,
@@ -171,19 +171,17 @@ impl VndbCharacter {
         let mut embed = self._format();
 
         for (group_name, traits) in groups {
-            embed = embed.add_field(group_name, limit_string(traits.join(", "), ", ", 1024), false);
+            embed = embed.add_field(group_name, limit_strings(traits, ", ", 1024), false);
         }
 
         embed
     }
 
     pub fn format_visual_novels(&self) -> Embed {
-        self._format().set_description(limit_string(
+        self._format().set_description(limit_strings(
             self.vns
                 .iter()
-                .map(|visual_novel| format!("[{}](https://vndb.org/{}) ({})", visual_novel.title, visual_novel.id, visual_novel.role))
-                .collect::<Vec<String>>()
-                .join("\n"),
+                .map(|visual_novel| format!("[{}](https://vndb.org/{}) ({})", visual_novel.title, visual_novel.id, visual_novel.role)),
             "\n",
             4096,
         ))

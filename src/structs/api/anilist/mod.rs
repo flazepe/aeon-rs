@@ -5,7 +5,7 @@ pub mod statics;
 mod user;
 
 use crate::{
-    functions::{format_timestamp, limit_string, TimestampFormat},
+    functions::{format_timestamp, limit_strings, TimestampFormat},
     statics::REQWEST,
     structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
 };
@@ -56,14 +56,11 @@ impl AniList {
     }
 
     pub fn format_description<T: ToString>(embed: Embed, description: Option<&T>) -> Embed {
-        embed.set_description(limit_string(
+        embed.set_description(limit_strings(
             Document::from(&description.map(|description| description.to_string()).unwrap_or("N/A".into()))
                 .select("body")
                 .text()
-                .split('\n')
-                .map(|str| str.to_string())
-                .collect::<Vec<String>>()
-                .join("\n"),
+                .split('\n'),
             "\n",
             4096,
         ))
@@ -88,7 +85,7 @@ impl AniList {
         }
 
         for (relation_type, list) in categorized {
-            embed = embed.add_field(relation_type, limit_string(list.join("\n"), "\n", 1024), false);
+            embed = embed.add_field(relation_type, limit_strings(list, "\n", 1024), false);
         }
 
         embed

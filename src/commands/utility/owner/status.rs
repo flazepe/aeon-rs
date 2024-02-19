@@ -5,7 +5,6 @@ use crate::{
 };
 use anyhow::{Context, Result};
 use slashook::structs::embeds::Embed;
-use std::collections::hash_map::Iter;
 use sysinfo::{get_current_pid, ProcessExt, System, SystemExt};
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
@@ -35,8 +34,8 @@ fn bytes_to_mb(bytes: u64) -> String {
     format!("{} MB", bytes / 1024 / 1024)
 }
 
-fn sum_cache_len<T: Clone>(iter: Iter<String, Vec<T>>) -> usize {
-    iter.map(|(_, vec)| vec.len()).reduce(|acc, cur| acc + cur).unwrap_or(0)
+fn sum_cache_len<T: Iterator<Item = (U, V)>, U: ToString, V: IntoIterator<Item = W>, W: Clone>(iterable: T) -> usize {
+    iterable.map(|(_, vec)| vec.into_iter().count()).reduce(|acc, cur| acc + cur).unwrap_or(0)
 }
 
 fn get_cache_list() -> [String; 6] {

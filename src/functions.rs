@@ -52,8 +52,8 @@ pub enum TimestampFormat {
 }
 
 pub fn format_timestamp<T: Display>(timestamp: T, format: TimestampFormat) -> String {
-    let duration = format!("<t:{}:R>", timestamp);
-    let simple = format!("<t:{}:D>", timestamp);
+    let duration = format!("<t:{timestamp}:R>");
+    let simple = format!("<t:{timestamp}:D>");
     let full = format!("{simple} ({duration})");
 
     match format {
@@ -69,15 +69,15 @@ pub async fn hastebin<T: ToString>(string: T) -> Result<String> {
     Ok(format!("{domain}/raw/{}", json["key"].as_str().unwrap_or("")))
 }
 
-pub fn limit_string<T: ToString, U: ToString>(string: T, delimiter: U, limit: usize) -> String {
+pub fn limit_strings<T: IntoIterator<Item = U>, U: ToString, V: ToString>(iterable: T, delimiter: V, limit: usize) -> String {
     let delimiter = delimiter.to_string();
-    let mut split = string.to_string().split(&delimiter).map(|string| string.to_string()).collect::<Vec<String>>();
+    let mut strings = iterable.into_iter().map(|stringable| stringable.to_string()).collect::<Vec<String>>();
 
-    while split.join(&delimiter).len() > limit {
-        split.pop();
+    while strings.join(&delimiter).len() > limit {
+        strings.pop();
     }
 
-    split.join(&delimiter)
+    strings.join(&delimiter)
 }
 
 // This does not account for irregular nouns for now

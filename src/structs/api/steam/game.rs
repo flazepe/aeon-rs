@@ -1,5 +1,5 @@
 use crate::{
-    functions::{format_timestamp, limit_string, TimestampFormat},
+    functions::{format_timestamp, limit_strings, TimestampFormat},
     statics::REQWEST,
     structs::api::steam::{statics::STEAM_EMBED_COLOR, Steam},
 };
@@ -197,17 +197,7 @@ impl SteamGame {
     pub fn format(&self) -> Embed {
         self._format()
             .set_image(&self.header_image)
-            .set_description(limit_string(
-                Document::from(&self.short_description)
-                    .select("body")
-                    .text()
-                    .split('\n')
-                    .map(|str| str.to_string())
-                    .collect::<Vec<String>>()
-                    .join("\n"),
-                "\n",
-                4096,
-            ))
+            .set_description(limit_strings(Document::from(&self.short_description).select("body").text().split('\n'), "\n", 4096))
             .add_field(
                 "Release Date",
                 self.release_date.as_ref().map_or("TBA".into(), |release_date| {
@@ -256,18 +246,14 @@ impl SteamGame {
             .add_field(
                 "Category",
                 self.categories.as_ref().map_or("N/A".into(), |categories| {
-                    limit_string(
-                        categories
-                            .iter()
-                            .map(|category| {
-                                format!(
-                                    "[{}](https://store.steampowered.com/tags/en/{})",
-                                    category.description,
-                                    category.description.replace(' ', "+"),
-                                )
-                            })
-                            .collect::<Vec<String>>()
-                            .join(", "),
+                    limit_strings(
+                        categories.iter().map(|category| {
+                            format!(
+                                "[{}](https://store.steampowered.com/tags/en/{})",
+                                category.description,
+                                category.description.replace(' ', "+"),
+                            )
+                        }),
                         ", ",
                         1024,
                     )
@@ -277,18 +263,14 @@ impl SteamGame {
             .add_field(
                 "Genre",
                 self.genres.as_ref().map_or("N/A".into(), |genres| {
-                    limit_string(
-                        genres
-                            .iter()
-                            .map(|genre| {
-                                format!(
-                                    "[{}](https://store.steampowered.com/genre/{}/)",
-                                    genre.description,
-                                    genre.description.replace(' ', "+"),
-                                )
-                            })
-                            .collect::<Vec<String>>()
-                            .join(", "),
+                    limit_strings(
+                        genres.iter().map(|genre| {
+                            format!(
+                                "[{}](https://store.steampowered.com/genre/{}/)",
+                                genre.description,
+                                genre.description.replace(' ', "+"),
+                            )
+                        }),
                         ", ",
                         1024,
                     )
@@ -325,13 +307,8 @@ impl SteamGame {
 
     pub fn format_featured_achievements(&self) -> Embed {
         self._format().set_description(self.achievements.as_ref().map_or("N/A".into(), |achievements| {
-            limit_string(
-                achievements
-                    .highlighted
-                    .iter()
-                    .map(|achievement| format!("[{}]({})", achievement.name, achievement.path))
-                    .collect::<Vec<String>>()
-                    .join("\n"),
+            limit_strings(
+                achievements.highlighted.iter().map(|achievement| format!("[{}]({})", achievement.name, achievement.path)),
                 "\n",
                 4096,
             )

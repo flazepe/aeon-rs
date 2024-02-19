@@ -1,5 +1,5 @@
 use crate::{
-    functions::{limit_string, plural},
+    functions::{limit_strings, plural},
     statics::colors::PRIMARY_COLOR,
     structs::api::vndb::{statics::VISUAL_NOVEL_FIELDS, Vndb},
 };
@@ -559,27 +559,19 @@ impl VndbVisualNovel {
     }
 
     pub fn format_description(&self) -> Embed {
-        self._format().set_description(limit_string(
-            Vndb::clean_bbcode(self.description.as_ref().unwrap_or(&"N/A".into()))
-                .split('\n')
-                .map(|str| str.to_string())
-                .collect::<Vec<String>>()
-                .join("\n"),
+        self._format().set_description(limit_strings(
+            Vndb::clean_bbcode(self.description.as_ref().unwrap_or(&"N/A".into())).split('\n'),
             "\n",
             4096,
         ))
     }
 
     pub fn format_tags(&self) -> Embed {
-        self._format().set_description(limit_string(
-            self.tags
-                .iter()
-                .map(|tag| match tag.spoiler > 1.0 {
-                    true => format!("||[{}](https://vndb.org/{})||", tag.name, tag.id),
-                    false => format!("[{}](https://vndb.org/{})", tag.name, tag.id),
-                })
-                .collect::<Vec<String>>()
-                .join(", "),
+        self._format().set_description(limit_strings(
+            self.tags.iter().map(|tag| match tag.spoiler > 1.0 {
+                true => format!("||[{}](https://vndb.org/{})||", tag.name, tag.id),
+                false => format!("[{}](https://vndb.org/{})", tag.name, tag.id),
+            }),
             ", ",
             4096,
         ))

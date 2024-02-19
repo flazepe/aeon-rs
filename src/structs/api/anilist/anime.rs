@@ -1,5 +1,5 @@
 use crate::{
-    functions::limit_string,
+    functions::limit_strings,
     structs::api::anilist::{
         components::{
             AniListAiringSchedule, AniListAnimeCharacter, AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat,
@@ -176,24 +176,19 @@ impl AniListAnime {
     }
 
     pub fn format_characters(&self) -> Embed {
-        self._format().set_description(limit_string(
-            self.characters
-                .edges
-                .iter()
-                .map(|character| {
-                    format!(
-                        "[{}]({}) ({}){}",
-                        character.node.name.full,
-                        character.node.site_url,
-                        &character.role,
-                        match character.voice_actors.first() {
-                            Some(voice_actor) => format!("\nVoiced by [{}]({})", voice_actor.name.full, voice_actor.site_url),
-                            None => "".into(),
-                        },
-                    )
-                })
-                .collect::<Vec<String>>()
-                .join("\n\n"),
+        self._format().set_description(limit_strings(
+            self.characters.edges.iter().map(|character| {
+                format!(
+                    "[{}]({}) ({}){}",
+                    character.node.name.full,
+                    character.node.site_url,
+                    &character.role,
+                    match character.voice_actors.first() {
+                        Some(voice_actor) => format!("\nVoiced by [{}]({})", voice_actor.name.full, voice_actor.site_url),
+                        None => "".into(),
+                    },
+                )
+            }),
             "\n\n",
             4096,
         ))
