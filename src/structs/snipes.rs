@@ -87,26 +87,29 @@ impl Snipes {
 
 pub struct ReactionSnipes {
     pub guild_id: String,
+    pub channel_id: String,
     pub message_id: String,
 }
 
 impl ReactionSnipes {
-    pub fn new<T: ToString, U: ToString>(guild_id: T, message_id: U) -> Self {
-        Self { guild_id: guild_id.to_string(), message_id: message_id.to_string() }
+    pub fn new<T: ToString, U: ToString, V: ToString>(guild_id: T, channel_id: U, message_id: V) -> Self {
+        Self { guild_id: guild_id.to_string(), channel_id: channel_id.to_string(), message_id: message_id.to_string() }
     }
 
     pub fn to_response(&self) -> Result<MessageResponse> {
         let empty_vec = vec![];
         let reaction_snipes = CACHE.reaction_snipes.read().unwrap();
-        let reaction_snipes = reaction_snipes.get(&format!("{}/{}", self.guild_id, self.message_id)).unwrap_or(&empty_vec);
+        let reaction_snipes = reaction_snipes.get(&format!("{}/{}", self.channel_id, self.message_id)).unwrap_or(&empty_vec);
 
         if reaction_snipes.is_empty() {
             bail!("No reaction snipes found.");
         }
 
         Ok(MessageResponse::from(format!(
-            "Last {} for `{}`:",
+            "Last {} for https://discord.com/channels/{}/{}/{}",
             label_num(reaction_snipes.len(), "reaction snipe", "reaction snipes"),
+            self.guild_id,
+            self.channel_id,
             self.message_id,
         ))
         .add_embed(Embed::new().set_color(PRIMARY_COLOR)?.set_description(reaction_snipes.join("\n\n"))))

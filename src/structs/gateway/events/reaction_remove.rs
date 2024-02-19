@@ -10,32 +10,30 @@ impl EventHandler {
     pub async fn on_reaction_remove(reaction: Box<ReactionRemove>) {
         let reaction = reaction.0;
 
-        if let Some(guild_id) = reaction.guild_id {
-            let mut messages = CACHE.reaction_snipes.write().unwrap();
-            let key = format!("{guild_id}/{}", reaction.message_id);
+        let mut messages = CACHE.reaction_snipes.write().unwrap();
+        let key = format!("{}/{}", reaction.channel_id, reaction.message_id);
 
-            if !messages.contains_key(&key) {
-                messages.insert(key.clone(), vec![]);
-            }
+        if !messages.contains_key(&key) {
+            messages.insert(key.clone(), vec![]);
+        }
 
-            let reactions = messages.get_mut(&key).unwrap();
+        let reactions = messages.get_mut(&key).unwrap();
 
-            reactions.push(format!(
-                "<@{}> - {}\n{}",
-                reaction.user_id,
-                match reaction.emoji {
-                    ReactionType::Custom { name, id, animated: _ } =>
-                        format!("[{}](https://cdn.discordapp.com/emojis/{})", name.unwrap_or("<unknown>".into()), id),
-                    ReactionType::Unicode { name } => name,
-                },
-                format_timestamp(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(), TimestampFormat::Full),
-            ));
+        reactions.push(format!(
+            "<@{}> - {}\n{}",
+            reaction.user_id,
+            match reaction.emoji {
+                ReactionType::Custom { name, id, animated: _ } =>
+                    format!("[{}](https://cdn.discordapp.com/emojis/{})", name.unwrap_or("<unknown>".into()), id),
+                ReactionType::Unicode { name } => name,
+            },
+            format_timestamp(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(), TimestampFormat::Full),
+        ));
 
-            // Limit
-            while reactions.join("\n\n").len() > 4000 {
-                reactions.rotate_left(1);
-                reactions.pop();
-            }
+        // Limit
+        while reactions.join("\n\n").len() > 4000 {
+            reactions.rotate_left(1);
+            reactions.pop();
         }
     }
 }

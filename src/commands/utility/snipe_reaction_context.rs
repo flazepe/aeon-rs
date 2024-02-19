@@ -8,7 +8,13 @@ use slashook::{
 
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
-        match ReactionSnipes::new(ctx.input.guild_id.as_ref().unwrap(), &ctx.input.target_message.as_ref().unwrap().id).to_response() {
+        match ReactionSnipes::new(
+            ctx.input.guild_id.as_ref().unwrap(),
+            ctx.input.channel_id.as_ref().unwrap(),
+            &ctx.input.target_message.as_ref().unwrap().id,
+        )
+        .to_response()
+        {
             Ok(response) => ctx.respond(response, false).await,
             Err(error) => ctx.respond_error(error, true).await,
         }
