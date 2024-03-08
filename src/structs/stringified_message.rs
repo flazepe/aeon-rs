@@ -105,9 +105,7 @@ impl From<TwilightMessage> for StringifiedMessage {
 
 impl Display for StringifiedMessage {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        let mut text = self.attachments.iter().map(|(name, url)| format!("[{name}]({url})")).collect::<Vec<String>>().join("\n");
-
-        text += &format!("\n\n{}", self.content);
+        let mut text = self.content.clone();
 
         if !self.stickers.is_empty() {
             text += &format!(
@@ -119,6 +117,13 @@ impl Display for StringifiedMessage {
                     })
                     .collect::<Vec<String>>()
                     .join("\n"),
+            );
+        }
+
+        if !self.attachments.is_empty() {
+            text += &format!(
+                "\n\n{}",
+                self.attachments.iter().map(|(name, url)| format!("[{name}]({url})")).collect::<Vec<String>>().join("\n"),
             );
         }
 
