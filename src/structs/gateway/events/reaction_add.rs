@@ -45,9 +45,9 @@ impl EventHandler {
             let Ok(message) = Message::fetch(&REST, reaction.channel_id, reaction.message_id).await else { return };
             author_id = Some(message.author.id);
 
-            if let Some(interaction) = message.interaction {
-                if interaction.name != "voice-message" {
-                    user_id = Some(interaction.user.id);
+            if let Some(interaction_metadata) = message.interaction_metadata {
+                if interaction_metadata.id != "1202934262123470899" {
+                    user_id = Some(interaction_metadata.user_id);
                 }
             }
         }

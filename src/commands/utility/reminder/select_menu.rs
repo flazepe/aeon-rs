@@ -4,7 +4,7 @@ use anyhow::Result;
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let message = ctx.input.message.as_ref().unwrap();
 
-    if match message.interaction.is_none() {
+    if match message.interaction_metadata.is_none() {
         // If it's a reminder (we can tell since the message attached does not have an interaction), we need to verify the user before snoozing
         true => {
             ctx.input.guild_id.is_none() // If it's a DM we don't need to verify (the message content would be empty anyway)

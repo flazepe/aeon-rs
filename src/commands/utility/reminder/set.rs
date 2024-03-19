@@ -6,7 +6,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     // Delete snoozed reminder
     if let Some(message) = ctx.input.message.as_ref() {
-        if message.interaction.is_none() {
+        if message.interaction_metadata.is_none() {
             ctx.input.rest.delete::<()>(format!("channels/{}/messages/{}", message.channel_id, message.id)).await.ok();
         }
     }
@@ -40,7 +40,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     let dm = ctx.input.message.as_ref().map_or(
         false,
         // DM if select menu's message was from an interaction
-        |message| message.interaction.is_some(),
+        |message| message.interaction_metadata.is_some(),
     ) || ctx.input.guild_id.is_none()
         || ctx.get_bool_arg("dm").unwrap_or(false);
 
