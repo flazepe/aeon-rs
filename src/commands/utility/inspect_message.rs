@@ -15,7 +15,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         let mut response = MessageResponse::from(File::new("message.rs", format!("{:#?}", ctx.input.target_message.as_ref().unwrap())));
 
-        if ctx.input.app_permissions.unwrap().contains(Permissions::VIEW_CHANNEL | Permissions::READ_MESSAGE_HISTORY) {
+        if ctx.input.app_permissions.contains(Permissions::VIEW_CHANNEL | Permissions::READ_MESSAGE_HISTORY) {
             if let Ok(value) = ctx
                 .input
                 .rest
