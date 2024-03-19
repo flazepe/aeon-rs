@@ -4,14 +4,14 @@ use anyhow::Result;
 pub async fn run(ctx: CommandContext) -> Result<()> {
     ctx.res.defer(ctx.input.is_string_select()).await?;
 
-    let original_message = ctx.res.get_original_message().await?;
-
     // Delete snoozed reminder
     if let Some(message) = ctx.input.message.as_ref() {
         if message.interaction.is_none() {
             ctx.input.rest.delete::<()>(format!("channels/{}/messages/{}", message.channel_id, message.id)).await.ok();
         }
     }
+
+    let original_message = ctx.res.get_original_message().await?;
 
     let url = ctx.input.custom_id.as_ref().map_or_else(
         || {
