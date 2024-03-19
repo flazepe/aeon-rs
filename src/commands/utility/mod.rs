@@ -4,6 +4,7 @@ mod convert_currency;
 mod google;
 mod google_translate_context;
 mod heliohost;
+mod inspect_message;
 mod ip;
 mod ocr;
 mod osu;
@@ -31,6 +32,7 @@ pub fn get_commands() -> Vec<SlashookCommand> {
         google::get_command(),
         google_translate_context::get_command(),
         heliohost::get_command(),
+        inspect_message::get_command(),
         ip::get_command(),
         ocr::get_command(),
         osu::get_command(),
