@@ -21,6 +21,7 @@ impl Distro {
             &REQWEST
                 .get("https://distrowatch.com/table.php")
                 .query(&[("distribution", name.to_string())])
+                .header("user-agent", "yes")
                 .send()
                 .await?
                 .text()
