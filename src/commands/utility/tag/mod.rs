@@ -13,7 +13,7 @@ use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
-    structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
+    structs::interactions::{ApplicationCommandOptionChoice, IntegrationType, InteractionContextType, InteractionOptionType},
 };
 
 static COMMAND: Lazy<Command> = Lazy::new(|| {
@@ -32,7 +32,8 @@ pub fn get_command() -> SlashookCommand {
     #[command(
         name = "tag",
         description = "Sends or manages server tags.",
-        dm_permission = false,
+        integration_types = [IntegrationType::GUILD_INSTALL],
+        contexts = [InteractionContextType::GUILD],
         subcommands = [
 			{
                 name = "create",

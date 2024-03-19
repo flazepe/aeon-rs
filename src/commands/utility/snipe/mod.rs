@@ -6,7 +6,10 @@ use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
-    structs::{channels::ChannelType, interactions::InteractionOptionType},
+    structs::{
+        channels::ChannelType,
+        interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
+    },
 };
 
 static COMMAND: Lazy<Command> = Lazy::new(|| Command::new().subcommand("message", message::run).subcommand("reaction", reaction::run));
@@ -15,7 +18,8 @@ pub fn get_command() -> SlashookCommand {
     #[command(
         name = "snipe",
         description = "Snipes messages and reactions.",
-        dm_permission = false,
+        integration_types = [IntegrationType::GUILD_INSTALL],
+        contexts = [InteractionContextType::GUILD],
         subcommands = [
             {
                 name = "message",

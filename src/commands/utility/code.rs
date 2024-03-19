@@ -12,7 +12,7 @@ use slashook::{
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, Modal},
     structs::{
         components::{Components, TextInput, TextInputStyle},
-        interactions::InteractionOptionType,
+        interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
     },
 };
 
@@ -67,6 +67,8 @@ pub fn get_command() -> SlashookCommand {
     #[command(
         name = "code",
         description = "Runs a code.",
+        integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
+        contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
         options = [
             {
                 name = "programming-language",

@@ -6,7 +6,7 @@ use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
-    structs::interactions::InteractionOptionType,
+    structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
 
 static COMMAND: Lazy<Command> = Lazy::new(|| {
@@ -47,6 +47,8 @@ pub fn get_command() -> SlashookCommand {
     #[command(
 		name = "youtube",
 		description = "Searches for a video on YouTube.",
+        integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
+        contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
 		options = [
 			{
 				name = "query",

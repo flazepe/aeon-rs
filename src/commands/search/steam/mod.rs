@@ -6,7 +6,7 @@ use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
-    structs::interactions::InteractionOptionType,
+    structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
 
 static COMMAND: Lazy<Command> = Lazy::new(|| Command::new().subcommand("game", game::run).subcommand("user", user::run));
@@ -15,6 +15,8 @@ pub fn get_command() -> SlashookCommand {
     #[command(
         name = "steam",
         description = "Fetches various resources from Steam.",
+        integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
+        contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
         subcommands = [
             {
                 name = "game",

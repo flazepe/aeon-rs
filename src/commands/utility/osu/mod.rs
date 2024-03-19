@@ -6,7 +6,7 @@ use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
-    structs::interactions::{ApplicationCommandOptionChoice, InteractionOptionType},
+    structs::interactions::{ApplicationCommandOptionChoice, IntegrationType, InteractionContextType, InteractionOptionType},
 };
 
 static COMMAND: Lazy<Command> = Lazy::new(|| Command::new().subcommand("render-replay", render_replay::run).subcommand("user", user::run));
@@ -15,6 +15,8 @@ pub fn get_command() -> SlashookCommand {
     #[command(
         name = "osu",
         description = "Fetches various resources from osu!.",
+        integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
+        contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
         subcommands = [
 			{
                 name = "render-replay",

@@ -8,7 +8,7 @@ use slashook::{
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::{
         components::{Components, SelectMenu, SelectMenuType},
-        interactions::ApplicationCommandType,
+        interactions::{ApplicationCommandType, IntegrationType, InteractionContextType},
     },
 };
 
@@ -40,6 +40,8 @@ pub fn get_command() -> SlashookCommand {
     #[command(
 		name = "Remind me",
 		command_type = ApplicationCommandType::MESSAGE,
+        integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
+        contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
 	)]
     async fn reminder_set_context(input: CommandInput, res: CommandResponder) {
         COMMAND.run(input, res).await?;

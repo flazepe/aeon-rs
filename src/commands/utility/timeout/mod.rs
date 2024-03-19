@@ -6,7 +6,10 @@ use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
-    structs::{interactions::InteractionOptionType, Permissions},
+    structs::{
+        interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
+        Permissions,
+    },
 };
 
 static COMMAND: Lazy<Command> = Lazy::new(|| Command::new().subcommand("remove", remove::run).subcommand("set", set::run));
@@ -16,7 +19,8 @@ pub fn get_command() -> SlashookCommand {
 		name = "timeout",
 		description = "Manages members' timeout.",
 		default_member_permissions = Permissions::MODERATE_MEMBERS,
-		dm_permission = false,
+		integration_types = [IntegrationType::GUILD_INSTALL],
+        contexts = [InteractionContextType::GUILD],
 		subcommands = [
 			{
 				name = "remove",
