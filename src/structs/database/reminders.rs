@@ -104,8 +104,8 @@ impl Reminders {
 
         Message::create(
             &REST,
-            match reminder.dm && !reminder.url.contains("@me") {
-                // If the reminder should be DM'd but was created inside a guild channel, we have to create a new DM channel
+            match reminder.dm {
+                // If the reminder should be DM'd, we have to create a new DM channel
                 true => REST.post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": reminder.user_id })).await?.id,
                 // Else, just grab channel ID from the URL
                 false => reminder.url.split('/').nth(1).unwrap().to_string(),
