@@ -22,6 +22,7 @@ pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
         ("6 hours", "6h"),
         ("12 hours", "12h"),
         ("24 hours", "24h"),
+        ("1 week", "1w"),
     ] {
         select_menu = select_menu.add_option(SelectOption::new(label, value));
     }
