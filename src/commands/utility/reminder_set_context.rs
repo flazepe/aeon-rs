@@ -38,8 +38,8 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
 
 pub fn get_command() -> SlashookCommand {
     #[command(
-		name = "Remind me",
-		command_type = ApplicationCommandType::MESSAGE,
+        name = "Remind me",
+        command_type = ApplicationCommandType::MESSAGE,
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
 	)]
