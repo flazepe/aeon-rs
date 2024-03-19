@@ -6,7 +6,6 @@ mod google_translate_context;
 mod heliohost;
 mod inspect_message;
 mod ip;
-mod ocr;
 mod osu;
 mod owner;
 mod reminder;
@@ -34,7 +33,6 @@ pub fn get_commands() -> Vec<SlashookCommand> {
         heliohost::get_command(),
         inspect_message::get_command(),
         ip::get_command(),
-        ocr::get_command(),
         osu::get_command(),
         owner::get_command(),
         reminder::get_command(),

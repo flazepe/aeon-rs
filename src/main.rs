@@ -7,7 +7,7 @@ mod traits;
 
 use crate::{
     statics::{CONFIG, MONGODB},
-    structs::{api::ordr::OrdrRender, client::AeonClient, database::reminders::Reminders, gateway::client::GatewayClient, ocr::Ocr},
+    structs::{api::ordr::OrdrRender, client::AeonClient, database::reminders::Reminders, gateway::client::GatewayClient},
 };
 use anyhow::Result;
 use mongodb::{options::ClientOptions as MongoDBClientOptions, Client as MongoDBClient};
@@ -35,10 +35,6 @@ async fn main() -> Result<()> {
     // Spawn ordr socket
     spawn(OrdrRender::connect());
     println!("[ORDR] Spawned socket client.");
-
-    // Download OCR trained data
-    Ocr::download_trained_data().await?;
-    println!("[OCR] Downloaded all trained data.");
 
     let mut client = AeonClient::new();
 
