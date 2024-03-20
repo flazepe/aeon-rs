@@ -22,7 +22,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
                             "reminder",
                             format!(
                                 "{}/{}/{}",
-                                ctx.input.guild_id.as_ref().unwrap_or(&"@me".into()),
+                                ctx.input.guild_id.as_deref().unwrap_or("@me"),
                                 ctx.input.channel_id.as_ref().unwrap(),
                                 ctx.input.target_message.as_ref().unwrap().id,
                             ),

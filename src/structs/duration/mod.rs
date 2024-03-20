@@ -91,3 +91,9 @@ impl Display for Duration {
         write!(f, "{}", units.join(", "))
     }
 }
+
+impl Default for Duration {
+    fn default() -> Self {
+        Self::new()
+    }
+}

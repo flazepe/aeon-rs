@@ -66,14 +66,14 @@ impl OwnerCommands<'_> {
         if let Ok(output) = Command::new("node")
             .args([
                 if flags.contains('m') { "-e" } else { "-p" },
-                &generate_eval_context(to_string(&self.message).unwrap_or("{}".into()), code),
+                &generate_eval_context(to_string(&self.message).unwrap_or_else(|_| "{}".into()), code),
                 "--input-type",
                 if flags.contains('m') { "module" } else { "commonjs" },
             ])
             .output()
         {
-            let stdout = String::from_utf8(output.stdout).unwrap_or("".into());
-            let stderr = String::from_utf8(output.stderr).unwrap_or("".into());
+            let stdout = String::from_utf8(output.stdout).unwrap_or_else(|_| "".into());
+            let stderr = String::from_utf8(output.stderr).unwrap_or_else(|_| "".into());
 
             text = format!("{}", output.status);
 

@@ -63,25 +63,31 @@ impl SauceNaoSearch {
                         "`[{}%]` [{}]({}){}",
                         result.header.similarity,
                         {
-                            let title: String;
+                            let title;
 
                             if result.data.pixiv_id.is_some() {
-                                title = "Pixiv Source".into();
+                                title = "Pixiv Source";
                             } else if result.data.gelbooru_id.is_some() {
-                                title = "Gelbooru Source".into();
+                                title = "Gelbooru Source";
                             } else {
-                                title = result.data.source.as_ref().map_or("".into(), |source| source.into());
+                                title = result.data.source.as_deref().unwrap_or("");
                             }
 
                             match title.is_empty() {
-                                true => "Source".into(),
+                                true => "Source",
                                 false => title,
                             }
                         },
-                        result.data.ext_urls.as_ref().unwrap_or(&vec!["https://google.com".into()])[0],
+                        result
+                            .data
+                            .ext_urls
+                            .as_ref()
+                            .unwrap_or(&vec![])
+                            .first()
+                            .map_or_else(|| "https://google.com".into(), |url| url.to_string()),
                         {
                             let joined = [
-                                result.data.year.as_ref().unwrap_or(&"".into()).into(),
+                                result.data.year.as_deref().unwrap_or("").into(),
                                 match &result.data.part {
                                     Some(part) => format!(
                                         "{} {}",
@@ -93,7 +99,7 @@ impl SauceNaoSearch {
                                     ),
                                     None => "".into(),
                                 },
-                                result.data.est_time.as_ref().unwrap_or(&"".into()).into(),
+                                result.data.est_time.as_deref().unwrap_or("").into(),
                             ]
                             .into_iter()
                             .filter(|entry| !entry.is_empty())

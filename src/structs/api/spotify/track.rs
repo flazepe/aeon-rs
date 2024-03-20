@@ -56,7 +56,7 @@ impl SpotifyFullTrack {
         Embed::new()
             .set_color(SPOTIFY_EMBED_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.album.images.first().map_or(&"".into(), |image| &image.url))
+            .set_thumbnail(self.album.images.first().map_or_else(|| "".into(), |image| image.url.clone()))
             .set_title(format!(
                 "{}{}",
                 match self.explicit {
@@ -94,7 +94,7 @@ impl SpotifyFullTrack {
                 format!(
                     "{}{}",
                     Spotify::format_duration(self.duration_ms),
-                    self.preview_url.as_ref().map_or("".into(), |preview_url| format!(" - [Preview]({preview_url})")),
+                    self.preview_url.as_ref().map_or_else(|| "".into(), |preview_url| format!(" - [Preview]({preview_url})")),
                 ),
                 false,
             )
@@ -113,36 +113,33 @@ impl SpotifyFullTrack {
             embed = embed
                 .add_field(
                     "Key",
-                    pitch_notation.map_or("N/A".into(), |pitch_notation| {
-                        format!(
-                            "{} {}",
-                            pitch_notation,
-                            match audio_features.mode == 0 {
-                                true => "Minor",
-                                false => "Major",
-                            },
-                        )
-                    }),
+                    pitch_notation.map_or_else(
+                        || "N/A".into(),
+                        |pitch_notation| format!("{pitch_notation} {}", ["Minor", "Major"][audio_features.mode as usize]),
+                    ),
                     true,
                 )
                 .add_field(
                     "Camelot",
-                    pitch_notation.map_or("N/A".into(), |pitch_notation| {
-                        format!(
-                            "{}{}",
-                            SPOTIFY_CAMELOT
-                                .iter()
-                                .enumerate()
-                                .find(|(_, entry)| entry[audio_features.mode as usize] == pitch_notation)
-                                .unwrap()
-                                .0
-                                + 1,
-                            match audio_features.mode == 0 {
-                                true => "A",
-                                false => "B",
-                            },
-                        )
-                    }),
+                    pitch_notation.map_or_else(
+                        || "N/A".into(),
+                        |pitch_notation| {
+                            format!(
+                                "{}{}",
+                                SPOTIFY_CAMELOT
+                                    .iter()
+                                    .enumerate()
+                                    .find(|(_, entry)| entry[audio_features.mode as usize] == pitch_notation)
+                                    .unwrap()
+                                    .0
+                                    + 1,
+                                match audio_features.mode == 0 {
+                                    true => "A",
+                                    false => "B",
+                                },
+                            )
+                        },
+                    ),
                     true,
                 )
                 .add_field("Tempo", format!("{:.0} BPM", audio_features.tempo), true)

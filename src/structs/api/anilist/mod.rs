@@ -57,7 +57,7 @@ impl AniList {
 
     pub fn format_description<T: ToString>(embed: Embed, description: Option<&T>) -> Embed {
         embed.set_description(limit_strings(
-            Document::from(&description.map(|description| description.to_string()).unwrap_or("N/A".into()))
+            Document::from(&description.map(|description| description.to_string()).unwrap_or_else(|| "N/A".into()))
                 .select("body")
                 .text()
                 .split('\n'),
@@ -80,7 +80,7 @@ impl AniList {
                 "[{}]({}){}",
                 relation.node.title.romaji,
                 relation.node.site_url,
-                relation.node.format.as_ref().map_or("".into(), |format| format!(" ({format})")),
+                relation.node.format.as_ref().map_or_else(|| "".into(), |format| format!(" ({format})")),
             ));
         }
 

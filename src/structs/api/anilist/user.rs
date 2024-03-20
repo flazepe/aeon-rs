@@ -109,7 +109,7 @@ impl AniListUser {
     }
 
     pub fn format_about(&self) -> Embed {
-        self._format().set_description(limit_strings(self.about.as_ref().unwrap_or(&"".into()).split('\n'), "\n", 4096))
+        self._format().set_description(limit_strings(self.about.as_deref().unwrap_or("").split('\n'), "\n", 4096))
     }
 
     pub fn format_favorite_anime(&self) -> Embed {
@@ -119,7 +119,7 @@ impl AniListUser {
                     "[{}]({}){}",
                     anime.title.romaji,
                     anime.site_url,
-                    anime.format.as_ref().map_or("".into(), |format| format!(" ({format})")),
+                    anime.format.as_ref().map_or_else(|| "".into(), |format| format!(" ({format})")),
                 )
             }),
             "\n",
@@ -134,7 +134,7 @@ impl AniListUser {
                     "[{}]({}){}",
                     manga.title.romaji,
                     manga.site_url,
-                    manga.format.as_ref().map_or("".into(), |format| format!(" ({format})")),
+                    manga.format.as_ref().map_or_else(|| "".into(), |format| format!(" ({format})")),
                 )
             }),
             "\n",

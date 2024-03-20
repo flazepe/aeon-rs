@@ -11,8 +11,8 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     match Google::translate(
         ctx.get_string_arg("text")?,
-        ctx.get_string_arg("origin-language").unwrap_or("auto".into()),
-        ctx.get_string_arg("target-language").unwrap_or("en".into()),
+        ctx.get_string_arg("origin-language").as_deref().unwrap_or("auto"),
+        ctx.get_string_arg("target-language").as_deref().unwrap_or("en"),
     )
     .await
     {

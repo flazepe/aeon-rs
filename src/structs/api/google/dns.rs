@@ -71,7 +71,7 @@ impl GoogleDns {
             .set_title(format!("{} records for {}", self.record_type, self.domain))
             .set_description(format!(
                 "{}```diff\n{}```",
-                self.comment.as_ref().unwrap_or(&"".into()),
+                self.comment.as_deref().unwrap_or(""),
                 self.records
                     .iter()
                     .map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl))
@@ -103,7 +103,7 @@ impl Google {
             bail!(GOOGLE_DNS_CODES.get(&dns_response.status).unwrap_or(&"An unknown error occurred."));
         }
 
-        let records = dns_response.answer.or(dns_response.authority).unwrap_or(vec![]);
+        let records = dns_response.answer.or(dns_response.authority).unwrap_or_else(Vec::new);
 
         if records.is_empty() {
             bail!("No DNS records found.");

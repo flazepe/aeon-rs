@@ -11,7 +11,7 @@ impl EventHandler {
 
         if !["🗑️", "❌", "🇽", "delete"].contains(
             &match reaction.emoji {
-                ReactionType::Custom { name, animated: _, id: _ } => name.unwrap_or("".into()),
+                ReactionType::Custom { name, animated: _, id: _ } => name.unwrap_or_else(|| "".into()),
                 ReactionType::Unicode { name } => name,
             }
             .as_str(),
@@ -54,7 +54,7 @@ impl EventHandler {
 
         let Some(author_id) = author_id else { return };
 
-        if user_id.unwrap_or(FLAZEPE_ID.to_string()) == reaction.user_id.to_string() && author_id == CONFIG.bot.client_id {
+        if user_id.as_deref().unwrap_or(FLAZEPE_ID) == reaction.user_id.to_string() && author_id == CONFIG.bot.client_id {
             REST.delete::<()>(format!("channels/{}/messages/{}", reaction.channel_id, reaction.message_id)).await.ok();
         }
     }

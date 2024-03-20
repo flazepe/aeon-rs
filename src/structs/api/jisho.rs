@@ -93,7 +93,7 @@ impl JishoSearch {
 
     pub fn format_title(&self) -> String {
         let title = self.japanese[0].word.as_ref().unwrap_or_else(|| self.japanese[0].reading.as_ref().unwrap()).to_string(); // One of these gotta exist
-        let reading = self.japanese[0].reading.as_ref().unwrap_or(&"".into()).to_string();
+        let reading = self.japanese[0].reading.as_deref().unwrap_or("");
 
         match title == reading || reading.is_empty() {
             true => title,

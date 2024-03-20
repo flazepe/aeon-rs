@@ -62,7 +62,7 @@ impl AniListAnime {
             .set_color(ANILIST_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(&self.cover_image.extra_large)
-            .set_image(self.banner_image.as_ref().unwrap_or(&"".into()))
+            .set_image(self.banner_image.as_deref().unwrap_or(""))
             .set_title(format!(
                 ":flag_{}: {} ({})",
                 self.country_of_origin.to_lowercase(),
@@ -70,7 +70,7 @@ impl AniListAnime {
                     true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
                     false => self.title.romaji.clone(),
                 },
-                self.format.as_ref().map_or("TBA".into(), |format| format.to_string()),
+                self.format.as_ref().map_or_else(|| "TBA".into(), |format| format.to_string()),
             ))
             .set_url(&self.site_url)
     }
@@ -82,23 +82,29 @@ impl AniListAnime {
                 "Aired",
                 format!(
                     "{}{} ({}){}",
-                    self.season.as_ref().map_or("".into(), |season| format!(
-                        "Premiered {season} {}{}\n",
-                        self.season_year.unwrap(),
-                        self.trailer.as_ref().map_or("".into(), |trailer| format!(
-                            " - [Trailer]({}{})",
-                            match trailer.site.as_str() {
-                                "youtube" => "https://www.youtube.com/watch?v=".into(),
-                                "dailymotion" => "https://www.dailymotion.com/video/".into(),
-                                site => format!("https://www.google.com/search?q={site}+"),
-                            },
-                            trailer.id,
-                        )),
-                    )),
+                    self.season.as_ref().map_or_else(
+                        || "".into(),
+                        |season| format!(
+                            "Premiered {season} {}{}\n",
+                            self.season_year.unwrap(),
+                            self.trailer.as_ref().map_or_else(
+                                || "".into(),
+                                |trailer| format!(
+                                    " - [Trailer]({}{})",
+                                    match trailer.site.as_str() {
+                                        "youtube" => "https://www.youtube.com/watch?v=".into(),
+                                        "dailymotion" => "https://www.dailymotion.com/video/".into(),
+                                        site => format!("https://www.google.com/search?q={site}+"),
+                                    },
+                                    trailer.id,
+                                )
+                            ),
+                        )
+                    ),
                     AniList::format_airing_date(&self.start_date, &self.end_date),
                     &self.status,
-                    self.airing_schedule.nodes.iter().find(|node| node.time_until_airing.map_or(false, |time| time > 0)).map_or(
-                        "".into(),
+                    self.airing_schedule.nodes.iter().find(|node| node.time_until_airing.map_or(false, |time| time > 0)).map_or_else(
+                        || "".into(),
                         |node| format!(
                             "\nNext episode airs <t:{}:R>",
                             SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() + node.time_until_airing.unwrap() as u64,
@@ -121,20 +127,25 @@ impl AniListAnime {
                 "Episodes",
                 format!(
                     "{}{}",
-                    self.episodes.map_or("TBA".into(), |episodes| episodes.to_string()),
-                    self.duration.map_or("".into(), |duration| format!(" ({duration} minutes per episode)")),
+                    self.episodes.map_or_else(|| "TBA".into(), |episodes| episodes.to_string()),
+                    self.duration.map_or_else(|| "".into(), |duration| format!(" ({duration} minutes per episode)")),
                 ),
                 true,
             )
             .add_field(
                 "Twitter Hashtag",
-                self.hashtag.as_ref().map_or("N/A".into(), |hashtag| {
-                    hashtag
-                        .split(' ')
-                        .map(|hashtag| format!("[{hashtag}](https://twitter.com/hashtag/{})", hashtag.chars().skip(1).collect::<String>()))
-                        .collect::<Vec<String>>()
-                        .join(", ")
-                }),
+                self.hashtag.as_ref().map_or_else(
+                    || "N/A".into(),
+                    |hashtag| {
+                        hashtag
+                            .split(' ')
+                            .map(|hashtag| {
+                                format!("[{hashtag}](https://twitter.com/hashtag/{})", hashtag.chars().skip(1).collect::<String>())
+                            })
+                            .collect::<Vec<String>>()
+                            .join(", ")
+                    },
+                ),
                 true,
             )
             .add_field(
@@ -146,7 +157,7 @@ impl AniListAnime {
                     .join(", "),
                 true,
             )
-            .add_field("Source", self.source.as_ref().map_or("N/A".into(), |source| source.to_string()), true)
+            .add_field("Source", self.source.as_ref().map_or_else(|| "N/A".into(), |source| source.to_string()), true)
             .add_field(
                 "Score",
                 {

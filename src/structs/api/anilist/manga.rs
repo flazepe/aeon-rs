@@ -57,7 +57,7 @@ impl AniListManga {
             .set_color(ANILIST_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(&self.cover_image.extra_large)
-            .set_image(self.banner_image.as_ref().unwrap_or(&"".into()))
+            .set_image(self.banner_image.as_deref().unwrap_or(""))
             .set_title(format!(
                 ":flag_{}: {} ({})",
                 self.country_of_origin.to_lowercase(),
@@ -65,7 +65,7 @@ impl AniListManga {
                     true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
                     false => self.title.romaji.clone(),
                 },
-                self.format.as_ref().map_or("TBA".into(), |format| format.to_string()),
+                self.format.as_ref().map_or_else(|| "TBA".into(), |format| format.to_string()),
             ))
             .set_url(&self.site_url)
     }
@@ -74,8 +74,8 @@ impl AniListManga {
         self._format()
             .set_description(self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n"))
             .add_field("Published", format!("{} ({})", AniList::format_airing_date(&self.start_date, &self.end_date), &self.status), false)
-            .add_field("Chapters", self.chapters.map_or("TBA".into(), |chapters| chapters.to_string()), true)
-            .add_field("Volumes", self.volumes.map_or("TBA".into(), |volumes| volumes.to_string()), true)
+            .add_field("Chapters", self.chapters.map_or_else(|| "TBA".into(), |chapters| chapters.to_string()), true)
+            .add_field("Volumes", self.volumes.map_or_else(|| "TBA".into(), |volumes| volumes.to_string()), true)
             .add_field("Licensed", yes_no!(self.is_licensed), true)
             .add_field(
                 "Genre",
@@ -86,7 +86,7 @@ impl AniListManga {
                     .join(", "),
                 true,
             )
-            .add_field("Source", self.source.as_ref().map_or("N/A".into(), |source| source.to_string()), true)
+            .add_field("Source", self.source.as_ref().map_or_else(|| "N/A".into(), |source| source.to_string()), true)
             .add_field(
                 "Score",
                 {

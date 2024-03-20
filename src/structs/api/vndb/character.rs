@@ -116,10 +116,9 @@ impl VndbCharacter {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.image.as_ref().map_or("".into(), |image| match image.sexual > 1.0 {
-                true => "".into(),
-                false => image.url.clone(),
-            }))
+            .set_thumbnail(
+                self.image.as_ref().map_or_else(|| "".into(), |image| if image.sexual > 1.0 { "".into() } else { image.url.clone() }),
+            )
             .set_title(self.name.chars().take(256).collect::<String>())
             .set_url(format!("https://vndb.org/{}", self.id))
     }
@@ -129,29 +128,33 @@ impl VndbCharacter {
             .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n"))
             .add_field(
                 "Sex",
-                self.sex.as_ref().map_or("N/A".into(), |(sex, spoiler_sex)| {
-                    format!(
-                        "{}{}",
-                        sex.as_ref().map_or("N/A".into(), |sex| format!("{sex:?}")),
-                        spoiler_sex.as_ref().map_or("".into(), |spoiler_sex| format!(" (||actually {spoiler_sex:?}||)")),
-                    )
-                }),
+                self.sex.as_ref().map_or_else(
+                    || "N/A".into(),
+                    |(sex, spoiler_sex)| {
+                        format!(
+                            "{}{}",
+                            sex.as_ref().map_or_else(|| "N/A".into(), |sex| format!("{sex:?}")),
+                            spoiler_sex.as_ref().map_or_else(|| "".into(), |spoiler_sex| format!(" (||actually {spoiler_sex:?}||)")),
+                        )
+                    },
+                ),
                 true,
             )
-            .add_field("Age", self.age.map_or("N/A".into(), |age| age.commas()), true)
-            .add_field("Birthday", self.birthday.map_or("N/A".into(), |birthday| format!("{}/{}", birthday.0, birthday.1)), true)
-            .add_field("Blood Type", self.blood_type.as_ref().map_or("N/A".into(), |blood_type| format!("{blood_type:?}")), true)
-            .add_field("Height", self.height.map_or("N/A".into(), |height| format!("{} cm", height.commas())), true)
-            .add_field("Weight", self.weight.map_or("N/A".into(), |weight| format!("{} kg", weight.commas())), true)
+            .add_field("Age", self.age.map_or_else(|| "N/A".into(), |age| age.commas()), true)
+            .add_field("Birthday", self.birthday.map_or_else(|| "N/A".into(), |birthday| format!("{}/{}", birthday.0, birthday.1)), true)
+            .add_field("Blood Type", self.blood_type.as_ref().map_or_else(|| "N/A".into(), |blood_type| format!("{blood_type:?}")), true)
+            .add_field("Height", self.height.map_or_else(|| "N/A".into(), |height| format!("{} cm", height.commas())), true)
+            .add_field("Weight", self.weight.map_or_else(|| "N/A".into(), |weight| format!("{} kg", weight.commas())), true)
             .add_field(
                 "Bust",
-                self.bust.map_or("N/A".into(), |bust| {
-                    format!("{bust} cm{}", self.cup.as_ref().map_or("".into(), |cup| format!(" - Cup Size {cup}")))
-                }),
+                self.bust.map_or_else(
+                    || "N/A".into(),
+                    |bust| format!("{bust} cm{}", self.cup.as_ref().map_or_else(|| "".into(), |cup| format!(" - Cup Size {cup}"))),
+                ),
                 true,
             )
-            .add_field("Waist", self.waist.map_or("N/A".into(), |waist| format!("{waist} cm")), true)
-            .add_field("Hips", self.hips.map_or("N/A".into(), |hips| format!("{hips} cm")), true)
+            .add_field("Waist", self.waist.map_or_else(|| "N/A".into(), |waist| format!("{waist} cm")), true)
+            .add_field("Hips", self.hips.map_or_else(|| "N/A".into(), |hips| format!("{hips} cm")), true)
     }
 
     pub fn format_traits(&self) -> Embed {

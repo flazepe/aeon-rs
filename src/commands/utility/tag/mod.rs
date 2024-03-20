@@ -161,7 +161,7 @@ pub fn get_command() -> SlashookCommand {
                 .autocomplete(
                     Tags::search(input.guild_id.unwrap(), None::<String>)
                         .await
-                        .unwrap_or(vec![])
+                        .unwrap_or_else(|_| vec![])
                         .iter()
                         .filter(|tag| format!("{}{}", tag.name, tag.content).to_lowercase().contains(&value))
                         .take(25)

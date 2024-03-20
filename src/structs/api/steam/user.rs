@@ -126,19 +126,19 @@ impl SteamUser {
             )
             .add_field(
                 "Created",
-                self.time_created.map_or("N/A".into(), |time_created| format_timestamp(time_created, TimestampFormat::Full)),
+                self.time_created.map_or_else(|| "N/A".into(), |time_created| format_timestamp(time_created, TimestampFormat::Full)),
                 false,
             )
             .add_field(
                 "Location",
-                match STEAM_COUNTRIES.get_key_value(self.loc_country_code.as_ref().unwrap_or(&"".into()).as_str()) {
+                match STEAM_COUNTRIES.get_key_value(self.loc_country_code.as_deref().unwrap_or("")) {
                     Some((country_code, country)) => format!(
                         ":flag_{}: {}{}",
                         country_code.to_lowercase(),
-                        self.loc_state_code.as_ref().map_or("".into(), |state_code| format!(
-                            "{}, ",
-                            country.states.get(state_code.as_str()).unwrap_or(&"Unknown"),
-                        )),
+                        self.loc_state_code.as_ref().map_or_else(
+                            || "".into(),
+                            |state_code| format!("{}, ", country.states.get(state_code.as_str()).unwrap_or(&"Unknown"))
+                        ),
                         country.name,
                     ),
                     None => "N/A".into(),
@@ -147,14 +147,17 @@ impl SteamUser {
             )
             .add_field(
                 "Playing",
-                self.game_extra_info.as_ref().map_or("None".into(), |game_extra_info| {
-                    format!(
-                        "[{}](https://store.steampowered.com/app/{}){}",
-                        game_extra_info,
-                        self.game_id.unwrap_or(0),
-                        format!("\n{}", self.game_server_ip.as_ref().unwrap_or(&"".into())).trim(),
-                    )
-                }),
+                self.game_extra_info.as_ref().map_or_else(
+                    || "None".into(),
+                    |game_extra_info| {
+                        format!(
+                            "[{}](https://store.steampowered.com/app/{}){}",
+                            game_extra_info,
+                            self.game_id.unwrap_or(0),
+                            format!("\n{}", self.game_server_ip.as_deref().unwrap_or("")).trim(),
+                        )
+                    },
+                ),
                 true,
             )
             .add_field("Allows Profile Comments", yes_no!(self.comment_permission.is_some()), true);

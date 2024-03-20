@@ -520,10 +520,9 @@ impl VndbVisualNovel {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.image.as_ref().map_or("".into(), |image| match image.sexual > 1.0 {
-                true => "".into(),
-                false => image.url.to_string(),
-            }))
+            .set_thumbnail(
+                self.image.as_ref().map_or_else(|| "".into(), |image| if image.sexual > 1.0 { "".into() } else { image.url.to_string() }),
+            )
             .set_title(format!(
                 "{} ({})",
                 match self.title.len() > 230 {
@@ -543,7 +542,7 @@ impl VndbVisualNovel {
                 "Rating",
                 format!(
                     "{} ({})",
-                    self.rating.map_or("N/A".into(), |rating| format!("{rating:.0}%")),
+                    self.rating.map_or_else(|| "N/A".into(), |rating| format!("{rating:.0}%")),
                     label_num(self.vote_count, "vote", "votes"),
                 ),
                 true,
@@ -552,19 +551,19 @@ impl VndbVisualNovel {
                 "Length",
                 format!(
                     "{} ({})",
-                    self.length.as_ref().map_or("N/A".into(), |length| length.to_string()),
+                    self.length.as_ref().map_or_else(|| "N/A".into(), |length| length.to_string()),
                     label_num(self.length_votes, "vote", "votes"),
                 ),
                 true,
             )
             .add_field("Languages", self.languages.iter().map(|language| language.to_string()).collect::<Vec<String>>().join(", "), false)
             .add_field("Platforms", self.platforms.iter().map(|platform| platform.to_string()).collect::<Vec<String>>().join(", "), false)
-            .set_footer(self.released.as_ref().map_or("".into(), |released| format!("Released {released}")), None::<String>)
+            .set_footer(self.released.as_ref().map_or_else(|| "".into(), |released| format!("Released {released}")), None::<String>)
     }
 
     pub fn format_description(&self) -> Embed {
         self._format().set_description(limit_strings(
-            Vndb::clean_bbcode(self.description.as_ref().unwrap_or(&"N/A".into())).split('\n'),
+            Vndb::clean_bbcode(self.description.as_deref().unwrap_or("N/A")).split('\n'),
             "\n",
             4096,
         ))

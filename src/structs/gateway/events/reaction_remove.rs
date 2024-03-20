@@ -24,7 +24,7 @@ impl EventHandler {
             reaction.user_id,
             match reaction.emoji {
                 ReactionType::Custom { name, id, animated: _ } =>
-                    format!("[{}](https://cdn.discordapp.com/emojis/{})", name.unwrap_or("<unknown>".into()), id),
+                    format!("[{}](https://cdn.discordapp.com/emojis/{})", name.as_deref().unwrap_or("<unknown>"), id),
                 ReactionType::Unicode { name } => name,
             },
             format_timestamp(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(), TimestampFormat::Full),

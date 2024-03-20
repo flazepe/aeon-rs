@@ -55,11 +55,12 @@ impl From<Message> for StringifiedMessage {
                     id: sticker.id,
                     name: sticker.name,
                     format: match sticker.format_type {
-                        StickerFormatType::PNG => "png".into(),
-                        StickerFormatType::APNG => "apng".into(),
-                        StickerFormatType::LOTTIE => "lottie".into(),
-                        StickerFormatType::UNKNOWN => "png".into(),
-                    },
+                        StickerFormatType::PNG => "png",
+                        StickerFormatType::APNG => "apng",
+                        StickerFormatType::LOTTIE => "lottie",
+                        StickerFormatType::UNKNOWN => "png",
+                    }
+                    .into(),
                 })
                 .collect::<Vec<SimpleSticker>>(),
         }
@@ -90,13 +91,14 @@ impl From<TwilightMessage> for StringifiedMessage {
                     id: sticker.id.to_string(),
                     name: sticker.name,
                     format: match sticker.format_type {
-                        TwilightStickerFormatType::Png => "png".into(),
-                        TwilightStickerFormatType::Apng => "apng".into(),
-                        TwilightStickerFormatType::Lottie => "lottie".into(),
-                        TwilightStickerFormatType::Gif => "gif".into(),
-                        TwilightStickerFormatType::Unknown(_) => "png".into(),
-                        _ => "png".into(),
-                    },
+                        TwilightStickerFormatType::Png => "png",
+                        TwilightStickerFormatType::Apng => "apng",
+                        TwilightStickerFormatType::Lottie => "lottie",
+                        TwilightStickerFormatType::Gif => "gif",
+                        TwilightStickerFormatType::Unknown(_) => "png",
+                        _ => "png",
+                    }
+                    .into(),
                 })
                 .collect::<Vec<SimpleSticker>>(),
         }
@@ -133,7 +135,7 @@ impl Display for StringifiedMessage {
             }
 
             if let Some(title) = embed.title.as_ref() {
-                text += &format!("\n**[{title}](<{}>)**", embed.url.as_ref().unwrap_or(&"".into()));
+                text += &format!("\n**[{title}](<{}>)**", embed.url.as_deref().unwrap_or(""));
             }
 
             if let Some(description) = embed.description.as_ref() {

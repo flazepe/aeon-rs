@@ -200,34 +200,37 @@ impl SteamGame {
             .set_description(limit_strings(Document::from(&self.short_description).select("body").text().split('\n'), "\n", 4096))
             .add_field(
                 "Release Date",
-                self.release_date.as_ref().map_or("TBA".into(), |release_date| {
-                    format!(
-                        "{}{}",
-                        format_timestamp(
-                            NaiveDateTime::parse_from_str(&format!("{} 00:00", release_date.date), "%b %-d, %Y %R").unwrap().timestamp(),
-                            TimestampFormat::Full,
-                        ),
-                        match release_date.coming_soon {
-                            true => " (coming soon)",
-                            false => "",
-                        },
-                    )
-                }),
+                self.release_date.as_ref().map_or_else(
+                    || "TBA".into(),
+                    |release_date| {
+                        format!(
+                            "{}{}",
+                            format_timestamp(
+                                NaiveDateTime::parse_from_str(&format!("{} 00:00", release_date.date), "%b %-d, %Y %R")
+                                    .unwrap()
+                                    .timestamp(),
+                                TimestampFormat::Full,
+                            ),
+                            if release_date.coming_soon { " (coming soon)" } else { "" },
+                        )
+                    },
+                ),
                 false,
             )
             .add_field(
                 "Price",
                 match self.is_free {
                     true => "Free".into(),
-                    false => {
-                        self.price_overview.as_ref().map_or("N/A".into(), |price_overview| match price_overview.discount_percent > 0 {
+                    false => self.price_overview.as_ref().map_or_else(
+                        || "N/A".into(),
+                        |price_overview| match price_overview.discount_percent > 0 {
                             true => format!(
                                 "~~{}~~ {} ({}% off)",
                                 price_overview.initial_formatted, price_overview.final_formatted, price_overview.discount_percent,
                             ),
                             false => price_overview.final_formatted.clone(),
-                        })
-                    },
+                        },
+                    ),
                 },
                 false,
             )
@@ -236,45 +239,51 @@ impl SteamGame {
     pub fn format_developers(&self) -> Embed {
         self._format()
             .set_image(&self.background)
-            .add_field("Developers", self.developers.as_ref().map_or("N/A".into(), |developers| developers.join(", ")), false)
-            .add_field("Publishers", self.publishers.as_ref().map_or("N/A".into(), |publishers| publishers.join(", ")), false)
-            .add_field("Website", self.website.as_ref().unwrap_or(&"N/A".into()), false)
+            .add_field("Developers", self.developers.as_ref().map_or_else(|| "N/A".into(), |developers| developers.join(", ")), false)
+            .add_field("Publishers", self.publishers.as_ref().map_or_else(|| "N/A".into(), |publishers| publishers.join(", ")), false)
+            .add_field("Website", self.website.as_deref().unwrap_or("N/A"), false)
     }
 
     pub fn format_details(&self) -> Embed {
         self._format()
             .add_field(
                 "Category",
-                self.categories.as_ref().map_or("N/A".into(), |categories| {
-                    limit_strings(
-                        categories.iter().map(|category| {
-                            format!(
-                                "[{}](https://store.steampowered.com/tags/en/{})",
-                                category.description,
-                                category.description.replace(' ', "+"),
-                            )
-                        }),
-                        ", ",
-                        1024,
-                    )
-                }),
+                self.categories.as_ref().map_or_else(
+                    || "N/A".into(),
+                    |categories| {
+                        limit_strings(
+                            categories.iter().map(|category| {
+                                format!(
+                                    "[{}](https://store.steampowered.com/tags/en/{})",
+                                    category.description,
+                                    category.description.replace(' ', "+"),
+                                )
+                            }),
+                            ", ",
+                            1024,
+                        )
+                    },
+                ),
                 false,
             )
             .add_field(
                 "Genre",
-                self.genres.as_ref().map_or("N/A".into(), |genres| {
-                    limit_strings(
-                        genres.iter().map(|genre| {
-                            format!(
-                                "[{}](https://store.steampowered.com/genre/{}/)",
-                                genre.description,
-                                genre.description.replace(' ', "+"),
-                            )
-                        }),
-                        ", ",
-                        1024,
-                    )
-                }),
+                self.genres.as_ref().map_or_else(
+                    || "N/A".into(),
+                    |genres| {
+                        limit_strings(
+                            genres.iter().map(|genre| {
+                                format!(
+                                    "[{}](https://store.steampowered.com/genre/{}/)",
+                                    genre.description,
+                                    genre.description.replace(' ', "+"),
+                                )
+                            }),
+                            ", ",
+                            1024,
+                        )
+                    },
+                ),
                 false,
             )
             .add_field(
@@ -300,19 +309,22 @@ impl SteamGame {
             )
             .add_field(
                 "Metacritic",
-                self.metacritic.as_ref().map_or("N/A".into(), |metacritic| format!("[{}]({})", metacritic.score, metacritic.url)),
+                self.metacritic.as_ref().map_or_else(|| "N/A".into(), |metacritic| format!("[{}]({})", metacritic.score, metacritic.url)),
                 false,
             )
     }
 
     pub fn format_featured_achievements(&self) -> Embed {
-        self._format().set_description(self.achievements.as_ref().map_or("N/A".into(), |achievements| {
-            limit_strings(
-                achievements.highlighted.iter().map(|achievement| format!("[{}]({})", achievement.name, achievement.path)),
-                "\n",
-                4096,
-            )
-        }))
+        self._format().set_description(self.achievements.as_ref().map_or_else(
+            || "N/A".into(),
+            |achievements| {
+                limit_strings(
+                    achievements.highlighted.iter().map(|achievement| format!("[{}]({})", achievement.name, achievement.path)),
+                    "\n",
+                    4096,
+                )
+            },
+        ))
     }
 }
 

@@ -17,7 +17,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         .header("authorization", format!("API-Key {}", CONFIG.api.waaai_key))
         .json(&json!({
             "url": url,
-            "custom_code": ctx.get_string_arg("custom-id").unwrap_or("".into()),
+            "custom_code": ctx.get_string_arg("custom-id").as_deref().unwrap_or(""),
             "private": ctx.get_bool_arg("hash").unwrap_or(false),
         }))
         .send()

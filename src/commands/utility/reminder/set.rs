@@ -13,20 +13,21 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     let original_message = ctx.res.get_original_message().await?;
 
-    let url = ctx.input.custom_id.as_ref().map_or_else(
-        || {
-            format!(
-                "{}/{}/{}",
-                ctx.input.guild_id.as_ref().unwrap_or(&"@me".into()),
-                ctx.input.channel_id.as_ref().unwrap(),
-                original_message.id,
-            )
-        },
-        |custom_id| custom_id.to_string(),
-    );
+    let url =
+        ctx.input.custom_id.as_ref().map_or_else(
+            || {
+                format!(
+                    "{}/{}/{}",
+                    ctx.input.guild_id.as_deref().unwrap_or("@me"),
+                    ctx.input.channel_id.as_ref().unwrap(),
+                    original_message.id,
+                )
+            },
+            |custom_id| custom_id.to_string(),
+        );
 
     let reminder = {
-        let mut reminder = ctx.get_string_arg("reminder").unwrap_or("Do something".into());
+        let mut reminder = ctx.get_string_arg("reminder").unwrap_or_else(|_| "Do something".into());
 
         if ctx.input.is_string_select() {
             if let Some(parsed_reminder) = || -> Option<&String> { ctx.input.message.as_ref()?.embeds.first()?.description.as_ref() }() {
@@ -49,10 +50,13 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         &url,
         Duration::new()
             .parse(
-                ctx.input.values.as_ref().map_or_else(|| ctx.get_string_arg("time").unwrap_or("".into()), |values| values[0].to_string()),
+                ctx.input
+                    .values
+                    .as_ref()
+                    .map_or_else(|| ctx.get_string_arg("time").unwrap_or_else(|_| "".into()), |values| values[0].to_string()),
             )
-            .unwrap_or(Duration::new()),
-        Duration::new().parse(ctx.get_string_arg("interval").unwrap_or("".into())).unwrap_or(Duration::new()),
+            .unwrap_or_default(),
+        Duration::new().parse(ctx.get_string_arg("interval").unwrap_or_else(|_| "".into())).unwrap_or_default(),
         &reminder,
         dm,
     )

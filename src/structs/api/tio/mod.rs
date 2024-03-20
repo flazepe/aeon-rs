@@ -94,11 +94,11 @@ impl Tio {
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
             .set_title(&self.programming_language)
-            .set_url(self.code_url.as_ref().unwrap_or(&"".into()))
+            .set_url(self.code_url.as_deref().unwrap_or(""))
             .set_description(format!(
                 "{}```\n{}```",
-                self.result_url.as_ref().map_or("".into(), |result_url| format!("[Full Result]({result_url})")),
-                self.result.as_ref().unwrap_or(&"No output.".into()).chars().take(3900).collect::<String>(),
+                self.result_url.as_ref().map_or_else(|| "".into(), |result_url| format!("[Full Result]({result_url})")),
+                self.result.as_deref().unwrap_or("No output.").chars().take(3900).collect::<String>(),
             ))
     }
 }

@@ -20,7 +20,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     let avatar = match ctx.get_bool_arg("force-user-avatar").unwrap_or(false) {
         true => user.display_avatar_url("gif", 4096),
-        false => guild_avatar.unwrap_or(user.display_avatar_url("gif", 4096)),
+        false => guild_avatar.unwrap_or_else(|| user.display_avatar_url("gif", 4096)),
     };
 
     ctx.respond(

@@ -51,13 +51,9 @@ impl Spotify {
         let secs = millis / 1000;
 
         format!(
-            "{}{}:{secs:02}",
+            "{}:{secs:02}",
             match hours > 0 {
-                true => format!("{hours}:"),
-                false => "".into(),
-            },
-            match hours > 0 {
-                true => format!("{mins:02}"),
+                true => format!("{hours}:{mins:02}"),
                 false => mins.to_string(),
             },
         )

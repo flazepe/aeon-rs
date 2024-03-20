@@ -15,10 +15,7 @@ impl AvatarUrl for User {
                 "https://cdn.discordapp.com/avatars/{}/{}.{}?size={}",
                 self.id,
                 avatar,
-                match format == "gif" && !avatar.starts_with("a_") {
-                    true => "png".into(),
-                    false => format,
-                },
+                if format == "gif" && !avatar.starts_with("a_") { "png".into() } else { format },
                 size.to_string(),
             )
         })
@@ -27,13 +24,7 @@ impl AvatarUrl for User {
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
         match AvatarUrl::avatar_url(self, format, size) {
             Some(avatar_url) => avatar_url,
-            None => format!(
-                "https://cdn.discordapp.com/embed/avatars/{}.png",
-                match self.discriminator == "0" {
-                    true => self.id.parse::<u64>().unwrap() >> 22,
-                    false => self.discriminator.parse::<u64>().unwrap(),
-                } % 5,
-            ),
+            None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.parse::<u64>().unwrap() >> 22) % 5),
         }
     }
 }
@@ -47,10 +38,7 @@ impl AvatarUrl for TwilightUser {
                 "https://cdn.discordapp.com/avatars/{}/{}.{}?size={}",
                 self.id,
                 avatar,
-                match format == "gif" && !avatar.is_animated() {
-                    true => "png".into(),
-                    false => format,
-                },
+                if format == "gif" && !avatar.is_animated() { "png".into() } else { format },
                 size.to_string(),
             )
         })
@@ -59,13 +47,7 @@ impl AvatarUrl for TwilightUser {
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
         match AvatarUrl::avatar_url(self, format, size) {
             Some(avatar_url) => avatar_url,
-            None => format!(
-                "https://cdn.discordapp.com/embed/avatars/{}.png",
-                match self.discriminator == 0 {
-                    true => self.id.to_string().parse::<u64>().unwrap() >> 22,
-                    false => self.discriminator as u64,
-                } % 5,
-            ),
+            None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.to_string().parse::<u64>().unwrap() >> 22) % 5),
         }
     }
 }
@@ -82,28 +64,6 @@ impl<T> LimitedVec<T> for Vec<T> {
 
         if length > limit {
             self.drain(..length - limit);
-        }
-    }
-}
-
-pub trait Tag {
-    fn tag(&self) -> String;
-}
-
-impl Tag for User {
-    fn tag(&self) -> String {
-        match self.discriminator == "0" {
-            true => self.username.clone(),
-            false => format!("{}#{}", self.username, self.discriminator),
-        }
-    }
-}
-
-impl Tag for TwilightUser {
-    fn tag(&self) -> String {
-        match self.discriminator == 0 {
-            true => self.name.clone(),
-            false => format!("{}#{}", self.name, self.discriminator()),
         }
     }
 }

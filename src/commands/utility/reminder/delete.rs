@@ -2,7 +2,7 @@ use crate::structs::{command_context::CommandContext, database::reminders::Remin
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let entries = Reminders::get_many(&ctx.input.user.id).await.unwrap_or(vec![]);
+    let entries = Reminders::get_many(&ctx.input.user.id).await.unwrap_or_else(|_| vec![]);
 
     if ctx.input.is_autocomplete() {
         return ctx

@@ -6,9 +6,9 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         .post("https://is.gd/create.php")
         .header("user-agent", "yes")
         .query(&[
-            ("format", "simple".into()),
-            ("url", ctx.get_string_arg("url")?),
-            ("shorturl", ctx.get_string_arg("custom-id").unwrap_or("".into())),
+            ("format", "simple"),
+            ("url", ctx.get_string_arg("url").as_deref().unwrap()),
+            ("shorturl", ctx.get_string_arg("custom-id").as_deref().unwrap_or("")),
         ])
         .form(&[(
             "opt",

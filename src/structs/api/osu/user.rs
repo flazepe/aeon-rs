@@ -277,7 +277,7 @@ impl OsuUser {
                 "Rank",
                 format!(
                     "#{} (#{} peak)",
-                    self.statistics.global_rank.map_or("-".into(), |global_rank| global_rank.commas()),
+                    self.statistics.global_rank.map_or_else(|| "-".into(), |global_rank| global_rank.commas()),
                     self.rank_highest.rank.commas(),
                 ),
                 true,
@@ -296,9 +296,10 @@ impl OsuUser {
             )
             .add_field(
                 "Playstyle",
-                self.playstyle.as_ref().map_or("N/A".into(), |playstyle| {
-                    playstyle.iter().map(|entry| format!("{entry:?}")).collect::<Vec<String>>().join(", ")
-                }),
+                self.playstyle.as_ref().map_or_else(
+                    || "N/A".into(),
+                    |playstyle| playstyle.iter().map(|entry| format!("{entry:?}")).collect::<Vec<String>>().join(", "),
+                ),
                 true,
             )
             .add_field(
@@ -310,16 +311,16 @@ impl OsuUser {
 
     pub fn format_about(&self) -> Embed {
         self._format()
-            .add_field("Location", self.location.as_ref().unwrap_or(&"N/A".into()), true)
-            .add_field("Interests", self.interests.as_ref().unwrap_or(&"N/A".into()), true)
-            .add_field("Occupation", self.occupation.as_ref().unwrap_or(&"N/A".into()), true)
-            .add_field("Website", self.website.as_ref().unwrap_or(&"N/A".into()), true)
+            .add_field("Location", self.location.as_deref().unwrap_or("N/A"), true)
+            .add_field("Interests", self.interests.as_deref().unwrap_or("N/A"), true)
+            .add_field("Occupation", self.occupation.as_deref().unwrap_or("N/A"), true)
+            .add_field("Website", self.website.as_deref().unwrap_or("N/A"), true)
             .add_field(
                 "Twitter",
-                self.twitter.as_ref().map_or("N/A".into(), |twitter| format!("[@{twitter}](https://twitter.com/{twitter})")),
+                self.twitter.as_ref().map_or_else(|| "N/A".into(), |twitter| format!("[@{twitter}](https://twitter.com/{twitter})")),
                 true,
             )
-            .add_field("Discord", self.discord.as_ref().unwrap_or(&"N/A".into()), true)
+            .add_field("Discord", self.discord.as_deref().unwrap_or("N/A"), true)
     }
 
     pub fn format_statistics(&self) -> Embed {

@@ -10,7 +10,7 @@ use slashook::structs::embeds::Embed;
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let mut request = REQWEST
         .request(
-            match ctx.get_string_arg("method").unwrap_or("GET".into()).as_ref() {
+            match ctx.get_string_arg("method").as_deref().unwrap_or("GET") {
                 "GET" => Method::GET,
                 "POST" => Method::POST,
                 "PUT" => Method::PUT,
@@ -40,7 +40,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     match request.send().await {
         Ok(response) => {
-            let text = response.text().await.unwrap_or("An error occurred while encoding text.".into());
+            let text = response.text().await.unwrap_or_else(|_| "An error occurred while encoding text.".into());
 
             ctx.respond(
                 Embed::new().set_color(PRIMARY_COLOR)?.set_description(format!(

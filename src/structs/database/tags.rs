@@ -74,7 +74,7 @@ impl Tags {
         content: W,
         modifier: &GuildMember,
     ) -> Result<String> {
-        if !modifier.permissions.unwrap_or(Permissions::empty()).contains(Permissions::MANAGE_MESSAGES)
+        if !modifier.permissions.unwrap_or_else(Permissions::empty).contains(Permissions::MANAGE_MESSAGES)
             && author_id.to_string() != FLAZEPE_ID
         {
             bail!("Only members with the Manage Messages permission can create tags.");
@@ -262,8 +262,8 @@ impl Tags {
     }
 
     pub fn validate_tag_modifier(tag: Tag, member: &GuildMember) -> Result<Tag> {
-        if tag.author_id != member.user.as_ref().map_or("".into(), |user| user.id.clone())
-            && !member.permissions.unwrap_or(Permissions::empty()).contains(Permissions::MANAGE_MESSAGES)
+        if tag.author_id != member.user.as_ref().map_or_else(|| "".into(), |user| user.id.clone())
+            && !member.permissions.unwrap_or_else(Permissions::empty).contains(Permissions::MANAGE_MESSAGES)
         {
             bail!("You're not the author of that tag. Only tag authors and members with the Manage Messages permission can update or delete tags.");
         }
