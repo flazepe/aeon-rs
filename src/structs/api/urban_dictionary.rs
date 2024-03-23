@@ -25,7 +25,7 @@ impl UrbanDictionary {
     pub async fn search<T: ToString>(word: T) -> Result<Self> {
         let result = REQWEST
             .get("http://api.urbandictionary.com/v0/define")
-            .query(&[("term", &word.to_string())])
+            .query(&[("term", word.to_string())])
             .send()
             .await?
             .json::<Self>()
