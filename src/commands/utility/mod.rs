@@ -1,6 +1,7 @@
 mod calculate;
 mod code;
 mod convert_currency;
+mod define;
 mod google;
 mod google_translate_context;
 mod heliohost;
@@ -28,6 +29,7 @@ pub fn get_commands() -> Vec<SlashookCommand> {
         calculate::get_command(),
         convert_currency::get_command(),
         code::get_command(),
+        define::get_command(),
         google::get_command(),
         google_translate_context::get_command(),
         heliohost::get_command(),
