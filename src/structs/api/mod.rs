@@ -10,6 +10,7 @@ pub mod saucenao;
 pub mod spotify;
 pub mod steam;
 pub mod tio;
+pub mod urban_dictionary;
 pub mod virtualearth;
 pub mod vndb;
 pub mod voice_message;
