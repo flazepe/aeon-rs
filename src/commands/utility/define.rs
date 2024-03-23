@@ -9,7 +9,7 @@ use slashook::{
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         match Dictionary::search(ctx.get_string_arg("word")?).await {
-            Ok(dictionary) => ctx.respond(dictionary[0].format(), !ctx.get_bool_arg("show").unwrap_or(false)).await,
+            Ok(dictionary) => ctx.respond(dictionary.format(), !ctx.get_bool_arg("show").unwrap_or(false)).await,
             Err(error) => ctx.respond_error(error, true).await,
         }
     })

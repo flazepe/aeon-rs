@@ -4,8 +4,13 @@ use serde::Deserialize;
 use std::fmt::Display;
 
 #[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Dictionary {
+    list: Vec<DictionaryEntry>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DictionaryEntry {
     pub word: String,
     pub phonetic: Option<String>,
     pub phonetics: Vec<DictionaryPhonetic>,
@@ -47,22 +52,24 @@ pub struct DictionaryLicense {
 }
 
 impl Dictionary {
-    pub async fn search<T: Display>(word: T) -> Result<Vec<Self>> {
-        REQWEST
-            .get(format!("https://api.dictionaryapi.dev/api/v2/entries/en/{word}"))
-            .send()
-            .await?
-            .json::<Vec<Self>>()
-            .await
-            .map_err(|_| Error::msg("Word not found."))
+    pub async fn search<T: Display>(word: T) -> Result<Self> {
+        Ok(Self {
+            list: REQWEST
+                .get(format!("https://api.dictionaryapi.dev/api/v2/entries/en/{word}"))
+                .send()
+                .await?
+                .json::<Vec<DictionaryEntry>>()
+                .await
+                .map_err(|_| Error::msg("Word not found."))?,
+        })
     }
 
     pub fn format(&self) -> String {
         format!(
             "# {}\n{}",
-            self.word,
+            self.list[0].word,
             limit_strings(
-                self.meanings.iter().map(|meaning| format!(
+                self.list[0].meanings.iter().map(|meaning| format!(
                     "[{}]\n{}",
                     meaning.part_of_speech,
                     meaning.definitions.iter().map(|definition| format!("- {}", definition.definition)).collect::<Vec<String>>().join("\n"),
