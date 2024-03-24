@@ -43,6 +43,7 @@ impl AniList {
                         "%F %R",
                     )
                     .unwrap()
+                    .and_utc()
                     .timestamp(),
                     TimestampFormat::Simple,
                 ));

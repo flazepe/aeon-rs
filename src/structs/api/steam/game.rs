@@ -208,6 +208,7 @@ impl SteamGame {
                             format_timestamp(
                                 NaiveDateTime::parse_from_str(&format!("{} 00:00", release_date.date), "%b %-d, %Y %R")
                                     .unwrap()
+                                    .and_utc()
                                     .timestamp(),
                                 TimestampFormat::Full,
                             ),

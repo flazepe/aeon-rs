@@ -19,7 +19,9 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         Err(_) => return ctx.respond_error("An error occurred while trying to fetch messages.", true).await,
     };
 
-    messages.retain(|message| message.author.id == CONFIG.bot.client_id && message.timestamp > Utc::now() - Duration::weeks(2));
+    messages
+        .retain(|message| message.author.id == CONFIG.bot.client_id && message.timestamp > Utc::now() - Duration::try_weeks(2).unwrap());
+
     messages.drain((ctx.get_i64_arg("amount").unwrap_or(1) as usize).min(messages.len())..);
 
     if messages.is_empty() {

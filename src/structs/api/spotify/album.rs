@@ -84,7 +84,7 @@ impl SpotifyFullAlbum {
                 "Release Date",
                 match self.release_date_precision {
                     SpotifyReleaseDatePrecision::Day => format_timestamp(
-                        NaiveDateTime::parse_from_str(&format!("{} 00:00", self.release_date), "%F %R").unwrap().timestamp(),
+                        NaiveDateTime::parse_from_str(&format!("{} 00:00", self.release_date), "%F %R").unwrap().and_utc().timestamp(),
                         TimestampFormat::Full,
                     ),
                     _ => self.release_date.clone(),

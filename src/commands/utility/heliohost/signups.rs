@@ -15,7 +15,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     let mut embed = Embed::new().set_color(PRIMARY_COLOR)?.set_description(format!(
         "[Signups](https://heliohost.org/signup/) will reset in: **{}**",
         Duration::new().parse(
-            (Utc.with_ymd_and_hms(now.year(), now.month(), now.day(), 0, 0, 0).unwrap() + ChronoDuration::days(1)).timestamp()
+            (Utc.with_ymd_and_hms(now.year(), now.month(), now.day(), 0, 0, 0).unwrap() + ChronoDuration::try_days(1).unwrap()).timestamp()
                 - SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64,
         )?,
     ));

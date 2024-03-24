@@ -23,7 +23,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                 .rest
                 .patch::<GuildMember, _>(
                     format!("guilds/{}/members/{}", ctx.input.guild_id.as_ref().unwrap(), user.id),
-                    json!({ "communication_disabled_until": (Utc::now() + ChronoDuration::seconds(duration.total_secs as i64)).to_rfc3339() }),
+                    json!({ "communication_disabled_until": (Utc::now() + ChronoDuration::try_seconds(duration.total_secs as i64).unwrap()).to_rfc3339() }),
                 )
                 .await
             {
