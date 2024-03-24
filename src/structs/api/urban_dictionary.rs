@@ -2,12 +2,12 @@ use crate::{functions::limit_strings, statics::REQWEST};
 use anyhow::{bail, Result};
 use serde::Deserialize;
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 pub struct UrbanDictionary {
     pub list: Vec<UrbanDictionaryEntry>,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 pub struct UrbanDictionaryEntry {
     pub author: String,
     pub current_vote: String,
@@ -37,17 +37,15 @@ impl UrbanDictionary {
         }
     }
 
-    pub fn format(&self) -> String {
+    pub fn format(&mut self) -> String {
         let word = self.list[0].word.to_lowercase();
-
-        let mut cloned_list = self.list.clone();
-        cloned_list.sort_by(|a, b| b.thumbs_up.cmp(&a.thumbs_up));
+        self.list.sort_by(|a, b| b.thumbs_up.cmp(&a.thumbs_up));
 
         format!(
             "# [{word}](<https://www.urbandictionary.com/define.php?term={}>)\n[urban]\n{}",
             word.replace(' ', "+"),
             limit_strings(
-                cloned_list.iter().map(|meaning| format!("- {}", meaning.definition.split('\n').next().unwrap().replace(['[', ']'], ""))),
+                self.list.iter().map(|meaning| format!("- {}", meaning.definition.split('\n').next().unwrap().replace(['[', ']'], ""))),
                 "\n",
                 1900,
             ),
