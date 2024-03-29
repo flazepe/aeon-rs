@@ -22,7 +22,7 @@ pub struct DictionaryEntry {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DictionaryPhonetic {
-    pub text: String,
+    pub text: Option<String>,
     pub audio: String,
     pub source_url: Option<String>,
     pub license: Option<DictionaryLicense>,
