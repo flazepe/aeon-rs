@@ -66,15 +66,14 @@ pub async fn hastebin<T: ToString>(string: T) -> Result<String> {
     Ok(format!("{domain}/raw/{}", json["key"].as_str().unwrap_or("")))
 }
 
-pub fn limit_strings<T: IntoIterator<Item = U>, U: ToString, V: ToString>(iterable: T, delimiter: V, limit: usize) -> String {
-    let delimiter = delimiter.to_string();
+pub fn limit_strings<T: IntoIterator<Item = U>, U: ToString>(iterable: T, delimiter: &str, limit: usize) -> String {
     let mut strings = iterable.into_iter().map(|stringable| stringable.to_string()).collect::<Vec<_>>();
 
-    while strings.join(&delimiter).len() > limit {
+    while strings.join(delimiter).len() > limit {
         strings.pop();
     }
 
-    strings.join(&delimiter)
+    strings.join(delimiter)
 }
 
 pub fn label_num<T: ToString>(amount: T, other: &str) -> String {
