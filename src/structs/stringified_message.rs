@@ -38,12 +38,7 @@ impl From<Message> for StringifiedMessage {
                     url: embed.url,
                     footer_text: embed.footer.map(|footer| footer.text),
                     author_name: embed.author.map(|author| author.name),
-                    fields: embed
-                        .fields
-                        .unwrap_or_default()
-                        .into_iter()
-                        .map(|field| (field.name, field.value))
-                        .collect::<Vec<_>>(),
+                    fields: embed.fields.unwrap_or_default().into_iter().map(|field| (field.name, field.value)).collect::<Vec<_>>(),
                 })
                 .collect::<Vec<_>>(),
             attachments: message.attachments.into_iter().map(|attachment| (attachment.filename, attachment.url)).collect(),
@@ -123,10 +118,8 @@ impl Display for StringifiedMessage {
         }
 
         if !self.attachments.is_empty() {
-            text += &format!(
-                "\n\n{}",
-                self.attachments.iter().map(|(name, url)| format!("[{name}]({url})")).collect::<Vec<_>>().join("\n"),
-            );
+            text +=
+                &format!("\n\n{}", self.attachments.iter().map(|(name, url)| format!("[{name}]({url})")).collect::<Vec<_>>().join("\n"));
         }
 
         for embed in &self.embeds {

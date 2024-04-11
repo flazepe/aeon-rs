@@ -20,7 +20,8 @@ impl AvatarUrl for User {
     }
 
     fn display_avatar_url(&self, format: &str, size: u64) -> String {
-        AvatarUrl::avatar_url(self, format, size).unwrap_or_else(|| format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.parse::<u64>().unwrap() >> 22) % 5))
+        AvatarUrl::avatar_url(self, format, size)
+            .unwrap_or_else(|| format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.parse::<u64>().unwrap() >> 22) % 5))
     }
 }
 
@@ -38,7 +39,8 @@ impl AvatarUrl for TwilightUser {
     }
 
     fn display_avatar_url(&self, format: &str, size: u64) -> String {
-        AvatarUrl::avatar_url(self, format, size).unwrap_or_else(|| format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.get() >> 22) % 5))
+        AvatarUrl::avatar_url(self, format, size)
+            .unwrap_or_else(|| format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.get() >> 22) % 5))
     }
 }
 

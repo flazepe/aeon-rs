@@ -72,11 +72,7 @@ impl GoogleDns {
             .set_description(format!(
                 "{}```diff\n{}```",
                 self.comment.as_deref().unwrap_or(""),
-                self.records
-                    .iter()
-                    .map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl))
-                    .collect::<Vec<_>>()
-                    .join("\n"),
+                self.records.iter().map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl)).collect::<Vec<_>>().join("\n"),
             ))
     }
 }

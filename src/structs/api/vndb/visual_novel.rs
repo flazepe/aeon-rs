@@ -552,7 +552,7 @@ impl VndbVisualNovel {
                 format!(
                     "{} ({})",
                     self.length.as_ref().map_or_else(|| "N/A".into(), |length| length.to_string()),
-                    label_num(self.length_votes, "vote", "votes"),
+                    label_num(self.length_votes, "vote"),
                 ),
                 true,
             )

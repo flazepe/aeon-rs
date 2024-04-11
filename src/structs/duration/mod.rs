@@ -60,32 +60,32 @@ impl Display for Duration {
 
         // Months
         if self.months > 0 {
-            units.push(label_num(self.months, "month", "months"));
+            units.push(label_num(self.months, "month"));
         }
 
         // Minutes
         if self.weeks > 0 {
-            units.push(label_num(self.weeks, "week", "weeks"));
+            units.push(label_num(self.weeks, "week"));
         }
 
         // Days
         if self.days > 0 {
-            units.push(label_num(self.days, "day", "days"));
+            units.push(label_num(self.days, "day"));
         }
 
         // Hours
         if self.hours > 0 {
-            units.push(label_num(self.hours, "hour", "hours"));
+            units.push(label_num(self.hours, "hour"));
         }
 
         // Minutes
         if self.mins > 0 {
-            units.push(label_num(self.mins, "min", "mins"));
+            units.push(label_num(self.mins, "min"));
         }
 
         // Secs
         if self.secs > 0 {
-            units.push(label_num(self.secs, "sec", "secs"));
+            units.push(label_num(self.secs, "sec"));
         }
 
         write!(f, "{}", units.join(", "))

@@ -1,7 +1,4 @@
-use crate::{
-    statics::{regex::MARKDOWN_REGEX, REQWEST},
-    traits::Commas,
-};
+use crate::statics::{regex::MARKDOWN_REGEX, REQWEST};
 use anyhow::Result;
 use regex::Captures;
 use serde_json::Value;
@@ -91,7 +88,7 @@ pub fn label_num<T: ToString>(amount: T, other: &str) -> String {
                 'y' => {
                     output.pop();
                     output.push_str("ies")
-                }
+                },
                 _ => output.push('s'),
             }
         }

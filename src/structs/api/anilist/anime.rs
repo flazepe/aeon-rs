@@ -115,12 +115,7 @@ impl AniListAnime {
             )
             .add_field(
                 "Studio",
-                self.studios
-                    .nodes
-                    .iter()
-                    .map(|studio| format!("[{}]({})", studio.name, studio.site_url))
-                    .collect::<Vec<_>>()
-                    .join(", "),
+                self.studios.nodes.iter().map(|studio| format!("[{}]({})", studio.name, studio.site_url)).collect::<Vec<_>>().join(", "),
                 true,
             )
             .add_field(
