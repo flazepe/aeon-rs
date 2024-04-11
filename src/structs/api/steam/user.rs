@@ -170,7 +170,7 @@ impl SteamUser {
                     format!(
                         "{} ({}, {})",
                         yes_no!(bans.vac_banned),
-                        label_num(bans.vac_bans, "VAC ban", "VAC bans"),
+                        label_num(bans.vac_bans, "VAC ban"),
                         label_num(bans.game_bans, "game ban", "game bans"),
                     ),
                     true,

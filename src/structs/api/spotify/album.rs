@@ -106,7 +106,7 @@ impl SpotifyFullAlbum {
                     Spotify::format_duration(
                         self.tracks.items.iter().map(|track| track.duration_ms).reduce(|acc, cur| acc + cur).unwrap_or(0),
                     ),
-                    label_num(self.total_tracks, "song", "songs"),
+                    label_num(self.total_tracks, "song"),
                 ),
                 false,
             )

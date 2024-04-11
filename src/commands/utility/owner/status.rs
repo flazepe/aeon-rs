@@ -40,7 +40,7 @@ fn sum_cache_len<T: Iterator<Item = (U, V)>, U: ToString, V: IntoIterator<Item =
 
 fn get_cache_list() -> [String; 6] {
     [
-        label_num(CACHE.channels.read().unwrap().len(), "channel", "channels"),
+        label_num(CACHE.channels.read().unwrap().len(), "channel"),
         label_num(sum_cache_len(CACHE.channels.read().unwrap().iter()), "message", "messages"),
         label_num(sum_cache_len(CACHE.snipes.read().unwrap().iter()), "snipe", "snipes"),
         label_num(sum_cache_len(CACHE.edit_snipes.read().unwrap().iter()), "edit snipe", "edit snipes"),

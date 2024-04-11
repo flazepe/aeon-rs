@@ -80,7 +80,22 @@ pub fn limit_strings<T: IntoIterator<Item = U>, U: ToString, V: ToString>(iterab
     strings.join(&delimiter)
 }
 
-pub fn label_num<T: ToString, U: ToString, V: ToString>(amount: T, singular: U, plural: V) -> String {
+pub fn label_num<T: ToString>(amount: T, other: &str) -> String {
     let amount = amount.to_string();
-    format!("{} {}", amount.commas(), if amount == "1" { singular.to_string() } else { plural.to_string() })
+    let mut output = format!("{} {}", amount, other);
+
+    if amount != "1" {
+        if let Some(last) = other.chars().last() {
+            match last {
+                'i' => output.push_str("es"),
+                'y' => {
+                    output.pop();
+                    output.push_str("ies")
+                }
+                _ => output.push('s'),
+            }
+        }
+    }
+
+    output
 }

@@ -107,7 +107,7 @@ impl ReactionSnipes {
 
         Ok(MessageResponse::from(format!(
             "Last {} for https://discord.com/channels/{}/{}/{}",
-            label_num(reaction_snipes.len(), "reaction snipe", "reaction snipes"),
+            label_num(reaction_snipes.len(), "reaction snipe"),
             self.guild_id,
             self.channel_id,
             self.message_id,

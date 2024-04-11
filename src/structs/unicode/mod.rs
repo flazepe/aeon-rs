@@ -75,6 +75,6 @@ impl UnicodeCharacters {
         let unicode_characters =
             self.unicode_characters.iter().take(20).map(|unicode_character| unicode_character.format()).collect::<Vec<_>>();
 
-        format!("Showing first {}:\n\n{}", label_num(unicode_characters.len(), "character", "characters"), unicode_characters.join("\n"))
+        format!("Showing first {}:\n\n{}", label_num(unicode_characters.len(), "character"), unicode_characters.join("\n"))
     }
 }

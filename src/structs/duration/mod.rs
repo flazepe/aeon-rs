@@ -55,7 +55,7 @@ impl Display for Duration {
 
         // Years
         if self.years > 0 {
-            units.push(label_num(self.years, "year", "years"));
+            units.push(label_num(self.years, "year"));
         }
 
         // Months

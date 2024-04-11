@@ -543,7 +543,7 @@ impl VndbVisualNovel {
                 format!(
                     "{} ({})",
                     self.rating.map_or_else(|| "N/A".into(), |rating| format!("{rating:.0}%")),
-                    label_num(self.vote_count, "vote", "votes"),
+                    label_num(self.vote_count, "vote"),
                 ),
                 true,
             )
