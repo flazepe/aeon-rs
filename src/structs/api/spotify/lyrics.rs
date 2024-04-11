@@ -53,7 +53,7 @@ impl SpotifyLyricsWithTrack {
                     .lines
                     .iter()
                     .map(|line| line.words.clone().replace('♪', ""))
-                    .collect::<Vec<String>>()
+                    .collect::<Vec<_>>()
                     .join("\n")
                     .chars()
                     .take(4096)

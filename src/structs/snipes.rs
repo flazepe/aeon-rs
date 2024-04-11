@@ -63,11 +63,11 @@ impl Snipes {
                                         false => line,
                                     },
                                 ))
-                                .collect::<Vec<String>>()
+                                .collect::<Vec<_>>()
                                 .join("\n"),
                         )
                     })
-                    .collect::<Vec<String>>()
+                    .collect::<Vec<_>>()
                     .join("\n\n"),
             )
             .into(),

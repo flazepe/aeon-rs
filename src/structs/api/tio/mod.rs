@@ -67,7 +67,7 @@ impl Tio {
                         values.join("\0"),
                     )
                 })
-                .collect::<Vec<String>>()
+                .collect::<Vec<_>>()
                 .join("\0"),
             )
             .as_bytes(),

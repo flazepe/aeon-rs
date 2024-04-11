@@ -82,7 +82,7 @@ impl Google {
                 .sentences
                 .into_iter()
                 .map(|sentence| sentence.trans) // 🏳️‍⚧️
-                .collect::<Vec<String>>()
+                .collect::<Vec<_>>()
                 .join("")
                 .chars()
                 .take(4000)

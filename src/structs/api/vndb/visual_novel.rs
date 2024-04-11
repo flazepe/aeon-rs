@@ -536,7 +536,7 @@ impl VndbVisualNovel {
 
     pub fn format(&self) -> Embed {
         self._format()
-            .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n"))
+            .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<_>>().join("\n"))
             .add_field("Popularity", format!("{:.0}%", self.popularity), true)
             .add_field(
                 "Rating",
@@ -556,8 +556,8 @@ impl VndbVisualNovel {
                 ),
                 true,
             )
-            .add_field("Languages", self.languages.iter().map(|language| language.to_string()).collect::<Vec<String>>().join(", "), false)
-            .add_field("Platforms", self.platforms.iter().map(|platform| platform.to_string()).collect::<Vec<String>>().join(", "), false)
+            .add_field("Languages", self.languages.iter().map(|language| language.to_string()).collect::<Vec<_>>().join(", "), false)
+            .add_field("Platforms", self.platforms.iter().map(|platform| platform.to_string()).collect::<Vec<_>>().join(", "), false)
             .set_footer(self.released.as_ref().map_or_else(|| "".into(), |released| format!("Released {released}")), None::<String>)
     }
 

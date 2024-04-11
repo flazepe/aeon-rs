@@ -127,8 +127,8 @@ impl JishoSearch {
                     parts_of_speech
                 }
                 .iter()
-                .map(|(k, v)| format!("{}\n{}", k, v.iter().map(|entry| format!(" - {entry}")).collect::<Vec<String>>().join("\n")))
-                .collect::<Vec<String>>()
+                .map(|(k, v)| format!("{}\n{}", k, v.iter().map(|entry| format!(" - {entry}")).collect::<Vec<_>>().join("\n")))
+                .collect::<Vec<_>>()
                 .join("\n\n"),
             )
     }

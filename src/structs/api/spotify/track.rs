@@ -77,7 +77,7 @@ impl SpotifyFullTrack {
                     .iter()
                     .take(5)
                     .map(|artist| format!("[{}]({})", artist.name, artist.external_urls.spotify))
-                    .collect::<Vec<String>>()
+                    .collect::<Vec<_>>()
                     .join(", "),
                 false,
             )
@@ -164,7 +164,7 @@ impl SpotifyFullTrack {
                 .unwrap_or(&vec![])
                 .iter()
                 .map(|country| format!(":flag_{}:", country.to_lowercase()))
-                .collect::<Vec<String>>()
+                .collect::<Vec<_>>()
                 .join(" "),
         )
     }

@@ -103,7 +103,7 @@ impl SauceNaoSearch {
                             ]
                             .into_iter()
                             .filter(|entry| !entry.is_empty())
-                            .collect::<Vec<String>>()
+                            .collect::<Vec<_>>()
                             .join("\n");
 
                             match joined.is_empty() {
@@ -114,7 +114,7 @@ impl SauceNaoSearch {
                     )
                 })
                 .take(5)
-                .collect::<Vec<String>>()
+                .collect::<Vec<_>>()
                 .join("\n\n"),
         )
     }

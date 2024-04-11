@@ -41,7 +41,7 @@ pub struct OwnerCommands<'a> {
 
 impl OwnerCommands<'_> {
     pub async fn delete(&self) {
-        let url = self.args.split('/').skip(5).map(|id| id.to_string()).collect::<Vec<String>>().join("/");
+        let url = self.args.split('/').skip(5).map(|id| id.to_string()).collect::<Vec<_>>().join("/");
         let (channel_id, message_id) = url.split_once('/').unwrap_or(("", ""));
         REST.delete::<()>(format!("channels/{channel_id}/messages/{message_id}")).await.ok();
     }

@@ -46,14 +46,14 @@ impl IpInfo {
                 ]
                 .into_iter()
                 .filter(|entry| !entry.is_empty())
-                .collect::<Vec<String>>()
+                .collect::<Vec<_>>()
                 .join(", "),
                 self.loc.clone().unwrap_or_else(|| "".into()).replace(',', ", "),
                 self.org.clone().unwrap_or_else(|| "".into()),
             ]
             .into_iter()
             .filter(|entry| !entry.is_empty())
-            .collect::<Vec<String>>()
+            .collect::<Vec<_>>()
             .join("\n"),
             ip = self.ip,
         )

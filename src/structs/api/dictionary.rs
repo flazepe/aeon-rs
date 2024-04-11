@@ -72,7 +72,7 @@ impl Dictionary {
                 self.list[0].meanings.iter().map(|meaning| format!(
                     "[{}]\n{}",
                     meaning.part_of_speech,
-                    meaning.definitions.iter().map(|definition| format!("- {}", definition.definition)).collect::<Vec<String>>().join("\n"),
+                    meaning.definitions.iter().map(|definition| format!("- {}", definition.definition)).collect::<Vec<_>>().join("\n"),
                 )),
                 "\n\n",
                 1900,

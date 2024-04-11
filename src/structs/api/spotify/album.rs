@@ -75,7 +75,7 @@ impl SpotifyFullAlbum {
                     .iter()
                     .take(5)
                     .map(|artist| format!("[{}]({})", artist.name, artist.external_urls.spotify))
-                    .collect::<Vec<String>>()
+                    .collect::<Vec<_>>()
                     .join(", "),
                 false,
             )
@@ -128,7 +128,7 @@ impl SpotifyFullAlbum {
                             COPYRIGHT_REGEX.replace_all(&copyright.text, ""),
                         )
                     })
-                    .collect::<Vec<String>>()
+                    .collect::<Vec<_>>()
                     .join("\n"),
                 false,
             )
@@ -162,7 +162,7 @@ impl SpotifyFullAlbum {
                 .unwrap_or(&vec![])
                 .iter()
                 .map(|country| format!(":flag_{}:", country.to_lowercase()))
-                .collect::<Vec<String>>()
+                .collect::<Vec<_>>()
                 .join(" "),
         )
     }

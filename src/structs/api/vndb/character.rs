@@ -125,7 +125,7 @@ impl VndbCharacter {
 
     pub fn format(&self) -> Embed {
         self._format()
-            .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n"))
+            .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<_>>().join("\n"))
             .add_field(
                 "Sex",
                 self.sex.as_ref().map_or_else(

@@ -44,7 +44,7 @@ pub fn get_command() -> SlashookCommand {
 						choices = GOOGLE_DNS_RECORD_TYPES
 							.iter()
 							.map(|record_type| ApplicationCommandOptionChoice::new(record_type, record_type.to_string()))
-							.collect::<Vec<ApplicationCommandOptionChoice>>(),
+							.collect::<Vec<_>>(),
 						required = true,
 					},
 					{

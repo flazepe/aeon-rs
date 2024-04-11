@@ -55,7 +55,7 @@ impl VndbTag {
             .unwrap_or_default()
             .set_title(format!("{} ({})", self.name, self.category))
             .set_url(format!("https://vndb.org/{}", self.id))
-            .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n"))
+            .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<_>>().join("\n"))
             .add_field("Description", limit_strings(Vndb::clean_bbcode(&self.description).split('\n'), "\n", 1024), false)
             .add_field("Searchable", yes_no!(self.searchable), true)
             .add_field("Applicable", yes_no!(self.applicable), true)

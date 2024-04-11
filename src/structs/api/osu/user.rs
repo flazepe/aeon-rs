@@ -298,7 +298,7 @@ impl OsuUser {
                 "Playstyle",
                 self.playstyle.as_ref().map_or_else(
                     || "N/A".into(),
-                    |playstyle| playstyle.iter().map(|entry| format!("{entry:?}")).collect::<Vec<String>>().join(", "),
+                    |playstyle| playstyle.iter().map(|entry| format!("{entry:?}")).collect::<Vec<_>>().join(", "),
                 ),
                 true,
             )

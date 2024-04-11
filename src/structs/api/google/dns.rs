@@ -75,7 +75,7 @@ impl GoogleDns {
                 self.records
                     .iter()
                     .map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl))
-                    .collect::<Vec<String>>()
+                    .collect::<Vec<_>>()
                     .join("\n"),
             ))
     }

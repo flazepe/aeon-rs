@@ -71,7 +71,7 @@ pub async fn hastebin<T: ToString>(string: T) -> Result<String> {
 
 pub fn limit_strings<T: IntoIterator<Item = U>, U: ToString, V: ToString>(iterable: T, delimiter: V, limit: usize) -> String {
     let delimiter = delimiter.to_string();
-    let mut strings = iterable.into_iter().map(|stringable| stringable.to_string()).collect::<Vec<String>>();
+    let mut strings = iterable.into_iter().map(|stringable| stringable.to_string()).collect::<Vec<_>>();
 
     while strings.join(&delimiter).len() > limit {
         strings.pop();

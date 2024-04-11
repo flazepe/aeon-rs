@@ -43,9 +43,9 @@ impl From<Message> for StringifiedMessage {
                         .unwrap_or_default()
                         .into_iter()
                         .map(|field| (field.name, field.value))
-                        .collect::<Vec<(String, String)>>(),
+                        .collect::<Vec<_>>(),
                 })
-                .collect::<Vec<SimpleEmbed>>(),
+                .collect::<Vec<_>>(),
             attachments: message.attachments.into_iter().map(|attachment| (attachment.filename, attachment.url)).collect(),
             stickers: message
                 .sticker_items
@@ -62,7 +62,7 @@ impl From<Message> for StringifiedMessage {
                     }
                     .into(),
                 })
-                .collect::<Vec<SimpleSticker>>(),
+                .collect::<Vec<_>>(),
         }
     }
 }
@@ -80,9 +80,9 @@ impl From<TwilightMessage> for StringifiedMessage {
                     url: embed.url,
                     footer_text: embed.footer.map(|footer| footer.text),
                     author_name: embed.author.map(|author| author.name),
-                    fields: embed.fields.into_iter().map(|field| (field.name, field.value)).collect::<Vec<(String, String)>>(),
+                    fields: embed.fields.into_iter().map(|field| (field.name, field.value)).collect::<Vec<_>>(),
                 })
-                .collect::<Vec<SimpleEmbed>>(),
+                .collect::<Vec<_>>(),
             attachments: message.attachments.into_iter().map(|attachment| (attachment.filename, attachment.url)).collect(),
             stickers: message
                 .sticker_items
@@ -100,7 +100,7 @@ impl From<TwilightMessage> for StringifiedMessage {
                     }
                     .into(),
                 })
-                .collect::<Vec<SimpleSticker>>(),
+                .collect::<Vec<_>>(),
         }
     }
 }
@@ -117,7 +117,7 @@ impl Display for StringifiedMessage {
                     .map(|sticker| {
                         format!("[{}](https://cdn.discordapp.com/stickers/{}.{}?size=4096)", sticker.name, sticker.id, sticker.format)
                     })
-                    .collect::<Vec<String>>()
+                    .collect::<Vec<_>>()
                     .join("\n"),
             );
         }
@@ -125,7 +125,7 @@ impl Display for StringifiedMessage {
         if !self.attachments.is_empty() {
             text += &format!(
                 "\n\n{}",
-                self.attachments.iter().map(|(name, url)| format!("[{name}]({url})")).collect::<Vec<String>>().join("\n"),
+                self.attachments.iter().map(|(name, url)| format!("[{name}]({url})")).collect::<Vec<_>>().join("\n"),
             );
         }
 
@@ -146,7 +146,7 @@ impl Display for StringifiedMessage {
                 .fields
                 .iter()
                 .map(|(name, value)| format!("\n**{}**\n{}", escape_markdown(name.trim()), value))
-                .collect::<Vec<String>>()
+                .collect::<Vec<_>>()
                 .join("");
 
             if let Some(footer_text) = embed.footer_text.as_ref() {

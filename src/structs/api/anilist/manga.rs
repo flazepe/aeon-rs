@@ -72,7 +72,7 @@ impl AniListManga {
 
     pub fn format(&self) -> Embed {
         self._format()
-            .set_description(self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n"))
+            .set_description(self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<_>>().join("\n"))
             .add_field("Published", format!("{} ({})", AniList::format_airing_date(&self.start_date, &self.end_date), &self.status), false)
             .add_field("Chapters", self.chapters.map_or_else(|| "TBA".into(), |chapters| chapters.to_string()), true)
             .add_field("Volumes", self.volumes.map_or_else(|| "TBA".into(), |volumes| volumes.to_string()), true)
@@ -82,7 +82,7 @@ impl AniListManga {
                 self.genres
                     .iter()
                     .map(|genre| format!("[{genre}](https://anilist.co/search/anime?genres={})", genre.replace(' ', "+")))
-                    .collect::<Vec<String>>()
+                    .collect::<Vec<_>>()
                     .join(", "),
                 true,
             )

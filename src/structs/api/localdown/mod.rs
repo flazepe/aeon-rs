@@ -113,7 +113,7 @@ impl LocalDownNovel {
                 .unwrap_or_default()
                 .iter()
                 .map(|name| format!("_{name}_"))
-                .collect::<Vec<String>>()
+                .collect::<Vec<_>>()
                 .join("\n"),
             )
             .add_field(
@@ -122,7 +122,7 @@ impl LocalDownNovel {
                     .split(", ")
                     .map(|genre| GENRES.get(&genre).unwrap_or(&"").to_string()) // unwrap_or()'d just in case
                     .filter(|genre| !genre.is_empty()) // Edge case
-                    .collect::<Vec<String>>()
+                    .collect::<Vec<_>>()
                     .join(", "),
                 false,
             )

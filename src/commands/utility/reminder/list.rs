@@ -27,7 +27,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                                 },
                             )
                         })
-                        .collect::<Vec<String>>()
+                        .collect::<Vec<_>>()
                         .join("\n\n"),
                 ),
                 true,

@@ -53,7 +53,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                         service: SongActivityService::Spotify,
                         style: style.into(),
                         title: track.name,
-                        artist: track.artists.into_iter().map(|artist| artist.name).collect::<Vec<String>>().join(", "),
+                        artist: track.artists.into_iter().map(|artist| artist.name).collect::<Vec<_>>().join(", "),
                         album: track.album.name,
                         album_cover: track
                             .album

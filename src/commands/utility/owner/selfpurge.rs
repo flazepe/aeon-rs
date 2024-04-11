@@ -33,7 +33,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         _ => match ctx.input.app_permissions.contains(Permissions::MANAGE_MESSAGES) {
             true => {
                 channel
-                    .bulk_delete_messages(&ctx.input.rest, messages.iter().map(|message| message.id.clone()).collect::<Vec<String>>())
+                    .bulk_delete_messages(&ctx.input.rest, messages.iter().map(|message| message.id.clone()).collect::<Vec<_>>())
                     .await?
             },
             false => {

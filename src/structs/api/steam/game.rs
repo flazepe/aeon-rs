@@ -369,7 +369,7 @@ impl Steam {
                 .await?,
         );
 
-        let names = document.select(".title").nodes().iter().map(|node| node.text().to_string()).collect::<Vec<String>>();
+        let names = document.select(".title").nodes().iter().map(|node| node.text().to_string()).collect::<Vec<_>>();
 
         if names.is_empty() {
             bail!("Game not found.");
@@ -380,7 +380,7 @@ impl Steam {
             .nodes()
             .iter()
             .map(|node| node.attr("data-ds-appid").unwrap().to_string())
-            .collect::<Vec<String>>();
+            .collect::<Vec<_>>();
 
         Ok(names
             .into_iter()
@@ -389,6 +389,6 @@ impl Steam {
             .filter(
                 |result| result.id.chars().all(|char| char.is_numeric()), // Need to filter out subs
             )
-            .collect::<Vec<SteamSearchResult>>())
+            .collect::<Vec<_>>())
     }
 }
