@@ -29,7 +29,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     };
 
     let anime = match ctx.input.is_string_select() {
-        true => AniList::get_anime(query.parse::<u64>()?).await?,
+        true => AniList::get_anime(query.parse()?).await?,
         false => match AniList::search_anime(query).await {
             Ok(mut results) => results.remove(0),
             Err(error) => return ctx.respond_error(error, true).await,
