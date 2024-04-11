@@ -66,14 +66,14 @@ impl<T: ToString> Commas for T {
     fn commas(&self) -> String {
         let string = self.to_string();
         let (integer, fraction) = string.split_once('.').unwrap_or((&string, ""));
-        let mut formatted_integer = String::new();
+        let mut formatted_integer = String::with_capacity(integer.len());
 
         for (index, char) in integer.chars().enumerate() {
             if (integer.len() - index) % 3 == 0 && index != 0 {
-                formatted_integer += ",";
+                formatted_integer.push(',');
             }
 
-            formatted_integer += &char.to_string();
+            formatted_integer.push(char);
         }
 
         match fraction.is_empty() {
