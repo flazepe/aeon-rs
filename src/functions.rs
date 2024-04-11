@@ -36,9 +36,9 @@ pub async fn eien(command: &str, extra_args: &[&str]) -> Result<File> {
     Ok(File::new("image.png", Command::new("node").args(args).output().await?.stdout))
 }
 
-pub fn escape_markdown<T: ToString>(string: T) -> String {
+pub fn escape_markdown(string: &str) -> String {
     MARKDOWN_REGEX
-        .replace_all(&string.to_string(), |caps: &Captures| match caps[0].starts_with('\\') {
+        .replace_all(string, |caps: &Captures| match caps[0].starts_with('\\') {
             true => caps[0].to_string(),
             false => format!("\\{}", &caps[0]),
         })
