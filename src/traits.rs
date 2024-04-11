@@ -2,53 +2,43 @@ use slashook::structs::users::User;
 use twilight_model::user::User as TwilightUser;
 
 pub trait AvatarUrl {
-    fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String>;
-    fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String;
+    fn avatar_url(&self, format: &str, size: u64) -> Option<String>;
+    fn display_avatar_url(&self, format: &str, size: u64) -> String;
 }
 
 impl AvatarUrl for User {
-    fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String> {
-        let format = format.to_string();
-
+    fn avatar_url(&self, format: &str, size: u64) -> Option<String> {
         self.avatar.as_ref().map(|avatar| {
             format!(
                 "https://cdn.discordapp.com/avatars/{}/{}.{}?size={}",
                 self.id,
                 avatar,
-                if format == "gif" && !avatar.starts_with("a_") { "png".into() } else { format },
-                size.to_string(),
+                if format == "gif" && !avatar.starts_with("a_") { "png" } else { format },
+                size,
             )
         })
     }
 
-    fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
-        match AvatarUrl::avatar_url(self, format, size) {
-            Some(avatar_url) => avatar_url,
-            None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.parse::<u64>().unwrap() >> 22) % 5),
-        }
+    fn display_avatar_url(&self, format: &str, size: u64) -> String {
+        AvatarUrl::avatar_url(self, format, size).unwrap_or_else(|| format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.parse::<u64>().unwrap() >> 22) % 5))
     }
 }
 
 impl AvatarUrl for TwilightUser {
-    fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String> {
-        let format = format.to_string();
-
+    fn avatar_url(&self, format: &str, size: u64) -> Option<String> {
         self.avatar.as_ref().map(|avatar| {
             format!(
                 "https://cdn.discordapp.com/avatars/{}/{}.{}?size={}",
                 self.id,
                 avatar,
-                if format == "gif" && !avatar.is_animated() { "png".into() } else { format },
-                size.to_string(),
+                if format == "gif" && !avatar.is_animated() { "png" } else { format },
+                size,
             )
         })
     }
 
-    fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
-        match AvatarUrl::avatar_url(self, format, size) {
-            Some(avatar_url) => avatar_url,
-            None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.to_string().parse::<u64>().unwrap() >> 22) % 5),
-        }
+    fn display_avatar_url(&self, format: &str, size: u64) -> String {
+        AvatarUrl::avatar_url(self, format, size).unwrap_or_else(|| format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.get() >> 22) % 5))
     }
 }
 
