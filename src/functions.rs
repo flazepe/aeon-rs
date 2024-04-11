@@ -30,9 +30,8 @@ pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
     select_menu
 }
 
-pub async fn eien<T: ToString>(command: T, extra_args: &[&str]) -> Result<File> {
-    let command = command.to_string();
-    let mut args = vec!["../eien", &command];
+pub async fn eien(command: &str, extra_args: &[&str]) -> Result<File> {
+    let mut args = vec!["../eien", command];
     args.extend_from_slice(extra_args);
     Ok(File::new("image.png", Command::new("node").args(args).output().await?.stdout))
 }
