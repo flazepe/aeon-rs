@@ -1,3 +1,13 @@
+macro_rules! group {
+    ($($command_name:ident,)*) => {
+        $(mod $command_name;)*
+        
+        vec![$($command_name::get_command())*]
+    }
+}
+
+pub(crate) use group;
+
 macro_rules! yes_no {
     ($condition:expr $(, $yes:expr, $no:expr)?$(,)?) => {
         {
