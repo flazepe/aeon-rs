@@ -1,8 +1,12 @@
 macro_rules! group {
     ($($command_name:ident,)*) => {
+        use slashook::commands::Command as SlashookCommand;
+
         $(mod $command_name;)*
-        
-        vec![$($command_name::get_command())*]
+
+        pub fn get_commands() -> Vec<SlashookCommand> {
+            vec![$($command_name::get_command(),)*]
+        }
     }
 }
 
