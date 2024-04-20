@@ -12,6 +12,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
             ctx.input.guild_id.as_ref().unwrap(),
             ctx.input.channel_id.as_ref().unwrap(),
             &ctx.input.target_message.as_ref().unwrap().id,
+            ctx.input.app_permissions,
         )
         .to_response()
         {

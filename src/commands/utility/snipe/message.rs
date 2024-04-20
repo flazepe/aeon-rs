@@ -6,6 +6,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         ctx.get_channel_arg("channel").map_or_else(|_| ctx.input.channel_id.as_ref().unwrap(), |channel| &channel.id),
         ctx.get_bool_arg("edit").unwrap_or(false),
         ctx.get_bool_arg("list").unwrap_or(false),
+        ctx.input.app_permissions,
     )
     .to_response()
     {

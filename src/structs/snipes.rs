@@ -8,18 +8,19 @@ use anyhow::{bail, Result};
 use slashook::{
     chrono::DateTime,
     commands::MessageResponse,
-    structs::{embeds::Embed, utils::File},
+    structs::{embeds::Embed, utils::File, Permissions},
 };
 
 pub struct Snipes {
     channel_id: String,
     is_edit: bool,
     send_list: bool,
+    permissions: Permissions,
 }
 
 impl Snipes {
-    pub fn new<T: ToString>(channel_id: T, is_edit: bool, send_list: bool) -> Self {
-        Self { channel_id: channel_id.to_string(), is_edit, send_list }
+    pub fn new<T: ToString>(channel_id: T, is_edit: bool, send_list: bool, permissions: Permissions) -> Self {
+        Self { channel_id: channel_id.to_string(), is_edit, send_list, permissions }
     }
 
     pub fn to_response(&self) -> Result<MessageResponse> {
@@ -35,7 +36,10 @@ impl Snipes {
         let snipes = snipes.get(&self.channel_id).unwrap_or(&empty_vec);
 
         if snipes.is_empty() {
-            bail!("No snipes found.");
+            bail!(match self.permissions.contains(Permissions::VIEW_CHANNEL) {
+                true => "No snipes found.",
+                false => "I do not have the view channel permission to collect snipes.",
+            });
         }
 
         Ok(match self.send_list {
@@ -86,14 +90,15 @@ impl Snipes {
 }
 
 pub struct ReactionSnipes {
-    pub guild_id: String,
-    pub channel_id: String,
-    pub message_id: String,
+    guild_id: String,
+    channel_id: String,
+    message_id: String,
+    permissions: Permissions,
 }
 
 impl ReactionSnipes {
-    pub fn new<T: ToString, U: ToString, V: ToString>(guild_id: T, channel_id: U, message_id: V) -> Self {
-        Self { guild_id: guild_id.to_string(), channel_id: channel_id.to_string(), message_id: message_id.to_string() }
+    pub fn new<T: ToString, U: ToString, V: ToString>(guild_id: T, channel_id: U, message_id: V, permissions: Permissions) -> Self {
+        Self { guild_id: guild_id.to_string(), channel_id: channel_id.to_string(), message_id: message_id.to_string(), permissions }
     }
 
     pub fn to_response(&self) -> Result<MessageResponse> {
@@ -102,7 +107,10 @@ impl ReactionSnipes {
         let reaction_snipes = reaction_snipes.get(&format!("{}/{}", self.channel_id, self.message_id)).unwrap_or(&empty_vec);
 
         if reaction_snipes.is_empty() {
-            bail!("No reaction snipes found.");
+            bail!(match self.permissions.contains(Permissions::VIEW_CHANNEL) {
+                true => "No reaction snipes found.",
+                false => "I do not have the view channel permission to collect reaction snipes.",
+            });
         }
 
         Ok(MessageResponse::from(format!(
