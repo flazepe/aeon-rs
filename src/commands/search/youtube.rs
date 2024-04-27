@@ -13,7 +13,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         let text = REQWEST
             .get("https://www.youtube.com/results")
-            .query(&[("search_query", ctx.get_string_arg("query")?)])
+            .query(&[("search_query", ctx.get_string_arg("video")?)])
             .send()
             .await?
             .text()
@@ -51,8 +51,8 @@ pub fn get_command() -> SlashookCommand {
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
 		options = [
 			{
-				name = "query",
-				description = "The query",
+				name = "video",
+				description = "The video",
 				option_type = InteractionOptionType::STRING,
 				required = true,
 			},

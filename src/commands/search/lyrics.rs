@@ -32,13 +32,13 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
 pub fn get_command() -> SlashookCommand {
     #[command(
 		name = "lyrics",
-		description = "Fetches lyrics based on query or user's Spotify status.",
+		description = "Fetches song lyrics based on query or user's Spotify status.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
 		options = [
 			{
-				name = "query",
-				description = "The song query",
+				name = "song",
+				description = "The song",
 				option_type = InteractionOptionType::STRING,
 			},
 		],

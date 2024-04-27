@@ -32,11 +32,11 @@ pub fn get_command() -> SlashookCommand {
 			},
 			{
 				name = "search",
-				description = "Searches for a unicode emoji via query.",
+				description = "Searches for a unicode character via query.",
 				options = [
 					{
-						name = "query",
-						description = "The query",
+						name = "character",
+						description = "The character",
 						option_type = InteractionOptionType::STRING,
 						required = true,
 					},
