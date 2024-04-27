@@ -86,8 +86,11 @@ impl UfretSong {
 
         page.evaluate(
             r#"
-                [...document.querySelectorAll("button")].forEach(x => x.remove()); // Remove buttons
-                [...document.querySelectorAll('div[spottype="dynamic_mc"]')].forEach(x => x.remove()); // Remove ads
+                // Remove ads
+                [...document.querySelectorAll('[spottype="dynamic_mc"]')].forEach(x => x.remove());
+
+                // Remove buttons
+                [...document.querySelectorAll("button")].forEach(x => x.remove());
             "#,
         )
         .await?;
@@ -101,8 +104,7 @@ impl UfretSong {
                         .row {{
                             display: flex;
                             flex-wrap: wrap;
-                            margin-right: -15px;
-                            margin-left: -15px;
+                            margin: 0 -15px;
                         }}
 
                         {}
@@ -111,10 +113,10 @@ impl UfretSong {
                 {}
             "#,
             // Add CSS
-            page.evaluate(r#"[...document.querySelectorAll("style")][3].innerText"#)
+            page.evaluate("[...document.querySelectorAll('style')][3].innerText;")
                 .await?
                 .into_value::<String>()
-                .unwrap(), 
+                .unwrap_or("".into()),
             // Add chords
             page.evaluate(
                 r##"
