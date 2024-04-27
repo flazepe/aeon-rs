@@ -11,7 +11,7 @@ use slashook::{
 
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
-        let mut query = ctx.get_string_arg("query");
+        let mut query = ctx.get_string_arg("song");
 
         if query.is_err() {
             if let Some(song) = CACHE.spotify.read().unwrap().get(&ctx.input.user.id) {
@@ -19,8 +19,8 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
             }
         }
 
-        let Ok(query) = query else { return ctx.respond_error("Please provide a query.", true).await };
-        let Ok(mut track) = Spotify::search_track(query).await else { return ctx.respond_error("Track not found.", true).await };
+        let Ok(query) = query else { return ctx.respond_error("Please provide a song.", true).await };
+        let Ok(mut track) = Spotify::search_track(query).await else { return ctx.respond_error("Song not found.", true).await };
 
         match Spotify::get_lyrics(track.remove(0)).await {
             Ok(lyrics) => ctx.respond(lyrics.format(), false).await,
@@ -38,7 +38,7 @@ pub fn get_command() -> SlashookCommand {
 		options = [
 			{
 				name = "query",
-				description = "The track query",
+				description = "The song query",
 				option_type = InteractionOptionType::STRING,
 			},
 		],
