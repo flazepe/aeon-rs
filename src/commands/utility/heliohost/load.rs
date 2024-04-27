@@ -10,7 +10,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             server,
             REQWEST.get(format!("https://heliohost.org/load/load_{server}.html").to_lowercase()).send().await?.text().await?.trim(),
         ),
-        false,
+        true,
     )
     .await
 }

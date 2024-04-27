@@ -31,5 +31,5 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         );
     }
 
-    ctx.respond(embed, false).await
+    ctx.respond(embed, true).await
 }
