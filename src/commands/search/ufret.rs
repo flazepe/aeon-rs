@@ -45,7 +45,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
             Err(error) => return ctx.respond_error(error, true).await,
         };
 
-        let mut select_menu = SelectMenu::new("ufret", "search", "Select a song…", None::<String>);
+        let mut select_menu = SelectMenu::new("ufret", "search", "View other results…", None::<String>);
 
         for result in &results {
             select_menu = select_menu.add_option(&result.name, format!("{}|{}", result.id, result.name), None::<String>);
