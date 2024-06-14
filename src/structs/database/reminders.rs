@@ -65,7 +65,7 @@ impl Reminders {
 
                         println!("[REMINDERS] An error occurred while handling reminder {}: {error}", reminder._id);
 
-                        if let Some(fatal_error) = ["Invalid Recipient(s)", "Missing Access", "Unknown Channel"]
+                        if let Some(fatal_error) = ["Invalid Recipient(s)", "Missing Access", "Missing Permissions", "Unknown Channel"]
                             .iter()
                             .find(|message| error.contains(&message.to_string()))
                         {
