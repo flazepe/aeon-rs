@@ -1,113 +1,81 @@
 use crate::functions::escape_markdown;
-use slashook::structs::{messages::Message, stickers::StickerFormatType};
+use slashook::structs::{
+    embeds::{Embed as SlashookEmbed, EmbedField as SlashookEmbedField},
+    messages::Message as SlashookMessage,
+    stickers::StickerItem as SlashookStickerItem,
+};
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use twilight_model::channel::{message::sticker::StickerFormatType as TwilightStickerFormatType, Message as TwilightMessage};
+use twilight_model::channel::message::{
+    embed::{Embed as TwilightEmbed, EmbedField as TwilightEmbedField},
+    sticker::MessageSticker as TwilightStickerItem,
+    Message as TwilightMessage,
+};
 
 pub struct StringifiedMessage {
     pub content: String,
     pub embeds: Vec<SimpleEmbed>,
     pub attachments: Vec<(String, String)>,
     pub stickers: Vec<SimpleSticker>,
+    pub reply_text: Option<String>,
 }
 
-pub struct SimpleEmbed {
-    title: Option<String>,
-    description: Option<String>,
-    url: Option<String>,
-    footer_text: Option<String>,
-    author_name: Option<String>,
-    fields: Vec<(String, String)>,
-}
-
-pub struct SimpleSticker {
-    id: String,
-    name: String,
-    format: String,
-}
-
-impl From<Message> for StringifiedMessage {
-    fn from(message: Message) -> Self {
+impl From<SlashookMessage> for StringifiedMessage {
+    fn from(value: SlashookMessage) -> Self {
         Self {
-            content: message.content,
-            embeds: message
-                .embeds
-                .into_iter()
-                .map(|embed| SimpleEmbed {
-                    title: embed.title,
-                    description: embed.description,
-                    url: embed.url,
-                    footer_text: embed.footer.map(|footer| footer.text),
-                    author_name: embed.author.map(|author| author.name),
-                    fields: embed
-                        .fields
-                        .unwrap_or_default()
-                        .into_iter()
-                        .map(|field| (field.name, field.value))
-                        .collect::<Vec<(String, String)>>(),
-                })
-                .collect::<Vec<SimpleEmbed>>(),
-            attachments: message.attachments.into_iter().map(|attachment| (attachment.filename, attachment.url)).collect(),
-            stickers: message
-                .sticker_items
-                .unwrap_or_default()
-                .into_iter()
-                .map(|sticker| SimpleSticker {
-                    id: sticker.id,
-                    name: sticker.name,
-                    format: match sticker.format_type {
-                        StickerFormatType::PNG => "png",
-                        StickerFormatType::APNG => "apng",
-                        StickerFormatType::LOTTIE => "lottie",
-                        StickerFormatType::UNKNOWN => "png",
-                    }
-                    .into(),
-                })
-                .collect::<Vec<SimpleSticker>>(),
+            content: value.content,
+            embeds: value.embeds.into_iter().map(|embed| embed.into()).collect(),
+            attachments: value.attachments.into_iter().map(|attachment| (attachment.filename, attachment.url)).collect(),
+            stickers: value.sticker_items.unwrap_or_default().into_iter().map(|sticker| sticker.into()).collect(),
+            reply_text: value.message_reference.map(|_| match value.referenced_message {
+                Some(referenced_message) => {
+                    format!(
+                        "[Replying to {} ({})](https://discord.com/channels/{}/{}/{})",
+                        escape_markdown(referenced_message.author.username),
+                        referenced_message.author.id,
+                        referenced_message.guild_id.unwrap_or_else(|| "@me".into()),
+                        referenced_message.channel_id,
+                        referenced_message.id,
+                    )
+                },
+                None => "Replying to a deleted message".into(),
+            }),
         }
     }
 }
 
 impl From<TwilightMessage> for StringifiedMessage {
-    fn from(message: TwilightMessage) -> Self {
+    fn from(value: TwilightMessage) -> Self {
         Self {
-            content: message.content,
-            embeds: message
-                .embeds
-                .into_iter()
-                .map(|embed| SimpleEmbed {
-                    title: embed.title,
-                    description: embed.description,
-                    url: embed.url,
-                    footer_text: embed.footer.map(|footer| footer.text),
-                    author_name: embed.author.map(|author| author.name),
-                    fields: embed.fields.into_iter().map(|field| (field.name, field.value)).collect::<Vec<(String, String)>>(),
-                })
-                .collect::<Vec<SimpleEmbed>>(),
-            attachments: message.attachments.into_iter().map(|attachment| (attachment.filename, attachment.url)).collect(),
-            stickers: message
-                .sticker_items
-                .into_iter()
-                .map(|sticker| SimpleSticker {
-                    id: sticker.id.to_string(),
-                    name: sticker.name,
-                    format: match sticker.format_type {
-                        TwilightStickerFormatType::Png => "png",
-                        TwilightStickerFormatType::Apng => "apng",
-                        TwilightStickerFormatType::Lottie => "lottie",
-                        TwilightStickerFormatType::Gif => "gif",
-                        TwilightStickerFormatType::Unknown(_) => "png",
-                        _ => "png",
-                    }
-                    .into(),
-                })
-                .collect::<Vec<SimpleSticker>>(),
+            content: value.content,
+            embeds: value.embeds.into_iter().map(|embed| embed.into()).collect(),
+            attachments: value.attachments.into_iter().map(|attachment| (attachment.filename, attachment.url)).collect(),
+            stickers: value.sticker_items.into_iter().map(|sticker| sticker.into()).collect(),
+            reply_text: value.reference.map(|_| match value.referenced_message {
+                Some(referenced_message) => {
+                    format!(
+                        "[Replying to {} ({})](https://discord.com/channels/{}/{}/{})",
+                        escape_markdown(referenced_message.author.name),
+                        referenced_message.author.id,
+                        referenced_message.guild_id.map_or_else(|| "@me".into(), |guild_id| guild_id.to_string()),
+                        referenced_message.channel_id,
+                        referenced_message.id,
+                    )
+                },
+                None => "Replying to a deleted message".into(),
+            }),
         }
     }
 }
 
 impl Display for StringifiedMessage {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        let mut text = self.content.clone();
+        let mut text = String::new();
+
+        if let Some(reply_text) = self.reply_text.as_ref() {
+            text += &format!("> {reply_text}\n");
+        }
+
+        text += &self.content;
 
         if !self.stickers.is_empty() {
             text += &format!(
@@ -130,8 +98,8 @@ impl Display for StringifiedMessage {
         }
 
         for embed in &self.embeds {
-            if let Some(author_name) = embed.author_name.as_ref() {
-                text += &format!("\n**{}**", escape_markdown(author_name));
+            if let Some(author) = embed.author.as_ref() {
+                text += &format!("\n**{}**", escape_markdown(author));
             }
 
             if let Some(title) = embed.title.as_ref() {
@@ -149,11 +117,74 @@ impl Display for StringifiedMessage {
                 .collect::<Vec<String>>()
                 .join("");
 
-            if let Some(footer_text) = embed.footer_text.as_ref() {
-                text += &format!("\n**{}**", escape_markdown(footer_text));
+            if let Some(footer) = embed.footer.as_ref() {
+                text += &format!("\n**{}**", escape_markdown(footer));
             }
         }
 
         write!(f, "{}", text.trim())
     }
 }
+
+pub struct SimpleEmbed {
+    title: Option<String>,
+    description: Option<String>,
+    url: Option<String>,
+    footer: Option<String>,
+    author: Option<String>,
+    fields: Vec<(String, String)>,
+}
+
+macro_rules! impl_simple_embed {
+    ($struct_name:ident, $field_struct_name:ident) => {
+        impl From<$struct_name> for SimpleEmbed {
+            fn from(value: $struct_name) -> Self {
+                let fields: Option<Vec<$field_struct_name>> = value.fields.into();
+
+                Self {
+                    title: value.title,
+                    description: value.description,
+                    url: value.url,
+                    footer: value.footer.map(|footer| match footer.icon_url {
+                        Some(icon_url) => format!("[{}]({icon_url})", footer.text),
+                        None => footer.text,
+                    }),
+                    author: value.author.map(|author| {
+                        let icon_url = match author.icon_url {
+                            Some(icon_url) => format!("[Icon]({icon_url}) "),
+                            None => "".into(),
+                        };
+
+                        match author.url {
+                            Some(url) => format!("{icon_url}[{}]({url})", author.name),
+                            None => format!("{icon_url}{}", author.name),
+                        }
+                    }),
+                    fields: fields.unwrap_or_default().into_iter().map(|field| (field.name, field.value)).collect(),
+                }
+            }
+        }
+    };
+}
+
+impl_simple_embed!(SlashookEmbed, SlashookEmbedField);
+impl_simple_embed!(TwilightEmbed, TwilightEmbedField);
+
+pub struct SimpleSticker {
+    id: String,
+    name: String,
+    format: String,
+}
+
+macro_rules! impl_simple_sticker {
+    ($s:ident) => {
+        impl From<$s> for SimpleSticker {
+            fn from(value: $s) -> Self {
+                Self { id: value.id.to_string(), name: value.name, format: format!("{:?}", value.format_type).to_lowercase() }
+            }
+        }
+    };
+}
+
+impl_simple_sticker!(SlashookStickerItem);
+impl_simple_sticker!(TwilightStickerItem);
