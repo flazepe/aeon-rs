@@ -1,12 +1,20 @@
 use crate::statics::{colors::PRIMARY_COLOR, REQWEST};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
+use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 
-struct YahooFinanceLookupAttributes {
-    href: String,
-    title: String,
-    data_symbol: String,
+#[derive(Deserialize)]
+struct YahooFinanceSearchResult {
+    quotes: Vec<YahooFinanceQuote>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct YahooFinanceQuote {
+    shortname: String,
+    symbol: String,
+    is_yahoo_finance: bool,
 }
 
 pub struct Stock {
@@ -19,41 +27,36 @@ pub struct Stock {
 
 impl Stock {
     pub async fn get<T: ToString>(ticker: T) -> Result<Self> {
-        let attributes = {
-            let document = Document::from(
-                &REQWEST.get("https://finance.yahoo.com/lookup/equity").query(&[("s", ticker.to_string())]).send().await?.text().await?,
-            );
-
-            let selection = document.select("td a");
-
-            if selection.nodes().is_empty() {
-                bail!("Ticker not found.");
-            }
-
-            YahooFinanceLookupAttributes {
-                href: selection.attr("href").context("Missing href attr.")?.to_string(),
-                title: selection.attr("title").context("Missing title attr.")?.to_string(),
-                data_symbol: selection.attr("data-symbol").context("Missing data-symbol attr.")?.to_string(),
-            }
+        let quote = match REQWEST
+            .get("https://query2.finance.yahoo.com/v1/finance/search")
+            .query(&[("q", ticker.to_string())])
+            .header("user-agent", "yes")
+            .send()
+            .await?
+            .json::<YahooFinanceSearchResult>()
+            .await?
+            .quotes
+            .into_iter()
+            .find(|quote| quote.is_yahoo_finance)
+        {
+            Some(quote) => quote,
+            None => bail!("Ticker not found."),
         };
 
-        let document = Document::from(&REQWEST.get(format!("https://finance.yahoo.com{}", attributes.href)).send().await?.text().await?);
+        let url = format!("https://finance.yahoo.com/quote/{}/", quote.symbol);
+        let document = Document::from(&REQWEST.get(&url).header("user-agent", "yes").send().await?.text().await?);
+        let mut price_change = document.select(".priceChange").iter();
 
         Ok(Self {
-            name: format!("{} ({})", attributes.title, attributes.data_symbol),
-            url: format!("https://finance.yahoo.com/quote/{}", attributes.data_symbol),
-            currency: document
-                .select("#quote-header-info span")
-                .first()
-                .text()
-                .split(' ')
-                .last()
-                .context("Could not get currency.")?
-                .to_string(),
-            price: document.select(r#"#quote-header-info [data-field="regularMarketPrice"]"#).first().text().to_string(),
-            diff: ["regularMarketChange", "regularMarketChangePercent"]
-                .map(|field| document.select(&format!(r#"#quote-header-info [data-field="{}"]"#, field)).first().text().to_string())
-                .join(" "),
+            name: format!("{} ({})", quote.shortname, quote.symbol),
+            url,
+            currency: document.select(".exchange").text().trim().split(' ').last().context("Could not get currency.")?.to_string(),
+            price: document.select(".livePrice").text().trim().to_string(),
+            diff: format!(
+                "{} {}",
+                price_change.next().map_or_else(|| "N/A".into(), |node| node.text().trim().to_string()),
+                price_change.next().map_or_else(|| "(N/A)".into(), |node| node.text().trim().to_string()),
+            ),
         })
     }
 
