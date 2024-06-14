@@ -2,7 +2,7 @@ use crate::{
     statics::{CACHE, CONFIG, FLAZEPE_ID, REST},
     structs::gateway::events::handler::EventHandler,
 };
-use slashook::structs::channels::Message;
+use slashook::structs::messages::Message;
 use twilight_model::{channel::message::ReactionType, gateway::payload::incoming::ReactionAdd};
 
 impl EventHandler {

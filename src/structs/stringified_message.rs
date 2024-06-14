@@ -1,5 +1,5 @@
 use crate::functions::escape_markdown;
-use slashook::structs::{channels::Message, stickers::StickerFormatType};
+use slashook::structs::{messages::Message, stickers::StickerFormatType};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use twilight_model::channel::{message::sticker::StickerFormatType as TwilightStickerFormatType, Message as TwilightMessage};
 

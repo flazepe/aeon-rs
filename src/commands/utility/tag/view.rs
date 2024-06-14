@@ -2,7 +2,7 @@ use crate::structs::{command_context::CommandContext, database::tags::Tags};
 use anyhow::Result;
 use slashook::{
     commands::MessageResponse,
-    structs::channels::{AllowedMentions, Channel},
+    structs::{channels::Channel, messages::AllowedMentions},
 };
 
 pub async fn run(ctx: CommandContext) -> Result<()> {

@@ -5,7 +5,7 @@ use crate::{
 use serde_json::{json, to_string};
 use slashook::{
     commands::MessageResponse,
-    structs::{channels::Message, utils::File},
+    structs::{messages::Message, utils::File},
 };
 use std::{fmt::Display, process::Command};
 use twilight_gateway::stream::ShardRef;

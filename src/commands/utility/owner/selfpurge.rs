@@ -2,10 +2,7 @@ use crate::{functions::label_num, statics::CONFIG, structs::command_context::Com
 use anyhow::Result;
 use slashook::{
     chrono::{Duration, Utc},
-    structs::{
-        channels::{Channel, MessageFetchOptions},
-        Permissions,
-    },
+    structs::{channels::Channel, messages::MessageFetchOptions, Permissions},
 };
 
 pub async fn run(ctx: CommandContext) -> Result<()> {

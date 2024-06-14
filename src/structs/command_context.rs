@@ -5,12 +5,7 @@ use crate::statics::{
 use anyhow::{bail, Context, Result};
 use slashook::{
     commands::{CommandInput, CommandResponder, MessageResponse},
-    structs::{
-        channels::{Attachment, Channel},
-        components::Components,
-        interactions::ApplicationCommandOptionChoice,
-        users::User,
-    },
+    structs::{channels::Channel, components::Components, interactions::ApplicationCommandOptionChoice, messages::Attachment, users::User},
 };
 use std::{
     fmt::Display,

@@ -11,9 +11,10 @@ use serde_json::json;
 use slashook::{
     commands::MessageResponse,
     structs::{
-        channels::{Channel, Message},
+        channels::Channel,
         components::{Components, SelectMenu, SelectMenuType},
         embeds::Embed,
+        messages::Message,
     },
 };
 use std::{
