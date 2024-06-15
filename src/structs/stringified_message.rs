@@ -1,4 +1,4 @@
-use crate::functions::escape_markdown;
+use crate::{functions::escape_markdown, traits::MessageExt};
 use slashook::structs::{
     embeds::{Embed as SlashookEmbed, EmbedField as SlashookEmbedField},
     messages::Message as SlashookMessage,
@@ -12,59 +12,11 @@ use twilight_model::channel::message::{
 };
 
 pub struct StringifiedMessage {
+    pub reply_text: Option<String>,
     pub content: String,
     pub embeds: Vec<SimpleEmbed>,
     pub attachments: Vec<(String, String)>,
     pub stickers: Vec<SimpleSticker>,
-    pub reply_text: Option<String>,
-}
-
-impl From<SlashookMessage> for StringifiedMessage {
-    fn from(value: SlashookMessage) -> Self {
-        Self {
-            content: value.content,
-            embeds: value.embeds.into_iter().map(|embed| embed.into()).collect(),
-            attachments: value.attachments.into_iter().map(|attachment| (attachment.filename, attachment.url)).collect(),
-            stickers: value.sticker_items.unwrap_or_default().into_iter().map(|sticker| sticker.into()).collect(),
-            reply_text: value.message_reference.map(|_| match value.referenced_message {
-                Some(referenced_message) => {
-                    format!(
-                        "[Replying to {} ({})](https://discord.com/channels/{}/{}/{})",
-                        escape_markdown(referenced_message.author.username),
-                        referenced_message.author.id,
-                        referenced_message.guild_id.unwrap_or_else(|| "@me".into()),
-                        referenced_message.channel_id,
-                        referenced_message.id,
-                    )
-                },
-                None => "Replying to a deleted message".into(),
-            }),
-        }
-    }
-}
-
-impl From<TwilightMessage> for StringifiedMessage {
-    fn from(value: TwilightMessage) -> Self {
-        Self {
-            content: value.content,
-            embeds: value.embeds.into_iter().map(|embed| embed.into()).collect(),
-            attachments: value.attachments.into_iter().map(|attachment| (attachment.filename, attachment.url)).collect(),
-            stickers: value.sticker_items.into_iter().map(|sticker| sticker.into()).collect(),
-            reply_text: value.reference.map(|_| match value.referenced_message {
-                Some(referenced_message) => {
-                    format!(
-                        "[Replying to {} ({})](https://discord.com/channels/{}/{}/{})",
-                        escape_markdown(referenced_message.author.name),
-                        referenced_message.author.id,
-                        referenced_message.guild_id.map_or_else(|| "@me".into(), |guild_id| guild_id.to_string()),
-                        referenced_message.channel_id,
-                        referenced_message.id,
-                    )
-                },
-                None => "Replying to a deleted message".into(),
-            }),
-        }
-    }
 }
 
 impl Display for StringifiedMessage {
@@ -125,6 +77,28 @@ impl Display for StringifiedMessage {
         write!(f, "{}", text.trim())
     }
 }
+
+macro_rules! impl_simplified_message {
+    ($struct_name:ident, $sticker_items_struct_name:ident) => {
+        impl From<$struct_name> for StringifiedMessage {
+            fn from(value: $struct_name) -> Self {
+                let reply_text = value.reply_text();
+                let stickers: Option<Vec<$sticker_items_struct_name>> = value.sticker_items.into();
+
+                Self {
+                    reply_text,
+                    content: value.content,
+                    embeds: value.embeds.into_iter().map(|embed| embed.into()).collect(),
+                    attachments: value.attachments.into_iter().map(|attachment| (attachment.filename, attachment.url)).collect(),
+                    stickers: stickers.unwrap_or_default().into_iter().map(|sticker_item| sticker_item.into()).collect(),
+                }
+            }
+        }
+    };
+}
+
+impl_simplified_message!(SlashookMessage, SlashookStickerItem);
+impl_simplified_message!(TwilightMessage, TwilightStickerItem);
 
 pub struct SimpleEmbed {
     title: Option<String>,
