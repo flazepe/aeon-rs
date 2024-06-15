@@ -1,5 +1,6 @@
-use slashook::structs::users::User as SlashookUser;
-use twilight_model::user::User as TwilightUser;
+use crate::functions::escape_markdown;
+use slashook::structs::{messages::Message as SlashookMessage, users::User as SlashookUser};
+use twilight_model::{channel::Message as TwilightMessage, user::User as TwilightUser};
 
 pub trait UserExt {
     fn label(&self) -> String;
@@ -58,6 +59,47 @@ impl UserExt for TwilightUser {
             Some(avatar_url) => avatar_url,
             None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.to_string().parse::<u64>().unwrap() >> 22) % 5),
         }
+    }
+}
+
+pub trait MessageExt {
+    fn reply_text(&self) -> Option<String>;
+}
+
+macro_rules! format_reply_text {
+    ($user_label:expr, $guild_id: expr, $channel_id:expr, $id:expr $(,)?) => {
+        format!("[Replying to {}](https://discord.com/channels/{}/{}/{})", $user_label, $guild_id, $channel_id, $id)
+    };
+    () => {
+        "Replying to a deleted message".into()
+    };
+}
+
+impl MessageExt for SlashookMessage {
+    fn reply_text(&self) -> Option<String> {
+        self.message_reference.as_ref().map(|_| match &self.referenced_message {
+            Some(referenced_message) => format_reply_text!(
+                escape_markdown(referenced_message.author.label()),
+                referenced_message.guild_id.as_ref().map_or_else(|| "@me".into(), |guild_id| guild_id.clone()),
+                referenced_message.channel_id.clone(),
+                referenced_message.id.clone(),
+            ),
+            None => format_reply_text!(),
+        })
+    }
+}
+
+impl MessageExt for TwilightMessage {
+    fn reply_text(&self) -> Option<String> {
+        self.reference.as_ref().map(|_| match &self.referenced_message {
+            Some(referenced_message) => format_reply_text!(
+                escape_markdown(referenced_message.author.label()),
+                referenced_message.guild_id.map_or_else(|| "@me".into(), |guild_id| guild_id.to_string()),
+                referenced_message.channel_id,
+                referenced_message.id,
+            ),
+            None => format_reply_text!(),
+        })
     }
 }
 
