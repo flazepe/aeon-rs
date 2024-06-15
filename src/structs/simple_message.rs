@@ -11,7 +11,7 @@ use twilight_model::channel::message::{
     Message as TwilightMessage,
 };
 
-pub struct StringifiedMessage {
+pub struct SimpleMessage {
     pub reply_text: Option<String>,
     pub content: String,
     pub embeds: Vec<SimpleEmbed>,
@@ -19,7 +19,7 @@ pub struct StringifiedMessage {
     pub stickers: Vec<SimpleSticker>,
 }
 
-impl Display for StringifiedMessage {
+impl Display for SimpleMessage {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         let mut text = String::new();
 
@@ -78,9 +78,9 @@ impl Display for StringifiedMessage {
     }
 }
 
-macro_rules! impl_simplified_message {
+macro_rules! impl_simple_message {
     ($struct_name:ident, $sticker_items_struct_name:ident) => {
-        impl From<$struct_name> for StringifiedMessage {
+        impl From<$struct_name> for SimpleMessage {
             fn from(value: $struct_name) -> Self {
                 let reply_text = value.reply_text();
                 let stickers: Option<Vec<$sticker_items_struct_name>> = value.sticker_items.into();
@@ -97,8 +97,8 @@ macro_rules! impl_simplified_message {
     };
 }
 
-impl_simplified_message!(SlashookMessage, SlashookStickerItem);
-impl_simplified_message!(TwilightMessage, TwilightStickerItem);
+impl_simple_message!(SlashookMessage, SlashookStickerItem);
+impl_simple_message!(TwilightMessage, TwilightStickerItem);
 
 pub struct SimpleEmbed {
     title: Option<String>,

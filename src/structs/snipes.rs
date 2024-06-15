@@ -1,7 +1,7 @@
 use crate::{
     functions::label_num,
     statics::{colors::PRIMARY_COLOR, CACHE},
-    structs::stringified_message::StringifiedMessage,
+    structs::simple_message::SimpleMessage,
     traits::UserExt,
 };
 use anyhow::{bail, Result};
@@ -56,7 +56,7 @@ impl Snipes {
                             "{} at {}:\n\n{}",
                             message.author.label(),
                             DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string()).unwrap().to_rfc2822(),
-                            StringifiedMessage::from(message.clone())
+                            SimpleMessage::from(message.clone())
                                 .to_string()
                                 .split('\n')
                                 .map(|line| format!(
@@ -79,7 +79,7 @@ impl Snipes {
 
                 Embed::new()
                     .set_color(PRIMARY_COLOR)?
-                    .set_description(StringifiedMessage::from(snipe.clone()))
+                    .set_description(SimpleMessage::from(snipe.clone()))
                     .set_footer(&snipe.author.name, Some(snipe.author.display_avatar_url("png", 64)))
                     .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?)
                     .into()
