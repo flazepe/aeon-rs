@@ -151,7 +151,7 @@ macro_rules! impl_simple_embed {
                     }),
                     author: value.author.map(|author| {
                         let icon_url = match author.icon_url {
-                            Some(icon_url) => format!("[Icon]({icon_url}) "),
+                            Some(icon_url) => format!("[[Icon]]({icon_url}) "),
                             None => "".into(),
                         };
 
