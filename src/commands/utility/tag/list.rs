@@ -2,7 +2,7 @@ use crate::{
     functions::limit_strings,
     statics::colors::PRIMARY_COLOR,
     structs::{command_context::CommandContext, database::tags::Tags},
-    traits::AvatarUrl,
+    traits::UserExt,
 };
 use anyhow::Result;
 use slashook::structs::embeds::Embed;

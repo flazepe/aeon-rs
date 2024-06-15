@@ -1,4 +1,4 @@
-use crate::{functions::eien, statics::CACHE, structs::command_context::CommandContext, traits::AvatarUrl};
+use crate::{functions::eien, statics::CACHE, structs::command_context::CommandContext, traits::UserExt};
 use anyhow::Result;
 use serde_json::to_string;
 

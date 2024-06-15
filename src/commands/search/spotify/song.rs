@@ -6,7 +6,7 @@ use crate::{
         gateway::song_activity::{SongActivity, SongActivityService},
         select_menu::SelectMenu,
     },
-    traits::AvatarUrl,
+    traits::UserExt,
 };
 use anyhow::Result;
 use serde_json::to_string;

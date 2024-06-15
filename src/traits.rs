@@ -1,28 +1,17 @@
 use slashook::structs::users::User as SlashookUser;
 use twilight_model::user::User as TwilightUser;
 
-pub trait UserLabel {
+pub trait UserExt {
     fn label(&self) -> String;
-}
-
-impl UserLabel for SlashookUser {
-    fn label(&self) -> String {
-        format!("{} ({})", self.username, self.id)
-    }
-}
-
-impl UserLabel for TwilightUser {
-    fn label(&self) -> String {
-        format!("{} ({})", self.name, self.id)
-    }
-}
-
-pub trait AvatarUrl {
     fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String>;
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String;
 }
 
-impl AvatarUrl for SlashookUser {
+impl UserExt for SlashookUser {
+    fn label(&self) -> String {
+        format!("{} ({})", self.username, self.id)
+    }
+
     fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String> {
         let format = format.to_string();
 
@@ -38,14 +27,18 @@ impl AvatarUrl for SlashookUser {
     }
 
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
-        match AvatarUrl::avatar_url(self, format, size) {
+        match UserExt::avatar_url(self, format, size) {
             Some(avatar_url) => avatar_url,
             None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.parse::<u64>().unwrap() >> 22) % 5),
         }
     }
 }
 
-impl AvatarUrl for TwilightUser {
+impl UserExt for TwilightUser {
+    fn label(&self) -> String {
+        format!("{} ({})", self.name, self.id)
+    }
+
     fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String> {
         let format = format.to_string();
 
@@ -61,7 +54,7 @@ impl AvatarUrl for TwilightUser {
     }
 
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
-        match AvatarUrl::avatar_url(self, format, size) {
+        match UserExt::avatar_url(self, format, size) {
             Some(avatar_url) => avatar_url,
             None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.to_string().parse::<u64>().unwrap() >> 22) % 5),
         }

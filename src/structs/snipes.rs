@@ -2,7 +2,7 @@ use crate::{
     functions::label_num,
     statics::{colors::PRIMARY_COLOR, CACHE},
     structs::stringified_message::StringifiedMessage,
-    traits::{AvatarUrl, UserLabel},
+    traits::UserExt,
 };
 use anyhow::{bail, Result};
 use slashook::{
