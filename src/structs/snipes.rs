@@ -2,7 +2,7 @@ use crate::{
     functions::label_num,
     statics::{colors::PRIMARY_COLOR, CACHE},
     structs::stringified_message::StringifiedMessage,
-    traits::AvatarUrl,
+    traits::{AvatarUrl, UserLabel},
 };
 use anyhow::{bail, Result};
 use slashook::{
@@ -53,9 +53,8 @@ impl Snipes {
                     .rev()
                     .map(|message| {
                         format!(
-                            "{} ({}) at {}:\n\n{}",
-                            message.author.name,
-                            message.author.id,
+                            "{} at {}:\n\n{}",
+                            message.author.label(),
                             DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string()).unwrap().to_rfc2822(),
                             StringifiedMessage::from(message.clone())
                                 .to_string()

@@ -1,12 +1,28 @@
-use slashook::structs::users::User;
+use slashook::structs::users::User as SlashookUser;
 use twilight_model::user::User as TwilightUser;
+
+pub trait UserLabel {
+    fn label(&self) -> String;
+}
+
+impl UserLabel for SlashookUser {
+    fn label(&self) -> String {
+        format!("{} ({})", self.username, self.id)
+    }
+}
+
+impl UserLabel for TwilightUser {
+    fn label(&self) -> String {
+        format!("{} ({})", self.name, self.id)
+    }
+}
 
 pub trait AvatarUrl {
     fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String>;
     fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String;
 }
 
-impl AvatarUrl for User {
+impl AvatarUrl for SlashookUser {
     fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String> {
         let format = format.to_string();
 
