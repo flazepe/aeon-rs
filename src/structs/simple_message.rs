@@ -83,14 +83,14 @@ macro_rules! impl_simple_message {
         impl From<$struct_name> for SimpleMessage {
             fn from(value: $struct_name) -> Self {
                 let reply_text = value.reply_text();
-                let stickers: Option<Vec<$sticker_items_struct_name>> = value.sticker_items.into();
+                let sticker_items: Option<Vec<$sticker_items_struct_name>> = value.sticker_items.into();
 
                 Self {
                     reply_text,
                     content: value.content,
                     embeds: value.embeds.into_iter().map(|embed| embed.into()).collect(),
                     attachments: value.attachments.into_iter().map(|attachment| (attachment.filename, attachment.url)).collect(),
-                    stickers: stickers.unwrap_or_default().into_iter().map(|sticker_item| sticker_item.into()).collect(),
+                    stickers: sticker_items.unwrap_or_default().into_iter().map(|sticker_item| sticker_item.into()).collect(),
                 }
             }
         }
