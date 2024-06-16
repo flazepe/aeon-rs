@@ -1,5 +1,5 @@
 use crate::{
-    functions::add_reminder_select_options,
+    functions::{add_reminder_select_options, escape_markdown},
     statics::{colors::NOTICE_COLOR, COLLECTIONS, REST},
     structs::duration::{statics::SECS_PER_MONTH, Duration},
 };
@@ -184,8 +184,8 @@ impl Reminders {
             .await?;
 
         Ok(format!(
-            "I will remind you about {}[*](<https://discord.com/channels/{}>) in {time}{}. Make sure I {}.",
-            reminder.to_string(),
+            "I will remind you about {} [[Jump]](<https://discord.com/channels/{}>) in {time}{}. Make sure I {}.",
+            escape_markdown(reminder),
             url.to_string(),
             match interval.total_secs > 0 {
                 true => format!(" and every {interval} after that"),
