@@ -184,8 +184,8 @@ impl Reminders {
             .await?;
 
         Ok(format!(
-            "I will remind you about {} [[Jump]](<https://discord.com/channels/{}>) in {time}{}. Make sure I {}.",
-            escape_markdown(reminder),
+            "I will remind you about `{}`[*](<https://discord.com/channels/{}>) in {time}{}. Make sure I {}.",
+            escape_markdown(reminder.to_string().replace('`', "｀")),
             url.to_string(),
             match interval.total_secs > 0 {
                 true => format!(" and every {interval} after that"),

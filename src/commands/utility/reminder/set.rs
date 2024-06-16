@@ -1,6 +1,5 @@
 use crate::structs::{command_context::CommandContext, database::reminders::Reminders, duration::Duration};
 use anyhow::Result;
-use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     ctx.res.defer(ctx.input.is_string_select()).await?;
@@ -63,7 +62,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     )
     .await
     {
-        Ok(response) => ctx.respond(MessageResponse::from(format!("⏰ {response}")).set_suppress_embeds(true), false).await,
+        Ok(response) => ctx.respond_success(response, false).await,
         Err(error) => ctx.respond_error(error, true).await,
     }
 }
