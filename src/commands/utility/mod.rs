@@ -9,6 +9,7 @@ mod inspect_message;
 mod ip;
 mod osu;
 mod owner;
+mod purge;
 mod reminder;
 mod reminder_set_context;
 mod sauce;
@@ -37,6 +38,7 @@ pub fn get_commands() -> Vec<SlashookCommand> {
         ip::get_command(),
         osu::get_command(),
         owner::get_command(),
+        purge::get_command(),
         reminder::get_command(),
         reminder_set_context::get_command(),
         sauce::get_command(),
