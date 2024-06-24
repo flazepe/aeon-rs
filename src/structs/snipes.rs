@@ -10,6 +10,7 @@ use slashook::{
     commands::MessageResponse,
     structs::{embeds::Embed, utils::File, Permissions},
 };
+use std::fmt::Display;
 
 pub struct Snipes {
     channel_id: String,
@@ -19,7 +20,7 @@ pub struct Snipes {
 }
 
 impl Snipes {
-    pub fn new<T: ToString>(channel_id: T, is_edit: bool, send_list: bool, permissions: Permissions) -> Self {
+    pub fn new<T: Display>(channel_id: T, is_edit: bool, send_list: bool, permissions: Permissions) -> Self {
         Self { channel_id: channel_id.to_string(), is_edit, send_list, permissions }
     }
 
@@ -96,7 +97,7 @@ pub struct ReactionSnipes {
 }
 
 impl ReactionSnipes {
-    pub fn new<T: ToString, U: ToString, V: ToString>(guild_id: T, channel_id: U, message_id: V, permissions: Permissions) -> Self {
+    pub fn new<T: Display, U: Display, V: Display>(guild_id: T, channel_id: U, message_id: V, permissions: Permissions) -> Self {
         Self { guild_id: guild_id.to_string(), channel_id: channel_id.to_string(), message_id: message_id.to_string(), permissions }
     }
 

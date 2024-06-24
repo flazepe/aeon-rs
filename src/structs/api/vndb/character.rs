@@ -192,7 +192,7 @@ impl VndbCharacter {
 }
 
 impl Vndb {
-    pub async fn search_character<T: ToString>(query: T) -> Result<Vec<VndbCharacter>> {
+    pub async fn search_character<T: Display>(query: T) -> Result<Vec<VndbCharacter>> {
         let query = query.to_string();
 
         let results = Vndb::query(

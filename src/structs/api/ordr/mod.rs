@@ -9,7 +9,10 @@ use futures::FutureExt;
 use serde::Deserialize;
 use serde_json::{from_str, from_value, json};
 use socketio_rs::{ClientBuilder, Payload};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::{
+    fmt::Display,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 use tokio::time::sleep;
 
 #[derive(Deserialize)]
@@ -50,7 +53,7 @@ pub struct OrdrWsRenderFailed {
 }
 
 impl OrdrRender {
-    pub async fn new<T: ToString, U: ToString>(replay_url: T, skin: Option<U>) -> Result<Self> {
+    pub async fn new<T: Display, U: Display>(replay_url: T, skin: Option<U>) -> Result<Self> {
         let mut skin = skin.map(|skin| skin.to_string()).unwrap_or_else(|| "".into());
 
         if !ORDR_SKINS.contains_key(skin.as_str()) {

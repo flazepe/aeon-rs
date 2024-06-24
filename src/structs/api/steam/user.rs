@@ -11,6 +11,7 @@ use crate::{
 use anyhow::{Context, Result};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 struct SteamUsersResponse {
@@ -183,7 +184,7 @@ impl SteamUser {
 }
 
 impl Steam {
-    pub async fn get_user<T: ToString>(id: T) -> Result<SteamUser> {
+    pub async fn get_user<T: Display>(id: T) -> Result<SteamUser> {
         let mut id = id.to_string();
 
         if !id.chars().all(|char| char.is_numeric()) {

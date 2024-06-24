@@ -4,7 +4,10 @@ use futures::stream::TryStreamExt;
 use mongodb::bson::{doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};
 use slashook::structs::{guilds::GuildMember, Permissions};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{
+    fmt::Display,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 #[derive(Deserialize, Serialize)]
 pub struct Tag {
@@ -22,7 +25,7 @@ pub struct Tag {
 pub struct Tags;
 
 impl Tags {
-    pub async fn get<T: ToString, U: ToString>(name: T, guild_id: U) -> Result<Tag> {
+    pub async fn get<T: Display, U: Display>(name: T, guild_id: U) -> Result<Tag> {
         let name = name.to_string().to_lowercase();
 
         match COLLECTIONS
@@ -41,7 +44,7 @@ impl Tags {
         }
     }
 
-    pub async fn search<T: ToString, U: ToString>(guild_id: T, author_id: Option<U>) -> Result<Vec<Tag>> {
+    pub async fn search<T: Display, U: Display>(guild_id: T, author_id: Option<U>) -> Result<Vec<Tag>> {
         let tags = COLLECTIONS
             .tags
             .find(
@@ -67,7 +70,7 @@ impl Tags {
         Ok(tags)
     }
 
-    pub async fn create<T: ToString, U: ToString + Copy, V: ToString + Copy, W: ToString>(
+    pub async fn create<T: Display, U: Display + Copy, V: Display + Copy, W: Display>(
         name: T,
         guild_id: U,
         author_id: V,
@@ -113,7 +116,7 @@ impl Tags {
         Ok("Created.".into())
     }
 
-    pub async fn delete<T: ToString, U: ToString>(name: T, guild_id: U, modifier: &GuildMember) -> Result<String> {
+    pub async fn delete<T: Display, U: Display>(name: T, guild_id: U, modifier: &GuildMember) -> Result<String> {
         let tag = Self::validate_tag_modifier(Self::get(name, guild_id).await?, modifier)?;
 
         COLLECTIONS
@@ -130,7 +133,7 @@ impl Tags {
         Ok("Gone.".into())
     }
 
-    pub async fn edit<T: ToString, U: ToString + Copy, V: ToString, W: ToString>(
+    pub async fn edit<T: Display, U: Display + Copy, V: Display, W: Display>(
         name: T,
         guild_id: U,
         new_name: V,
@@ -182,7 +185,7 @@ impl Tags {
         Ok("Edited.".into())
     }
 
-    pub async fn toggle_alias<T: ToString, U: ToString + Copy, V: ToString>(
+    pub async fn toggle_alias<T: Display, U: Display + Copy, V: Display>(
         name: T,
         guild_id: U,
         alias: V,
@@ -230,7 +233,7 @@ impl Tags {
         })
     }
 
-    pub async fn toggle_nsfw<T: ToString, U: ToString>(name: T, guild_id: U, modifier: &GuildMember) -> Result<String> {
+    pub async fn toggle_nsfw<T: Display, U: Display>(name: T, guild_id: U, modifier: &GuildMember) -> Result<String> {
         let tag = Self::validate_tag_modifier(Self::get(name, guild_id).await?, modifier)?;
         let nsfw = !tag.nsfw;
 
@@ -271,7 +274,7 @@ impl Tags {
         Ok(tag)
     }
 
-    fn validate_tag_name<T: ToString>(name: T) -> Result<String> {
+    fn validate_tag_name<T: Display>(name: T) -> Result<String> {
         let name = name.to_string().to_lowercase();
 
         // This should be handled by Discord but I'm adding it anyway

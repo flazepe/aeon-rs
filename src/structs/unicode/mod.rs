@@ -4,6 +4,7 @@ use crate::{functions::label_num, structs::unicode::statics::CONTROL_CHARACTERS}
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::Client;
+use std::fmt::Display;
 use unicode_names2::name as get_unicode_name;
 
 pub struct UnicodeCharacter {
@@ -13,7 +14,7 @@ pub struct UnicodeCharacter {
 }
 
 impl UnicodeCharacter {
-    pub async fn get<T: ToString>(name: T) -> Result<Self> {
+    pub async fn get<T: Display>(name: T) -> Result<Self> {
         let document =
             Document::from(&Client::new().get("https://symbl.cc/en/search/").query(&[("q", name.to_string())]).send().await?.text().await?);
 
@@ -45,7 +46,7 @@ pub struct UnicodeCharacters {
 }
 
 impl UnicodeCharacters {
-    pub fn get<T: ToString>(string: T) -> Self {
+    pub fn get<T: Display>(string: T) -> Self {
         let mut unicode_characters: Vec<UnicodeCharacter> = vec![];
 
         for character in string.to_string().chars() {

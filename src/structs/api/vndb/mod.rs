@@ -25,7 +25,7 @@ impl Vndb {
         Ok(REQWEST.post(format!("https://api.vndb.org/kana/{endpoint}")).json(&query).send().await?.json::<VndbResponse<U>>().await?)
     }
 
-    pub fn clean_bbcode<T: ToString>(string: T) -> String {
+    pub fn clean_bbcode<T: Display>(string: T) -> String {
         HTTPS_URL_REGEX.replace_all(&BBCODE_REGEX.replace_all(&string.to_string(), ""), "<redacted>/").to_string()
     }
 }

@@ -22,6 +22,7 @@ use chromiumoxide::{
 use futures::{stream::iter, StreamExt};
 use gouth::Builder;
 use serde_json::json;
+use std::fmt::Display;
 use tokio::{fs::read, spawn};
 use tonic::{
     metadata::MetadataValue,
@@ -30,7 +31,7 @@ use tonic::{
 };
 
 impl Google {
-    pub async fn query_assistant<T: ToString>(query: T) -> Result<(Vec<u8>, Vec<String>)> {
+    pub async fn query_assistant<T: Display>(query: T) -> Result<(Vec<u8>, Vec<String>)> {
         let token = Builder::new()
             .json(
                 json!({

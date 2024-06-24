@@ -1,6 +1,7 @@
 use crate::structs::api::steam::Steam;
 use anyhow::{Context, Result};
 use serde::Deserialize;
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 struct SteamUserBansResponse {
@@ -28,7 +29,7 @@ pub struct SteamUserBans {
 }
 
 impl Steam {
-    pub async fn get_user_bans<T: ToString>(id: T) -> Result<SteamUserBans> {
+    pub async fn get_user_bans<T: Display>(id: T) -> Result<SteamUserBans> {
         Steam::query::<_, _, SteamUserBansResponse>("GetPlayerBans/v1/", &[("steamids", id.to_string().as_str())])
             .await?
             .players

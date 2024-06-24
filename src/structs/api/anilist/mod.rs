@@ -14,12 +14,12 @@ use nipper::Document;
 use serde::de::DeserializeOwned;
 use serde_json::{json, Value};
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 
 pub struct AniList;
 
 impl AniList {
-    async fn query<T: ToString, U: DeserializeOwned>(query: T, variables: Value) -> Result<U> {
+    async fn query<T: Display, U: DeserializeOwned>(query: T, variables: Value) -> Result<U> {
         Ok(REQWEST
             .post("https://graphql.anilist.co")
             .json(&json!({
@@ -56,7 +56,7 @@ impl AniList {
         }
     }
 
-    pub fn format_description<T: ToString>(embed: Embed, description: Option<&T>) -> Embed {
+    pub fn format_description<T: Display>(embed: Embed, description: Option<&T>) -> Embed {
         embed.set_description(limit_strings(
             Document::from(&description.map(|description| description.to_string()).unwrap_or_else(|| "N/A".into()))
                 .select("body")

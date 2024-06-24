@@ -8,6 +8,7 @@ use nipper::Document;
 use serde::Deserialize;
 use serde_json::{from_value, Value};
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 pub struct SteamGameRequirements {
@@ -341,7 +342,7 @@ pub struct SteamSearchResult {
 }
 
 impl Steam {
-    pub async fn get_game<T: ToString>(id: T) -> Result<SteamGame> {
+    pub async fn get_game<T: Display>(id: T) -> Result<SteamGame> {
         match REQWEST
             .get("https://store.steampowered.com/api/appdetails")
             .query(&[("cc", "us"), ("appids", id.to_string().as_str())])
@@ -358,7 +359,7 @@ impl Steam {
         }
     }
 
-    pub async fn search_game<T: ToString>(query: T) -> Result<Vec<SteamSearchResult>> {
+    pub async fn search_game<T: Display>(query: T) -> Result<Vec<SteamSearchResult>> {
         let document = Document::from(
             &REQWEST
                 .get("https://store.steampowered.com/search/results")

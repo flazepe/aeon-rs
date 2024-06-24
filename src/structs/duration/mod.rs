@@ -24,7 +24,7 @@ impl Duration {
         Self { total_secs: 0, years: 0, months: 0, weeks: 0, days: 0, hours: 0, mins: 0, secs: 0 }
     }
 
-    pub fn parse<T: ToString>(mut self, duration: T) -> Result<Self> {
+    pub fn parse<T: Display>(mut self, duration: T) -> Result<Self> {
         self.total_secs = parse(&duration.to_string())?.as_secs();
         self.years = self.total_secs / SECS_PER_YEAR;
 

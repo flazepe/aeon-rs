@@ -1,6 +1,7 @@
 use crate::statics::{CONFIG, REQWEST};
 use anyhow::{bail, Result};
 use serde::Deserialize;
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -58,7 +59,7 @@ pub struct TimeZoneResponse {
 }
 
 impl TimeZoneLocation {
-    pub async fn get<T: ToString>(location: T) -> Result<Self> {
+    pub async fn get<T: Display>(location: T) -> Result<Self> {
         let timezones = &mut REQWEST
             .get("https://dev.virtualearth.net/REST/v1/TimeZone/")
             .query(&[("key", &CONFIG.api.virtualearth_key), ("query", &location.to_string())])

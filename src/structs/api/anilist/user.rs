@@ -13,6 +13,7 @@ use slashook::{
     chrono::{TimeZone, Utc},
     structs::embeds::Embed,
 };
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -160,7 +161,7 @@ impl AniListUser {
 }
 
 impl AniList {
-    pub async fn get_user<T: ToString>(name: T) -> Result<AniListUser> {
+    pub async fn get_user<T: Display>(name: T) -> Result<AniListUser> {
         match AniList::query::<_, AniListResponse<AniListUserResponse>>(
             format!(
                 "query($search: String) {{

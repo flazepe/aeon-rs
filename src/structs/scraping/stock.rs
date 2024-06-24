@@ -3,6 +3,7 @@ use anyhow::{bail, Context, Result};
 use nipper::Document;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 struct YahooFinanceSearchResult {
@@ -26,7 +27,7 @@ pub struct Stock {
 }
 
 impl Stock {
-    pub async fn get<T: ToString>(ticker: T) -> Result<Self> {
+    pub async fn get<T: Display>(ticker: T) -> Result<Self> {
         let quote = match REQWEST
             .get("https://query2.finance.yahoo.com/v1/finance/search")
             .query(&[("q", ticker.to_string())])

@@ -11,7 +11,7 @@ use flate2::{
     Compression,
 };
 use slashook::structs::embeds::Embed;
-use std::io::Write;
+use std::{fmt::Display, io::Write};
 
 pub struct Tio {
     pub programming_language: String,
@@ -22,7 +22,7 @@ pub struct Tio {
 }
 
 impl Tio {
-    pub fn new<T: ToString, U: ToString>(programming_language: T, code: U) -> Self {
+    pub fn new<T: Display, U: Display>(programming_language: T, code: U) -> Self {
         Self {
             programming_language: programming_language.to_string().to_lowercase(),
             code: code.to_string(),

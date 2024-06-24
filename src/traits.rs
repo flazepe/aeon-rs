@@ -1,11 +1,12 @@
 use crate::functions::escape_markdown;
 use slashook::structs::{messages::Message as SlashookMessage, users::User as SlashookUser};
+use std::fmt::Display;
 use twilight_model::{channel::Message as TwilightMessage, user::User as TwilightUser};
 
 pub trait UserExt {
     fn label(&self) -> String;
-    fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String>;
-    fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String;
+    fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String>;
+    fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String;
 }
 
 impl UserExt for SlashookUser {
@@ -13,21 +14,20 @@ impl UserExt for SlashookUser {
         format!("{} ({})", self.username, self.id)
     }
 
-    fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String> {
+    fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String> {
         let format = format.to_string();
 
         self.avatar.as_ref().map(|avatar| {
             format!(
-                "https://cdn.discordapp.com/avatars/{}/{}.{}?size={}",
+                "https://cdn.discordapp.com/avatars/{}/{}.{}?size={size}",
                 self.id,
                 avatar,
                 if format == "gif" && !avatar.starts_with("a_") { "png".into() } else { format },
-                size.to_string(),
             )
         })
     }
 
-    fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
+    fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String {
         match UserExt::avatar_url(self, format, size) {
             Some(avatar_url) => avatar_url,
             None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.parse::<u64>().unwrap() >> 22) % 5),
@@ -40,21 +40,20 @@ impl UserExt for TwilightUser {
         format!("{} ({})", self.name, self.id)
     }
 
-    fn avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> Option<String> {
+    fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String> {
         let format = format.to_string();
 
         self.avatar.as_ref().map(|avatar| {
             format!(
-                "https://cdn.discordapp.com/avatars/{}/{}.{}?size={}",
+                "https://cdn.discordapp.com/avatars/{}/{}.{}?size={size}",
                 self.id,
                 avatar,
                 if format == "gif" && !avatar.is_animated() { "png".into() } else { format },
-                size.to_string(),
             )
         })
     }
 
-    fn display_avatar_url<T: ToString, U: ToString>(&self, format: T, size: U) -> String {
+    fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String {
         match UserExt::avatar_url(self, format, size) {
             Some(avatar_url) => avatar_url,
             None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.to_string().parse::<u64>().unwrap() >> 22) % 5),
@@ -123,7 +122,7 @@ pub trait Commas {
     fn commas(&self) -> String;
 }
 
-impl<T: ToString> Commas for T {
+impl<T: Display> Commas for T {
     fn commas(&self) -> String {
         let string = self.to_string();
         let (integer, fraction) = string.split_once('.').unwrap_or((&string, ""));

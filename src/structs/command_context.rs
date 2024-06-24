@@ -93,7 +93,7 @@ impl CommandContext {
         .await
     }
 
-    pub async fn autocomplete<T: Iterator<Item = (K, V)>, K: ToString, V: ToString>(&self, iter: T) -> Result<()> {
+    pub async fn autocomplete<T: Iterator<Item = (K, V)>, K: Display, V: Display>(&self, iter: T) -> Result<()> {
         let value = self
             .input
             .args
@@ -114,37 +114,37 @@ impl CommandContext {
             .await?)
     }
 
-    pub fn get_string_arg<T: ToString>(&self, arg: T) -> Result<String> {
+    pub fn get_string_arg<T: Display>(&self, arg: T) -> Result<String> {
         self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_string().context("Could not convert arg to String.")
     }
 
-    pub fn get_i64_arg<T: ToString>(&self, arg: T) -> Result<i64> {
+    pub fn get_i64_arg<T: Display>(&self, arg: T) -> Result<i64> {
         self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_i64().context("Could not convert arg to i64.")
     }
 
-    pub fn get_bool_arg<T: ToString>(&self, arg: T) -> Result<bool> {
+    pub fn get_bool_arg<T: Display>(&self, arg: T) -> Result<bool> {
         self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_bool().context("Could not convert arg to bool.")
     }
 
-    pub fn get_user_arg<T: ToString>(&self, arg: T) -> Result<&User> {
+    pub fn get_user_arg<T: Display>(&self, arg: T) -> Result<&User> {
         self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_user().context("Could not convert arg to User.")
     }
 
-    pub fn get_channel_arg<T: ToString>(&self, arg: T) -> Result<&Channel> {
+    pub fn get_channel_arg<T: Display>(&self, arg: T) -> Result<&Channel> {
         self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_channel().context("Could not convert arg to Channel.")
     }
 
     /*
-    pub fn get_role_arg<T: ToString>(&self, arg: T) -> Result<&Role> {
+    pub fn get_role_arg<T: Display>(&self, arg: T) -> Result<&Role> {
         self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_role().context("Could not convert arg to Role.")
     }
     */
 
-    pub fn get_f64_arg<T: ToString>(&self, arg: T) -> Result<f64> {
+    pub fn get_f64_arg<T: Display>(&self, arg: T) -> Result<f64> {
         self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_f64().context("Could not convert arg to f64.")
     }
 
-    pub fn get_attachment_arg<T: ToString>(&self, arg: T) -> Result<&Attachment> {
+    pub fn get_attachment_arg<T: Display>(&self, arg: T) -> Result<&Attachment> {
         self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_attachment().context("Could not convert arg to Attachment.")
     }
 }

@@ -2,6 +2,7 @@ use crate::statics::{colors::PRIMARY_COLOR, REQWEST};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use slashook::structs::embeds::Embed;
+use std::fmt::Display;
 
 pub struct Distro {
     pub name: String,
@@ -16,7 +17,7 @@ pub struct Distro {
 }
 
 impl Distro {
-    pub async fn get<T: ToString>(name: T) -> Result<Self> {
+    pub async fn get<T: Display>(name: T) -> Result<Self> {
         let document = Document::from(
             &REQWEST
                 .get("https://distrowatch.com/table.php")

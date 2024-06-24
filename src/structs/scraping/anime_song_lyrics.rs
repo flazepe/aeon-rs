@@ -2,6 +2,7 @@ use crate::statics::{colors::PRIMARY_COLOR, REQWEST};
 use anyhow::{bail, Result};
 use nipper::Document;
 use slashook::structs::embeds::Embed;
+use std::fmt::Display;
 
 pub struct AnimeSongLyrics {
     pub title: String,
@@ -11,7 +12,7 @@ pub struct AnimeSongLyrics {
 }
 
 impl AnimeSongLyrics {
-    pub async fn query<T: ToString>(query: T) -> Result<Self> {
+    pub async fn query<T: Display>(query: T) -> Result<Self> {
         let document = Document::from(
             &REQWEST.get("https://animesonglyrics.com/results").query(&[("q", query.to_string())]).send().await?.text().await?,
         );

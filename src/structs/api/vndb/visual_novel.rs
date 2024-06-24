@@ -582,7 +582,7 @@ impl VndbVisualNovel {
 }
 
 impl Vndb {
-    pub async fn search_visual_novel<T: ToString>(query: T) -> Result<Vec<VndbVisualNovel>> {
+    pub async fn search_visual_novel<T: Display>(query: T) -> Result<Vec<VndbVisualNovel>> {
         let query = query.to_string();
 
         let results = Vndb::query(

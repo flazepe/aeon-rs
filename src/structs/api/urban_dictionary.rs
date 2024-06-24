@@ -1,6 +1,7 @@
 use crate::{functions::limit_strings, statics::REQWEST};
 use anyhow::{bail, Result};
 use serde::Deserialize;
+use std::fmt::Display;
 
 #[derive(Clone, Deserialize)]
 pub struct UrbanDictionary {
@@ -22,7 +23,7 @@ pub struct UrbanDictionaryEntry {
 }
 
 impl UrbanDictionary {
-    pub async fn search<T: ToString>(word: T) -> Result<Self> {
+    pub async fn search<T: Display>(word: T) -> Result<Self> {
         let result = REQWEST
             .get("http://api.urbandictionary.com/v0/define")
             .query(&[("term", word.to_string())])

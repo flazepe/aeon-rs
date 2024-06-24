@@ -5,6 +5,7 @@ use crate::{
 use anyhow::{bail, Context, Result};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 struct GoogleTranslateSentences {
@@ -34,7 +35,7 @@ impl GoogleTranslateTranslation {
 }
 
 impl Google {
-    pub async fn translate<T: ToString, U: ToString, V: ToString>(
+    pub async fn translate<T: Display, U: Display, V: Display>(
         text: T,
         origin_language: U,
         target_language: V,

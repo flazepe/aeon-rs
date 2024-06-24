@@ -17,7 +17,10 @@ use slashook::{
     chrono::{TimeZone, Utc},
     structs::embeds::Embed,
 };
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{
+    fmt::Display,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -231,7 +234,7 @@ impl AniList {
         }
     }
 
-    pub async fn search_anime<T: ToString>(search: T) -> Result<Vec<AniListAnime>> {
+    pub async fn search_anime<T: Display>(search: T) -> Result<Vec<AniListAnime>> {
         let result: AniListResponse<AniListMediaPageResponse<AniListAnime>> = AniList::query(
             format!(
                 "query($search: String) {{

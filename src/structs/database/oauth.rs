@@ -6,7 +6,10 @@ use mongodb::{
 };
 use reqwest::RequestBuilder;
 use serde::{Deserialize, Serialize};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{
+    fmt::Display,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 #[derive(Deserialize)]
 struct RawOauthToken {
@@ -29,7 +32,7 @@ pub struct Oauth {
 }
 
 impl Oauth {
-    pub fn new<T: ToString>(name: T, request: RequestBuilder) -> Self {
+    pub fn new<T: Display>(name: T, request: RequestBuilder) -> Self {
         Self { name: name.to_string(), request, timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() }
     }
 

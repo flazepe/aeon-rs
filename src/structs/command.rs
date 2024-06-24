@@ -2,7 +2,7 @@ use crate::{statics::FLAZEPE_ID, structs::command_context::CommandContext};
 use anyhow::Result;
 use futures::{future::BoxFuture, Future};
 use slashook::commands::{CommandInput, CommandResponder};
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 
 pub trait CommandFn: Send + Sync {
     fn call(&self, ctx: CommandContext) -> BoxFuture<'static, Result<()>>;
@@ -35,7 +35,7 @@ impl Command {
         self
     }
 
-    pub fn subcommand<T: ToString, U: CommandFn + 'static>(mut self, name: T, func: U) -> Self {
+    pub fn subcommand<T: Display, U: CommandFn + 'static>(mut self, name: T, func: U) -> Self {
         self.subcommands.insert(name.to_string(), Box::new(func));
         self
     }

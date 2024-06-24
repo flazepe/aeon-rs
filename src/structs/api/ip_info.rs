@@ -1,6 +1,7 @@
 use crate::statics::REQWEST;
 use anyhow::{bail, Result};
 use serde::Deserialize;
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 pub struct IpInfoError {
@@ -24,7 +25,7 @@ pub struct IpInfo {
 }
 
 impl IpInfo {
-    pub async fn get<T: ToString>(ip: T) -> Result<Self> {
+    pub async fn get<T: Display>(ip: T) -> Result<Self> {
         let response = REQWEST.get(format!("https://ipinfo.io/{}/json", ip.to_string().replace(['/', '?'], ""))).send().await?;
 
         if response.status() != 200 {

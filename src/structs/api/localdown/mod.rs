@@ -9,6 +9,7 @@ use serde::Deserialize;
 use serde_json::from_str;
 use slashook::structs::embeds::Embed;
 use statics::GENRES;
+use std::fmt::Display;
 
 #[derive(Clone, Deserialize)]
 pub struct LocalDownNovel {
@@ -30,7 +31,7 @@ pub struct LocalDownNovelSearchResult {
 }
 
 impl LocalDownNovel {
-    pub async fn search<T: ToString>(query: T) -> Result<Vec<LocalDownNovelSearchResult>> {
+    pub async fn search<T: Display>(query: T) -> Result<Vec<LocalDownNovelSearchResult>> {
         let results = REQWEST
             .get("https://api.ahnafzamil.com/localdown/novels/search")
             .query(&[("q", query.to_string())])

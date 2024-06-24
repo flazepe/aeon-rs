@@ -64,7 +64,7 @@ impl VndbTag {
 }
 
 impl Vndb {
-    pub async fn search_tag<T: ToString>(query: T) -> Result<Vec<VndbTag>> {
+    pub async fn search_tag<T: Display>(query: T) -> Result<Vec<VndbTag>> {
         let query = query.to_string();
 
         let results = Vndb::query(

@@ -4,11 +4,12 @@ use slashook::{
     commands::{CommandResponder, MessageResponse},
     structs::utils::File,
 };
+use std::fmt::Display;
 
 pub struct VoiceMessage;
 
 impl VoiceMessage {
-    pub async fn send<T: ToString>(res: &CommandResponder, audio_url: T, ephemeral: bool) -> Result<()> {
+    pub async fn send<T: Display>(res: &CommandResponder, audio_url: T, ephemeral: bool) -> Result<()> {
         res.send_message(MessageResponse::from("Sending voice message...").set_ephemeral(ephemeral)).await?;
 
         if res

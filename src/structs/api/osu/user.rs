@@ -414,7 +414,7 @@ impl OsuUser {
 }
 
 impl Osu {
-    pub async fn get_user<T: Display, U: ToString>(user: T, mode: U) -> Result<OsuUser> {
+    pub async fn get_user<T: Display, U: Display>(user: T, mode: U) -> Result<OsuUser> {
         let mut mode = mode.to_string();
 
         if !["osu", "taiko", "fruits", "mania"].contains(&mode.as_str()) {

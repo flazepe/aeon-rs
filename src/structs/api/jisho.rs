@@ -74,7 +74,7 @@ impl JishoSearch {
         Ok(results.remove(0))
     }
 
-    pub async fn search<T: ToString>(query: T) -> Result<Vec<Self>> {
+    pub async fn search<T: Display>(query: T) -> Result<Vec<Self>> {
         let results = REQWEST
             .get("https://jisho.org/api/v1/search/words")
             .query(&[("keyword", query.to_string())])

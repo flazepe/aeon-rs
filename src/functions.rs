@@ -30,14 +30,14 @@ pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
     select_menu
 }
 
-pub async fn eien<T: ToString>(command: T, extra_args: &[&str]) -> Result<File> {
+pub async fn eien<T: Display>(command: T, extra_args: &[&str]) -> Result<File> {
     let command = command.to_string();
     let mut args = vec!["../eien", &command];
     args.extend_from_slice(extra_args);
     Ok(File::new("image.png", Command::new("node").args(args).output().await?.stdout))
 }
 
-pub fn escape_markdown<T: ToString>(string: T) -> String {
+pub fn escape_markdown<T: Display>(string: T) -> String {
     MARKDOWN_REGEX
         .replace_all(&string.to_string(), |caps: &Captures| match caps[0].starts_with('\\') {
             true => caps[0].to_string(),
@@ -64,13 +64,13 @@ pub fn format_timestamp<T: Display>(timestamp: T, format: TimestampFormat) -> St
     }
 }
 
-pub async fn hastebin<T: ToString>(string: T) -> Result<String> {
+pub async fn hastebin<T: Display>(string: T) -> Result<String> {
     let domain = "https://haste.zneix.eu";
     let json = REQWEST.post(format!("{domain}/documents")).body(string.to_string()).send().await?.json::<Value>().await?;
     Ok(format!("{domain}/raw/{}", json["key"].as_str().unwrap_or("")))
 }
 
-pub fn limit_strings<T: IntoIterator<Item = U>, U: ToString, V: ToString>(iterable: T, delimiter: V, limit: usize) -> String {
+pub fn limit_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(iterable: T, delimiter: V, limit: usize) -> String {
     let delimiter = delimiter.to_string();
     let mut strings = iterable.into_iter().map(|stringable| stringable.to_string()).collect::<Vec<String>>();
 
@@ -81,7 +81,7 @@ pub fn limit_strings<T: IntoIterator<Item = U>, U: ToString, V: ToString>(iterab
     strings.join(&delimiter)
 }
 
-pub fn label_num<T: ToString, U: ToString, V: ToString>(amount: T, singular: U, plural: V) -> String {
+pub fn label_num<T: Display, U: Display, V: Display>(amount: T, singular: U, plural: V) -> String {
     let amount = amount.to_string();
     format!("{} {}", amount.commas(), if amount == "1" { singular.to_string() } else { plural.to_string() })
 }

@@ -18,6 +18,7 @@ use slashook::{
     },
 };
 use std::{
+    fmt::Display,
     thread::sleep,
     time::{Duration as TimeDuration, SystemTime, UNIX_EPOCH},
 };
@@ -118,7 +119,7 @@ impl Reminders {
         Ok(())
     }
 
-    pub async fn get_many<T: ToString>(user_id: T) -> Result<Vec<Reminder>> {
+    pub async fn get_many<T: Display>(user_id: T) -> Result<Vec<Reminder>> {
         let reminders = COLLECTIONS
             .reminders
             .find(
@@ -138,7 +139,7 @@ impl Reminders {
         Ok(reminders)
     }
 
-    pub async fn set<T: ToString, U: ToString, V: ToString>(
+    pub async fn set<T: Display, U: Display, V: Display>(
         user_id: T,
         url: U,
         time: Duration,
@@ -184,9 +185,8 @@ impl Reminders {
             .await?;
 
         Ok(format!(
-            "I will remind you about `{}`[*](<https://discord.com/channels/{}>) in {time}{}. Make sure I {}.",
+            "I will remind you about `{}`[*](<https://discord.com/channels/{url}>) in {time}{}. Make sure I {}.",
             escape_markdown(reminder.to_string().replace('`', "｀")),
-            url.to_string(),
             match interval.total_secs > 0 {
                 true => format!(" and every {interval} after that"),
                 false => "".into(),

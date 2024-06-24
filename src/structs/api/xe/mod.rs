@@ -3,6 +3,7 @@ pub mod statics;
 use crate::{statics::REQWEST, structs::api::xe::statics::XE_CURRENCIES, traits::Commas};
 use anyhow::{Context, Result};
 use serde::Deserialize;
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 struct XeResponse {
@@ -22,7 +23,7 @@ pub struct Xe {
 }
 
 impl Xe {
-    pub async fn convert<T: ToString, U: ToString>(amount: f64, origin_currency: T, target_currency: U) -> Result<Self> {
+    pub async fn convert<T: Display, U: Display>(amount: f64, origin_currency: T, target_currency: U) -> Result<Self> {
         let origin_currency =
             XE_CURRENCIES.get_key_value(origin_currency.to_string().to_uppercase().as_str()).context("Invalid origin currency.")?;
 

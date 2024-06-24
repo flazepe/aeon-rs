@@ -2,6 +2,7 @@ use slashook::{
     commands::MessageResponse,
     structs::components::{Components, SelectMenu as SlashookSelectMenu, SelectMenuType, SelectOption},
 };
+use std::fmt::Display;
 
 pub struct SelectMenu {
     command: String,
@@ -12,7 +13,7 @@ pub struct SelectMenu {
 }
 
 impl SelectMenu {
-    pub fn new<T: ToString, U: ToString, V: ToString, W: ToString>(command: T, id: U, placeholder: V, default: Option<W>) -> Self {
+    pub fn new<T: Display, U: Display, V: Display, W: Display>(command: T, id: U, placeholder: V, default: Option<W>) -> Self {
         Self {
             command: command.to_string(),
             id: id.to_string(),
@@ -22,7 +23,7 @@ impl SelectMenu {
         }
     }
 
-    pub fn add_option<T: ToString, U: ToString, V: ToString>(mut self, label: T, value: U, description: Option<V>) -> Self {
+    pub fn add_option<T: Display, U: Display, V: Display>(mut self, label: T, value: U, description: Option<V>) -> Self {
         let value = value.to_string();
         let mut option = SelectOption::new(label.to_string().chars().take(100).collect::<String>(), &value);
 

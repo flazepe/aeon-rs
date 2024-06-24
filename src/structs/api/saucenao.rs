@@ -2,6 +2,7 @@ use crate::statics::{colors::PRIMARY_COLOR, CONFIG, REQWEST};
 use anyhow::{bail, Result};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 pub struct SauceNaoHeader {
@@ -38,7 +39,7 @@ pub struct SauceNaoSearch {
 }
 
 impl SauceNaoSearch {
-    pub async fn query<T: ToString>(url: T) -> Result<Self> {
+    pub async fn query<T: Display>(url: T) -> Result<Self> {
         let search = REQWEST
             .get("https://saucenao.com/search.php")
             .query(&[("api_key", CONFIG.api.saucenao_key.as_str()), ("output_type", "2"), ("url", url.to_string().as_str())])

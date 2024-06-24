@@ -8,6 +8,7 @@ use crate::{
 use anyhow::{bail, Result};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 pub struct GoogleDnsRecord {
@@ -82,7 +83,7 @@ impl GoogleDns {
 }
 
 impl Google {
-    pub async fn query_dns<T: ToString, U: ToString>(record_type: T, domain: U) -> Result<GoogleDns> {
+    pub async fn query_dns<T: Display, U: Display>(record_type: T, domain: U) -> Result<GoogleDns> {
         let record_type = record_type.to_string();
 
         if !GOOGLE_DNS_RECORD_TYPES.contains(&record_type.as_str()) {

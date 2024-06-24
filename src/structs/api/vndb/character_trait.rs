@@ -9,6 +9,7 @@ use anyhow::{bail, Result};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::structs::embeds::Embed;
+use std::fmt::Display;
 
 #[derive(Deserialize)]
 pub struct VndbTrait {
@@ -39,7 +40,7 @@ impl VndbTrait {
 }
 
 impl Vndb {
-    pub async fn search_trait<T: ToString>(query: T) -> Result<Vec<VndbTrait>> {
+    pub async fn search_trait<T: Display>(query: T) -> Result<Vec<VndbTrait>> {
         let query = query.to_string();
 
         let results = Vndb::query(
