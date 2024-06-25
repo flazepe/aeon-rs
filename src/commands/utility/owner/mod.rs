@@ -1,6 +1,5 @@
 mod eien;
 mod request;
-mod selfpurge;
 mod status;
 
 use crate::structs::command::Command;
@@ -12,12 +11,7 @@ use slashook::{
 };
 
 static COMMAND: Lazy<Command> = Lazy::new(|| {
-    Command::new()
-        .owner_only()
-        .subcommand("eien", eien::run)
-        .subcommand("request", request::run)
-        .subcommand("selfpurge", selfpurge::run)
-        .subcommand("status", status::run)
+    Command::new().owner_only().subcommand("eien", eien::run).subcommand("request", request::run).subcommand("status", status::run)
 });
 
 pub fn get_command() -> SlashookCommand {
@@ -77,23 +71,6 @@ pub fn get_command() -> SlashookCommand {
 						],
                     },
 				],
-            },
-            {
-                name = "selfpurge",
-                description = "Selfpurges.",
-                options = [
-                    {
-                        name = "amount",
-                        description = "The amount of messages to purge",
-                        option_type = InteractionOptionType::INTEGER,
-                        min_value = 1.0,
-                    },
-                    {
-                        name = "channel",
-                        description = "The channel",
-                        option_type = InteractionOptionType::CHANNEL,
-                    },
-                ],
             },
             {
                 name = "status",

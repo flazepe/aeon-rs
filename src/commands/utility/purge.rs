@@ -1,5 +1,6 @@
 use crate::{
     functions::label_num,
+    statics::{CONFIG, FLAZEPE_ID},
     structs::{command::Command, command_context::CommandContext},
     traits::UserExt,
 };
@@ -17,11 +18,18 @@ use slashook::{
 
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
-        if !ctx.input.app_permissions.contains(Permissions::MANAGE_MESSAGES) {
+        let is_self_purge = ctx.get_user_arg("user").map_or(false, |user| user.id == CONFIG.bot.client_id);
+
+        if !is_self_purge && !ctx.input.app_permissions.contains(Permissions::MANAGE_MESSAGES) {
             return ctx.respond_error("I do not have the Manage Messages permission to purge messages.", true).await;
         }
 
-        if !ctx.input.member.as_ref().unwrap().permissions.as_ref().unwrap_or(&Permissions::empty()).contains(Permissions::MANAGE_MESSAGES)
+        if ctx.input.user.id != FLAZEPE_ID
+            && !ctx
+                .input
+                .member
+                .as_ref()
+                .map_or(false, |member| member.permissions.map_or(false, |permissions| permissions.contains(Permissions::MANAGE_MESSAGES)))
         {
             return ctx.respond_error("You do not have the Manage Messages permission to purge messages.", true).await;
         }
@@ -33,10 +41,8 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
         };
 
         messages.retain(|message| {
-            (match ctx.get_user_arg("user") {
-                Ok(user) => message.author.id == user.id,
-                Err(_) => true,
-            }) && message.timestamp > Utc::now() - Duration::try_weeks(2).unwrap()
+            ctx.get_user_arg("user").map_or(true, |user| user.id == message.author.id)
+                && message.timestamp > Utc::now() - Duration::try_weeks(2).unwrap()
         });
 
         messages.drain((ctx.get_i64_arg("amount").unwrap_or(1) as usize).min(messages.len())..);
@@ -47,10 +53,19 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
 
         match messages.len() {
             1 => messages[0].delete(&ctx.input.rest).await?,
-            _ => {
-                channel
-                    .bulk_delete_messages(&ctx.input.rest, messages.iter().map(|message| message.id.clone()).collect::<Vec<String>>())
-                    .await?
+            _ => match is_self_purge && !ctx.input.app_permissions.contains(Permissions::MANAGE_MESSAGES) {
+                true => {
+                    ctx.res.defer(true).await?;
+
+                    for message in messages.iter() {
+                        message.delete(&ctx.input.rest).await?;
+                    }
+                },
+                false => {
+                    channel
+                        .bulk_delete_messages(&ctx.input.rest, messages.iter().map(|message| message.id.clone()).collect::<Vec<String>>())
+                        .await?
+                },
             },
         };
 
@@ -80,7 +95,8 @@ pub fn get_command() -> SlashookCommand {
                 name = "amount",
                 description = "The amount of messages to purge",
                 option_type = InteractionOptionType::INTEGER,
-                required = true,
+                min_value = 1.0,
+                max_value = 100.0,
             },
 			{
                 name = "user",
