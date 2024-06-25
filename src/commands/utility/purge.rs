@@ -73,10 +73,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
             format!(
                 "Deleted {}{}.",
                 label_num(messages.len(), "message", "messages"),
-                match ctx.get_user_arg("user") {
-                    Ok(user) => format!(" from {}", user.label()),
-                    Err(_) => "".into(),
-                },
+                ctx.get_user_arg("user").map_or_else(|_| "".into(), |user| format!(" from {}", user.label())),
             ),
             true,
         )
