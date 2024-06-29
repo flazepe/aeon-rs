@@ -20,18 +20,24 @@ impl VoiceMessage {
         };
 
         let mut child = Command::new("ffprobe")
-            .args(["-i", "-", "-show_entries", "format=duration", "-v", "quiet", "-of", "csv=p=0"])
+            .args(["-i", "-", "-show_entries", "packet=dts_time", "-of", "csv=p=0", "-v", "quiet"])
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .spawn()?;
 
-        child.stdin.take().unwrap().write(&bytes).await.ok();
+        child.stdin.take().unwrap().write_all(&bytes).await?;
 
         if let Err(error) = res
             .send_followup_message(
                 MessageResponse::from(
                     File::new("voice-message.ogg", bytes)
-                        .set_duration_secs(String::from_utf8(child.wait_with_output().await?.stdout)?.trim().parse::<f64>().unwrap_or(0.))
+                        .set_duration_secs(
+                            String::from_utf8(child.wait_with_output().await?.stdout)?
+                                .trim()
+                                .split('\n')
+                                .last()
+                                .map_or(0., |line| line.replace(',', "").parse::<f64>().unwrap_or(0.)),
+                        )
                         .set_waveform(""),
                 )
                 .set_ephemeral(ephemeral)
