@@ -6,7 +6,7 @@ use slashook::{
     structs::utils::File,
 };
 use std::{fmt::Display, process::Stdio};
-use tokio::{io::AsyncWriteExt, process::Command};
+use tokio::{io::AsyncWriteExt, process::Command, spawn};
 
 pub struct VoiceMessage;
 
@@ -25,7 +25,14 @@ impl VoiceMessage {
             .stdout(Stdio::piped())
             .spawn()?;
 
-        child.stdin.take().unwrap().write_all(&bytes).await?;
+        spawn({
+            let mut stdin = child.stdin.take().unwrap();
+            let bytes = bytes.clone();
+
+            async move {
+                stdin.write_all(&bytes).await.unwrap();
+            }
+        });
 
         if let Err(error) = res
             .send_followup_message(
