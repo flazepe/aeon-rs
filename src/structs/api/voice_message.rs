@@ -19,11 +19,6 @@ impl VoiceMessage {
             return Ok(());
         };
 
-        if bytes.len() / 1024 / 1024 > 25 {
-            res.edit_original_message("Audio file must be 25 MB or smaller.").await?;
-            return Ok(());
-        }
-
         let mut child = Command::new("ffprobe")
             .args(["-i", "-", "-show_entries", "format=duration", "-v", "quiet", "-of", "csv=p=0"])
             .stdin(Stdio::piped())
