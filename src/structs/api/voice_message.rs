@@ -28,7 +28,7 @@ impl VoiceMessage {
         let mut stdin = child.stdin.take().unwrap();
         let task_bytes = bytes.clone();
         let handle = spawn(async move { stdin.write_all(&task_bytes).await.unwrap() });
-        let duration_secs = String::from_utf8(child.wait_with_output().await?.stdout)?
+        let duration_secs = String::from_utf8_lossy(&child.wait_with_output().await?.stdout)
             .trim()
             .split('\n')
             .last()

@@ -72,8 +72,8 @@ impl OwnerCommands<'_> {
             ])
             .output()
         {
-            let stdout = String::from_utf8(output.stdout).unwrap_or_else(|_| "".into());
-            let stderr = String::from_utf8(output.stderr).unwrap_or_else(|_| "".into());
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let stderr = String::from_utf8_lossy(&output.stderr);
 
             text = format!("{}", output.status);
 

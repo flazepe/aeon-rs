@@ -116,7 +116,7 @@ impl Google {
                 let page = browser.new_page("about:blank").await?;
 
                 page.set_content(
-                    String::from_utf8(screen_out.data)?
+                    String::from_utf8_lossy(&screen_out.data)
                         .replace("<html>", r#"<html style="background-image: url(https://picsum.photos/1920/1080);">"#)
                         .replace(r#"style="display:none""#, ""),
                 )

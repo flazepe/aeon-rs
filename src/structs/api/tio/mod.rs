@@ -77,7 +77,7 @@ impl Tio {
 
         GzDecoder::new(&mut result).write_all(&REQWEST.post("https://tio.run/cgi-bin/run/api/").body(body).send().await?.bytes().await?)?;
 
-        let result = String::from_utf8(result)?;
+        let result = String::from_utf8_lossy(&result);
         let result = result.replace(&result.chars().take(16).collect::<String>(), "");
 
         self.result = Some(result.clone());
