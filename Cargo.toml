@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1"
 async-once-cell = "0.4"
+base64 = "0.22"
 chromiumoxide = { version = "0.5", default-features = false, features = ["tokio-runtime"]}
 flate2 = "1"
 futures = "0.3"
@@ -29,7 +30,7 @@ tonic = { version = "0.9", features = ["tls"] }
 twilight-gateway = "0.15"
 twilight-http = "0.15"
 twilight-model = "0.15"
-unicode_names2 = "0.6"
+unicode_names2 = "1.2"
 
 [build-dependencies]
 # tonic-build = "0.9"
