@@ -1,20 +1,16 @@
 pub mod statics;
 
-use crate::{functions::label_num, structs::unicode::statics::CONTROL_CHARACTERS};
+use crate::structs::unicode::statics::CONTROL_CHARACTERS;
 use anyhow::{bail, Context, Result};
 use nipper::Document;
 use reqwest::Client;
 use std::fmt::Display;
 use unicode_names2::name as get_unicode_name;
 
-pub struct UnicodeCharacter {
-    pub codepoint: String,
-    pub name: String,
-    pub character: String,
-}
+pub struct Unicode(Vec<UnicodeCharacter>);
 
-impl UnicodeCharacter {
-    pub async fn get<T: Display>(name: T) -> Result<Self> {
+impl Unicode {
+    pub async fn search<T: Display>(name: T) -> Result<Self> {
         let document =
             Document::from(&Client::new().get("https://symbl.cc/en/search/").query(&[("q", name.to_string())]).send().await?.text().await?);
 
@@ -25,28 +21,15 @@ impl UnicodeCharacter {
         }
 
         let character = document.select(".search-page__char").first().text().to_string().trim().to_string();
-        Ok(Self { codepoint: format!("`U+{:04X}`", character.chars().next().context("Empty string provided.")? as u32), name, character })
+
+        Ok(Self(vec![UnicodeCharacter {
+            codepoint: format!("U+{:04X}", character.chars().next().context("Empty string provided.")? as u32),
+            name,
+            character,
+        }]))
     }
 
-    pub fn format(&self) -> String {
-        format!(
-            "`{}` - {}{}",
-            self.codepoint,
-            self.name,
-            match CONTROL_CHARACTERS.iter().any(|(_, control_character)| control_character == &self.name) {
-                true => "".into(),
-                false => format!(" - `{}`", self.character.replace('`', "｀")),
-            },
-        )
-    }
-}
-
-pub struct UnicodeCharacters {
-    pub unicode_characters: Vec<UnicodeCharacter>,
-}
-
-impl UnicodeCharacters {
-    pub fn get<T: Display>(string: T) -> Self {
+    pub fn list<T: Display>(string: T) -> Self {
         let mut unicode_characters: Vec<UnicodeCharacter> = vec![];
 
         for character in string.to_string().chars() {
@@ -69,13 +52,26 @@ impl UnicodeCharacters {
             unicode_characters.push(UnicodeCharacter { codepoint, name, character: character.to_string() });
         }
 
-        Self { unicode_characters }
+        Self(unicode_characters)
     }
 
     pub fn format(&self) -> String {
-        let unicode_characters =
-            self.unicode_characters.iter().take(20).map(|unicode_character| unicode_character.format()).collect::<Vec<String>>();
-
-        format!("Showing first {}:\n\n{}", label_num(unicode_characters.len(), "character", "characters"), unicode_characters.join("\n"))
+        self.0
+            .iter()
+            .map(|character| {
+                format!(
+                    "[`{codepoint}`](<https://www.compart.com/en/unicode/{codepoint}>) {}",
+                    character.name,
+                    codepoint = character.codepoint,
+                )
+            })
+            .collect::<Vec<String>>()
+            .join("\n")
     }
+}
+
+pub struct UnicodeCharacter {
+    pub codepoint: String,
+    pub name: String,
+    pub character: String,
 }
