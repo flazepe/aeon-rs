@@ -43,14 +43,14 @@ impl Reminders {
 
             for mut reminder in COLLECTIONS
                 .reminders
-                .find(doc! { "timestamp": { "$lte": current_timestamp as i64 } }, None)
+                .find(doc! { "timestamp": { "$lte": current_timestamp as i64 } })
                 .await?
                 .try_collect::<Vec<Reminder>>()
                 .await?
             {
                 match Self::handle(&reminder).await {
                     Ok(_) => {
-                        COLLECTIONS.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
+                        COLLECTIONS.reminders.delete_one(doc! { "_id": reminder._id }).await?;
 
                         if reminder.interval > 0 {
                             // To prevent spam and keeping precision, while loop is needed to ensure that the new timestamp isn't behind the current timestamp
@@ -58,7 +58,7 @@ impl Reminders {
                                 reminder.timestamp += reminder.interval;
                             }
 
-                            COLLECTIONS.reminders.insert_one(&reminder, None).await?;
+                            COLLECTIONS.reminders.insert_one(&reminder).await?;
                         }
                     },
                     Err(error) => {
@@ -70,7 +70,7 @@ impl Reminders {
                             .iter()
                             .find(|message| error.contains(&message.to_string()))
                         {
-                            COLLECTIONS.reminders.delete_one(doc! { "_id": reminder._id }, None).await?;
+                            COLLECTIONS.reminders.delete_one(doc! { "_id": reminder._id }).await?;
                             println!(r#"[REMINDERS] Deleted reminder {} due to fatal error "{fatal_error}"."#, reminder._id);
                         }
                     },
@@ -120,17 +120,7 @@ impl Reminders {
     }
 
     pub async fn get_many<T: Display>(user_id: T) -> Result<Vec<Reminder>> {
-        let reminders = COLLECTIONS
-            .reminders
-            .find(
-                doc! {
-                    "user_id": user_id.to_string(),
-                },
-                None,
-            )
-            .await?
-            .try_collect::<Vec<Reminder>>()
-            .await?;
+        let reminders = COLLECTIONS.reminders.find(doc! { "user_id": user_id.to_string() }).await?.try_collect::<Vec<Reminder>>().await?;
 
         if reminders.is_empty() {
             bail!("No reminders found.");
@@ -147,7 +137,7 @@ impl Reminders {
         reminder: V,
         dm: bool,
     ) -> Result<String> {
-        if COLLECTIONS.reminders.count_documents(doc! { "user_id": user_id.to_string() }, None).await? >= 10 {
+        if COLLECTIONS.reminders.count_documents(doc! { "user_id": user_id.to_string() }).await? >= 10 {
             bail!("You can only have up to 10 reminders.");
         }
 
@@ -170,18 +160,15 @@ impl Reminders {
 
         COLLECTIONS
             .reminders
-            .insert_one(
-                &Reminder {
-                    _id: ObjectId::new(),
-                    user_id: user_id.to_string(),
-                    url: url.to_string(),
-                    timestamp: SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + time.total_secs,
-                    interval: interval.total_secs,
-                    reminder: reminder.to_string(),
-                    dm,
-                },
-                None,
-            )
+            .insert_one(&Reminder {
+                _id: ObjectId::new(),
+                user_id: user_id.to_string(),
+                url: url.to_string(),
+                timestamp: SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + time.total_secs,
+                interval: interval.total_secs,
+                reminder: reminder.to_string(),
+                dm,
+            })
             .await?;
 
         Ok(format!(
@@ -199,7 +186,7 @@ impl Reminders {
     }
 
     pub async fn delete(id: ObjectId) -> Result<()> {
-        COLLECTIONS.reminders.delete_one(doc! { "_id": id }, None).await?;
+        COLLECTIONS.reminders.delete_one(doc! { "_id": id }).await?;
         Ok(())
     }
 }

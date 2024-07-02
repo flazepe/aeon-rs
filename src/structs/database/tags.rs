@@ -30,13 +30,10 @@ impl Tags {
 
         match COLLECTIONS
             .tags
-            .find_one(
-                doc! {
-                    "$or": [{ "name": &name }, { "aliases": name }],
-                    "guild_id": guild_id.to_string(),
-                },
-                None,
-            )
+            .find_one(doc! {
+                "$or": [{ "name": &name }, { "aliases": name }],
+                "guild_id": guild_id.to_string(),
+            })
             .await?
         {
             Some(tag) => Ok(tag),
@@ -47,18 +44,15 @@ impl Tags {
     pub async fn search<T: Display, U: Display>(guild_id: T, author_id: Option<U>) -> Result<Vec<Tag>> {
         let tags = COLLECTIONS
             .tags
-            .find(
-                match author_id {
-                    Some(author_id) => doc! {
-                        "guild_id": guild_id.to_string(),
-                        "author_id": author_id.to_string(),
-                    },
-                    None => doc! {
-                        "guild_id": guild_id.to_string(),
-                    },
+            .find(match author_id {
+                Some(author_id) => doc! {
+                    "guild_id": guild_id.to_string(),
+                    "author_id": author_id.to_string(),
                 },
-                None,
-            )
+                None => doc! {
+                    "guild_id": guild_id.to_string(),
+                },
+            })
             .await?
             .try_collect::<Vec<Tag>>()
             .await?;
@@ -89,7 +83,7 @@ impl Tags {
             bail!("Tag already exists.");
         }
 
-        if COLLECTIONS.tags.count_documents(doc! { "guild_id": guild_id.to_string() }, None).await? == 100 {
+        if COLLECTIONS.tags.count_documents(doc! { "guild_id": guild_id.to_string() }).await? == 100 {
             bail!("I'm sure 100 tags are enough for your server.");
         }
 
@@ -97,20 +91,17 @@ impl Tags {
 
         COLLECTIONS
             .tags
-            .insert_one(
-                Tag {
-                    _id: ObjectId::new(),
-                    name,
-                    aliases: vec![],
-                    guild_id: guild_id.to_string(),
-                    author_id: author_id.to_string(),
-                    nsfw: false,
-                    content: content.to_string(),
-                    created_timestamp: timestamp,
-                    updated_timestamp: timestamp,
-                },
-                None,
-            )
+            .insert_one(Tag {
+                _id: ObjectId::new(),
+                name,
+                aliases: vec![],
+                guild_id: guild_id.to_string(),
+                author_id: author_id.to_string(),
+                nsfw: false,
+                content: content.to_string(),
+                created_timestamp: timestamp,
+                updated_timestamp: timestamp,
+            })
             .await?;
 
         Ok("Created.".into())
@@ -118,18 +109,7 @@ impl Tags {
 
     pub async fn delete<T: Display, U: Display>(name: T, guild_id: U, modifier: &GuildMember) -> Result<String> {
         let tag = Self::validate_tag_modifier(Self::get(name, guild_id).await?, modifier)?;
-
-        COLLECTIONS
-            .tags
-            .delete_one(
-                doc! {
-                    "name": tag.name,
-                    "guild_id": tag.guild_id,
-                },
-                None,
-            )
-            .await?;
-
+        COLLECTIONS.tags.delete_one(doc! { "name": tag.name, "guild_id": tag.guild_id }).await?;
         Ok("Gone.".into())
     }
 
@@ -178,7 +158,6 @@ impl Tags {
                         "content": content,
                     },
                 },
-                None,
             )
             .await?;
 
@@ -223,7 +202,6 @@ impl Tags {
                         "updated_timestamp": SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64,
                     },
                 },
-                None,
             )
             .await?;
 
@@ -250,7 +228,6 @@ impl Tags {
                         "updated_timestamp": SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64,
                     },
                 },
-                None,
             )
             .await?;
 

@@ -54,15 +54,15 @@ impl Oauth {
                 doc! {
                     "$set": to_document(&token)?,
                 },
-                UpdateOptions::builder().upsert(true).build(),
             )
+            .with_options(UpdateOptions::builder().upsert(true).build())
             .await?;
 
         Ok(token)
     }
 
     pub async fn get_token(self) -> Result<String> {
-        Ok(match COLLECTIONS.oauth.find_one(doc! { "_id": &self.name }, None).await? {
+        Ok(match COLLECTIONS.oauth.find_one(doc! { "_id": &self.name }).await? {
             Some(token) => {
                 match token.expires_at > self.timestamp {
                     true => token,

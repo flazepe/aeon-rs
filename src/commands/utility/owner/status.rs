@@ -6,7 +6,7 @@ use crate::{
 use anyhow::{Context, Result};
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
-use sysinfo::{get_current_pid, ProcessExt, System, SystemExt};
+use sysinfo::{get_current_pid, System};
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     match get_current_pid() {
