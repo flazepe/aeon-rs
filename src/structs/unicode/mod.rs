@@ -63,7 +63,7 @@ impl Unicode {
             .iter()
             .map(|character| {
                 format!(
-                    "[`{}`](<https://www.fileformat.info/info/unicode/char/{}/index.htm>) {}",
+                    "[`{}`](<https://www.fileformat.info/info/unicode/char/{}/index.htm>) - {}",
                     character.codepoint,
                     character.codepoint.chars().skip(2).collect::<String>().to_lowercase(),
                     character.name,
