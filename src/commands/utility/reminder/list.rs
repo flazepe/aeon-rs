@@ -16,9 +16,9 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                         .enumerate()
                         .map(|(index, reminder)| {
                             format!(
-                                "{}. {}[*](https://discord.com/channels/{})\n{}{}",
+                                "{}. `{}`[*](https://discord.com/channels/{})\n{}{}",
                                 index + 1,
-                                reminder.reminder,
+                                reminder.reminder.replace('`', "｀"),
                                 reminder.url,
                                 format_timestamp(reminder.timestamp, TimestampFormat::Full),
                                 match reminder.interval > 0 {

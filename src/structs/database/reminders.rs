@@ -1,5 +1,5 @@
 use crate::{
-    functions::{add_reminder_select_options, escape_markdown},
+    functions::add_reminder_select_options,
     statics::{colors::NOTICE_COLOR, COLLECTIONS, REST},
     structs::duration::{statics::SECS_PER_MONTH, Duration},
 };
@@ -173,7 +173,7 @@ impl Reminders {
 
         Ok(format!(
             "I will remind you about `{}`[*](<https://discord.com/channels/{url}>) in {time}{}. Make sure I {}.",
-            escape_markdown(reminder.to_string().replace('`', "｀")),
+            reminder.to_string().replace('`', "｀"),
             match interval.total_secs > 0 {
                 true => format!(" and every {interval} after that"),
                 false => "".into(),
