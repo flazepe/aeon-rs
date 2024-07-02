@@ -32,7 +32,7 @@ pub fn get_command() -> SlashookCommand {
 			},
 			{
 				name = "search",
-				description = "Searches for a unicode character via query.",
+				description = "Searches for unicode characters via query.",
 				options = [
 					{
 						name = "character",
