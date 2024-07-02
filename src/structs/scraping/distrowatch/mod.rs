@@ -1,3 +1,5 @@
+pub mod statics;
+
 use crate::statics::{colors::PRIMARY_COLOR, REQWEST};
 use anyhow::{bail, Context, Result};
 use nipper::Document;
@@ -9,6 +11,8 @@ const BASE_DOMAIN: &str = "https://distrowatch.com";
 pub struct Distribution {
     pub name: String,
     pub url: String,
+    pub logo: Option<String>,
+    pub description: String,
     pub distribution_type: String,
     pub architecture: String,
     pub based_on: String,
@@ -49,6 +53,15 @@ impl Distribution {
         Ok(Self {
             name: name.to_string(),
             url,
+            logo: document.select("td.TablesTitle img").attr("src").map(|src| format!("{BASE_DOMAIN}/{src}")),
+            description: document
+                .select(".TablesTitle")
+                .text()
+                .split('\n')
+                .map(|line| line.trim().to_string())
+                .filter(|line| !line.is_empty())
+                .nth(3)
+                .unwrap_or_else(|| "".into()),
             distribution_type: get_table_nth_child(1)?,
             architecture: get_table_nth_child(4)?,
             based_on: get_table_nth_child(2)?,
@@ -73,14 +86,19 @@ impl Distribution {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .add_field("Name", format!("[{}]({})", self.name, self.url), true)
-            .add_field("Type", to_urls(&self.distribution_type, "ostype"), true)
-            .add_field("Architecture", to_urls(&self.architecture, "architecture"), true)
+            .set_thumbnail(self.logo.as_deref().unwrap_or(""))
+            .set_title(format!("{} ({})", self.name, self.status))
+            .set_url(&self.url)
+            .set_description(&self.description)
+            .add_field(
+                "Type",
+                format!("{} ({})", to_urls(&self.distribution_type, "ostype"), to_urls(&self.architecture, "architecture")),
+                true,
+            )
             .add_field("Based on", to_urls(&self.based_on, "basedon"), true)
             .add_field("Origin", to_urls(&self.origin, "origin"), true)
-            .add_field("Status", &self.status, true)
-            .add_field("Category", to_urls(&self.category, "category"), true)
             .add_field("Desktop", to_urls(&self.desktop, "desktop"), true)
-            .add_field("Popularity", format!("[{}]({BASE_DOMAIN}/dwres.php?resource=popularity)", &self.popularity), true)
+            .add_field("Category", to_urls(&self.category, "category"), true)
+            .add_field("Popularity", format!("[{}]({BASE_DOMAIN}/dwres.php?resource=popularity)", self.popularity), true)
     }
 }
