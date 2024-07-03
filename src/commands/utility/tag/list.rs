@@ -8,6 +8,8 @@ use anyhow::Result;
 use slashook::structs::embeds::Embed;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
+    ctx.res.defer(true).await?;
+
     let author = ctx.get_user_arg("author").ok();
 
     match Tags::search(ctx.input.guild_id.as_ref().unwrap(), author.map(|user| &user.id)).await {

@@ -7,6 +7,8 @@ use anyhow::Result;
 use slashook::structs::embeds::Embed;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
+    ctx.res.defer(true).await?;
+
     match Reminders::get_many(&ctx.input.user.id).await {
         Ok(reminders) => {
             ctx.respond(
