@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1"
-async-once-cell = "0.5"
 base64 = "0.22"
 chromiumoxide = { version = "0.6", default-features = false, features = ["tokio-runtime"]}
 flate2 = "1"

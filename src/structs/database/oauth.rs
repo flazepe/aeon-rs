@@ -1,9 +1,6 @@
 use crate::statics::COLLECTIONS;
 use anyhow::Result;
-use mongodb::{
-    bson::{doc, to_document},
-    options::UpdateOptions,
-};
+use mongodb::bson::{doc, to_document};
 use reqwest::RequestBuilder;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -55,7 +52,7 @@ impl Oauth {
                     "$set": to_document(&token)?,
                 },
             )
-            .with_options(UpdateOptions::builder().upsert(true).build())
+            .upsert(true)
             .await?;
 
         Ok(token)

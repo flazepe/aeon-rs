@@ -10,29 +10,21 @@ use crate::{
     structs::{api::ordr::OrdrRender, client::AeonClient, database::reminders::Reminders, gateway::client::GatewayClient},
 };
 use anyhow::Result;
-use mongodb::{options::ClientOptions as MongoDBClientOptions, Client as MongoDBClient};
+use mongodb::Client as MongoDBClient;
 use slashook::main;
 use tokio::spawn;
 
 #[main]
 async fn main() -> Result<()> {
-    MONGODB
-        .get_or_init(async {
-            MongoDBClient::with_options(MongoDBClientOptions::parse(&CONFIG.database.mongodb_uri).await.unwrap()).unwrap().database("aeon")
-        })
-        .await;
-
+    MONGODB.set(MongoDBClient::with_uri_str(&CONFIG.database.mongodb_uri).await?.database("aeon")).expect("Could not set MongoDB client.");
     println!("[DATABASE] Connected to MongoDB.");
 
-    // Reminders
     spawn(Reminders::poll());
     println!("[REMINDERS] Started polling reminders.");
 
-    // Spawn gateway client
     spawn(GatewayClient::new().create_shards());
     println!("[GATEWAY] Spawned client.");
 
-    // Spawn ordr socket
     spawn(OrdrRender::connect());
     println!("[ORDR] Spawned socket client.");
 
