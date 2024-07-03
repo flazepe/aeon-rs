@@ -66,7 +66,7 @@ impl AniListManga {
                     true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
                     false => self.title.romaji.clone(),
                 },
-                self.format.as_ref().map_or_else(|| "TBA".into(), |format| format.to_string()),
+                self.format.as_ref().map(|format| format.to_string()).as_deref().unwrap_or("TBA"),
             ))
             .set_url(&self.site_url)
     }
@@ -75,8 +75,8 @@ impl AniListManga {
         self._format()
             .set_description(self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n"))
             .add_field("Published", format!("{} ({})", AniList::format_airing_date(&self.start_date, &self.end_date), &self.status), false)
-            .add_field("Chapters", self.chapters.map_or_else(|| "TBA".into(), |chapters| chapters.to_string()), true)
-            .add_field("Volumes", self.volumes.map_or_else(|| "TBA".into(), |volumes| volumes.to_string()), true)
+            .add_field("Chapters", self.chapters.map(|chapters| chapters.to_string()).as_deref().unwrap_or("TBA"), true)
+            .add_field("Volumes", self.volumes.map(|volumes| volumes.to_string()).as_deref().unwrap_or("TBA"), true)
             .add_field("Licensed", yes_no!(self.is_licensed), true)
             .add_field(
                 "Genre",
@@ -87,7 +87,7 @@ impl AniListManga {
                     .join(", "),
                 true,
             )
-            .add_field("Source", self.source.as_ref().map_or_else(|| "N/A".into(), |source| source.to_string()), true)
+            .add_field("Source", self.source.as_ref().map(|source| source.to_string()).as_deref().unwrap_or("N/A"), true)
             .add_field(
                 "Score",
                 {

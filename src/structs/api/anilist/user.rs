@@ -120,7 +120,7 @@ impl AniListUser {
                     "[{}]({}){}",
                     anime.title.romaji,
                     anime.site_url,
-                    anime.format.as_ref().map_or_else(|| "".into(), |format| format!(" ({format})")),
+                    anime.format.as_ref().map(|format| format!(" ({format})")).as_deref().unwrap_or(""),
                 )
             }),
             "\n",
@@ -135,7 +135,7 @@ impl AniListUser {
                     "[{}]({}){}",
                     manga.title.romaji,
                     manga.site_url,
-                    manga.format.as_ref().map_or_else(|| "".into(), |format| format!(" ({format})")),
+                    manga.format.as_ref().map(|format| format!(" ({format})")).as_deref().unwrap_or(""),
                 )
             }),
             "\n",

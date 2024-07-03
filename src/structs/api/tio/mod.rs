@@ -97,7 +97,7 @@ impl Tio {
             .set_url(self.code_url.as_deref().unwrap_or(""))
             .set_description(format!(
                 "{}```\n{}```",
-                self.result_url.as_ref().map_or_else(|| "".into(), |result_url| format!("[Full Result]({result_url})")),
+                self.result_url.as_ref().map(|result_url| format!("[Full Result]({result_url})")).as_deref().unwrap_or(""),
                 self.result.as_deref().unwrap_or("No output.").chars().take(3900).collect::<String>(),
             ))
     }

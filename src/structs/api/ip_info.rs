@@ -39,22 +39,18 @@ impl IpInfo {
         format!(
             "[{ip}](<https://whatismyipaddress.com/ip/{ip}>)\n{}",
             [
-                self.hostname.clone().unwrap_or_else(|| "".into()),
-                [
-                    self.city.clone().unwrap_or_else(|| "".into()),
-                    self.region.clone().unwrap_or_else(|| "".into()),
-                    self.country.clone().unwrap_or_else(|| "".into()),
-                ]
-                .into_iter()
-                .filter(|entry| !entry.is_empty())
-                .collect::<Vec<String>>()
-                .join(", "),
-                self.loc.clone().unwrap_or_else(|| "".into()).replace(',', ", "),
-                self.org.clone().unwrap_or_else(|| "".into()),
+                self.hostname.as_deref().unwrap_or(""),
+                &[self.city.as_deref().unwrap_or(""), self.region.as_deref().unwrap_or(""), self.country.as_deref().unwrap_or("")]
+                    .into_iter()
+                    .filter(|entry| !entry.is_empty())
+                    .collect::<Vec<&str>>()
+                    .join(", "),
+                &self.loc.as_deref().unwrap_or("").replace(',', ", "),
+                self.org.as_deref().unwrap_or(""),
             ]
             .into_iter()
             .filter(|entry| !entry.is_empty())
-            .collect::<Vec<String>>()
+            .collect::<Vec<&str>>()
             .join("\n"),
             ip = self.ip,
         )

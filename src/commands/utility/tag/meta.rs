@@ -19,7 +19,9 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                         .rest
                         .get::<User>(format!("users/{}", tag.author_id))
                         .await
-                        .map_or_else(|_| "N/A".into(), |user| user.username),
+                        .map(|user| user.username)
+                        .as_deref()
+                        .unwrap_or("N/A"),
                     tag.author_id,
                     format_timestamp(tag.created_timestamp, TimestampFormat::Full),
                     if aliases.is_empty() { "None".into() } else { aliases },

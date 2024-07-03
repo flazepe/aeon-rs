@@ -116,9 +116,7 @@ impl VndbCharacter {
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(
-                self.image.as_ref().map_or_else(|| "".into(), |image| if image.sexual > 1.0 { "".into() } else { image.url.clone() }),
-            )
+            .set_thumbnail(self.image.as_ref().map_or("", |image| if image.sexual > 1.0 { "" } else { image.url.as_str() }))
             .set_title(self.name.chars().take(256).collect::<String>())
             .set_url(format!("https://vndb.org/{}", self.id))
     }
@@ -128,33 +126,34 @@ impl VndbCharacter {
             .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n"))
             .add_field(
                 "Sex",
-                self.sex.as_ref().map_or_else(
-                    || "N/A".into(),
-                    |(sex, spoiler_sex)| {
+                self.sex
+                    .as_ref()
+                    .map(|(sex, spoiler_sex)| {
                         format!(
                             "{}{}",
-                            sex.as_ref().map_or_else(|| "N/A".into(), |sex| format!("{sex:?}")),
-                            spoiler_sex.as_ref().map_or_else(|| "".into(), |spoiler_sex| format!(" (||actually {spoiler_sex:?}||)")),
+                            sex.as_ref().map(|sex| format!("{sex:?}")).as_deref().unwrap_or("N/A"),
+                            spoiler_sex.as_ref().map(|spoiler_sex| format!(" (||actually {spoiler_sex:?}||)")).as_deref().unwrap_or(""),
                         )
-                    },
-                ),
+                    })
+                    .as_deref()
+                    .unwrap_or("N/A"),
                 true,
             )
-            .add_field("Age", self.age.map_or_else(|| "N/A".into(), |age| age.commas()), true)
-            .add_field("Birthday", self.birthday.map_or_else(|| "N/A".into(), |birthday| format!("{}/{}", birthday.0, birthday.1)), true)
-            .add_field("Blood Type", self.blood_type.as_ref().map_or_else(|| "N/A".into(), |blood_type| format!("{blood_type:?}")), true)
-            .add_field("Height", self.height.map_or_else(|| "N/A".into(), |height| format!("{} cm", height.commas())), true)
-            .add_field("Weight", self.weight.map_or_else(|| "N/A".into(), |weight| format!("{} kg", weight.commas())), true)
+            .add_field("Age", self.age.map(|age| age.commas()).as_deref().unwrap_or("N/A"), true)
+            .add_field("Birthday", self.birthday.map(|birthday| format!("{}/{}", birthday.0, birthday.1)).as_deref().unwrap_or("N/A"), true)
+            .add_field("Blood Type", self.blood_type.as_ref().map(|blood_type| format!("{blood_type:?}")).as_deref().unwrap_or("N/A"), true)
+            .add_field("Height", self.height.map(|height| format!("{} cm", height.commas())).as_deref().unwrap_or("N/A"), true)
+            .add_field("Weight", self.weight.map(|weight| format!("{} kg", weight.commas())).as_deref().unwrap_or("N/A"), true)
             .add_field(
                 "Bust",
-                self.bust.map_or_else(
-                    || "N/A".into(),
-                    |bust| format!("{bust} cm{}", self.cup.as_ref().map_or_else(|| "".into(), |cup| format!(" - Cup Size {cup}"))),
-                ),
+                self.bust
+                    .map(|bust| format!("{bust} cm{}", self.cup.as_ref().map(|cup| format!(" - Cup Size {cup}")).as_deref().unwrap_or("")))
+                    .as_deref()
+                    .unwrap_or("N/A"),
                 true,
             )
-            .add_field("Waist", self.waist.map_or_else(|| "N/A".into(), |waist| format!("{waist} cm")), true)
-            .add_field("Hips", self.hips.map_or_else(|| "N/A".into(), |hips| format!("{hips} cm")), true)
+            .add_field("Waist", self.waist.map(|waist| format!("{waist} cm")).as_deref().unwrap_or("N/A"), true)
+            .add_field("Hips", self.hips.map(|hips| format!("{hips} cm")).as_deref().unwrap_or("N/A"), true)
     }
 
     pub fn format_traits(&self) -> Embed {

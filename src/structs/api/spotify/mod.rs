@@ -38,7 +38,7 @@ impl Spotify {
     }
 
     pub fn generate_scannable<T: Display>(uri: T) -> String {
-        format!("https://scannables.scdn.co/uri/plain/png/{}/black/700/{uri}", SPOTIFY_EMBED_COLOR.chars().skip(1).collect::<String>())
+        format!("https://scannables.scdn.co/uri/plain/png/{}/black/700/{uri}", SPOTIFY_EMBED_COLOR.trim_start_matches('#'))
     }
 
     pub fn format_duration(mut millis: u64) -> String {

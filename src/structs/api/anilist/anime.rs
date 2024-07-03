@@ -73,7 +73,7 @@ impl AniListAnime {
                     true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
                     false => self.title.romaji.clone(),
                 },
-                self.format.as_ref().map_or_else(|| "TBA".into(), |format| format.to_string()),
+                self.format.as_ref().map(|format| format.to_string()).as_deref().unwrap_or("TBA"),
             ))
             .set_url(&self.site_url)
     }
@@ -85,14 +85,14 @@ impl AniListAnime {
                 "Aired",
                 format!(
                     "{}{} ({}){}",
-                    self.season.as_ref().map_or_else(
-                        || "".into(),
-                        |season| format!(
+                    self.season
+                        .as_ref()
+                        .map(|season| format!(
                             "Premiered {season} {}{}\n",
                             self.season_year.unwrap(),
-                            self.trailer.as_ref().map_or_else(
-                                || "".into(),
-                                |trailer| format!(
+                            self.trailer
+                                .as_ref()
+                                .map(|trailer| format!(
                                     " - [Trailer]({}{})",
                                     match trailer.site.as_str() {
                                         "youtube" => "https://www.youtube.com/watch?v=".into(),
@@ -100,19 +100,24 @@ impl AniListAnime {
                                         site => format!("https://www.google.com/search?q={site}+"),
                                     },
                                     trailer.id,
-                                )
-                            ),
-                        )
-                    ),
+                                ))
+                                .as_deref()
+                                .unwrap_or(""),
+                        ))
+                        .as_deref()
+                        .unwrap_or(""),
                     AniList::format_airing_date(&self.start_date, &self.end_date),
                     &self.status,
-                    self.airing_schedule.nodes.iter().find(|node| node.time_until_airing.map_or(false, |time| time > 0)).map_or_else(
-                        || "".into(),
-                        |node| format!(
+                    self.airing_schedule
+                        .nodes
+                        .iter()
+                        .find(|node| node.time_until_airing.map_or(false, |time| time > 0))
+                        .map(|node| format!(
                             "\nNext episode airs <t:{}:R>",
                             SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() + node.time_until_airing.unwrap() as u64,
-                        ),
-                    )
+                        ),)
+                        .as_deref()
+                        .unwrap_or("")
                 ),
                 false,
             )
@@ -130,25 +135,24 @@ impl AniListAnime {
                 "Episodes",
                 format!(
                     "{}{}",
-                    self.episodes.map_or_else(|| "TBA".into(), |episodes| episodes.to_string()),
-                    self.duration.map_or_else(|| "".into(), |duration| format!(" ({duration} minutes per episode)")),
+                    self.episodes.map(|episodes| episodes.to_string()).as_deref().unwrap_or("TBA"),
+                    self.duration.map(|duration| format!(" ({duration} minutes per episode)")).as_deref().unwrap_or(""),
                 ),
                 true,
             )
             .add_field(
                 "Twitter Hashtag",
-                self.hashtag.as_ref().map_or_else(
-                    || "N/A".into(),
-                    |hashtag| {
+                self.hashtag
+                    .as_ref()
+                    .map(|hashtag| {
                         hashtag
                             .split(' ')
-                            .map(|hashtag| {
-                                format!("[{hashtag}](https://twitter.com/hashtag/{})", hashtag.chars().skip(1).collect::<String>())
-                            })
+                            .map(|hashtag| format!("[{hashtag}](https://twitter.com/hashtag/{})", hashtag.trim_start_matches('#')))
                             .collect::<Vec<String>>()
                             .join(", ")
-                    },
-                ),
+                    })
+                    .as_deref()
+                    .unwrap_or("N/A"),
                 true,
             )
             .add_field(
@@ -160,7 +164,7 @@ impl AniListAnime {
                     .join(", "),
                 true,
             )
-            .add_field("Source", self.source.as_ref().map_or_else(|| "N/A".into(), |source| source.to_string()), true)
+            .add_field("Source", self.source.as_ref().map(|source| source.to_string()).as_deref().unwrap_or("N/A"), true)
             .add_field(
                 "Score",
                 {

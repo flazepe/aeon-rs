@@ -55,8 +55,8 @@ impl Stock {
             price: document.select(".livePrice").text().trim().to_string(),
             diff: format!(
                 "{} {}",
-                price_change.next().map_or_else(|| "N/A".into(), |node| node.text().trim().to_string()),
-                price_change.next().map_or_else(|| "(N/A)".into(), |node| node.text().trim().to_string()),
+                price_change.next().map(|node| node.text().trim().to_string()).as_deref().unwrap_or("N/A"),
+                price_change.next().map(|node| node.text().trim().to_string()).as_deref().unwrap_or("(N/A)"),
             ),
         })
     }

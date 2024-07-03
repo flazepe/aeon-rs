@@ -17,8 +17,8 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             ctx.respond(
                 Embed::new()
                     .set_color(PRIMARY_COLOR)?
-                    .set_thumbnail(author.map_or_else(|| "".into(), |author| author.display_avatar_url("png", 512)))
-                    .set_title(author.map_or_else(|| "All tags".into(), |author| format!("{}'s tags", author.username)))
+                    .set_thumbnail(author.map(|author| author.display_avatar_url("png", 512)).as_deref().unwrap_or(""))
+                    .set_title(author.map(|author| format!("{}'s tags", author.username)).as_deref().unwrap_or("All tags"))
                     .set_description(limit_strings(
                         tags.iter()
                             .filter(|tag| {

@@ -127,7 +127,7 @@ impl SteamUser {
             )
             .add_field(
                 "Created",
-                self.time_created.map_or_else(|| "N/A".into(), |time_created| format_timestamp(time_created, TimestampFormat::Full)),
+                self.time_created.map(|time_created| format_timestamp(time_created, TimestampFormat::Full)).as_deref().unwrap_or("N/A"),
                 false,
             )
             .add_field(
@@ -136,10 +136,11 @@ impl SteamUser {
                     Some((country_code, country)) => format!(
                         ":flag_{}: {}{}",
                         country_code.to_lowercase(),
-                        self.loc_state_code.as_ref().map_or_else(
-                            || "".into(),
-                            |state_code| format!("{}, ", country.states.get(state_code.as_str()).unwrap_or(&"Unknown"))
-                        ),
+                        self.loc_state_code
+                            .as_ref()
+                            .map(|state_code| format!("{}, ", country.states.get(state_code.as_str()).unwrap_or(&"Unknown")))
+                            .as_deref()
+                            .unwrap_or(""),
                         country.name,
                     ),
                     None => "N/A".into(),
@@ -148,17 +149,18 @@ impl SteamUser {
             )
             .add_field(
                 "Playing",
-                self.game_extra_info.as_ref().map_or_else(
-                    || "None".into(),
-                    |game_extra_info| {
+                self.game_extra_info
+                    .as_ref()
+                    .map(|game_extra_info| {
                         format!(
                             "[{}](https://store.steampowered.com/app/{}){}",
                             game_extra_info,
                             self.game_id.unwrap_or(0),
                             format!("\n{}", self.game_server_ip.as_deref().unwrap_or("")).trim(),
                         )
-                    },
-                ),
+                    })
+                    .as_deref()
+                    .unwrap_or("None"),
                 true,
             )
             .add_field("Allows Profile Comments", yes_no!(self.comment_permission.is_some()), true);

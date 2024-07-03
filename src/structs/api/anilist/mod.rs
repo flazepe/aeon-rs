@@ -81,7 +81,7 @@ impl AniList {
                 "[{}]({}){}",
                 relation.node.title.romaji,
                 relation.node.site_url,
-                relation.node.format.as_ref().map_or_else(|| "".into(), |format| format!(" ({format})")),
+                relation.node.format.as_ref().map(|format| format!(" ({format})")).as_deref().unwrap_or(""),
             ));
         }
 

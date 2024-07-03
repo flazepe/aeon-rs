@@ -79,7 +79,7 @@ impl MessageExt for SlashookMessage {
         self.message_reference.as_ref().map(|_| match &self.referenced_message {
             Some(referenced_message) => format_reply_text!(
                 escape_markdown(referenced_message.author.label()),
-                referenced_message.guild_id.as_ref().map_or_else(|| "@me".into(), |guild_id| guild_id.clone()),
+                referenced_message.guild_id.as_ref().map(|guild_id| guild_id.to_string()).as_deref().unwrap_or("@me"),
                 referenced_message.channel_id.clone(),
                 referenced_message.id.clone(),
             ),
@@ -93,7 +93,7 @@ impl MessageExt for TwilightMessage {
         self.reference.as_ref().map(|_| match &self.referenced_message {
             Some(referenced_message) => format_reply_text!(
                 escape_markdown(referenced_message.author.label()),
-                referenced_message.guild_id.map_or_else(|| "@me".into(), |guild_id| guild_id.to_string()),
+                referenced_message.guild_id.map(|guild_id| guild_id.to_string()).as_deref().unwrap_or("@me"),
                 referenced_message.channel_id,
                 referenced_message.id,
             ),

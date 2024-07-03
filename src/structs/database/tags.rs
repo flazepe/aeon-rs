@@ -242,7 +242,7 @@ impl Tags {
     }
 
     pub fn validate_tag_modifier(tag: Tag, member: &GuildMember) -> Result<Tag> {
-        if tag.author_id != member.user.as_ref().map_or_else(|| "".into(), |user| user.id.clone())
+        if tag.author_id != member.user.as_ref().map_or("", |user| user.id.as_str())
             && !member.permissions.unwrap_or_else(Permissions::empty).contains(Permissions::MANAGE_MESSAGES)
         {
             bail!("You're not the author of that tag. Only tag authors and members with the Manage Messages permission can update or delete tags.");

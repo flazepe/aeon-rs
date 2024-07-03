@@ -58,7 +58,7 @@ impl SpotifyFullAlbum {
         Embed::new()
             .set_color(SPOTIFY_EMBED_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.images.first().map_or_else(|| "".into(), |image| image.url.clone()))
+            .set_thumbnail(self.images.first().as_ref().map_or("", |image| image.url.as_str()))
             .set_title(match self.name.is_empty() {
                 true => "N/A".into(),
                 false => self.name.clone(),

@@ -79,13 +79,7 @@ impl SauceNaoSearch {
                                 false => title,
                             }
                         },
-                        result
-                            .data
-                            .ext_urls
-                            .as_ref()
-                            .unwrap_or(&vec![])
-                            .first()
-                            .map_or_else(|| "https://google.com".into(), |url| url.to_string()),
+                        result.data.ext_urls.as_ref().unwrap_or(&vec![]).first().map_or("https://google.com", |url| url.as_str()),
                         {
                             let joined = [
                                 result.data.year.as_deref().unwrap_or("").into(),

@@ -201,9 +201,9 @@ impl SteamGame {
             .set_description(limit_strings(Document::from(&self.short_description).select("body").text().split('\n'), "\n", 4096))
             .add_field(
                 "Release Date",
-                self.release_date.as_ref().map_or_else(
-                    || "TBA".into(),
-                    |release_date| {
+                self.release_date
+                    .as_ref()
+                    .map(|release_date| {
                         format!(
                             "{}{}",
                             format_timestamp(
@@ -215,8 +215,9 @@ impl SteamGame {
                             ),
                             if release_date.coming_soon { " (coming soon)" } else { "" },
                         )
-                    },
-                ),
+                    })
+                    .as_deref()
+                    .unwrap_or("TBA"),
                 false,
             )
             .add_field(
@@ -241,8 +242,8 @@ impl SteamGame {
     pub fn format_developers(&self) -> Embed {
         self._format()
             .set_image(&self.background)
-            .add_field("Developers", self.developers.as_ref().map_or_else(|| "N/A".into(), |developers| developers.join(", ")), false)
-            .add_field("Publishers", self.publishers.as_ref().map_or_else(|| "N/A".into(), |publishers| publishers.join(", ")), false)
+            .add_field("Developers", self.developers.as_ref().map(|developers| developers.join(", ")).as_deref().unwrap_or("N/A"), false)
+            .add_field("Publishers", self.publishers.as_ref().map(|publishers| publishers.join(", ")).as_deref().unwrap_or("N/A"), false)
             .add_field("Website", self.website.as_deref().unwrap_or("N/A"), false)
     }
 
@@ -250,9 +251,9 @@ impl SteamGame {
         self._format()
             .add_field(
                 "Category",
-                self.categories.as_ref().map_or_else(
-                    || "N/A".into(),
-                    |categories| {
+                self.categories
+                    .as_ref()
+                    .map(|categories| {
                         limit_strings(
                             categories.iter().map(|category| {
                                 format!(
@@ -264,15 +265,16 @@ impl SteamGame {
                             ", ",
                             1024,
                         )
-                    },
-                ),
+                    })
+                    .as_deref()
+                    .unwrap_or("N/A"),
                 false,
             )
             .add_field(
                 "Genre",
-                self.genres.as_ref().map_or_else(
-                    || "N/A".into(),
-                    |genres| {
+                self.genres
+                    .as_ref()
+                    .map(|genres| {
                         limit_strings(
                             genres.iter().map(|genre| {
                                 format!(
@@ -284,8 +286,9 @@ impl SteamGame {
                             ", ",
                             1024,
                         )
-                    },
-                ),
+                    })
+                    .as_deref()
+                    .unwrap_or("N/A"),
                 false,
             )
             .add_field(
@@ -311,22 +314,29 @@ impl SteamGame {
             )
             .add_field(
                 "Metacritic",
-                self.metacritic.as_ref().map_or_else(|| "N/A".into(), |metacritic| format!("[{}]({})", metacritic.score, metacritic.url)),
+                self.metacritic
+                    .as_ref()
+                    .map(|metacritic| format!("[{}]({})", metacritic.score, metacritic.url))
+                    .as_deref()
+                    .unwrap_or("N/A"),
                 false,
             )
     }
 
     pub fn format_featured_achievements(&self) -> Embed {
-        self._format().set_description(self.achievements.as_ref().map_or_else(
-            || "N/A".into(),
-            |achievements| {
-                limit_strings(
-                    achievements.highlighted.iter().map(|achievement| format!("[{}]({})", achievement.name, achievement.path)),
-                    "\n",
-                    4096,
-                )
-            },
-        ))
+        self._format().set_description(
+            self.achievements
+                .as_ref()
+                .map(|achievements| {
+                    limit_strings(
+                        achievements.highlighted.iter().map(|achievement| format!("[{}]({})", achievement.name, achievement.path)),
+                        "\n",
+                        4096,
+                    )
+                })
+                .as_deref()
+                .unwrap_or("N/A"),
+        )
     }
 }
 
