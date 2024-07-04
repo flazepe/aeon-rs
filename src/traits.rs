@@ -70,7 +70,7 @@ macro_rules! format_reply_text {
         format!("[Replying to {}](https://discord.com/channels/{}/{}/{})", $user_label, $guild_id, $channel_id, $id)
     };
     () => {
-        "Replying to a deleted message".into()
+        "Replying to a message".into()
     };
 }
 
