@@ -9,7 +9,7 @@ use slashook::{
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         match Google::translate(SimpleMessage::from(ctx.input.target_message.as_ref().unwrap().clone()), "auto", "en").await {
-            Ok(translation) => ctx.respond(translation.format(), false).await,
+            Ok(translation) => ctx.respond(translation.format(), true).await,
             Err(error) => ctx.respond_error(error, true).await,
         }
     })
