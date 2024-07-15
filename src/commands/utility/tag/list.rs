@@ -6,18 +6,12 @@ use crate::{
 };
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let author = ctx.get_user_arg("author").ok();
 
-    println!("Searching...");
-    let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
-
     match Tags::search(ctx.input.guild_id.as_ref().unwrap(), author.map(|user| &user.id)).await {
         Ok(tags) => {
-            println!("Finished searching! Took {}s.", SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() - timestamp);
-
             ctx.respond(
                 Embed::new()
                     .set_color(PRIMARY_COLOR)?
