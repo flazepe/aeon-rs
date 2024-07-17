@@ -71,12 +71,7 @@ impl SpotifyFullAlbum {
             .set_image(Spotify::generate_scannable(&self.uri))
             .add_field(
                 "Artist",
-                self.artists
-                    .iter()
-                    .take(5)
-                    .map(|artist| format!("[{}]({})", artist.name, artist.external_urls.spotify))
-                    .collect::<Vec<String>>()
-                    .join(", "),
+                limit_strings(self.artists.iter().map(|artist| format!("[{}]({})", artist.name, artist.external_urls.spotify)), ", ", 1024),
                 false,
             )
             .add_field("Label", &self.label, false)
