@@ -1,6 +1,6 @@
 use crate::{
     statics::CACHE,
-    structs::{api::spotify::Spotify, command::Command, command_context::CommandContext},
+    structs::{command::Command, command_context::CommandContext, scraping::azlyrics::AZLyrics},
 };
 use once_cell::sync::Lazy;
 use slashook::{
@@ -11,6 +11,8 @@ use slashook::{
 
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
+        ctx.res.defer(false).await?;
+
         let mut query = ctx.get_string_arg("song");
 
         if query.is_err() {
@@ -20,9 +22,8 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
         }
 
         let Ok(query) = query else { return ctx.respond_error("Please provide a song.", true).await };
-        let Ok(mut track) = Spotify::search_track(query).await else { return ctx.respond_error("Song not found.", true).await };
 
-        match Spotify::get_lyrics(track.remove(0)).await {
+        match AZLyrics::get(query).await {
             Ok(lyrics) => ctx.respond(lyrics.format(), false).await,
             Err(error) => ctx.respond_error(error, true).await,
         }

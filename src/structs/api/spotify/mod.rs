@@ -1,6 +1,5 @@
 mod album;
 pub mod components;
-pub mod lyrics;
 pub mod statics;
 mod track;
 
