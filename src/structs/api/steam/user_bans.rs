@@ -3,12 +3,12 @@ use anyhow::{Context, Result};
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct SteamUserBansResponse {
     players: Vec<SteamUserBans>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct SteamUserBans {
     #[serde(rename = "SteamId")]

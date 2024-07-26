@@ -15,7 +15,7 @@ use slashook::{
 };
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListUserAnimeStatistics {
     pub episodes_watched: u64,
@@ -23,7 +23,7 @@ pub struct AniListUserAnimeStatistics {
     pub mean_score: f64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListUserMangaStatistics {
     pub chapters_read: u64,
@@ -31,13 +31,13 @@ pub struct AniListUserMangaStatistics {
     pub mean_score: f64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListUserStatistics {
     pub anime: AniListUserAnimeStatistics,
     pub manga: AniListUserMangaStatistics,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListUserMediaFavorites {
     pub title: AniListTitle,
@@ -45,7 +45,7 @@ pub struct AniListUserMediaFavorites {
     pub site_url: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListUserFavorites {
     pub anime: AniListNodes<AniListUserMediaFavorites>,
     pub manga: AniListNodes<AniListUserMediaFavorites>,
@@ -53,13 +53,13 @@ pub struct AniListUserFavorites {
     pub staff: AniListNodes<AniListCharacterNode>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListUserResponse {
     #[serde(rename = "User")]
     pub user: Option<AniListUser>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListUser {
     pub id: u64,

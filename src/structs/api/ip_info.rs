@@ -3,13 +3,13 @@ use anyhow::{bail, Result};
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct IpInfoError {
     pub title: String,
     pub message: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct IpInfo {
     pub bogon: Option<bool>,
     pub city: Option<String>,

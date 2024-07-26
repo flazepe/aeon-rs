@@ -13,7 +13,7 @@ use serde::Deserialize;
 use slashook::{chrono::DateTime, structs::embeds::Embed};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUser {
     pub avatar_url: String,
     pub country_code: String,
@@ -81,7 +81,7 @@ pub struct OsuUser {
     pub unranked_beatmapset_count: u64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserBadge {
     pub awarded_at: String,
     pub description: String,
@@ -89,32 +89,32 @@ pub struct OsuUserBadge {
     pub url: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserDateCount {
     pub start_date: String,
     pub count: u64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserAchievement {
     pub achieved_at: String,
     pub achievement_id: u64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserCountry {
     pub code: String,
     pub name: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserCover {
     pub custom_url: Option<String>,
     pub url: String,
     pub id: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserGradeCount {
     pub ss: i64,
     pub ssh: i64,
@@ -123,7 +123,7 @@ pub struct OsuUserGradeCount {
     pub a: i64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserGroup {
     pub colour: String,
     pub has_listing: bool,
@@ -136,19 +136,19 @@ pub struct OsuUserGroup {
     pub playmodes: Option<Vec<OsuMode>>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserKudosu {
     pub total: u64,
     pub available: u64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserLevel {
     pub current: u64,
     pub progress: u64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserPage {
     pub html: String,
     pub raw: String,
@@ -163,7 +163,7 @@ pub enum OsuUserPlaystyle {
     Touch,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum OsuUserProfileSection {
     Me,
@@ -175,24 +175,24 @@ pub enum OsuUserProfileSection {
     Kudosu,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserRank {
     pub country: Option<u64>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserRankHighest {
     pub rank: u64,
     pub updated_at: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserRankHistory {
     pub mode: OsuMode,
     pub data: Vec<u64>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuUserStatistics {
     pub count_100: u64,
     pub count_300: u64,
@@ -217,7 +217,7 @@ pub struct OsuUserStatistics {
     pub rank: OsuUserRank,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum OsuMode {
     Osu,

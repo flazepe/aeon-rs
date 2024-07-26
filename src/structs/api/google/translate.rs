@@ -7,12 +7,12 @@ use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct GoogleTranslateSentences {
     trans: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct GoogleTranslateResponse {
     sentences: Vec<GoogleTranslateSentences>,
     src: String,

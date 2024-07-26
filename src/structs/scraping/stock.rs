@@ -5,12 +5,12 @@ use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct YahooFinanceSearchResult {
     quotes: Vec<YahooFinanceQuote>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct YahooFinanceQuote {
     shortname: String,
@@ -18,6 +18,7 @@ struct YahooFinanceQuote {
     is_yahoo_finance: bool,
 }
 
+#[derive(Debug)]
 pub struct Stock {
     pub name: String,
     pub url: String,

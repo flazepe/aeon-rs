@@ -2,42 +2,42 @@ use serde::Deserialize;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 // Page queries
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListResponse<T> {
     pub data: T,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListMediaPageResponse<T> {
     #[serde(rename = "Page")]
     pub page: AniListMediaPage<T>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListMediaPage<T> {
     pub media: Vec<T>,
 }
 
 // ID queries
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListMediaResponse<T> {
     #[serde(rename = "Media")]
     pub media: Option<T>,
 }
 
 // Edges and nodes
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListEdges<T> {
     pub edges: Vec<T>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListNodes<T> {
     pub nodes: Vec<T>,
 }
 
 // Character
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListAnimeCharacter {
     pub node: AniListCharacterNode,
@@ -45,13 +45,13 @@ pub struct AniListAnimeCharacter {
     pub voice_actors: Vec<AniListCharacterVoiceActor>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListMangaCharacter {
     pub node: AniListCharacterNode,
     pub role: AniListCharacterRole,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListCharacterNode {
     pub name: AniListName,
@@ -59,7 +59,7 @@ pub struct AniListCharacterNode {
     pub site_url: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListCharacterRole {
     Main,
@@ -73,7 +73,7 @@ impl Display for AniListCharacterRole {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListCharacterVoiceActor {
     pub name: AniListName,
@@ -82,14 +82,14 @@ pub struct AniListCharacterVoiceActor {
 }
 
 // Relation
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListRelation {
     pub relation_type: AniListRelationType,
     pub node: AniListRelationNode,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListRelationNode {
     pub title: AniListTitle,
@@ -97,7 +97,7 @@ pub struct AniListRelationNode {
     pub site_url: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListRelationType {
     Adaptation,
@@ -132,25 +132,25 @@ impl Display for AniListRelationType {
 }
 
 // Others
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListAiringSchedule {
     pub time_until_airing: Option<i64>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListCoverImage {
     pub extra_large: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListExternalLink {
     pub site: Option<String>,
     pub url: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListFormat {
     Tv,
@@ -184,24 +184,24 @@ impl Display for AniListFormat {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListFuzzyDate {
     pub year: Option<u64>,
     pub month: Option<u64>,
     pub day: Option<u64>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListImage {
     pub large: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListName {
     pub full: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListRanking {
     pub rank: u64,
@@ -215,14 +215,14 @@ pub struct AniListRanking {
     pub year: Option<u64>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListRankingType {
     Popular,
     Rated,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListSeason {
     Winter,
@@ -237,7 +237,7 @@ impl Display for AniListSeason {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListSource {
     Original,
@@ -278,7 +278,7 @@ impl Display for AniListSource {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AniListStatus {
     Finished,
@@ -301,19 +301,19 @@ impl Display for AniListStatus {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListStudio {
     pub name: String,
     pub site_url: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListTitle {
     pub romaji: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AniListTrailer {
     pub id: String,
     pub site: String,

@@ -13,6 +13,7 @@ use flate2::{
 use slashook::structs::embeds::Embed;
 use std::{fmt::Display, io::Write};
 
+#[derive(Debug)]
 pub struct Tio {
     pub programming_language: String,
     pub code: String,

@@ -15,7 +15,7 @@ use std::{
 };
 use tokio::time::sleep;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OrdrRender {
     #[serde(rename = "renderID")]
     pub render_id: Option<u64>,
@@ -43,7 +43,7 @@ pub struct OrdrWsRenderDone {
     pub video_url: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OrdrWsRenderFailed {
     #[serde(rename = "renderID")]
     pub render_id: u64,

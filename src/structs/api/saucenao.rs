@@ -4,7 +4,7 @@ use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SauceNaoHeader {
     pub similarity: String,
     pub thumbnail: String,
@@ -14,7 +14,7 @@ pub struct SauceNaoHeader {
     pub hidden: u64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SauceNaoData {
     pub est_time: Option<String>,
     pub ext_urls: Option<Vec<String>>,
@@ -27,13 +27,13 @@ pub struct SauceNaoData {
     pub year: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SauceNaoResult {
     pub header: SauceNaoHeader,
     pub data: SauceNaoData,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SauceNaoSearch {
     pub results: Vec<SauceNaoResult>,
 }

@@ -3,7 +3,7 @@ use anyhow::Result;
 use serde::Deserialize;
 use slashook::{commands::MessageResponse, structs::utils::File};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct UserBanner {
     banner: Option<String>,
 }

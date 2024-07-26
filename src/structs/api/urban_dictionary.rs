@@ -3,12 +3,12 @@ use anyhow::{bail, Result};
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct UrbanDictionary {
     pub list: Vec<UrbanDictionaryEntry>,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct UrbanDictionaryEntry {
     pub author: String,
     pub current_vote: String,

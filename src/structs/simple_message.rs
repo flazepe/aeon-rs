@@ -11,6 +11,7 @@ use twilight_model::channel::message::{
     Message as TwilightMessage,
 };
 
+#[derive(Debug)]
 pub struct SimpleMessage {
     pub reply_text: Option<String>,
     pub content: String,
@@ -100,6 +101,7 @@ macro_rules! impl_simple_message {
 impl_simple_message!(SlashookMessage, SlashookStickerItem);
 impl_simple_message!(TwilightMessage, TwilightStickerItem);
 
+#[derive(Debug)]
 pub struct SimpleEmbed {
     title: Option<String>,
     description: Option<String>,
@@ -144,6 +146,7 @@ macro_rules! impl_simple_embed {
 impl_simple_embed!(SlashookEmbed, SlashookEmbedField);
 impl_simple_embed!(TwilightEmbed, TwilightEmbedField);
 
+#[derive(Debug)]
 pub struct SimpleSticker {
     id: String,
     name: String,

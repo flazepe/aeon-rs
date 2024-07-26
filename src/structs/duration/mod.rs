@@ -8,6 +8,7 @@ use anyhow::Result;
 use parse_duration::parse;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
+#[derive(Debug)]
 pub struct Duration {
     pub total_secs: u64,
     pub years: u64,

@@ -11,7 +11,7 @@ use serde_json::json;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct VndbTrait {
     pub id: String,
     pub name: String,

@@ -20,7 +20,7 @@ use slashook::{
 };
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AniListManga {
     pub id: u64,

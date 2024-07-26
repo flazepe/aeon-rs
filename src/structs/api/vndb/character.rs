@@ -14,7 +14,7 @@ use std::{
     fmt::{Display, Formatter, Result as FmtResult},
 };
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum VndbBloodType {
     A,
@@ -23,7 +23,7 @@ pub enum VndbBloodType {
     O,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug)]
 pub enum VndbSex {
     #[serde(rename = "m")]
     Male,
@@ -35,7 +35,7 @@ pub enum VndbSex {
     Both,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum VndbCharacterRole {
     Main,
@@ -59,14 +59,14 @@ impl Display for VndbCharacterRole {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct VndbCharacterVisualNovel {
     pub id: String,
     pub title: String,
     pub role: VndbCharacterRole,
 }
 
-#[derive(Deserialize_repr)]
+#[derive(Deserialize_repr, Debug)]
 #[repr(u8)]
 pub enum VndbSpoilerLevel {
     NonSpoiler,
@@ -74,7 +74,7 @@ pub enum VndbSpoilerLevel {
     Spoiler,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct VndbTrait {
     pub id: String,
     pub name: String,
@@ -89,7 +89,7 @@ pub struct VndbTrait {
     pub lie: bool,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct VndbCharacter {
     pub id: String,
     pub name: String,

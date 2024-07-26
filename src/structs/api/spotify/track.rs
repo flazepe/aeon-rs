@@ -15,12 +15,12 @@ use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct SpotifySearchTrackResponse {
     tracks: SpotifyItems<SpotifyFullTrack>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyFullTrack {
     // These are copy pasted from SpotifySimpleTrack
     pub artists: Vec<SpotifySimpleArtist>,

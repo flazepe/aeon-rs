@@ -6,28 +6,28 @@ use anyhow::{bail, Result};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyLyricsWithTrack {
     pub track: SpotifyFullTrack,
     pub lyrics: SpotifyLyrics,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyLyrics {
     pub lyrics: SpotifyRawLyrics,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyRawLyrics {
     pub lines: Vec<SpotifyLyricsLine>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyLyricsLine {
     pub words: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SpotifyToken {
     pub access_token: String,

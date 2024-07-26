@@ -3,7 +3,7 @@ use anyhow::{bail, Result};
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeZoneConvertedTime {
     pub local_time: String,
@@ -12,7 +12,7 @@ pub struct TimeZoneConvertedTime {
     pub time_zone_display_abbr: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeZone {
     pub generic_name: String,
@@ -23,14 +23,14 @@ pub struct TimeZone {
     pub converted_time: TimeZoneConvertedTime,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeZoneLocation {
     pub place_name: String,
     pub time_zone: Vec<TimeZone>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeZoneResource {
     #[serde(rename = "__type")]
@@ -39,14 +39,14 @@ pub struct TimeZoneResource {
     pub time_zone_at_location: Vec<TimeZoneLocation>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeZoneResourceSet {
     pub estimated_total: u64,
     pub resources: Vec<TimeZoneResource>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeZoneResponse {
     pub authentication_result_code: String,

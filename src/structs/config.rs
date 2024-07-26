@@ -1,13 +1,13 @@
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Config {
     pub bot: BotConfig,
     pub database: DatabaseConfig,
     pub api: APIConfig,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct BotConfig {
     pub client_id: String,
     pub guild_id: Option<String>,
@@ -15,12 +15,12 @@ pub struct BotConfig {
     pub token: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct DatabaseConfig {
     pub mongodb_uri: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct APIConfig {
     pub google_assistant: GoogleAssistantConfig,
     pub ordr_key: String,
@@ -33,7 +33,7 @@ pub struct APIConfig {
     pub waaai_key: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct GoogleAssistantConfig {
     pub client_id: String,
     pub client_secret: String,
@@ -42,7 +42,7 @@ pub struct GoogleAssistantConfig {
     pub device_model_id: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OsuConfig {
     pub client_id: String,
     pub client_secret: String,

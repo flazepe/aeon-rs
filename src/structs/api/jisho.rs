@@ -4,25 +4,25 @@ use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::{collections::HashMap, fmt::Display};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct JishoJapanese {
     pub reading: Option<String>,
     pub word: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct JishoLink {
     pub text: String,
     pub url: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct JishoSource {
     pub language: String,
     pub word: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct JishoSense {
     pub english_definitions: Vec<String>,
     pub parts_of_speech: Vec<String>,
@@ -33,19 +33,19 @@ pub struct JishoSense {
     pub info: Vec<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct JishoAttribution {
     pub jmdict: bool,
     pub jmnedict: bool,
     // pub dbpedia: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct JishoSearchResult {
     data: Vec<JishoSearch>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct JishoSearch {
     pub slug: String,
     pub is_common: Option<bool>,

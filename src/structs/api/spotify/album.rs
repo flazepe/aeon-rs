@@ -18,12 +18,12 @@ use serde::Deserialize;
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct SpotifySearchAlbumResponse {
     albums: SpotifyItems<SpotifySimpleAlbum>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyFullAlbum {
     // These are copy pasted from SpotifySimpleAlbum
     #[serde(rename = "type")]

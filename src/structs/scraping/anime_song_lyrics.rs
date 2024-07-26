@@ -4,6 +4,7 @@ use nipper::Document;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
+#[derive(Debug)]
 pub struct AnimeSongLyrics {
     pub title: String,
     pub url: String,

@@ -3,12 +3,12 @@ use anyhow::{Error, Result};
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Dictionary {
     list: Vec<DictionaryEntry>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DictionaryEntry {
     pub word: String,
@@ -19,7 +19,7 @@ pub struct DictionaryEntry {
     pub source_urls: Vec<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DictionaryPhonetic {
     pub text: Option<String>,
@@ -28,7 +28,7 @@ pub struct DictionaryPhonetic {
     pub license: Option<DictionaryLicense>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DictionaryMeaning {
     pub part_of_speech: String,
@@ -37,7 +37,7 @@ pub struct DictionaryMeaning {
     pub antonyms: Vec<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct DictionaryDefinition {
     pub definition: String,
     pub synonyms: Vec<String>,
@@ -45,7 +45,7 @@ pub struct DictionaryDefinition {
     pub example: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct DictionaryLicense {
     pub name: String,
     pub url: String,

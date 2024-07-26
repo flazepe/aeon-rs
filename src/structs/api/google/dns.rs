@@ -10,7 +10,7 @@ use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct GoogleDnsRecord {
     pub name: String,
 
@@ -23,7 +23,7 @@ pub struct GoogleDnsRecord {
     pub data: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct GoogleDnsQuestion {
     pub name: String,
 
@@ -31,7 +31,7 @@ pub struct GoogleDnsQuestion {
     pub record_type: u64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct GoogleDnsQuery {
     pub status: u8,

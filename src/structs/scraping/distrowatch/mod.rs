@@ -8,6 +8,7 @@ use std::fmt::Display;
 
 const BASE_DOMAIN: &str = "https://distrowatch.com";
 
+#[derive(Debug)]
 pub struct Distribution {
     pub name: String,
     pub url: String,

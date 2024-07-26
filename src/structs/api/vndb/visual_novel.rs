@@ -12,7 +12,7 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 
 // Enum reference: https://code.blicky.net/yorhel/vndb/src/branch/master/lib/VNDB/Types.pm
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct VndbTitle {
     pub lang: String,
     pub title: String,
@@ -21,7 +21,7 @@ pub struct VndbTitle {
     pub main: bool,
 }
 
-#[derive(Debug, Deserialize_repr)]
+#[derive(Deserialize_repr, Debug)]
 #[repr(u8)]
 pub enum VndbDevStatus {
     Finished,
@@ -42,7 +42,7 @@ impl Display for VndbDevStatus {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug)]
 pub enum VndbLanguage {
     #[serde(rename = "ar")]
     Arabic,
@@ -217,7 +217,7 @@ impl Display for VndbLanguage {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug)]
 pub enum VndbPlatform {
     #[serde(rename = "win")]
     Windows,
@@ -414,7 +414,7 @@ impl Display for VndbPlatform {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct VndbImage {
     pub id: String,
     pub url: String,
@@ -426,7 +426,7 @@ pub struct VndbImage {
     pub vote_count: u64,
 }
 
-#[derive(Deserialize_repr)]
+#[derive(Deserialize_repr, Debug)]
 #[repr(u8)]
 pub enum VndbLength {
     Unknown,
@@ -454,7 +454,7 @@ impl Display for VndbLength {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub enum VndbTagCategory {
     #[serde(rename = "cont")]
     Content,
@@ -466,7 +466,7 @@ pub enum VndbTagCategory {
     Technical,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct VndbTag {
     pub rating: f64,
     pub spoiler: f32,
@@ -481,7 +481,7 @@ pub struct VndbTag {
     pub vn_count: u64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct VndbVisualNovel {
     pub id: String,
     pub title: String,

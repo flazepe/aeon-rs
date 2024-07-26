@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum SpotifyAlbumGroup {
     Album,
@@ -9,7 +9,7 @@ pub enum SpotifyAlbumGroup {
     AppearsOn,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum SpotifyAlbumType {
     Album,
@@ -17,7 +17,7 @@ pub enum SpotifyAlbumType {
     Compilation,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyAudioFeatures {
     pub acousticness: f64,
     pub analysis_url: String,
@@ -42,7 +42,7 @@ pub struct SpotifyAudioFeatures {
     pub valence: f64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyCopyright {
     pub text: String,
 
@@ -50,7 +50,7 @@ pub struct SpotifyCopyright {
     pub copyright_type: SpotifyCopyrightType,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub enum SpotifyCopyrightType {
     #[serde(rename = "C")]
     Copyright,
@@ -59,31 +59,31 @@ pub enum SpotifyCopyrightType {
     Phonogram,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyExternalIDs {
     pub isrc: Option<String>,
     pub ean: Option<String>,
     pub upc: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyExternalURLs {
     pub spotify: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyImage {
     pub width: u64,
     pub height: Option<u64>,
     pub url: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyItems<T> {
     pub items: Vec<T>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum SpotifyObjectType {
     Artist,
@@ -94,7 +94,7 @@ pub enum SpotifyObjectType {
     AudioFeatures,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyPaging<T> {
     pub href: String,
     pub items: Vec<T>,
@@ -105,7 +105,7 @@ pub struct SpotifyPaging<T> {
     pub total: u64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum SpotifyReleaseDatePrecision {
     Year,
@@ -113,12 +113,12 @@ pub enum SpotifyReleaseDatePrecision {
     Day,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyRestrictions {
     pub reason: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifySimpleAlbum {
     #[serde(rename = "type")]
     pub object_type: SpotifyObjectType,
@@ -139,7 +139,7 @@ pub struct SpotifySimpleAlbum {
     pub total_tracks: u64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifySimpleArtist {
     pub name: String,
     pub id: String,
@@ -152,7 +152,7 @@ pub struct SpotifySimpleArtist {
     pub uri: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifySimpleTrack {
     pub artists: Vec<SpotifySimpleArtist>,
     pub available_markets: Option<Vec<String>>,
@@ -171,7 +171,7 @@ pub struct SpotifySimpleTrack {
     pub uri: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SpotifyTrackLink {
     pub external_urls: SpotifyExternalURLs,
     pub href: String,

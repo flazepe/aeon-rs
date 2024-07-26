@@ -13,17 +13,17 @@ use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct SteamUsersResponse {
     response: SteamUsers,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct SteamUsers {
     players: Vec<SteamUser>,
 }
 
-#[derive(Deserialize)] // Can't use `rename_all = "lowercase"` since serde doesn't remove underscores
+#[derive(Deserialize, Debug)] // Can't use `rename_all = "lowercase"` since serde doesn't remove underscores
 #[serde(rename_all = "lowercase")]
 pub struct SteamUser {
     #[serde(rename = "steamid")]

@@ -13,7 +13,7 @@ use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct VndbResponse<T> {
     results: Vec<T>,
 }

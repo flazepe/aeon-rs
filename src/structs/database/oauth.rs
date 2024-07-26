@@ -8,7 +8,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct RawOauthToken {
     access_token: String,
     token_type: String,

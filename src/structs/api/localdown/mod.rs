@@ -11,7 +11,7 @@ use slashook::structs::embeds::Embed;
 use statics::GENRES;
 use std::fmt::Display;
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct LocalDownNovel {
     pub authors: String,
     pub cover_url: String,
@@ -23,7 +23,7 @@ pub struct LocalDownNovel {
     pub title: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct LocalDownNovelSearchResult {
     pub cover_url: String,
     pub id: u64,

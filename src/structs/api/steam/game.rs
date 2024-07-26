@@ -10,13 +10,13 @@ use serde_json::{from_value, Value};
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamGameRequirements {
     pub minimum: String,
     pub recommended: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamGamePriceOverview {
     pub currency: String,
     pub initial: u64,
@@ -29,7 +29,7 @@ pub struct SteamGamePriceOverview {
     pub final_formatted: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamPackageGroup {
     pub name: String,
     pub title: String,
@@ -41,7 +41,7 @@ pub struct SteamPackageGroup {
     pub subs: Vec<SteamPackageGroupSub>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamPackageGroupSub {
     #[serde(rename = "packageid")]
     pub id: u64,
@@ -55,39 +55,39 @@ pub struct SteamPackageGroupSub {
     pub price_in_cents_with_discount: u64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamPlatforms {
     pub windows: bool,
     pub mac: bool,
     pub linux: bool,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamMetacritic {
     pub score: u64,
     pub url: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamCategory {
     pub id: u64,
     pub description: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamGenre {
     pub id: String, // Why is this one inside a string
     pub description: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamScreenshot {
     pub id: u64,
     pub path_thumbnail: String,
     pub path_full: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamMovie {
     pub id: u64,
     pub name: String,
@@ -97,7 +97,7 @@ pub struct SteamMovie {
     pub highlight: bool,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamMovieSizes {
     #[serde(rename = "480")]
     pub min: String,
@@ -105,42 +105,42 @@ pub struct SteamMovieSizes {
     pub max: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamRecommendations {
     pub total: u64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamAchievements {
     pub total: u64,
     pub highlighted: Vec<SteamAchievement>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamAchievement {
     pub name: String,
     pub path: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamReleaseDate {
     pub coming_soon: bool,
     pub date: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamSupportInfo {
     pub url: String,
     pub email: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamContentDescriptor {
     pub ids: Vec<u64>,
     pub notes: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamGame {
     #[serde(rename = "type")]
     pub app_type: String,
@@ -340,7 +340,7 @@ impl SteamGame {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SteamGameResponse {
     pub success: bool,
     pub data: SteamGame,

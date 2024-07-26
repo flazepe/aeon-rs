@@ -11,7 +11,7 @@ use serde_json::json;
 use slashook::structs::embeds::Embed;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug)]
 pub enum VndbTagCategory {
     #[serde(rename = "cont")]
     Content,
@@ -36,7 +36,7 @@ impl Display for VndbTagCategory {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct VndbTag {
     pub id: String,
     pub name: String,

@@ -5,16 +5,17 @@ use anyhow::{Context, Result};
 use serde::Deserialize;
 use std::fmt::Display;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct XeResponse {
     to: Vec<XeQuote>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct XeQuote {
     mid: f64,
 }
 
+#[derive(Debug)]
 pub struct Xe {
     pub origin_currency: String,
     pub amount: f64,
