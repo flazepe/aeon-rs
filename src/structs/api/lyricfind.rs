@@ -102,11 +102,7 @@ impl LyricFindSearchResultTrack {
                     .unwrap_or(""),
             )
             .set_author(&self.artist.name, None::<String>, None::<String>)
-            .set_title(format!(
-                "{}{}",
-                self.title,
-                self.duration.as_ref().map(|duration| format!(" [{duration}]")).as_deref().unwrap_or(""),
-            ))
+            .set_title(&self.title)
             .set_url(format!("https://lyrics.lyricfind.com/lyrics/{}", self.slug));
 
         if let Some(context) = self.context.as_ref() {
