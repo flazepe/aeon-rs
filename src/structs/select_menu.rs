@@ -4,6 +4,7 @@ use slashook::{
 };
 use std::fmt::Display;
 
+#[derive(Debug)]
 pub struct SelectMenu {
     command: String,
     id: String,
@@ -24,7 +25,7 @@ impl SelectMenu {
     }
 
     pub fn add_option<T: Display, U: Display, V: Display>(mut self, label: T, value: U, description: Option<V>) -> Self {
-        let value = value.to_string();
+        let value = value.to_string().chars().take(100).collect::<String>();
         let mut option = SelectOption::new(label.to_string().chars().take(100).collect::<String>(), &value);
 
         if let Some(default) = self.default.as_ref() {
@@ -49,6 +50,13 @@ impl From<SelectMenu> for Components {
             .set_placeholder(value.placeholder);
 
         for option in value.options.into_iter().take(25) {
+            // Prevent duplicate values in the new select menu
+            if let Some(options) = &select_menu.options {
+                if options.iter().any(|select_option| select_option.value == option.value) {
+                    continue;
+                }
+            }
+
             select_menu = select_menu.add_option(option);
         }
 
