@@ -38,9 +38,9 @@ pub struct LyricFindSearchResultTrack {
     pub has_emotion: bool,
     pub has_sentiment: bool,
 
-    pub snippet: String,
+    pub snippet: Option<String>,
     pub context: Option<String>,
-    pub last_update: String,
+    pub last_update: Option<String>,
     pub score: f64,
     pub slug: String,
 }
@@ -105,14 +105,14 @@ impl LyricFindSearchResultTrack {
             .set_title(&self.title)
             .set_url(format!("https://lyrics.lyricfind.com/lyrics/{}", self.slug));
 
-        if let Some(context) = self.context.as_ref() {
+        if let Some(context) = &self.context {
             embed = embed.add_field(
                 "Match",
                 format!("...{}...", Document::from(&context.replace("<em>", "<em>**").replace("</em>", "**</em>")).select("body").text()),
                 false,
             );
-        } else {
-            embed = embed.add_field("Snippet", &self.snippet, false);
+        } else if let Some(snippet) = &self.snippet {
+            embed = embed.add_field("Snippet", snippet, false);
         }
 
         let mut links = vec![];
