@@ -86,7 +86,7 @@ impl Google {
                 .collect::<Vec<String>>()
                 .join("")
                 .chars()
-                .take(4000)
+                .take(4096)
                 .collect::<String>(),
         })
     }

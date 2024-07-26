@@ -31,7 +31,7 @@ impl EventHandler {
         ));
 
         // Limit
-        while reactions.join("\n\n").len() > 4000 {
+        while reactions.join("\n\n").len() > 4096 {
             reactions.rotate_left(1);
             reactions.pop();
         }
