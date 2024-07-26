@@ -20,7 +20,7 @@ reqwest = { version = "0.12", features = ["gzip"] }
 serde = "1"
 serde_json = "1"
 serde_repr = "0.1"
-slashook = { git = "https://github.com/tonkku107/slashook.git", rev = "85df93a" }
+slashook = { git = "https://github.com/tonkku107/slashook.git", rev = "9320ced" }
 socketio-rs = "0.1"
 sysinfo = "0.30"
 tokio = "1.26"

@@ -47,7 +47,7 @@ impl CommandContext {
         };
 
         if let Some(interaction_metadata) = self.input.message.as_ref().and_then(|message| message.interaction_metadata.as_ref()) {
-            if self.input.user.id != interaction_metadata.user_id {
+            if self.input.user.id != interaction_metadata.user.id {
                 self.respond_error("This isn't your interaction.", true).await?;
                 bail!("User is not the interaction initiator.");
             }

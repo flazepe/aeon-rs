@@ -47,7 +47,7 @@ impl EventHandler {
 
             if let Some(interaction_metadata) = message.interaction_metadata {
                 if interaction_metadata.id != "1202934262123470899" {
-                    user_id = Some(interaction_metadata.user_id);
+                    user_id = Some(interaction_metadata.user.id);
                 }
             }
         }
