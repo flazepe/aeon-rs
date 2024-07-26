@@ -18,6 +18,9 @@ pub struct LyricFindSearchResultTrack {
     #[serde(rename = "camelCase")]
     pub title_simple: Option<String>,
 
+    #[serde(rename = "camelCase")]
+    pub title_romanized: Option<String>,
+
     pub artist: LyricFindSearchResultArtist,
     pub album: Option<LyricFindSearchResultAlbum>,
     pub duration: Option<String>,
@@ -46,15 +49,17 @@ pub struct LyricFindSearchResultTrack {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct LyricFindSearchResultArtist {
     pub name: String,
+    pub name_romanized: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct LyricFindSearchResultAlbum {
     pub title: String,
-    pub release_year: i64,
+    pub release_year: Option<i64>,
     pub cover_art: Option<String>,
     pub slug: String,
 }
