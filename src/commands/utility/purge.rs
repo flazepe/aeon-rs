@@ -57,7 +57,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
                 true => {
                     ctx.res.defer(true).await?;
 
-                    for message in messages.iter() {
+                    for message in &messages {
                         message.delete(&ctx.input.rest).await?;
                     }
                 },

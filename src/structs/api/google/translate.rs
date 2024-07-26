@@ -30,7 +30,7 @@ impl GoogleTranslateTranslation {
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
             .set_title(format!("{} to {}", self.origin_language, self.target_language))
-            .set_description(&self.translation.chars().take(4096).collect::<String>())
+            .set_description(self.translation.chars().take(4096).collect::<String>())
     }
 }
 
