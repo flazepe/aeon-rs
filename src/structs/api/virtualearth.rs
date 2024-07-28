@@ -80,6 +80,18 @@ impl TimeZoneLocation {
 
     pub fn format(&self) -> String {
         let timezone = &self.time_zone[0];
-        format!("It is `{} UTC {}` in {}.", timezone.converted_time.local_time.replace('T', " "), timezone.utc_offset, self.place_name)
+
+        let (date, time) = timezone.converted_time.local_time.split_once('T').unwrap_or(("", ""));
+
+        let hour = time.chars().take(2).collect::<String>().parse::<u8>().unwrap_or(0);
+        let min = time.chars().skip(3).take(2).collect::<String>().parse::<u8>().unwrap_or(0);
+
+        format!(
+            "It is `{}:{min} {}` or `{hour}:{min}` in {} (`{date}, UTC {}`).",
+            if hour > 12 { hour - 12 } else { hour },
+            if hour > 12 { "PM" } else { "AM" },
+            self.place_name,
+            timezone.utc_offset,
+        )
     }
 }
