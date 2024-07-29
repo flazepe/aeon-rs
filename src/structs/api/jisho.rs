@@ -100,34 +100,31 @@ impl JishoSearch {
     }
 
     pub fn format(&self) -> Embed {
-        Embed::new()
-            .set_color(PRIMARY_COLOR)
-            .unwrap_or_default()
-            .set_title(self.format_title())
-            .set_url(format!("https://jisho.org/word/{}", self.slug))
-            .set_description(
-                {
-                    let mut parts_of_speech = HashMap::new();
+        let title = self.format_title();
+        let url = format!("https://jisho.org/word/{}", self.slug);
+        let description = {
+            let mut parts_of_speech = HashMap::new();
 
-                    for sense in &self.senses {
-                        let part_of_speech = match sense.parts_of_speech.is_empty() {
-                            true => "others".into(),
-                            false => sense.parts_of_speech.join(", ").to_lowercase(),
-                        };
+            for sense in &self.senses {
+                let part_of_speech = match sense.parts_of_speech.is_empty() {
+                    true => "others".into(),
+                    false => sense.parts_of_speech.join(", ").to_lowercase(),
+                };
 
-                        if !parts_of_speech.contains_key(&part_of_speech) {
-                            parts_of_speech.insert(part_of_speech.clone(), vec![]);
-                        }
-
-                        parts_of_speech.get_mut(&part_of_speech).unwrap().push(sense.english_definitions.join(", "));
-                    }
-
-                    parts_of_speech
+                if !parts_of_speech.contains_key(&part_of_speech) {
+                    parts_of_speech.insert(part_of_speech.clone(), vec![]);
                 }
-                .iter()
-                .map(|(k, v)| format!("{}\n{}", k, v.iter().map(|entry| format!(" - {entry}")).collect::<Vec<String>>().join("\n")))
-                .collect::<Vec<String>>()
-                .join("\n\n"),
-            )
+
+                parts_of_speech.get_mut(&part_of_speech).unwrap().push(sense.english_definitions.join(", "));
+            }
+
+            parts_of_speech
+        }
+        .iter()
+        .map(|(k, v)| format!("{}\n{}", k, v.iter().map(|entry| format!(" - {entry}")).collect::<Vec<String>>().join("\n")))
+        .collect::<Vec<String>>()
+        .join("\n\n");
+
+        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_title(title).set_url(url).set_description(description)
     }
 }

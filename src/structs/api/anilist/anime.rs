@@ -58,156 +58,144 @@ pub struct AniListAnime {
 
 impl AniListAnime {
     fn _format(&self) -> Embed {
+        let thumbnail = &self.cover_image.extra_large;
+        let image = self.banner_image.as_deref().unwrap_or("");
+        let title = format!(
+            ":flag_{}: {} ({})",
+            self.country_of_origin.to_lowercase(),
+            match self.title.romaji.len() > 230 {
+                true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
+                false => self.title.romaji.clone(),
+            },
+            self.format.as_ref().map(|format| format.to_string()).as_deref().unwrap_or("TBA"),
+        );
+        let url = &self.site_url;
+
         Embed::new()
             .set_color(ANILIST_EMBED_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(&self.cover_image.extra_large)
-            .set_image(self.banner_image.as_deref().unwrap_or(""))
-            .set_title(format!(
-                ":flag_{}: {} ({})",
-                self.country_of_origin.to_lowercase(),
-                match self.title.romaji.len() > 230 {
-                    true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
-                    false => self.title.romaji.clone(),
-                },
-                self.format.as_ref().map(|format| format.to_string()).as_deref().unwrap_or("TBA"),
-            ))
-            .set_url(&self.site_url)
+            .set_thumbnail(thumbnail)
+            .set_image(image)
+            .set_title(title)
+            .set_url(url)
     }
 
     pub fn format(&self) -> Embed {
+        let synonyms = self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n");
+
+        let trailer = self
+            .trailer
+            .as_ref()
+            .map(|trailer| {
+                format!(
+                    " - [Trailer]({}{})",
+                    match trailer.site.as_str() {
+                        "youtube" => "https://www.youtube.com/watch?v=".into(),
+                        "dailymotion" => "https://www.dailymotion.com/video/".into(),
+                        site => format!("https://www.google.com/search?q={site}+"),
+                    },
+                    trailer.id,
+                )
+            })
+            .unwrap_or_else(|| "".into());
+        let season = self
+            .season
+            .as_ref()
+            .map(|season| format!("Premiered {season} {}{trailer}\n", self.season_year.unwrap()))
+            .unwrap_or_else(|| "".into());
+        let airing_date = AniList::format_airing_date(&self.start_date, &self.end_date);
+        let status = &self.status;
+        let airing_in = self
+            .airing_schedule
+            .nodes
+            .iter()
+            .find(|node| node.time_until_airing.map_or(false, |time| time > 0))
+            .map(|node| format!("\nNext episode airs <t:{}:R>", now() + node.time_until_airing.unwrap() as u64,))
+            .unwrap_or_else(|| "".into());
+        let aired = format!("{season}{airing_date} ({status}){airing_in}");
+
+        let studios =
+            self.studios.nodes.iter().map(|studio| format!("[{}]({})", studio.name, studio.site_url)).collect::<Vec<String>>().join(", ");
+        let episodes = format!(
+            "{}{}",
+            self.episodes.map(|episodes| episodes.to_string()).as_deref().unwrap_or("TBA"),
+            self.duration.map(|duration| format!(" ({duration} minutes per episode)")).as_deref().unwrap_or(""),
+        );
+        let hashtags = self
+            .hashtag
+            .as_ref()
+            .map(|hashtag| {
+                hashtag
+                    .split(' ')
+                    .map(|hashtag| format!("[{hashtag}](https://twitter.com/hashtag/{})", hashtag.trim_start_matches('#')))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            })
+            .unwrap_or_else(|| "N/A".into());
+        let genres = self
+            .genres
+            .iter()
+            .map(|genre| format!("[{genre}](https://anilist.co/search/anime?genres={})", genre.replace(' ', "+")))
+            .collect::<Vec<String>>()
+            .join(", ");
+        let source = self.source.as_ref().map(|source| source.to_string()).unwrap_or_else(|| "N/A".into());
+        let scores = {
+            let mut scores = vec![];
+
+            if let Some(average_score) = self.average_score {
+                scores.push(format!("Average {average_score}%"))
+            }
+
+            if let Some(mean_score) = self.mean_score {
+                scores.push(format!("Mean {mean_score}%"))
+            }
+
+            match scores.is_empty() {
+                true => "N/A".into(),
+                false => scores.join("\n"),
+            }
+        };
+        let timestamp = Utc.timestamp_opt(self.updated_at as i64, 0).unwrap();
+
         self._format()
-            .set_description(self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n"))
-            .add_field(
-                "Aired",
-                format!(
-                    "{}{} ({}){}",
-                    self.season
-                        .as_ref()
-                        .map(|season| format!(
-                            "Premiered {season} {}{}\n",
-                            self.season_year.unwrap(),
-                            self.trailer
-                                .as_ref()
-                                .map(|trailer| format!(
-                                    " - [Trailer]({}{})",
-                                    match trailer.site.as_str() {
-                                        "youtube" => "https://www.youtube.com/watch?v=".into(),
-                                        "dailymotion" => "https://www.dailymotion.com/video/".into(),
-                                        site => format!("https://www.google.com/search?q={site}+"),
-                                    },
-                                    trailer.id,
-                                ))
-                                .as_deref()
-                                .unwrap_or(""),
-                        ))
-                        .as_deref()
-                        .unwrap_or(""),
-                    AniList::format_airing_date(&self.start_date, &self.end_date),
-                    &self.status,
-                    self.airing_schedule
-                        .nodes
-                        .iter()
-                        .find(|node| node.time_until_airing.map_or(false, |time| time > 0))
-                        .map(|node| format!("\nNext episode airs <t:{}:R>", now() + node.time_until_airing.unwrap() as u64,),)
-                        .as_deref()
-                        .unwrap_or("")
-                ),
-                false,
-            )
-            .add_field(
-                "Studio",
-                self.studios
-                    .nodes
-                    .iter()
-                    .map(|studio| format!("[{}]({})", studio.name, studio.site_url))
-                    .collect::<Vec<String>>()
-                    .join(", "),
-                true,
-            )
-            .add_field(
-                "Episodes",
-                format!(
-                    "{}{}",
-                    self.episodes.map(|episodes| episodes.to_string()).as_deref().unwrap_or("TBA"),
-                    self.duration.map(|duration| format!(" ({duration} minutes per episode)")).as_deref().unwrap_or(""),
-                ),
-                true,
-            )
-            .add_field(
-                "Twitter Hashtag",
-                self.hashtag
-                    .as_ref()
-                    .map(|hashtag| {
-                        hashtag
-                            .split(' ')
-                            .map(|hashtag| format!("[{hashtag}](https://twitter.com/hashtag/{})", hashtag.trim_start_matches('#')))
-                            .collect::<Vec<String>>()
-                            .join(", ")
-                    })
-                    .as_deref()
-                    .unwrap_or("N/A"),
-                true,
-            )
-            .add_field(
-                "Genre",
-                self.genres
-                    .iter()
-                    .map(|genre| format!("[{genre}](https://anilist.co/search/anime?genres={})", genre.replace(' ', "+")))
-                    .collect::<Vec<String>>()
-                    .join(", "),
-                true,
-            )
-            .add_field("Source", self.source.as_ref().map(|source| source.to_string()).as_deref().unwrap_or("N/A"), true)
-            .add_field(
-                "Score",
-                {
-                    let mut scores = vec![];
-
-                    if let Some(average_score) = self.average_score {
-                        scores.push(format!("Average {average_score}%"))
-                    }
-
-                    if let Some(mean_score) = self.mean_score {
-                        scores.push(format!("Mean {mean_score}%"))
-                    }
-
-                    match scores.is_empty() {
-                        true => "N/A".into(),
-                        false => scores.join("\n"),
-                    }
-                },
-                true,
-            )
+            .set_description(synonyms)
+            .add_field("Aired", aired, false)
+            .add_field("Studio", studios, true)
+            .add_field("Episodes", episodes, true)
+            .add_field("Twitter Hashtag", hashtags, true)
+            .add_field("Genre", genres, true)
+            .add_field("Source", source, true)
+            .add_field("Score", scores, true)
             .set_footer("Last updated", None::<String>)
-            .set_timestamp(Utc.timestamp_opt(self.updated_at as i64, 0).unwrap())
+            .set_timestamp(timestamp)
     }
 
     pub fn format_description(&self) -> Embed {
-        AniList::format_description(self._format(), self.description.as_ref())
+        AniList::format_embed_description(self._format(), self.description.as_ref())
     }
 
     pub fn format_characters(&self) -> Embed {
-        self._format().set_description(limit_strings(
+        let characters = limit_strings(
             self.characters.edges.iter().map(|character| {
                 format!(
                     "[{}]({}) ({}){}",
                     character.node.name.full,
                     character.node.site_url,
-                    &character.role,
-                    match character.voice_actors.first() {
-                        Some(voice_actor) => format!("\nVoiced by [{}]({})", voice_actor.name.full, voice_actor.site_url),
-                        None => "".into(),
-                    },
+                    character.role,
+                    character.voice_actors.first().map_or_else(
+                        || "".into(),
+                        |voice_actor| format!("\nVoiced by [{}]({})", voice_actor.name.full, voice_actor.site_url)
+                    ),
                 )
             }),
             "\n\n",
             4096,
-        ))
+        );
+        self._format().set_description(characters)
     }
 
     pub fn format_relations(&self) -> Embed {
-        AniList::format_relations(self._format(), &self.relations.edges)
+        AniList::format_embed_relations(self._format(), &self.relations.edges)
     }
 }
 

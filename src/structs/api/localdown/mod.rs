@@ -69,64 +69,65 @@ impl LocalDownNovel {
     }
 
     pub fn format(&self) -> Embed {
+        let thumbnail = &self.cover_url;
+        let title = format!(
+            "{} ({})",
+            match self.title.len() > 249 {
+                true => format!("{}…", self.title.chars().take(248).collect::<String>().trim()),
+                false => self.title.clone(),
+            },
+            self.start_year,
+        );
+        let url = format!(
+            "https://www.novelupdates.com/series/{}/",
+            self.title
+                .to_lowercase()
+                .chars()
+                .map(|char| match [' ', '-'].contains(&char) {
+                    true => '-',
+                    false => match char.is_ascii_alphanumeric() {
+                        true => char,
+                        false => '_',
+                    },
+                })
+                .filter(|char| char != &'_')
+                .collect::<String>(),
+        );
+        let other_names = from_str::<Vec<String>>(
+            format!(
+                r#"["{}"]"#,
+                self.other_names
+                    .chars()
+                    .skip(1)
+                    .take(2.max(self.other_names.chars().count()) - 2)
+                    .collect::<String>()
+                    .replace("', ", r#"", "#)
+                    .replace(", '", r#", ""#),
+            )
+            .as_str(),
+        )
+        .unwrap_or_default()
+        .iter()
+        .map(|name| format!("_{name}_"))
+        .collect::<Vec<String>>()
+        .join("\n");
+        let genres = self.genres
+            .split(", ")
+            .map(|genre| GENRES.get(&genre).unwrap_or(&"").to_string()) // unwrap_or()'d just in case
+            .filter(|genre| !genre.is_empty()) // Edge case
+            .collect::<Vec<String>>()
+            .join(", ");
+        let publisher = &self.publisher;
+
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(&self.cover_url)
-            .set_title(format!(
-                "{} ({})",
-                match self.title.len() > 249 {
-                    true => format!("{}…", self.title.chars().take(248).collect::<String>().trim()),
-                    false => self.title.clone(),
-                },
-                self.start_year,
-            ))
-            .set_url(format!(
-                "https://www.novelupdates.com/series/{}/",
-                self.title
-                    .to_lowercase()
-                    .chars()
-                    .map(|char| match [' ', '-'].contains(&char) {
-                        true => '-',
-                        false => match char.is_ascii_alphanumeric() {
-                            true => char,
-                            false => '_',
-                        },
-                    })
-                    .filter(|char| char != &'_')
-                    .collect::<String>(),
-            ))
-            .set_description(
-                from_str::<Vec<String>>(
-                    format!(
-                        r#"["{}"]"#,
-                        self.other_names
-                            .chars()
-                            .skip(1)
-                            .take(2.max(self.other_names.chars().count()) - 2)
-                            .collect::<String>()
-                            .replace("', ", r#"", "#)
-                            .replace(", '", r#", ""#),
-                    )
-                    .as_str(),
-                )
-                .unwrap_or_default()
-                .iter()
-                .map(|name| format!("_{name}_"))
-                .collect::<Vec<String>>()
-                .join("\n"),
-            )
-            .add_field(
-                "Genre",
-                self.genres
-                    .split(", ")
-                    .map(|genre| GENRES.get(&genre).unwrap_or(&"").to_string()) // unwrap_or()'d just in case
-                    .filter(|genre| !genre.is_empty()) // Edge case
-                    .collect::<Vec<String>>()
-                    .join(", "),
-                false,
-            )
-            .add_field("Publisher", &self.publisher, false)
+            .set_thumbnail(thumbnail)
+            .set_title(title)
+            .set_url(url)
+            .set_description(other_names)
+            .add_field("Genre", genres, false)
+            .add_field("Publisher", publisher, false)
             .set_footer("Powered by Project LocalDown API", None::<String>)
     }
 }

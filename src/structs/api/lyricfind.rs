@@ -94,27 +94,28 @@ impl LyricFind {
 
 impl LyricFindSearchResultTrack {
     pub fn format(&self) -> Embed {
+        let thumbnail = self
+            .album
+            .as_ref()
+            .and_then(|album| album.cover_art.as_ref())
+            .map(|cover_art| format!("http://images.lyricfind.com/images/{cover_art}"))
+            .unwrap_or_else(|| "".into());
+        let author = &self.artist.name;
+        let title = &self.title;
+        let url = format!("https://lyrics.lyricfind.com/lyrics/{}", self.slug);
+
         let mut embed = Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(
-                self.album
-                    .as_ref()
-                    .and_then(|album| album.cover_art.as_ref())
-                    .map(|cover_art| format!("http://images.lyricfind.com/images/{cover_art}"))
-                    .as_deref()
-                    .unwrap_or(""),
-            )
-            .set_author(&self.artist.name, None::<String>, None::<String>)
-            .set_title(&self.title)
-            .set_url(format!("https://lyrics.lyricfind.com/lyrics/{}", self.slug));
+            .set_thumbnail(thumbnail)
+            .set_author(author, None::<String>, None::<String>)
+            .set_title(title)
+            .set_url(url);
 
         if let Some(context) = &self.context {
-            embed = embed.add_field(
-                "Match",
-                format!("...{}...", Document::from(&context.replace("<em>", "<em>**").replace("</em>", "**</em>")).select("body").text()),
-                false,
-            );
+            let mut match_text = context.replace("<em>", "<em>**").replace("</em>", "**</em>");
+            match_text = format!("...{}...", Document::from(&match_text).select("body").text());
+            embed = embed.add_field("Match", match_text, false);
         } else if let Some(snippet) = &self.snippet {
             embed = embed.add_field("Snippet", snippet, false);
         }

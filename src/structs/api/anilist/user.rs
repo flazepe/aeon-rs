@@ -77,44 +77,42 @@ pub struct AniListUser {
 
 impl AniListUser {
     fn _format(&self) -> Embed {
-        Embed::new()
-            .set_color(ANILIST_EMBED_COLOR)
-            .unwrap_or_default()
-            .set_thumbnail(&self.avatar.large)
-            .set_title(&self.name)
-            .set_url(&self.site_url)
+        let thumbnail = &self.avatar.large;
+        let name: &String = &self.name;
+        let url = &self.site_url;
+
+        Embed::new().set_color(ANILIST_EMBED_COLOR).unwrap_or_default().set_thumbnail(thumbnail).set_title(name).set_url(url)
     }
 
     pub fn format(&self) -> Embed {
+        let image = format!("https://img.anili.st/user/{}", self.id);
+        let created = format_timestamp(self.created_at, TimestampFormat::Full);
+        let anime_statistics = format!(
+            "Watched {} episodes\n{} minutes spent\n{:.0}% mean score",
+            self.statistics.anime.episodes_watched, self.statistics.anime.minutes_watched, self.statistics.anime.mean_score,
+        );
+        let manga_statistics = format!(
+            "Read {} chapters\nRead {} volumes\n{:.0}% mean score",
+            self.statistics.manga.chapters_read, self.statistics.manga.volumes_read, self.statistics.manga.mean_score,
+        );
+        let timestamp = Utc.timestamp_opt(self.updated_at as i64, 0).unwrap();
+
         self._format()
-            .set_image(format!("https://img.anili.st/user/{}", self.id))
-            .add_field("Created", format_timestamp(self.created_at, TimestampFormat::Full), false)
-            .add_field(
-                "Anime Statistics",
-                format!(
-                    "Watched {} episodes\n{} minutes spent\n{:.0}% mean score",
-                    self.statistics.anime.episodes_watched, self.statistics.anime.minutes_watched, self.statistics.anime.mean_score,
-                ),
-                true,
-            )
-            .add_field(
-                "Manga Statistics",
-                format!(
-                    "Read {} chapters\nRead {} volumes\n{:.0}% mean score",
-                    self.statistics.manga.chapters_read, self.statistics.manga.volumes_read, self.statistics.manga.mean_score,
-                ),
-                true,
-            )
+            .set_image(image)
+            .add_field("Created", created, false)
+            .add_field("Anime Statistics", anime_statistics, true)
+            .add_field("Manga Statistics", manga_statistics, true)
             .set_footer("Last updated", None::<String>)
-            .set_timestamp(Utc.timestamp_opt(self.updated_at as i64, 0).unwrap())
+            .set_timestamp(timestamp)
     }
 
     pub fn format_about(&self) -> Embed {
-        self._format().set_description(limit_strings(self.about.as_deref().unwrap_or("").split('\n'), "\n", 4096))
+        let about = limit_strings(self.about.as_deref().unwrap_or("").split('\n'), "\n", 4096);
+        self._format().set_description(about)
     }
 
     pub fn format_favorite_anime(&self) -> Embed {
-        self._format().set_description(limit_strings(
+        let favorite_anime = limit_strings(
             self.favorites.anime.nodes.iter().map(|anime| {
                 format!(
                     "[{}]({}){}",
@@ -125,11 +123,12 @@ impl AniListUser {
             }),
             "\n",
             4096,
-        ))
+        );
+        self._format().set_description(favorite_anime)
     }
 
     pub fn format_favorite_manga(&self) -> Embed {
-        self._format().set_description(limit_strings(
+        let favorite_manga = limit_strings(
             self.favorites.manga.nodes.iter().map(|manga| {
                 format!(
                     "[{}]({}){}",
@@ -140,23 +139,23 @@ impl AniListUser {
             }),
             "\n",
             4096,
-        ))
+        );
+        self._format().set_description(favorite_manga)
     }
 
     pub fn format_favorite_characters(&self) -> Embed {
-        self._format().set_description(limit_strings(
+        let favorite_characters = limit_strings(
             self.favorites.characters.nodes.iter().map(|character| format!("[{}]({})", character.name.full, character.site_url)),
             "\n",
             4096,
-        ))
+        );
+        self._format().set_description(favorite_characters)
     }
 
     pub fn format_favorite_staff(&self) -> Embed {
-        self._format().set_description(limit_strings(
-            self.favorites.staff.nodes.iter().map(|staff| format!("[{}]({})", staff.name.full, staff.site_url)),
-            "\n",
-            4096,
-        ))
+        let favorite_staff =
+            limit_strings(self.favorites.staff.nodes.iter().map(|staff| format!("[{}]({})", staff.name.full, staff.site_url)), "\n", 4096);
+        self._format().set_description(favorite_staff)
     }
 }
 

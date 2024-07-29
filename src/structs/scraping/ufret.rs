@@ -29,7 +29,7 @@ impl Ufret {
             .map(|node| {
                 UfretSong::from(format!(
                     "{}|{}",
-                    node.attr("href").unwrap_or("".into()).chars().filter(|char| char.is_numeric()).collect::<String>(),
+                    node.attr("href").unwrap_or_else(|| "".into()).chars().filter(|char| char.is_numeric()).collect::<String>(),
                     node.text(),
                 ))
             })
@@ -115,7 +115,7 @@ impl UfretSong {
             page.evaluate("[...document.querySelectorAll('style')][3].innerText;")
                 .await?
                 .into_value::<String>()
-                .unwrap_or("".into()),
+                .unwrap_or_else(|_| "".into()),
             // Add chords
             page.evaluate(
                 r##"
@@ -143,14 +143,12 @@ impl UfretSong {
     }
 
     pub fn format(&self) -> MessageResponse {
-        let mut response = MessageResponse::from(
-            Embed::new()
-                .set_color(PRIMARY_COLOR)
-                .unwrap_or_default()
-                .set_title(&self.name)
-                .set_url(&self.url)
-                .set_image("attachment://image.png"),
-        );
+        let title = &self.name;
+        let url = &self.url;
+        let image = "attachment://image.png";
+
+        let mut response =
+            MessageResponse::from(Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_title(title).set_url(url).set_image(image));
 
         if let Some(screenshot) = self.screenshot.as_ref() {
             response = response.add_file(File::new("image.png", screenshot.clone()));

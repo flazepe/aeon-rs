@@ -91,15 +91,14 @@ impl Tio {
     }
 
     pub fn format(&self) -> Embed {
-        Embed::new()
-            .set_color(PRIMARY_COLOR)
-            .unwrap_or_default()
-            .set_title(&self.programming_language)
-            .set_url(self.code_url.as_deref().unwrap_or(""))
-            .set_description(format!(
-                "{}```\n{}```",
-                self.result_url.as_ref().map(|result_url| format!("[Full Result]({result_url})")).as_deref().unwrap_or(""),
-                self.result.as_deref().unwrap_or("No output.").chars().take(3900).collect::<String>(),
-            ))
+        let title = &self.programming_language;
+        let url = self.code_url.as_deref().unwrap_or("");
+        let result = format!(
+            "{}```\n{}```",
+            self.result_url.as_ref().map(|result_url| format!("[Full Result]({result_url})")).as_deref().unwrap_or(""),
+            self.result.as_deref().unwrap_or("No output.").chars().take(3900).collect::<String>(),
+        );
+
+        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_title(title).set_url(url).set_description(result)
     }
 }

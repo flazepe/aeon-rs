@@ -55,82 +55,66 @@ pub struct SpotifyFullAlbum {
 
 impl SpotifyFullAlbum {
     fn _format(&self) -> Embed {
-        Embed::new()
-            .set_color(SPOTIFY_EMBED_COLOR)
-            .unwrap_or_default()
-            .set_thumbnail(self.images.first().as_ref().map_or("", |image| image.url.as_str()))
-            .set_title(match self.name.is_empty() {
-                true => "N/A".into(),
-                false => self.name.clone(),
-            })
-            .set_url(&self.external_urls.spotify)
+        let thumbnail = self.images.first().as_ref().map_or("", |image| image.url.as_str());
+        let title = match self.name.is_empty() {
+            true => "N/A".into(),
+            false => self.name.clone(),
+        };
+        let url = &self.external_urls.spotify;
+
+        Embed::new().set_color(SPOTIFY_EMBED_COLOR).unwrap_or_default().set_thumbnail(thumbnail).set_title(title).set_url(url)
     }
 
     pub fn format(&self) -> Embed {
-        self._format()
-            .set_image(Spotify::generate_scannable(&self.uri))
-            .add_field(
-                "Artist",
-                limit_strings(self.artists.iter().map(|artist| format!("[{}]({})", artist.name, artist.external_urls.spotify)), ", ", 1024),
-                false,
-            )
-            .add_field("Label", &self.label, false)
-            .add_field(
-                "Release Date",
-                match self.release_date_precision {
-                    SpotifyReleaseDatePrecision::Day => format_timestamp(
-                        NaiveDateTime::parse_from_str(&format!("{} 00:00", self.release_date), "%F %R").unwrap().and_utc().timestamp(),
-                        TimestampFormat::Full,
-                    ),
-                    _ => self.release_date.clone(),
-                },
-                false,
-            )
-            .add_field(
-                "Genre",
-                match self.genres.is_empty() {
-                    true => "N/A".into(),
-                    false => self.genres.join(", "),
-                },
-                false,
-            )
-            .add_field(
-                "Duration",
+        let image = Spotify::generate_scannable(&self.uri);
+        let artist =
+            limit_strings(self.artists.iter().map(|artist| format!("[{}]({})", artist.name, artist.external_urls.spotify)), ", ", 1024);
+        let label = &self.label;
+        let release_date = match self.release_date_precision {
+            SpotifyReleaseDatePrecision::Day => format_timestamp(
+                NaiveDateTime::parse_from_str(&format!("{} 00:00", self.release_date), "%F %R").unwrap().and_utc().timestamp(),
+                TimestampFormat::Full,
+            ),
+            _ => self.release_date.clone(),
+        };
+        let genres = match self.genres.is_empty() {
+            true => "N/A".into(),
+            false => self.genres.join(", "),
+        };
+        let duration = format!(
+            "{} ({})",
+            Spotify::format_duration(self.tracks.items.iter().map(|track| track.duration_ms).reduce(|acc, cur| acc + cur).unwrap_or(0)),
+            label_num(self.total_tracks, "song", "songs"),
+        );
+        let copyrights = self
+            .copyrights
+            .iter()
+            .map(|copyright| {
                 format!(
-                    "{} ({})",
-                    Spotify::format_duration(
-                        self.tracks.items.iter().map(|track| track.duration_ms).reduce(|acc, cur| acc + cur).unwrap_or(0),
-                    ),
-                    label_num(self.total_tracks, "song", "songs"),
-                ),
-                false,
-            )
+                    "{} {}",
+                    match copyright.copyright_type {
+                        SpotifyCopyrightType::Copyright => COPYRIGHT_EMOJI,
+                        SpotifyCopyrightType::Phonogram => PHONOGRAM_EMOJI,
+                    },
+                    COPYRIGHT_REGEX.replace_all(&copyright.text, ""),
+                )
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        self._format()
+            .set_image(image)
+            .add_field("Artist", artist, false)
+            .add_field("Label", label, false)
+            .add_field("Release Date", release_date, false)
+            .add_field("Genre", genres, false)
+            .add_field("Duration", duration, false)
             .add_field("Popularity", format!("{FIRE_EMOJI} {}%", self.popularity), false)
-            .add_field(
-                match self.copyrights.len() == 1 {
-                    true => "Copyright",
-                    false => "Copyrights",
-                },
-                self.copyrights
-                    .iter()
-                    .map(|copyright| {
-                        format!(
-                            "{} {}",
-                            match copyright.copyright_type {
-                                SpotifyCopyrightType::Copyright => COPYRIGHT_EMOJI,
-                                SpotifyCopyrightType::Phonogram => PHONOGRAM_EMOJI,
-                            },
-                            COPYRIGHT_REGEX.replace_all(&copyright.text, ""),
-                        )
-                    })
-                    .collect::<Vec<String>>()
-                    .join("\n"),
-                false,
-            )
+            .add_field("Copyright", copyrights, false)
     }
 
     pub fn format_tracks(&self) -> Embed {
-        self._format().set_description(limit_strings(
+        let tracks = limit_strings(
             self.tracks.items.iter().map(|track| {
                 format!(
                     "`{}{:0pad_length$}.` [{}]({}) [{}]",
@@ -147,19 +131,20 @@ impl SpotifyFullAlbum {
             }),
             "\n",
             4096,
-        ))
+        );
+        self._format().set_description(tracks)
     }
 
     pub fn format_available_countries(&self) -> Embed {
-        self._format().set_description(
-            self.available_markets
-                .as_ref()
-                .unwrap_or(&vec![])
-                .iter()
-                .map(|country| format!(":flag_{}:", country.to_lowercase()))
-                .collect::<Vec<String>>()
-                .join(" "),
-        )
+        let available_markets = self
+            .available_markets
+            .as_ref()
+            .unwrap_or(&vec![])
+            .iter()
+            .map(|country| format!(":flag_{}:", country.to_lowercase()))
+            .collect::<Vec<String>>()
+            .join(" ");
+        self._format().set_description(available_markets)
     }
 }
 

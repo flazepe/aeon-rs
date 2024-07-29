@@ -66,19 +66,14 @@ pub struct GoogleDns {
 
 impl GoogleDns {
     pub fn format(&self) -> Embed {
-        Embed::new()
-            .set_color(PRIMARY_COLOR)
-            .unwrap_or_default()
-            .set_title(format!("{} records for {}", self.record_type, self.domain))
-            .set_description(format!(
-                "{}```diff\n{}```",
-                self.comment.as_deref().unwrap_or(""),
-                self.records
-                    .iter()
-                    .map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl))
-                    .collect::<Vec<String>>()
-                    .join("\n"),
-            ))
+        let title = format!("{} records for {}", self.record_type, self.domain);
+        let records = format!(
+            "{}```diff\n{}```",
+            self.comment.as_deref().unwrap_or(""),
+            self.records.iter().map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl)).collect::<Vec<String>>().join("\n"),
+        );
+
+        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_title(title).set_description(records)
     }
 }
 

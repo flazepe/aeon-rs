@@ -50,16 +50,24 @@ pub struct VndbTag {
 
 impl VndbTag {
     pub fn format(&self) -> Embed {
+        let title = format!("{} ({})", self.name, self.category);
+        let url = format!("https://vndb.org/{}", self.id);
+        let aliases = self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n");
+        let description = limit_strings(Vndb::clean_bbcode(&self.description).split('\n'), "\n", 1024);
+        let searchable = yes_no!(self.searchable);
+        let applicable = yes_no!(self.applicable);
+        let vn_count = self.vn_count.commas();
+
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_title(format!("{} ({})", self.name, self.category))
-            .set_url(format!("https://vndb.org/{}", self.id))
-            .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n"))
-            .add_field("Description", limit_strings(Vndb::clean_bbcode(&self.description).split('\n'), "\n", 1024), false)
-            .add_field("Searchable", yes_no!(self.searchable), true)
-            .add_field("Applicable", yes_no!(self.applicable), true)
-            .add_field("Visual Novel Count", self.vn_count.commas(), true)
+            .set_title(title)
+            .set_url(url)
+            .set_description(aliases)
+            .add_field("Description", description, false)
+            .add_field("Searchable", searchable, true)
+            .add_field("Applicable", applicable, true)
+            .add_field("Visual Novel Count", vn_count, true)
     }
 }
 

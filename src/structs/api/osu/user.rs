@@ -243,174 +243,156 @@ impl Display for OsuMode {
 
 impl OsuUser {
     fn _format(&self) -> Embed {
-        Embed::new()
-            .set_color("#ff69b4")
-            .unwrap_or_default()
-            .set_thumbnail(match self.avatar_url.starts_with('/') {
-                true => format!("https://osu.ppy.sh{}", self.avatar_url),
-                false => self.avatar_url.clone(),
-            })
-            .set_title(
-                format!(
-                    "{} {}{}",
-                    match self.is_online {
-                        true => ONLINE_EMOJI,
-                        false => OFFLINE_EMOJI,
-                    },
-                    match self.support_level {
-                        1 => format!("{OSU_SUPPORTER_1_EMOJI} "),
-                        2 => format!("{OSU_SUPPORTER_2_EMOJI} "),
-                        3 => format!("{OSU_SUPPORTER_3_EMOJI} "),
-                        _ => "".into(),
-                    },
-                    self.username,
-                )
-                .trim(),
-            )
-            .set_url(format!("https://osu.ppy.sh/users/{}", self.id))
+        let thumbnail = match self.avatar_url.starts_with('/') {
+            true => format!("https://osu.ppy.sh{}", self.avatar_url),
+            false => self.avatar_url.clone(),
+        };
+        let title = format!(
+            "{} {}{}",
+            match self.is_online {
+                true => ONLINE_EMOJI,
+                false => OFFLINE_EMOJI,
+            },
+            match self.support_level {
+                1 => format!("{OSU_SUPPORTER_1_EMOJI} "),
+                2 => format!("{OSU_SUPPORTER_2_EMOJI} "),
+                3 => format!("{OSU_SUPPORTER_3_EMOJI} "),
+                _ => "".into(),
+            },
+            self.username,
+        );
+        let url = format!("https://osu.ppy.sh/users/{}", self.id);
+
+        Embed::new().set_color("#ff69b4").unwrap_or_default().set_thumbnail(thumbnail).set_title(title).set_url(url)
     }
 
     pub fn format(&self) -> Embed {
+        let mode = self.rank_history.mode.to_string();
+        let rank = format!(
+            "#{} (#{} peak)",
+            self.statistics.global_rank.map(|global_rank| global_rank.commas()).as_deref().unwrap_or("-"),
+            self.rank_highest.rank.commas(),
+        );
+        let id = self.id;
+        let followers = self.follower_count;
+        let country = format!(
+            ":flag_{}: [{}](https://osu.ppy.sh/rankings/osu/performance?country={})",
+            self.country.code.to_lowercase(),
+            self.country.name,
+            self.country_code,
+        );
+        let playstyle = self
+            .playstyle
+            .as_ref()
+            .map(|playstyle| playstyle.iter().map(|entry| format!("{entry:?}")).collect::<Vec<String>>().join(", "))
+            .unwrap_or_else(|| "N/A".into());
+        let created = format_timestamp(DateTime::parse_from_rfc3339(self.join_date.as_str()).unwrap().timestamp(), TimestampFormat::Full);
+
         self._format()
-            .add_field("Mode", self.rank_history.mode.to_string(), true)
-            .add_field(
-                "Rank",
-                format!(
-                    "#{} (#{} peak)",
-                    self.statistics.global_rank.map(|global_rank| global_rank.commas()).as_deref().unwrap_or("-"),
-                    self.rank_highest.rank.commas(),
-                ),
-                true,
-            )
-            .add_field("ID", self.id, true)
-            .add_field("Followers", self.follower_count, true)
-            .add_field(
-                "Country",
-                format!(
-                    ":flag_{}: [{}](https://osu.ppy.sh/rankings/osu/performance?country={})",
-                    self.country.code.to_lowercase(),
-                    self.country.name,
-                    self.country_code,
-                ),
-                true,
-            )
-            .add_field(
-                "Playstyle",
-                self.playstyle
-                    .as_ref()
-                    .map(|playstyle| playstyle.iter().map(|entry| format!("{entry:?}")).collect::<Vec<String>>().join(", "))
-                    .as_deref()
-                    .unwrap_or("N/A"),
-                true,
-            )
-            .add_field(
-                "Created",
-                format_timestamp(DateTime::parse_from_rfc3339(self.join_date.as_str()).unwrap().timestamp(), TimestampFormat::Full),
-                false,
-            )
+            .add_field("Mode", mode, true)
+            .add_field("Rank", rank, true)
+            .add_field("ID", id, true)
+            .add_field("Followers", followers, true)
+            .add_field("Country", country, true)
+            .add_field("Playstyle", playstyle, true)
+            .add_field("Created", created, false)
     }
 
     pub fn format_about(&self) -> Embed {
+        let location = self.location.as_deref().unwrap_or("N/A");
+        let interests = self.interests.as_deref().unwrap_or("N/A");
+        let occupation = self.occupation.as_deref().unwrap_or("N/A");
+        let website = self.website.as_deref().unwrap_or("N/A");
+        let twitter = self.twitter.as_ref().map(|twitter| format!("[@{twitter}](https://x.com/{twitter})")).unwrap_or_else(|| "N/A".into());
+        let discord = self.discord.as_deref().unwrap_or("N/A");
+
         self._format()
-            .add_field("Location", self.location.as_deref().unwrap_or("N/A"), true)
-            .add_field("Interests", self.interests.as_deref().unwrap_or("N/A"), true)
-            .add_field("Occupation", self.occupation.as_deref().unwrap_or("N/A"), true)
-            .add_field("Website", self.website.as_deref().unwrap_or("N/A"), true)
-            .add_field(
-                "Twitter",
-                self.twitter.as_ref().map(|twitter| format!("[@{twitter}](https://twitter.com/{twitter})")).as_deref().unwrap_or("N/A"),
-                true,
-            )
-            .add_field("Discord", self.discord.as_deref().unwrap_or("N/A"), true)
+            .add_field("Location", location, true)
+            .add_field("Interests", interests, true)
+            .add_field("Occupation", occupation, true)
+            .add_field("Website", website, true)
+            .add_field("Twitter", twitter, true)
+            .add_field("Discord", discord, true)
     }
 
     pub fn format_statistics(&self) -> Embed {
+        let pp = format!("{}pp", format!("{:.2}", self.statistics.pp).commas());
+        let accuracy = format!("{:.2}%", self.statistics.hit_accuracy);
+        let level = format!("{} ({}%)", self.statistics.level.current, self.statistics.level.progress);
+        let total_hits = self.statistics.total_hits.commas();
+        let maximum_combo = self.statistics.maximum_combo.commas();
+        let first_place_ranks = self.scores_first_count.commas();
+        let scores = format!("{} ({} ranked)", self.statistics.total_score.commas(), self.statistics.ranked_score.commas());
+        let play_count = format!(
+            "{} ({})",
+            self.statistics.play_count.commas(),
+            Duration::new().parse(format!("{}s", self.statistics.play_time)).unwrap(),
+        );
+        let replays_watched_by_others = self.statistics.replays_watched_by_others.commas();
+        let grades = [
+            format!("{OSU_X_EMOJI} {}", self.statistics.grade_counts.ss.commas()),
+            format!("{OSU_XH_EMOJI} {}", self.statistics.grade_counts.ssh.commas()),
+            format!("{OSU_S_EMOJI} {}", self.statistics.grade_counts.s.commas()),
+            format!("{OSU_SH_EMOJI} {}", self.statistics.grade_counts.sh.commas()),
+            format!("{OSU_A_EMOJI} {}", self.statistics.grade_counts.a.commas()),
+        ]
+        .join("\n");
+
         self._format()
-            .add_field("PP", format!("{}pp", format!("{:.2}", self.statistics.pp).commas()), true)
-            .add_field("Accuracy", format!("{:.2}%", self.statistics.hit_accuracy), true)
-            .add_field("Level", format!("{} ({}%)", self.statistics.level.current, self.statistics.level.progress), true)
-            .add_field("Total Hits", self.statistics.total_hits.commas(), true)
-            .add_field("Maximum Combo", self.statistics.maximum_combo.commas(), true)
-            .add_field("First Place Ranks", self.scores_first_count.commas(), true)
-            .add_field(
-                "Score",
-                format!("{} ({} ranked)", self.statistics.total_score.commas(), self.statistics.ranked_score.commas(),),
-                false,
-            )
-            .add_field(
-                "Play Count",
-                format!(
-                    "{} ({})",
-                    self.statistics.play_count.commas(),
-                    Duration::new().parse(format!("{}s", self.statistics.play_time)).unwrap(),
-                ),
-                false,
-            )
-            .add_field("Replays Watched by Others", self.statistics.replays_watched_by_others.commas(), false)
-            .add_field(
-                "Grades",
-                [
-                    format!("{OSU_X_EMOJI} {}", self.statistics.grade_counts.ss.commas()),
-                    format!("{OSU_XH_EMOJI} {}", self.statistics.grade_counts.ssh.commas()),
-                    format!("{OSU_S_EMOJI} {}", self.statistics.grade_counts.s.commas()),
-                    format!("{OSU_SH_EMOJI} {}", self.statistics.grade_counts.sh.commas()),
-                    format!("{OSU_A_EMOJI} {}", self.statistics.grade_counts.a.commas()),
-                ]
-                .join("\n"),
-                false,
-            )
+            .add_field("PP", pp, true)
+            .add_field("Accuracy", accuracy, true)
+            .add_field("Level", level, true)
+            .add_field("Total Hits", total_hits, true)
+            .add_field("Maximum Combo", maximum_combo, true)
+            .add_field("First Place Ranks", first_place_ranks, true)
+            .add_field("Score", scores, false)
+            .add_field("Play Count", play_count, false)
+            .add_field("Replays Watched by Others", replays_watched_by_others, false)
+            .add_field("Grades", grades, false)
     }
 
     pub fn format_website_statistics(&self) -> Embed {
+        let previous_usernames = match self.previous_usernames.is_empty() {
+            true => "-".into(),
+            false => self.previous_usernames.join(", "),
+        };
+        let supporter = match self.is_supporter {
+            true => format!("Yes (level {})", self.support_level),
+            false => format!(
+                "No ({})",
+                match self.has_supported {
+                    true => "has supported before",
+                    false => "had never supported before",
+                },
+            ),
+        };
+        let bot = yes_no!(self.is_bot);
+        let forum_posts = format!("[{}](https://osu.ppy.sh/users/{}/posts)", self.post_count.commas(), self.id);
+        let comments = self.comments_count.commas();
+        let kudosu = format!(
+            "[{} ({} available)](https://osu.ppy.sh/users/{}#kudosu)",
+            self.kudosu.total.commas(),
+            self.kudosu.available.commas(),
+            self.id,
+        );
+        let beatmaps = [
+            format!("{} favorite", self.favourite_beatmapset_count.commas()),
+            format!("{} ranked and approved", self.ranked_and_approved_beatmapset_count.commas()),
+            format!("{} as guest", self.guest_beatmapset_count.commas()),
+            format!("{} loved", self.loved_beatmapset_count.commas()),
+            format!("{} pending", self.unranked_beatmapset_count.commas()),
+            format!("{} graveyarded", self.graveyard_beatmapset_count.commas()),
+        ]
+        .join("\n");
+
         self._format()
-            .add_field(
-                "Previous Username",
-                match self.previous_usernames.is_empty() {
-                    true => "-".into(),
-                    false => self.previous_usernames.join(", "),
-                },
-                false,
-            )
-            .add_field(
-                "Supporter",
-                match self.is_supporter {
-                    true => format!("Yes (level {})", self.support_level),
-                    false => format!(
-                        "No ({})",
-                        match self.has_supported {
-                            true => "has supported before",
-                            false => "had never supported before",
-                        },
-                    ),
-                },
-                false,
-            )
-            .add_field("Bot", yes_no!(self.is_bot), true)
-            .add_field("Forum Posts", format!("[{}](https://osu.ppy.sh/users/{}/posts)", self.post_count.commas(), self.id), true)
-            .add_field("Comments", self.comments_count.commas(), true)
-            .add_field(
-                "Kudosu!",
-                format!(
-                    "[{} ({} available)](https://osu.ppy.sh/users/{}#kudosu)",
-                    self.kudosu.total.commas(),
-                    self.kudosu.available.commas(),
-                    self.id,
-                ),
-                false,
-            )
-            .add_field(
-                "Beatmaps",
-                [
-                    format!("{} favorite", self.favourite_beatmapset_count.commas()),
-                    format!("{} ranked and approved", self.ranked_and_approved_beatmapset_count.commas()),
-                    format!("{} as guest", self.guest_beatmapset_count.commas()),
-                    format!("{} loved", self.loved_beatmapset_count.commas()),
-                    format!("{} pending", self.unranked_beatmapset_count.commas()),
-                    format!("{} graveyarded", self.graveyard_beatmapset_count.commas()),
-                ]
-                .join("\n"),
-                false,
-            )
+            .add_field("Previous Username", previous_usernames, false)
+            .add_field("Supporter", supporter, false)
+            .add_field("Bot", bot, true)
+            .add_field("Forum Posts", forum_posts, true)
+            .add_field("Comments", comments, true)
+            .add_field("Kudosu!", kudosu, false)
+            .add_field("Beatmaps", beatmaps, false)
     }
 }
 

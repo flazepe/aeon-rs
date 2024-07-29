@@ -54,81 +54,90 @@ pub struct AniListManga {
 
 impl AniListManga {
     fn _format(&self) -> Embed {
+        let thumbnail = &self.cover_image.extra_large;
+        let image = self.banner_image.as_deref().unwrap_or("");
+        let title = format!(
+            ":flag_{}: {} ({})",
+            self.country_of_origin.to_lowercase(),
+            match self.title.romaji.len() > 230 {
+                true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
+                false => self.title.romaji.clone(),
+            },
+            self.format.as_ref().map(|format| format.to_string()).as_deref().unwrap_or("TBA"),
+        );
+        let url = &self.site_url;
+
         Embed::new()
             .set_color(ANILIST_EMBED_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(&self.cover_image.extra_large)
-            .set_image(self.banner_image.as_deref().unwrap_or(""))
-            .set_title(format!(
-                ":flag_{}: {} ({})",
-                self.country_of_origin.to_lowercase(),
-                match self.title.romaji.len() > 230 {
-                    true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
-                    false => self.title.romaji.clone(),
-                },
-                self.format.as_ref().map(|format| format.to_string()).as_deref().unwrap_or("TBA"),
-            ))
-            .set_url(&self.site_url)
+            .set_thumbnail(thumbnail)
+            .set_image(image)
+            .set_title(title)
+            .set_url(url)
     }
 
     pub fn format(&self) -> Embed {
+        let synonyms = self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n");
+        let published = format!("{} ({})", AniList::format_airing_date(&self.start_date, &self.end_date), &self.status);
+        let chapters = self.chapters.map(|chapters| chapters.to_string()).unwrap_or("TBA".into());
+        let volumes = self.volumes.map(|volumes| volumes.to_string()).unwrap_or("TBA".into());
+        let licensed = yes_no!(self.is_licensed);
+        let genres = self
+            .genres
+            .iter()
+            .map(|genre| format!("[{genre}](https://anilist.co/search/anime?genres={})", genre.replace(' ', "+")))
+            .collect::<Vec<String>>()
+            .join(", ");
+        let source = self.source.as_ref().map(|source| source.to_string()).unwrap_or_else(|| "N/A".into());
+        let score = {
+            let mut scores = vec![];
+
+            if let Some(average_score) = self.average_score {
+                scores.push(format!("Average {average_score}%"))
+            }
+
+            if let Some(mean_score) = self.mean_score {
+                scores.push(format!("Mean {mean_score}%"))
+            }
+
+            match scores.is_empty() {
+                true => "N/A".into(),
+                false => scores.join("\n"),
+            }
+        };
+        let timestamp = Utc.timestamp_opt(self.updated_at as i64, 0).unwrap();
+
         self._format()
-            .set_description(self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n"))
-            .add_field("Published", format!("{} ({})", AniList::format_airing_date(&self.start_date, &self.end_date), &self.status), false)
-            .add_field("Chapters", self.chapters.map(|chapters| chapters.to_string()).as_deref().unwrap_or("TBA"), true)
-            .add_field("Volumes", self.volumes.map(|volumes| volumes.to_string()).as_deref().unwrap_or("TBA"), true)
-            .add_field("Licensed", yes_no!(self.is_licensed), true)
-            .add_field(
-                "Genre",
-                self.genres
-                    .iter()
-                    .map(|genre| format!("[{genre}](https://anilist.co/search/anime?genres={})", genre.replace(' ', "+")))
-                    .collect::<Vec<String>>()
-                    .join(", "),
-                true,
-            )
-            .add_field("Source", self.source.as_ref().map(|source| source.to_string()).as_deref().unwrap_or("N/A"), true)
-            .add_field(
-                "Score",
-                {
-                    let mut scores = vec![];
-
-                    if let Some(average_score) = self.average_score {
-                        scores.push(format!("Average {average_score}%"))
-                    }
-
-                    if let Some(mean_score) = self.mean_score {
-                        scores.push(format!("Mean {mean_score}%"))
-                    }
-
-                    match scores.is_empty() {
-                        true => "N/A".into(),
-                        false => scores.join("\n"),
-                    }
-                },
-                true,
-            )
+            .set_description(synonyms)
+            .add_field("Published", published, false)
+            .add_field("Chapters", chapters, true)
+            .add_field("Volumes", volumes, true)
+            .add_field("Licensed", licensed, true)
+            .add_field("Genre", genres, true)
+            .add_field("Source", source, true)
+            .add_field("Score", score, true)
             .set_footer("Last updated", None::<String>)
-            .set_timestamp(Utc.timestamp_opt(self.updated_at as i64, 0).unwrap())
+            .set_timestamp(timestamp)
     }
 
     pub fn format_description(&self) -> Embed {
-        AniList::format_description(self._format(), self.description.as_ref())
+        AniList::format_embed_description(self._format(), self.description.as_ref())
     }
 
     pub fn format_characters(&self) -> Embed {
-        self._format().set_description(limit_strings(
+        let characters = limit_strings(
             self.characters
                 .edges
                 .iter()
-                .map(|character| format!("[{}]({}) ({})", character.node.name.full, character.node.site_url, &character.role)),
+                .map(|character| format!("[{}]({}) ({})", character.node.name.full, character.node.site_url, character.role)),
             "\n",
             4096,
-        ))
+        );
+        self._format().set_description(characters)
     }
 
     pub fn format_relations(&self) -> Embed {
-        AniList::format_relations(self._format(), &self.relations.edges)
+        AniList::format_embed_relations(self._format(), &self.relations.edges)
     }
 }
 

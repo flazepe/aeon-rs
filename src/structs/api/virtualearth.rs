@@ -79,9 +79,7 @@ impl TimeZoneLocation {
 
     pub fn format(&self) -> String {
         let timezone = &self.time_zone[0];
-
         let (date, time) = timezone.converted_time.local_time.split_once('T').unwrap_or(("", ""));
-
         let hour = time.chars().take(2).collect::<String>().parse::<u8>().unwrap_or(0);
         let min = time.chars().skip(3).take(2).collect::<String>().parse::<u8>().unwrap_or(0);
 

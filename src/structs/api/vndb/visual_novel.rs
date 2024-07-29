@@ -517,65 +517,67 @@ pub struct VndbVisualNovel {
 
 impl VndbVisualNovel {
     fn _format(&self) -> Embed {
-        Embed::new()
-            .set_color(PRIMARY_COLOR)
-            .unwrap_or_default()
-            .set_thumbnail(self.image.as_ref().map_or("", |image| if image.sexual > 1.0 { "" } else { image.url.as_str() }))
-            .set_title(format!(
-                "{} ({})",
-                match self.title.len() > 230 {
-                    true => format!("{}…", self.title.chars().take(229).collect::<String>().trim()),
-                    false => self.title.clone(),
-                },
-                self.dev_status,
-            ))
-            .set_url(format!("https://vndb.org/{}", self.id))
+        let thumbnail = self.image.as_ref().map_or("", |image| if image.sexual > 1.0 { "" } else { image.url.as_str() });
+        let title = format!(
+            "{} ({})",
+            match self.title.len() > 230 {
+                true => format!("{}…", self.title.chars().take(229).collect::<String>().trim()),
+                false => self.title.clone(),
+            },
+            self.dev_status,
+        );
+        let url = format!("https://vndb.org/{}", self.id);
+
+        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_thumbnail(thumbnail).set_title(title).set_url(url)
     }
 
     pub fn format(&self) -> Embed {
+        let aliases = self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n");
+        let popularity = format!("{:.0}%", self.popularity);
+        let rating = format!(
+            "{} ({})",
+            self.rating.map(|rating| format!("{rating:.0}%")).as_deref().unwrap_or("N/A"),
+            label_num(self.vote_count, "vote", "votes"),
+        );
+        let length = format!(
+            "{} ({})",
+            self.length.as_ref().map(|length| length.to_string()).as_deref().unwrap_or("N/A"),
+            label_num(self.length_votes, "vote", "votes"),
+        );
+        let languages = self.languages.iter().map(|language| language.to_string()).collect::<Vec<String>>().join(", ");
+        let platforms = self.platforms.iter().map(|platform| platform.to_string()).collect::<Vec<String>>().join(", ");
+        let release_date = self.released.as_ref().map(|released| format!("Released {released}")).unwrap_or_else(|| "".into());
+
         self._format()
-            .set_description(self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n"))
-            .add_field("Popularity", format!("{:.0}%", self.popularity), true)
-            .add_field(
-                "Rating",
-                format!(
-                    "{} ({})",
-                    self.rating.map(|rating| format!("{rating:.0}%")).as_deref().unwrap_or("N/A"),
-                    label_num(self.vote_count, "vote", "votes"),
-                ),
-                true,
-            )
-            .add_field(
-                "Length",
-                format!(
-                    "{} ({})",
-                    self.length.as_ref().map(|length| length.to_string()).as_deref().unwrap_or("N/A"),
-                    label_num(self.length_votes, "vote", "votes"),
-                ),
-                true,
-            )
-            .add_field("Languages", self.languages.iter().map(|language| language.to_string()).collect::<Vec<String>>().join(", "), false)
-            .add_field("Platforms", self.platforms.iter().map(|platform| platform.to_string()).collect::<Vec<String>>().join(", "), false)
-            .set_footer(self.released.as_ref().map(|released| format!("Released {released}")).as_deref().unwrap_or(""), None::<String>)
+            .set_description(aliases)
+            .add_field("Popularity", popularity, true)
+            .add_field("Rating", rating, true)
+            .add_field("Length", length, true)
+            .add_field("Languages", languages, false)
+            .add_field("Platforms", platforms, false)
+            .set_footer(release_date, None::<String>)
     }
 
     pub fn format_description(&self) -> Embed {
-        self._format().set_description(limit_strings(
-            Vndb::clean_bbcode(self.description.as_deref().unwrap_or("N/A")).split('\n'),
-            "\n",
-            4096,
-        ))
+        let description = limit_strings(Vndb::clean_bbcode(self.description.as_deref().unwrap_or("N/A")).split('\n'), "\n", 4096);
+        self._format().set_description(description)
     }
 
     pub fn format_tags(&self) -> Embed {
-        self._format().set_description(limit_strings(
-            self.tags.iter().map(|tag| match tag.spoiler > 1.0 {
-                true => format!("||[{}](https://vndb.org/{})||", tag.name, tag.id),
-                false => format!("[{}](https://vndb.org/{})", tag.name, tag.id),
+        let tags = limit_strings(
+            self.tags.iter().map(|tag| {
+                let mut text = format!("[{}](https://vndb.org/{})", tag.name, tag.id);
+
+                if tag.spoiler > 1.0 {
+                    text = format!("||{text}||");
+                }
+
+                text
             }),
             ", ",
             4096,
-        ))
+        );
+        self._format().set_description(tags)
     }
 }
 

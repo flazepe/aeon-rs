@@ -56,7 +56,7 @@ impl AniList {
         }
     }
 
-    pub fn format_description<T: Display>(embed: Embed, description: Option<&T>) -> Embed {
+    pub fn format_embed_description<T: Display>(embed: Embed, description: Option<&T>) -> Embed {
         embed.set_description(limit_strings(
             Document::from(&description.map(|description| description.to_string()).unwrap_or_else(|| "N/A".into()))
                 .select("body")
@@ -67,7 +67,7 @@ impl AniList {
         ))
     }
 
-    fn format_relations(mut embed: Embed, relations: &Vec<AniListRelation>) -> Embed {
+    fn format_embed_relations(mut embed: Embed, relations: &Vec<AniListRelation>) -> Embed {
         let mut categorized = HashMap::new();
 
         for relation in relations {

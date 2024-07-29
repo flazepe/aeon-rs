@@ -54,112 +54,101 @@ impl SpotifyFullTrack {
     }
 
     fn _format(&self) -> Embed {
-        Embed::new()
-            .set_color(SPOTIFY_EMBED_COLOR)
-            .unwrap_or_default()
-            .set_thumbnail(self.album.images.first().map_or("", |image| image.url.as_str()))
-            .set_title(format!(
-                "{}{}",
-                match self.explicit {
-                    true => format!("{EXPLICIT_EMOJI} "),
-                    false => "".into(),
-                },
-                self.name,
-            ))
-            .set_url(&self.external_urls.spotify)
+        let thumbnail = self.album.images.first().map_or("", |image| image.url.as_str());
+        let title = format!(
+            "{}{}",
+            match self.explicit {
+                true => format!("{EXPLICIT_EMOJI} "),
+                false => "".into(),
+            },
+            self.name,
+        );
+        let url = &self.external_urls.spotify;
+
+        Embed::new().set_color(SPOTIFY_EMBED_COLOR).unwrap_or_default().set_thumbnail(thumbnail).set_title(title).set_url(url)
     }
 
     pub fn format(&self) -> Embed {
+        let image = Spotify::generate_scannable(&self.uri);
+        let artist =
+            limit_strings(self.artists.iter().map(|artist| format!("[{}]({})", artist.name, artist.external_urls.spotify)), ", ", 1024);
+        let album = format!(
+            "[{}]({}) (disc {}, track {})",
+            self.album.name, self.album.external_urls.spotify, self.disc_number, self.track_number,
+        );
+        let duration = format!(
+            "{}{}",
+            Spotify::format_duration(self.duration_ms),
+            self.preview_url.as_ref().map(|preview_url| format!(" - [Preview]({preview_url})")).as_deref().unwrap_or(""),
+        );
+        let popularity = format!("{FIRE_EMOJI} {}%", self.popularity);
+
         self._format()
-            .set_image(Spotify::generate_scannable(&self.uri))
-            .add_field(
-                "Artist",
-                limit_strings(self.artists.iter().map(|artist| format!("[{}]({})", artist.name, artist.external_urls.spotify)), ", ", 1024),
-                false,
-            )
-            .add_field(
-                "Album",
-                format!(
-                    "[{}]({}) (disc {}, track {})",
-                    self.album.name, self.album.external_urls.spotify, self.disc_number, self.track_number,
-                ),
-                false,
-            )
-            .add_field(
-                "Duration",
-                format!(
-                    "{}{}",
-                    Spotify::format_duration(self.duration_ms),
-                    self.preview_url.as_ref().map(|preview_url| format!(" - [Preview]({preview_url})")).as_deref().unwrap_or(""),
-                ),
-                false,
-            )
-            .add_field("Popularity", format!("{FIRE_EMOJI} {}%", self.popularity), false)
+            .set_image(image)
+            .add_field("Artist", artist, false)
+            .add_field("Album", album, false)
+            .add_field("Duration", duration, false)
+            .add_field("Popularity", popularity, false)
     }
 
     pub fn format_audio_features(&self) -> Embed {
         let mut embed = self._format();
-
-        if let Some(audio_features) = self.audio_features.as_ref() {
-            let pitch_notation = match audio_features.key == -1 {
-                true => None,
-                false => Some(SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize]),
-            };
-
-            embed = embed
-                .add_field(
-                    "Key",
-                    pitch_notation
-                        .map(|pitch_notation| format!("{pitch_notation} {}", ["Minor", "Major"][audio_features.mode as usize]))
-                        .as_deref()
-                        .unwrap_or("N/A"),
-                    true,
+        let Some(audio_features) = self.audio_features.as_ref() else { return embed };
+        let pitch_notation = match audio_features.key == -1 {
+            true => None,
+            false => Some(SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize]),
+        };
+        let key = pitch_notation
+            .map(|pitch_notation| format!("{pitch_notation} {}", ["Minor", "Major"][audio_features.mode as usize]))
+            .unwrap_or_else(|| "N/A".into());
+        let camelot = pitch_notation
+            .map(|pitch_notation| {
+                format!(
+                    "{}{}",
+                    SPOTIFY_CAMELOT.iter().enumerate().find(|(_, entry)| entry[audio_features.mode as usize] == pitch_notation).unwrap().0
+                        + 1,
+                    ["A", "b"][audio_features.mode as usize],
                 )
-                .add_field(
-                    "Camelot",
-                    pitch_notation
-                        .map(|pitch_notation| {
-                            format!(
-                                "{}{}",
-                                SPOTIFY_CAMELOT
-                                    .iter()
-                                    .enumerate()
-                                    .find(|(_, entry)| entry[audio_features.mode as usize] == pitch_notation)
-                                    .unwrap()
-                                    .0
-                                    + 1,
-                                ["A", "b"][audio_features.mode as usize],
-                            )
-                        })
-                        .as_deref()
-                        .unwrap_or("N/A"),
-                    true,
-                )
-                .add_field("Tempo", format!("{:.0} BPM", audio_features.tempo), true)
-                .add_field("Time Signature", format!("{} / 4", audio_features.time_signature), true)
-                .add_field("Loudness", format!("{:.1} dB", audio_features.loudness), true)
-                .add_field("Valence", format!("{:.0}%", audio_features.valence * 100.0), true)
-                .add_field("Danceability", format!("{:.0}%", audio_features.danceability * 100.0), true)
-                .add_field("Energy", format!("{:.0}%", audio_features.energy * 100.0), true)
-                .add_field("Speechiness", format!("{:.0}%", audio_features.speechiness * 100.0), true)
-                .add_field("Acousticness", format!("{:.0}%", audio_features.acousticness * 100.0), true)
-                .add_field("Instrumentalness", format!("{:.0}%", audio_features.instrumentalness * 100.0), true)
-                .add_field("Liveness", format!("{:.0}%", audio_features.liveness * 100.0), true);
-        }
+            })
+            .unwrap_or_else(|| "N/A".into());
+        let tempo = format!("{:.0} BPM", audio_features.tempo);
+        let time_signature = format!("{} / 4", audio_features.time_signature);
+        let loudness = format!("{:.1} dB", audio_features.loudness);
+        let valence = format!("{:.0}%", audio_features.valence * 100.0);
+        let danceability = format!("{:.0}%", audio_features.danceability * 100.0);
+        let energy = format!("{:.0}%", audio_features.energy * 100.0);
+        let speechiness = format!("{:.0}%", audio_features.speechiness * 100.0);
+        let acousticness = format!("{:.0}%", audio_features.acousticness * 100.0);
+        let instrumentalness = format!("{:.0}%", audio_features.instrumentalness * 100.0);
+        let liveness = format!("{:.0}%", audio_features.liveness * 100.0);
+
+        embed = embed
+            .add_field("Key", key, true)
+            .add_field("Camelot", camelot, true)
+            .add_field("Tempo", tempo, true)
+            .add_field("Time Signature", time_signature, true)
+            .add_field("Loudness", loudness, true)
+            .add_field("Valence", valence, true)
+            .add_field("Danceability", danceability, true)
+            .add_field("Energy", energy, true)
+            .add_field("Speechiness", speechiness, true)
+            .add_field("Acousticness", acousticness, true)
+            .add_field("Instrumentalness", instrumentalness, true)
+            .add_field("Liveness", liveness, true);
 
         embed
     }
 
     pub fn format_available_countries(&self) -> Embed {
-        self._format().set_description(
-            self.available_markets
-                .as_ref()
-                .unwrap_or(&vec![])
-                .iter()
-                .map(|country| format!(":flag_{}:", country.to_lowercase()))
-                .collect::<Vec<String>>()
-                .join(" "),
-        )
+        let available_markets = self
+            .available_markets
+            .as_ref()
+            .unwrap_or(&vec![])
+            .iter()
+            .map(|country| format!(":flag_{}:", country.to_lowercase()))
+            .collect::<Vec<String>>()
+            .join(" ");
+        self._format().set_description(available_markets)
     }
 }
 

@@ -26,11 +26,10 @@ pub struct GoogleTranslateTranslation {
 
 impl GoogleTranslateTranslation {
     pub fn format(&self) -> Embed {
-        Embed::new()
-            .set_color(PRIMARY_COLOR)
-            .unwrap_or_default()
-            .set_title(format!("{} to {}", self.origin_language, self.target_language))
-            .set_description(self.translation.chars().take(4096).collect::<String>())
+        let title = format!("{} to {}", self.origin_language, self.target_language);
+        let translation = self.translation.chars().take(4096).collect::<String>();
+
+        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_title(title).set_description(translation)
     }
 }
 

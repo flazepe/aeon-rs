@@ -188,155 +188,139 @@ pub struct SteamGame {
 
 impl SteamGame {
     pub fn _format(&self) -> Embed {
-        Embed::new()
-            .set_color(STEAM_EMBED_COLOR)
-            .unwrap_or_default()
-            .set_title(&self.name)
-            .set_url(format!("https://store.steampowered.com/app/{}", self.id))
+        let title = &self.name;
+        let url = format!("https://store.steampowered.com/app/{}", self.id);
+
+        Embed::new().set_color(STEAM_EMBED_COLOR).unwrap_or_default().set_title(title).set_url(url)
     }
 
     pub fn format(&self) -> Embed {
-        self._format()
-            .set_image(&self.header_image)
-            .set_description(limit_strings(Document::from(&self.short_description).select("body").text().split('\n'), "\n", 4096))
-            .add_field(
-                "Release Date",
-                self.release_date
-                    .as_ref()
-                    .map(|release_date| {
-                        format!(
-                            "{}{}",
-                            format_timestamp(
-                                NaiveDateTime::parse_from_str(&format!("{} 00:00", release_date.date), "%b %-d, %Y %R")
-                                    .unwrap()
-                                    .and_utc()
-                                    .timestamp(),
-                                TimestampFormat::Full,
-                            ),
-                            if release_date.coming_soon { " (coming soon)" } else { "" },
-                        )
-                    })
-                    .as_deref()
-                    .unwrap_or("TBA"),
-                false,
-            )
-            .add_field(
-                "Price",
-                match self.is_free {
-                    true => "Free".into(),
-                    false => self.price_overview.as_ref().map_or_else(
-                        || "N/A".into(),
-                        |price_overview| match price_overview.discount_percent > 0 {
-                            true => format!(
-                                "~~{}~~ {} ({}% off)",
-                                price_overview.initial_formatted, price_overview.final_formatted, price_overview.discount_percent,
-                            ),
-                            false => price_overview.final_formatted.clone(),
-                        },
+        let image = &self.header_image;
+        let description = limit_strings(Document::from(&self.short_description).select("body").text().split('\n'), "\n", 4096);
+        let release_date = self
+            .release_date
+            .as_ref()
+            .map(|release_date| {
+                format!(
+                    "{}{}",
+                    format_timestamp(
+                        NaiveDateTime::parse_from_str(&format!("{} 00:00", release_date.date), "%b %-d, %Y %R")
+                            .unwrap()
+                            .and_utc()
+                            .timestamp(),
+                        TimestampFormat::Full,
                     ),
+                    if release_date.coming_soon { " (coming soon)" } else { "" },
+                )
+            })
+            .unwrap_or_else(|| "TBA".into());
+        let price = match self.is_free {
+            true => "Free".into(),
+            false => self.price_overview.as_ref().map_or_else(
+                || "N/A".into(),
+                |price_overview| match price_overview.discount_percent > 0 {
+                    true => format!(
+                        "~~{}~~ {} ({}% off)",
+                        price_overview.initial_formatted, price_overview.final_formatted, price_overview.discount_percent,
+                    ),
+                    false => price_overview.final_formatted.clone(),
                 },
-                false,
-            )
+            ),
+        };
+
+        self._format()
+            .set_image(image)
+            .set_description(description)
+            .add_field("Release Date", release_date, false)
+            .add_field("Price", price, false)
     }
 
     pub fn format_developers(&self) -> Embed {
+        let developers = self.developers.as_ref().map(|developers| developers.join(", ")).unwrap_or_else(|| "N/A".into());
+        let publishers = self.publishers.as_ref().map(|publishers| publishers.join(", ")).unwrap_or_else(|| "N/A".into());
+        let website = self.website.as_deref().unwrap_or("N/A");
+
         self._format()
             .set_image(&self.background)
-            .add_field("Developers", self.developers.as_ref().map(|developers| developers.join(", ")).as_deref().unwrap_or("N/A"), false)
-            .add_field("Publishers", self.publishers.as_ref().map(|publishers| publishers.join(", ")).as_deref().unwrap_or("N/A"), false)
-            .add_field("Website", self.website.as_deref().unwrap_or("N/A"), false)
+            .add_field("Developer", developers, false)
+            .add_field("Publisher", publishers, false)
+            .add_field("Website", website, false)
     }
 
     pub fn format_details(&self) -> Embed {
+        let categories = self
+            .categories
+            .as_ref()
+            .map(|categories| {
+                limit_strings(
+                    categories.iter().map(|category| {
+                        format!(
+                            "[{}](https://store.steampowered.com/tags/en/{})",
+                            category.description,
+                            category.description.replace(' ', "+"),
+                        )
+                    }),
+                    ", ",
+                    1024,
+                )
+            })
+            .unwrap_or_else(|| "N/A".into());
+        let genres = self
+            .genres
+            .as_ref()
+            .map(|genres| {
+                limit_strings(
+                    genres.iter().map(|genre| {
+                        format!("[{}](https://store.steampowered.com/genre/{}/)", genre.description, genre.description.replace(' ', "+"),)
+                    }),
+                    ", ",
+                    1024,
+                )
+            })
+            .unwrap_or_else(|| "N/A".into());
+        let platforms = {
+            let mut platforms = vec![];
+
+            if self.platforms.windows {
+                platforms.push("Windows");
+            }
+
+            if self.platforms.mac {
+                platforms.push("macOS");
+            }
+
+            if self.platforms.linux {
+                platforms.push("Linux");
+            }
+
+            platforms.join(", ")
+        };
+        let metacritic = self
+            .metacritic
+            .as_ref()
+            .map(|metacritic| format!("[{}]({})", metacritic.score, metacritic.url))
+            .unwrap_or_else(|| "N/A".into());
+
         self._format()
-            .add_field(
-                "Category",
-                self.categories
-                    .as_ref()
-                    .map(|categories| {
-                        limit_strings(
-                            categories.iter().map(|category| {
-                                format!(
-                                    "[{}](https://store.steampowered.com/tags/en/{})",
-                                    category.description,
-                                    category.description.replace(' ', "+"),
-                                )
-                            }),
-                            ", ",
-                            1024,
-                        )
-                    })
-                    .as_deref()
-                    .unwrap_or("N/A"),
-                false,
-            )
-            .add_field(
-                "Genre",
-                self.genres
-                    .as_ref()
-                    .map(|genres| {
-                        limit_strings(
-                            genres.iter().map(|genre| {
-                                format!(
-                                    "[{}](https://store.steampowered.com/genre/{}/)",
-                                    genre.description,
-                                    genre.description.replace(' ', "+"),
-                                )
-                            }),
-                            ", ",
-                            1024,
-                        )
-                    })
-                    .as_deref()
-                    .unwrap_or("N/A"),
-                false,
-            )
-            .add_field(
-                "Platforms",
-                {
-                    let mut platforms = vec![];
-
-                    if self.platforms.windows {
-                        platforms.push("Windows");
-                    }
-
-                    if self.platforms.mac {
-                        platforms.push("macOS");
-                    }
-
-                    if self.platforms.linux {
-                        platforms.push("Linux");
-                    }
-
-                    platforms.join(", ")
-                },
-                false,
-            )
-            .add_field(
-                "Metacritic",
-                self.metacritic
-                    .as_ref()
-                    .map(|metacritic| format!("[{}]({})", metacritic.score, metacritic.url))
-                    .as_deref()
-                    .unwrap_or("N/A"),
-                false,
-            )
+            .add_field("Category", categories, false)
+            .add_field("Genre", genres, false)
+            .add_field("Platforms", platforms, false)
+            .add_field("Metacritic", metacritic, false)
     }
 
     pub fn format_featured_achievements(&self) -> Embed {
-        self._format().set_description(
-            self.achievements
-                .as_ref()
-                .map(|achievements| {
-                    limit_strings(
-                        achievements.highlighted.iter().map(|achievement| format!("[{}]({})", achievement.name, achievement.path)),
-                        "\n",
-                        4096,
-                    )
-                })
-                .as_deref()
-                .unwrap_or("N/A"),
-        )
+        let achievements = self
+            .achievements
+            .as_ref()
+            .map(|achievements| {
+                limit_strings(
+                    achievements.highlighted.iter().map(|achievement| format!("[{}]({})", achievement.name, achievement.path)),
+                    "\n",
+                    4096,
+                )
+            })
+            .unwrap_or_else(|| "N/A".into());
+        self._format().set_description(achievements)
     }
 }
 

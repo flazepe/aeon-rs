@@ -84,22 +84,29 @@ impl Distribution {
                 .join(", ")
         }
 
+        let thumbnail = self.logo.as_deref().unwrap_or("");
+        let title = format!("{} ({})", self.name, self.status);
+        let url = &self.url;
+        let description = &self.description;
+        let distribution_type = format!("{} ({})", to_urls(&self.distribution_type, "ostype"), to_urls(&self.architecture, "architecture"));
+        let based_on = to_urls(&self.based_on, "basedon");
+        let origin = to_urls(&self.origin, "origin");
+        let desktop = to_urls(&self.desktop, "desktop");
+        let category = to_urls(&self.category, "category");
+        let popularity = format!("[{}]({BASE_DOMAIN}/dwres.php?resource=popularity)", self.popularity);
+
         Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(self.logo.as_deref().unwrap_or(""))
-            .set_title(format!("{} ({})", self.name, self.status))
-            .set_url(&self.url)
-            .set_description(&self.description)
-            .add_field(
-                "Type",
-                format!("{} ({})", to_urls(&self.distribution_type, "ostype"), to_urls(&self.architecture, "architecture")),
-                true,
-            )
-            .add_field("Based on", to_urls(&self.based_on, "basedon"), true)
-            .add_field("Origin", to_urls(&self.origin, "origin"), true)
-            .add_field("Desktop", to_urls(&self.desktop, "desktop"), true)
-            .add_field("Category", to_urls(&self.category, "category"), true)
-            .add_field("Popularity", format!("[{}]({BASE_DOMAIN}/dwres.php?resource=popularity)", self.popularity), true)
+            .set_thumbnail(thumbnail)
+            .set_title(title)
+            .set_url(url)
+            .set_description(description)
+            .add_field("Type", distribution_type, true)
+            .add_field("Based on", based_on, true)
+            .add_field("Origin", origin, true)
+            .add_field("Desktop", desktop, true)
+            .add_field("Category", category, true)
+            .add_field("Popularity", popularity, true)
     }
 }

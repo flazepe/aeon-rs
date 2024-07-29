@@ -62,11 +62,10 @@ impl Stock {
     }
 
     pub fn format(&self) -> Embed {
-        Embed::new()
-            .set_color(PRIMARY_COLOR)
-            .unwrap_or_default()
-            .set_title(&self.name)
-            .set_url(&self.url)
-            .set_description(format!("```diff\n{} {}\n{}```", self.currency, self.price, self.diff))
+        let title = &self.name;
+        let url = &self.url;
+        let quote = format!("```diff\n{} {}\n{}```", self.currency, self.price, self.diff);
+
+        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_title(title).set_url(url).set_description(quote)
     }
 }
