@@ -1,13 +1,13 @@
-use crate::statics::{COLLECTIONS, FLAZEPE_ID};
+use crate::{
+    functions::now,
+    statics::{COLLECTIONS, FLAZEPE_ID},
+};
 use anyhow::{bail, Result};
 use futures::stream::TryStreamExt;
 use mongodb::bson::{doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};
 use slashook::structs::{guilds::GuildMember, Permissions};
-use std::{
-    fmt::Display,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::fmt::Display;
 
 #[derive(Deserialize, Serialize)]
 pub struct Tag {
@@ -57,11 +57,10 @@ impl Tags {
             .try_collect::<Vec<Tag>>()
             .await?;
 
-        if tags.is_empty() {
-            bail!("No tags found.");
+        match tags.is_empty() {
+            true => bail!("No tags found."),
+            false => Ok(tags),
         }
-
-        Ok(tags)
     }
 
     pub async fn create<T: Display, U: Display + Copy, V: Display + Copy, W: Display>(
@@ -87,7 +86,7 @@ impl Tags {
             bail!("I'm sure 100 tags are enough for your server.");
         }
 
-        let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+        let timestamp = now();
 
         COLLECTIONS
             .tags
@@ -130,11 +129,10 @@ impl Tags {
                 false => {
                     let new_name = Self::validate_tag_name(new_name)?;
 
-                    if Self::get(&new_name, guild_id).await.is_ok() {
-                        bail!("Tag with that new name already exists.");
+                    match Self::get(&new_name, guild_id).await.is_ok() {
+                        true => bail!("Tag with that new name already exists."),
+                        false => new_name,
                     }
-
-                    new_name
                 },
             }
         };
@@ -199,7 +197,7 @@ impl Tags {
                 doc! {
                     "$set": {
                         "aliases": tag.aliases,
-                        "updated_timestamp": SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64,
+                        "updated_timestamp": now() as i64,
                     },
                 },
             )
@@ -225,7 +223,7 @@ impl Tags {
                 doc! {
                     "$set": {
                         "nsfw": nsfw,
-                        "updated_timestamp": SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64,
+                        "updated_timestamp": now() as i64,
                     },
                 },
             )
@@ -242,13 +240,12 @@ impl Tags {
     }
 
     pub fn validate_tag_modifier(tag: Tag, member: &GuildMember) -> Result<Tag> {
-        if tag.author_id != member.user.as_ref().map_or("", |user| user.id.as_str())
+        match !member.user.as_ref().map_or(false, |user| tag.author_id == user.id.as_str())
             && !member.permissions.unwrap_or_else(Permissions::empty).contains(Permissions::MANAGE_MESSAGES)
         {
-            bail!("You're not the author of that tag. Only tag authors and members with the Manage Messages permission can update or delete tags.");
+           true => bail!("You're not the author of that tag. Only tag authors and members with the Manage Messages permission can update or delete tags."),
+           false => Ok(tag)
         }
-
-        Ok(tag)
     }
 
     fn validate_tag_name<T: Display>(name: T) -> Result<String> {

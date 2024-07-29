@@ -174,17 +174,15 @@ impl Spotify {
     pub async fn search_track<T: Display>(query: T) -> Result<Vec<SpotifyFullTrack>> {
         let query = query.to_string();
 
-        match query.contains("track") {
-            true => Ok(vec![Spotify::get_track(query.split('/').last().unwrap().split('?').next().unwrap()).await?]),
-            false => {
-                let results = Spotify::query::<_, SpotifySearchTrackResponse>(format!("search?type=track&q={query}")).await?.tracks.items;
+        if query.contains("track") {
+            return Ok(vec![Spotify::get_track(query.split('/').last().unwrap().split('?').next().unwrap()).await?]);
+        }
 
-                if results.is_empty() {
-                    bail!("Song not found.");
-                }
+        let results = Spotify::query::<_, SpotifySearchTrackResponse>(format!("search?type=track&q={query}")).await?.tracks.items;
 
-                Ok(results)
-            },
+        match results.is_empty() {
+            true => bail!("Song not found."),
+            false => Ok(results),
         }
     }
 }

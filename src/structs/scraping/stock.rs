@@ -29,7 +29,7 @@ pub struct Stock {
 
 impl Stock {
     pub async fn get<T: Display>(ticker: T) -> Result<Self> {
-        let quote = match REQWEST
+        let Some(quote) = REQWEST
             .get("https://query2.finance.yahoo.com/v1/finance/search")
             .query(&[("q", ticker.to_string())])
             .header("user-agent", "yes")
@@ -40,9 +40,8 @@ impl Stock {
             .quotes
             .into_iter()
             .find(|quote| quote.is_yahoo_finance)
-        {
-            Some(quote) => quote,
-            None => bail!("Ticker not found."),
+        else {
+            bail!("Ticker not found.")
         };
 
         let url = format!("https://finance.yahoo.com/quote/{}/", quote.symbol);

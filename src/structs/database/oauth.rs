@@ -1,12 +1,9 @@
-use crate::statics::COLLECTIONS;
+use crate::{functions::now, statics::COLLECTIONS};
 use anyhow::Result;
 use mongodb::bson::{doc, to_document};
 use reqwest::RequestBuilder;
 use serde::{Deserialize, Serialize};
-use std::{
-    fmt::Display,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::fmt::Display;
 
 #[derive(Deserialize, Debug)]
 struct RawOauthToken {
@@ -30,7 +27,7 @@ pub struct Oauth {
 
 impl Oauth {
     pub fn new<T: Display>(name: T, request: RequestBuilder) -> Self {
-        Self { name: name.to_string(), request, timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() }
+        Self { name: name.to_string(), request, timestamp: now() }
     }
 
     async fn generate_token(self) -> Result<OauthToken> {

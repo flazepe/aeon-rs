@@ -60,10 +60,9 @@ impl Vndb {
         .await?
         .results;
 
-        if results.is_empty() {
-            bail!("Trait not found.");
+        match results.is_empty() {
+            true => bail!("Trait not found."),
+            false => Ok(results),
         }
-
-        Ok(results)
     }
 }

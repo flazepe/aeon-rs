@@ -85,11 +85,10 @@ impl LyricFind {
             .await?
             .tracks;
 
-        if tracks.is_empty() {
-            bail!("Song not found.");
+        match tracks.is_empty() {
+            true => bail!("Song not found."),
+            false => Ok(tracks),
         }
-
-        Ok(tracks)
     }
 }
 
@@ -122,15 +121,15 @@ impl LyricFindSearchResultTrack {
 
         let mut links = vec![];
 
-        if let Some(spotify) = self.spotify.as_ref() {
+        if let Some(spotify) = &self.spotify {
             links.push(format!("[Spotify](https://open.spotify.com/track/{spotify})"));
         }
 
-        if let Some(apple) = self.apple.as_ref() {
+        if let Some(apple) = self.apple {
             links.push(format!("[Apple Music](https://music.apple.com/en/song/{apple})"));
         }
 
-        if let Some(deezer) = self.deezer.as_ref() {
+        if let Some(deezer) = self.deezer {
             links.push(format!("[Deezer](https://www.deezer.com/en/track/{deezer})"));
         }
 

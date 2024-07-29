@@ -1,9 +1,8 @@
 use crate::{
-    functions::{format_timestamp, TimestampFormat},
+    functions::{format_timestamp, now, TimestampFormat},
     statics::CACHE,
     structs::gateway::events::handler::EventHandler,
 };
-use std::time::{SystemTime, UNIX_EPOCH};
 use twilight_model::{channel::message::ReactionType, gateway::payload::incoming::ReactionRemove};
 
 impl EventHandler {
@@ -24,10 +23,10 @@ impl EventHandler {
             reaction.user_id,
             match reaction.emoji {
                 ReactionType::Custom { name, id, animated: _ } =>
-                    format!("[{}](https://cdn.discordapp.com/emojis/{})", name.as_deref().unwrap_or("<unknown>"), id),
+                    format!("[{}](https://cdn.discordapp.com/emojis/{id})", name.as_deref().unwrap_or("<unknown>")),
                 ReactionType::Unicode { name } => name,
             },
-            format_timestamp(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(), TimestampFormat::Full),
+            format_timestamp(now(), TimestampFormat::Full),
         ));
 
         // Limit

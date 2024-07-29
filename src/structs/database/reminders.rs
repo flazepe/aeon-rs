@@ -1,5 +1,5 @@
 use crate::{
-    functions::add_reminder_select_options,
+    functions::{add_reminder_select_options, now},
     statics::{colors::NOTICE_COLOR, COLLECTIONS, REST},
     structs::duration::{statics::SECS_PER_MONTH, Duration},
 };
@@ -17,11 +17,7 @@ use slashook::{
         messages::Message,
     },
 };
-use std::{
-    fmt::Display,
-    thread::sleep,
-    time::{Duration as TimeDuration, SystemTime, UNIX_EPOCH},
-};
+use std::{fmt::Display, thread::sleep, time::Duration as TimeDuration};
 
 #[derive(Deserialize, Serialize)]
 pub struct Reminder {
@@ -39,7 +35,7 @@ pub struct Reminders;
 impl Reminders {
     pub async fn poll() -> Result<()> {
         loop {
-            let current_timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+            let current_timestamp = now();
 
             for mut reminder in COLLECTIONS
                 .reminders
@@ -122,11 +118,10 @@ impl Reminders {
     pub async fn get_many<T: Display>(user_id: T) -> Result<Vec<Reminder>> {
         let reminders = COLLECTIONS.reminders.find(doc! { "user_id": user_id.to_string() }).await?.try_collect::<Vec<Reminder>>().await?;
 
-        if reminders.is_empty() {
-            bail!("No reminders found.");
+        match reminders.is_empty() {
+            true => bail!("No reminders found."),
+            false => Ok(reminders),
         }
-
-        Ok(reminders)
     }
 
     pub async fn set<T: Display, U: Display, V: Display>(
@@ -164,7 +159,7 @@ impl Reminders {
                 _id: ObjectId::new(),
                 user_id: user_id.to_string(),
                 url: url.to_string(),
-                timestamp: SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + time.total_secs,
+                timestamp: now() + time.total_secs,
                 interval: interval.total_secs,
                 reminder: reminder.to_string(),
                 dm,

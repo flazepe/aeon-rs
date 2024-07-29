@@ -1,4 +1,5 @@
 use crate::{
+    functions::now,
     statics::{colors::PRIMARY_COLOR, REQWEST},
     structs::{command_context::CommandContext, duration::Duration},
 };
@@ -7,16 +8,15 @@ use slashook::{
     chrono::{Datelike, Duration as ChronoDuration, TimeZone, Utc},
     structs::embeds::Embed,
 };
-use std::time::{SystemTime, UNIX_EPOCH};
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let now = Utc::now();
+    let utc = Utc::now();
 
     let mut embed = Embed::new().set_color(PRIMARY_COLOR)?.set_description(format!(
         "[Signups](https://heliohost.org/signup/) will reset in: **{}**",
         Duration::new().parse(
-            (Utc.with_ymd_and_hms(now.year(), now.month(), now.day(), 0, 0, 0).unwrap() + ChronoDuration::try_days(1).unwrap()).timestamp()
-                - SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64,
+            (Utc.with_ymd_and_hms(utc.year(), utc.month(), utc.day(), 0, 0, 0).unwrap() + ChronoDuration::try_days(1).unwrap()).timestamp()
+                - now() as i64,
         )?,
     ));
 

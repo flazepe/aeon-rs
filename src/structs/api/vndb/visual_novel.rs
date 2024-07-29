@@ -600,10 +600,9 @@ impl Vndb {
         .await?
         .results;
 
-        if results.is_empty() {
-            bail!("Visual novel not found.");
+        match results.is_empty() {
+            true => bail!("Visual novel not found."),
+            false => Ok(results),
         }
-
-        Ok(results)
     }
 }

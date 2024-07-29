@@ -9,7 +9,10 @@ use slashook::structs::{
     components::{SelectMenu, SelectOption},
     utils::File,
 };
-use std::fmt::Display;
+use std::{
+    fmt::Display,
+    time::{SystemTime, UNIX_EPOCH},
+};
 use tokio::process::Command;
 
 pub fn add_reminder_select_options(mut select_menu: SelectMenu) -> SelectMenu {
@@ -84,4 +87,8 @@ pub fn limit_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(iterable
 pub fn label_num<T: Display, U: Display, V: Display>(amount: T, singular: U, plural: V) -> String {
     let amount = amount.to_string();
     format!("{} {}", amount.commas(), if amount == "1" { singular.to_string() } else { plural.to_string() })
+}
+
+pub fn now() -> u64 {
+    SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()
 }

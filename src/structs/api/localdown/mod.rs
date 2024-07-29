@@ -41,11 +41,10 @@ impl LocalDownNovel {
             .json::<Vec<LocalDownNovelSearchResult>>()
             .await?;
 
-        if results.is_empty() {
-            bail!("Novel not found.");
+        match results.is_empty() {
+            true => bail!("Novel not found."),
+            false => Ok(results),
         }
-
-        Ok(results)
     }
 
     pub async fn get(id: u64) -> Result<Self> {

@@ -161,13 +161,16 @@ impl VndbCharacter {
 
         for character_trait in &self.traits {
             if !groups.contains_key(&character_trait.group_name) {
-                groups.insert(character_trait.group_name.clone(), vec![]);
+                groups.insert(&character_trait.group_name, vec![]);
             }
 
-            groups.get_mut(&character_trait.group_name).unwrap().push(match character_trait.spoiler {
-                VndbSpoilerLevel::NonSpoiler => format!("||[{}](https://vndb.org/{})||", character_trait.name.clone(), character_trait.id),
-                _ => format!("[{}](https://vndb.org/{})", character_trait.name.clone(), character_trait.id),
-            });
+            let mut text = format!("[{}](https://vndb.org/{})", character_trait.name, character_trait.id);
+
+            if !matches!(character_trait.spoiler, VndbSpoilerLevel::NonSpoiler) {
+                text = format!("||{text}||");
+            }
+
+            groups.get_mut(&character_trait.group_name).unwrap().push(text);
         }
 
         let mut embed = self._format();
@@ -211,10 +214,9 @@ impl Vndb {
         .await?
         .results;
 
-        if results.is_empty() {
-            bail!("Character not found.");
+        match results.is_empty() {
+            true => bail!("Character not found."),
+            false => Ok(results),
         }
-
-        Ok(results)
     }
 }

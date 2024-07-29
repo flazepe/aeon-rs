@@ -84,10 +84,9 @@ impl Vndb {
         .await?
         .results;
 
-        if results.is_empty() {
-            bail!("Tag not found.");
+        match results.is_empty() {
+            true => bail!("Tag not found."),
+            false => Ok(results),
         }
-
-        Ok(results)
     }
 }

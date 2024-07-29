@@ -168,10 +168,9 @@ impl AniList {
         )
         .await?;
 
-        if result.data.page.media.is_empty() {
-            bail!("Manga not found.");
+        match result.data.page.media.is_empty() {
+            true => bail!("Manga not found."),
+            false => Ok(result.data.page.media),
         }
-
-        Ok(result.data.page.media)
     }
 }

@@ -67,11 +67,10 @@ impl JishoSearch {
             .await?
             .data;
 
-        if results.is_empty() {
-            bail!("No results found.");
+        match results.is_empty() {
+            true => bail!("No results found."),
+            false => Ok(results.remove(0)),
         }
-
-        Ok(results.remove(0))
     }
 
     pub async fn search<T: Display>(query: T) -> Result<Vec<Self>> {
@@ -84,11 +83,10 @@ impl JishoSearch {
             .await?
             .data;
 
-        if results.is_empty() {
-            bail!("No results found.");
+        match results.is_empty() {
+            true => bail!("No results found."),
+            false => Ok(results),
         }
-
-        Ok(results)
     }
 
     pub fn format_title(&self) -> String {

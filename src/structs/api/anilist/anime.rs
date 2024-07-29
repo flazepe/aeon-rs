@@ -1,5 +1,5 @@
 use crate::{
-    functions::limit_strings,
+    functions::{limit_strings, now},
     structs::api::anilist::{
         components::{
             AniListAiringSchedule, AniListAnimeCharacter, AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat,
@@ -17,10 +17,7 @@ use slashook::{
     chrono::{TimeZone, Utc},
     structs::embeds::Embed,
 };
-use std::{
-    fmt::Display,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::fmt::Display;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -112,10 +109,7 @@ impl AniListAnime {
                         .nodes
                         .iter()
                         .find(|node| node.time_until_airing.map_or(false, |time| time > 0))
-                        .map(|node| format!(
-                            "\nNext episode airs <t:{}:R>",
-                            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() + node.time_until_airing.unwrap() as u64,
-                        ),)
+                        .map(|node| format!("\nNext episode airs <t:{}:R>", now() + node.time_until_airing.unwrap() as u64,),)
                         .as_deref()
                         .unwrap_or("")
                 ),
@@ -253,10 +247,9 @@ impl AniList {
         )
         .await?;
 
-        if result.data.page.media.is_empty() {
-            bail!("Anime not found.");
+        match result.data.page.media.is_empty() {
+            true => bail!("Anime not found."),
+            false => Ok(result.data.page.media),
         }
-
-        Ok(result.data.page.media)
     }
 }

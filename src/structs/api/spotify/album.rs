@@ -181,17 +181,15 @@ impl Spotify {
     pub async fn search_simple_album<T: Display>(query: T) -> Result<Vec<SpotifySimpleAlbum>> {
         let query = query.to_string();
 
-        match query.contains("album") {
-            true => Ok(vec![Spotify::get_simple_album(query.split('/').last().unwrap().split('?').next().unwrap()).await?]),
-            false => {
-                let results = Spotify::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}")).await?.albums.items;
+        if query.contains("album") {
+            return Ok(vec![Spotify::get_simple_album(query.split('/').last().unwrap().split('?').next().unwrap()).await?]);
+        }
 
-                if results.is_empty() {
-                    bail!("Album not found.");
-                }
+        let results = Spotify::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}")).await?.albums.items;
 
-                Ok(results)
-            },
+        match results.is_empty() {
+            true => bail!("Album not found."),
+            false => Ok(results),
         }
     }
 }

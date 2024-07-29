@@ -28,11 +28,10 @@ impl IpInfo {
     pub async fn get<T: Display>(ip: T) -> Result<Self> {
         let response = REQWEST.get(format!("https://ipinfo.io/{}/json", ip.to_string().replace(['/', '?'], ""))).send().await?;
 
-        if response.status() != 200 {
-            bail!("IP address not found.");
+        match response.status() == 200 {
+            true => Ok(response.json().await?),
+            false => bail!("IP address not found."),
         }
-
-        Ok(response.json().await?)
     }
 
     pub fn format(&self) -> String {

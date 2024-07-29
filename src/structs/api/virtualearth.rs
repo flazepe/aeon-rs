@@ -71,11 +71,10 @@ impl TimeZoneLocation {
             .resources[0]
             .time_zone_at_location;
 
-        if timezones.is_empty() {
-            bail!("Location not found.");
+        match timezones.is_empty() {
+            true => bail!("Location not found."),
+            false => Ok(timezones.remove(0)),
         }
-
-        Ok(timezones.remove(0))
     }
 
     pub fn format(&self) -> String {

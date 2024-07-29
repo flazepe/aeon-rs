@@ -48,11 +48,10 @@ impl SauceNaoSearch {
             .json::<Self>()
             .await?;
 
-        if search.results.is_empty() {
-            bail!("Sauce not found.");
+        match search.results.is_empty() {
+            true => bail!("Sauce not found."),
+            false => Ok(search),
         }
-
-        Ok(search)
     }
 
     pub fn format(&self) -> Embed {

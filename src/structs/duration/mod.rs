@@ -54,37 +54,30 @@ impl Display for Duration {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         let mut units = vec![];
 
-        // Years
         if self.years > 0 {
             units.push(label_num(self.years, "year", "years"));
         }
 
-        // Months
         if self.months > 0 {
             units.push(label_num(self.months, "month", "months"));
         }
 
-        // Minutes
         if self.weeks > 0 {
             units.push(label_num(self.weeks, "week", "weeks"));
         }
 
-        // Days
         if self.days > 0 {
             units.push(label_num(self.days, "day", "days"));
         }
 
-        // Hours
         if self.hours > 0 {
             units.push(label_num(self.hours, "hour", "hours"));
         }
 
-        // Minutes
         if self.mins > 0 {
             units.push(label_num(self.mins, "min", "mins"));
         }
 
-        // Secs
         if self.secs > 0 {
             units.push(label_num(self.secs, "sec", "secs"));
         }

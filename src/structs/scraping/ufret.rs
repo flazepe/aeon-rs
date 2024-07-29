@@ -35,11 +35,10 @@ impl Ufret {
             })
             .collect::<Vec<UfretSong>>();
 
-        if results.is_empty() {
-            bail!("No results found.");
+        match results.is_empty() {
+            true => bail!("No results found."),
+            false => Ok(results),
         }
-
-        Ok(results)
     }
 }
 

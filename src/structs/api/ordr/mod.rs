@@ -1,6 +1,7 @@
 pub mod statics;
 
 use crate::{
+    functions::now,
     statics::{CACHE, CONFIG, REQWEST},
     structs::{api::ordr::statics::ORDR_SKINS, command_context::CommandContext},
 };
@@ -9,10 +10,7 @@ use futures::FutureExt;
 use serde::Deserialize;
 use serde_json::{from_str, from_value, json};
 use socketio_rs::{ClientBuilder, Payload};
-use std::{
-    fmt::Display,
-    time::{Duration, SystemTime, UNIX_EPOCH},
-};
+use std::{fmt::Display, time::Duration};
 use tokio::time::sleep;
 
 #[derive(Deserialize, Debug)]
@@ -91,12 +89,11 @@ impl OrdrRender {
 
         match from_str::<Self>(text.as_str()) {
             Ok(render) => {
-                // If render_id is None, then message should be returned as it would contain the error message
-                if render.render_id.is_none() {
-                    bail!(render.message);
+                match render.render_id.is_none() {
+                    // If render_id is None, then message should be returned as it would contain the error message
+                    true => bail!(render.message),
+                    false => Ok(render),
                 }
-
-                Ok(render)
             },
             Err(_) => bail!(text), // Sometimes it returns the error as plain text, so we just send the text as the error
         }
@@ -106,14 +103,14 @@ impl OrdrRender {
         CACHE.ordr_renders.write().unwrap().insert(self.render_id.unwrap(), "Rendering... (0%)".into());
         CACHE.ordr_rendering_users.write().unwrap().insert(ctx.input.user.id.clone(), true);
 
-        let start_time = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+        let start_time = now();
 
         let mut renders = CACHE.ordr_renders.read().unwrap().clone();
         let mut state = renders.get(&self.render_id.unwrap()).unwrap();
 
         while
         // 8 minutes timeout
-        SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() - start_time < 480 &&
+        now() - start_time < 480 &&
             // Break if the state is no longer a progress
             state.contains('%')
         {

@@ -106,10 +106,9 @@ impl Google {
 
         let records = dns_response.answer.or(dns_response.authority).unwrap_or_else(Vec::new);
 
-        if records.is_empty() {
-            bail!("No DNS records found.");
+        match records.is_empty() {
+            true => bail!("No DNS records found."),
+            false => Ok(GoogleDns { domain: domain.to_string(), record_type, comment: dns_response.comment, records }),
         }
-
-        Ok(GoogleDns { domain: domain.to_string(), record_type, comment: dns_response.comment, records })
     }
 }

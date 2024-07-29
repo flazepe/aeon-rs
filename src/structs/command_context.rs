@@ -1,16 +1,16 @@
-use crate::statics::{
-    emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
-    CACHE,
+use crate::{
+    functions::now,
+    statics::{
+        emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
+        CACHE,
+    },
 };
 use anyhow::{bail, Context, Result};
 use slashook::{
     commands::{CommandInput, CommandResponder, MessageResponse},
     structs::{channels::Channel, components::Components, interactions::ApplicationCommandOptionChoice, messages::Attachment, users::User},
 };
-use std::{
-    fmt::Display,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::fmt::Display;
 
 pub struct CommandContext {
     pub input: CommandInput,
@@ -31,20 +31,15 @@ impl CommandContext {
 
         self.verified = true;
 
-        if CACHE.cooldowns.read().unwrap().get(&self.input.user.id).unwrap_or(&0) > &SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs()
-        {
+        if CACHE.cooldowns.read().unwrap().get(&self.input.user.id).unwrap_or(&0) > &now() {
             self.respond_error("You are under a cooldown. Try again later.", true).await?;
             bail!("User is under a cooldown.");
         }
 
         // Only add cooldown to non-search commands
         if !self.get_bool_arg("search").unwrap_or(false) {
-            CACHE
-                .cooldowns
-                .write()
-                .unwrap()
-                .insert(self.input.user.id.clone(), SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + 3);
-        };
+            CACHE.cooldowns.write().unwrap().insert(self.input.user.id.clone(), now() + 3);
+        }
 
         if let Some(interaction_metadata) = self.input.message.as_ref().and_then(|message| message.interaction_metadata.as_ref()) {
             if self.input.user.id != interaction_metadata.user.id {
