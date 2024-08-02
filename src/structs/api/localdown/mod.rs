@@ -52,20 +52,19 @@ impl LocalDownNovel {
             return Ok(novel.clone());
         }
 
-        match REQWEST
+        let Ok(novel) = REQWEST
             .get(format!("https://api.ahnafzamil.com/localdown/novels/get/{id}"))
             .header("user-agent", "yes")
             .send()
             .await?
             .json::<Self>()
             .await
-        {
-            Ok(novel) => {
-                CACHE.localdown_novels.write().unwrap().push_limited(novel.clone(), 100);
-                Ok(novel)
-            },
-            Err(_) => bail!("Novel not found."),
-        }
+        else {
+            bail!("Novel not found.")
+        };
+
+        CACHE.localdown_novels.write().unwrap().push_limited(novel.clone(), 100);
+        Ok(novel)
     }
 
     pub fn format(&self) -> Embed {

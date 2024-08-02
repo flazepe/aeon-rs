@@ -15,25 +15,23 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
             };
         }
 
-        let results = match LocalDownNovel::search(ctx.get_string_arg("novel")?).await {
-            Ok(results) => results,
+        let novels = match LocalDownNovel::search(ctx.get_string_arg("novel")?).await {
+            Ok(novels) => novels,
             Err(error) => return ctx.respond_error(error, true).await,
         };
 
         let mut select_menu = SelectMenu::new("novel-updates", "novel-updates", "Select a novel…", None::<String>);
 
-        for result in &results {
-            select_menu = select_menu.add_option(&result.title, result.id, None::<String>);
+        for novel in &novels {
+            select_menu = select_menu.add_option(&novel.title, novel.id, None::<String>);
         }
 
-        ctx.respond(
-            MessageResponse::from(select_menu).add_embed(match LocalDownNovel::get(results[0].id).await {
-                Ok(result) => result.format(),
-                Err(error) => return ctx.respond_error(error, true).await,
-            }),
-            false,
-        )
-        .await
+        let embed = match LocalDownNovel::get(novels[0].id).await {
+            Ok(result) => result.format(),
+            Err(error) => return ctx.respond_error(error, true).await,
+        };
+
+        ctx.respond(MessageResponse::from(select_menu).add_embed(embed), false).await
     })
 });
 

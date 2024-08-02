@@ -2,7 +2,7 @@ use crate::{
     functions::now,
     statics::{COLLECTIONS, FLAZEPE_ID},
 };
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use futures::stream::TryStreamExt;
 use mongodb::bson::{doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};
@@ -28,17 +28,14 @@ impl Tags {
     pub async fn get<T: Display, U: Display>(name: T, guild_id: U) -> Result<Tag> {
         let name = name.to_string().to_lowercase();
 
-        match COLLECTIONS
+        COLLECTIONS
             .tags
             .find_one(doc! {
                 "$or": [{ "name": &name }, { "aliases": name }],
                 "guild_id": guild_id.to_string(),
             })
             .await?
-        {
-            Some(tag) => Ok(tag),
-            None => bail!("Tag not found."),
-        }
+            .context("Tag not found.")
     }
 
     pub async fn search<T: Display, U: Display>(guild_id: T, author_id: Option<U>) -> Result<Vec<Tag>> {

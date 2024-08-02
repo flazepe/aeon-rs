@@ -6,13 +6,16 @@ use slashook::{
 };
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    match Tags::get(ctx.get_string_arg("tag")?, ctx.input.guild_id.as_ref().unwrap()).await {
+    let name = ctx.get_string_arg("tag")?;
+    let guild_id = ctx.input.guild_id.as_ref().unwrap();
+
+    match Tags::get(name, guild_id).await {
         Ok(tag) => {
-            if tag.nsfw
-                && !Channel::fetch(&ctx.input.rest, ctx.input.channel_id.as_ref().unwrap())
-                    .await
-                    .map_or(false, |channel| channel.nsfw.unwrap_or(false))
-            {
+            let nsfw_channel = Channel::fetch(&ctx.input.rest, ctx.input.channel_id.as_ref().unwrap())
+                .await
+                .map_or(false, |channel| channel.nsfw.unwrap_or(false));
+
+            if tag.nsfw && !nsfw_channel {
                 return ctx.respond_error("NSFW channels only.", true).await;
             }
 

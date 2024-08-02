@@ -8,6 +8,6 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         url = format!("http://{url}");
     }
 
-    ctx.respond_success(format!("<{}>", REQWEST.get("https://cdpt.in/shorten").query(&[("url", url)]).send().await?.text().await?), true)
-        .await
+    let shortened_url = REQWEST.get("https://cdpt.in/shorten").query(&[("url", url)]).send().await?.text().await?;
+    ctx.respond_success(format!("<{shortened_url}>"), true).await
 }

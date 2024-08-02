@@ -4,19 +4,19 @@ use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.input.is_string_select() {
-        return ctx.respond(Vndb::search_tag(&ctx.input.values.as_ref().unwrap()[0]).await?.remove(0).format(), false).await;
+        return ctx.respond(Vndb::search_tag(&ctx.input.values.as_ref().unwrap()[0]).await?[0].format(), false).await;
     }
 
-    let results = match Vndb::search_tag(ctx.get_string_arg("tag")?).await {
-        Ok(results) => results,
+    let tags = match Vndb::search_tag(ctx.get_string_arg("tag")?).await {
+        Ok(tags) => tags,
         Err(error) => return ctx.respond_error(error, true).await,
     };
 
     let mut select_menu = SelectMenu::new("vndb", "tag", "View other results…", None::<String>);
 
-    for result in &results {
-        select_menu = select_menu.add_option(&result.name, &result.id, Some(&result.category))
+    for tag in &tags {
+        select_menu = select_menu.add_option(&tag.name, &tag.id, Some(&tag.category))
     }
 
-    ctx.respond(MessageResponse::from(select_menu).add_embed(results[0].format()), false).await
+    ctx.respond(MessageResponse::from(select_menu).add_embed(tags[0].format()), false).await
 }

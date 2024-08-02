@@ -11,14 +11,12 @@ use slashook::{
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let utc = Utc::now();
-
-    let mut embed = Embed::new().set_color(PRIMARY_COLOR)?.set_description(format!(
-        "[Signups](https://heliohost.org/signup/) will reset in: **{}**",
-        Duration::new().parse(
-            (Utc.with_ymd_and_hms(utc.year(), utc.month(), utc.day(), 0, 0, 0).unwrap() + ChronoDuration::try_days(1).unwrap()).timestamp()
-                - now() as i64,
-        )?,
-    ));
+    let midnight = Utc.with_ymd_and_hms(utc.year(), utc.month(), utc.day(), 0, 0, 0).unwrap();
+    let midnight_tomorrow = midnight + ChronoDuration::days(1);
+    let duration_diff = Duration::new().parse(midnight_tomorrow.timestamp() - (now() as i64))?;
+    let mut embed = Embed::new()
+        .set_color(PRIMARY_COLOR)?
+        .set_description(format!("[Signups](https://heliohost.org/signup/) will reset in: **{duration_diff}**"));
 
     for (server, plan) in [("Tommy", "2"), ("Ricky", "1"), ("Johnny", "9")] {
         embed = embed.add_field(

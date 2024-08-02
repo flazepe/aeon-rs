@@ -2,24 +2,26 @@ use crate::structs::{command_context::CommandContext, database::reminders::Remin
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let entries = Reminders::get_many(&ctx.input.user.id).await.unwrap_or_else(|_| vec![]);
+    let reminders = Reminders::get_many(&ctx.input.user.id).await.unwrap_or_else(|_| vec![]);
 
     if ctx.input.is_autocomplete() {
-        return ctx
-            .autocomplete(entries.iter().enumerate().map(|(index, entry)| {
-                ((index + 1).to_string(), format!("{}. {}", index + 1, entry.reminder).chars().take(100).collect::<String>())
-            }))
-            .await;
+        let options = reminders.iter().enumerate().map(|(index, reminder)| {
+            ((index + 1).to_string(), format!("{}. {}", index + 1, reminder.reminder).chars().take(100).collect::<String>())
+        });
+
+        return ctx.autocomplete(options).await;
     }
 
-    match entries.get(match ctx.get_string_arg("entry")?.parse::<usize>() {
+    let index = match ctx.get_string_arg("reminder")?.parse::<usize>() {
         Ok(index) => index - 1,
         Err(_) => return ctx.respond_error("Please enter a valid number.", true).await,
-    }) {
-        Some(entry) => {
-            Reminders::delete(entry._id).await?;
+    };
+
+    match reminders.get(index) {
+        Some(reminder) => {
+            Reminders::delete(reminder._id).await?;
             ctx.respond_success("Gone.", true).await
         },
-        None => ctx.respond_error("Invalid entry.", true).await,
+        None => ctx.respond_error("Invalid reminder.", true).await,
     }
 }

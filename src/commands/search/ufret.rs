@@ -40,18 +40,18 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
 
         let Ok(query) = query else { return ctx.respond_error("Please provide a song.", true).await };
 
-        let mut results = match Ufret::search(query).await {
-            Ok(results) => results,
+        let mut songs = match Ufret::search(query).await {
+            Ok(songs) => songs,
             Err(error) => return ctx.respond_error(error, true).await,
         };
 
         let mut select_menu = SelectMenu::new("ufret", "search", "View other results…", None::<String>);
 
-        for result in &results {
-            select_menu = select_menu.add_option(&result.name, format!("{}|{}", result.id, result.name), None::<String>);
+        for song in &songs {
+            select_menu = select_menu.add_option(&song.name, format!("{}|{}", song.id, song.name), None::<String>);
         }
 
-        ctx.respond(results.remove(0).screenshot().await?.format().set_components(Components::from(select_menu)), false).await
+        ctx.respond(songs.remove(0).screenshot().await?.format().set_components(Components::from(select_menu)), false).await
     })
 });
 

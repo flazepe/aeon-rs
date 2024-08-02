@@ -31,8 +31,8 @@ pub fn get_command() -> SlashookCommand {
                 description = "Deletes a reminder.",
                 options = [
                     {
-                        name = "entry",
-                        description = "The reminder entry. Can be provided by using the list subcommand",
+                        name = "reminder",
+                        description = "The reminder. Can be retrieved using the list subcommand",
                         option_type = InteractionOptionType::STRING,
                         autocomplete = true,
                         required = true,

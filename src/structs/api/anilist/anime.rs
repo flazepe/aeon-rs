@@ -10,7 +10,7 @@ use crate::{
         AniList,
     },
 };
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::{
@@ -201,7 +201,7 @@ impl AniListAnime {
 
 impl AniList {
     pub async fn get_anime(id: u64) -> Result<AniListAnime> {
-        match AniList::query::<_, AniListResponse<AniListMediaResponse<AniListAnime>>>(
+        AniList::query::<_, AniListResponse<AniListMediaResponse<AniListAnime>>>(
             format!(
                 "query($id: Int) {{
                     Media(id: $id) {{
@@ -214,10 +214,7 @@ impl AniList {
         .await?
         .data
         .media
-        {
-            Some(anime) => Ok(anime),
-            None => bail!("Anime not found."),
-        }
+        .context("Anime not found.")
     }
 
     pub async fn search_anime<T: Display>(search: T) -> Result<Vec<AniListAnime>> {

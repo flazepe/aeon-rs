@@ -32,21 +32,20 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         },
     };
 
-    ctx.respond(
-        MessageResponse::from(
-            SelectMenu::new("steam", "game", "Select a section…", Some(&section))
-                .add_option("Overview", game.id, None::<String>)
-                .add_option("Developers", format!("{}/developers", game.id), None::<String>)
-                .add_option("Details", format!("{}/details", game.id), None::<String>)
-                .add_option("Featured Achievements", format!("{}/featured-achievements", game.id), None::<String>),
-        )
-        .add_embed(match section.as_str() {
-            "developers" => game.format_developers(),
-            "details" => game.format_details(),
-            "featured-achievements" => game.format_featured_achievements(),
-            _ => game.format(),
-        }),
-        false,
-    )
-    .await
+    let id = game.id;
+
+    let select_menu = SelectMenu::new("steam", "game", "Select a section…", Some(&section))
+        .add_option("Overview", id, None::<String>)
+        .add_option("Developers", format!("{id}/developers"), None::<String>)
+        .add_option("Details", format!("{id}/details"), None::<String>)
+        .add_option("Featured Achievements", format!("{id}/featured-achievements"), None::<String>);
+
+    let embed = match section.as_str() {
+        "developers" => game.format_developers(),
+        "details" => game.format_details(),
+        "featured-achievements" => game.format_featured_achievements(),
+        _ => game.format(),
+    };
+
+    ctx.respond(MessageResponse::from(select_menu).add_embed(embed), false).await
 }

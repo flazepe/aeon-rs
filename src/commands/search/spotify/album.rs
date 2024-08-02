@@ -32,19 +32,18 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         },
     };
 
-    ctx.respond(
-        MessageResponse::from(
-            SelectMenu::new("spotify", "album", "Select a section…", Some(&section))
-                .add_option("Overview", &album.id, None::<String>)
-                .add_option("Songs", format!("{}/songs", album.id), None::<String>)
-                .add_option("Available Countries", format!("{}/available-countries", album.id), None::<String>),
-        )
-        .add_embed(match section.as_str() {
-            "songs" => album.format_tracks(),
-            "available-countries" => album.format_available_countries(),
-            _ => album.format(),
-        }),
-        false,
-    )
-    .await
+    let id = &album.id;
+
+    let select_menu = SelectMenu::new("spotify", "album", "Select a section…", Some(&section))
+        .add_option("Overview", id, None::<String>)
+        .add_option("Songs", format!("{id}/songs"), None::<String>)
+        .add_option("Available Countries", format!("{id}/available-countries"), None::<String>);
+
+    let embed = match section.as_str() {
+        "songs" => album.format_tracks(),
+        "available-countries" => album.format_available_countries(),
+        _ => album.format(),
+    };
+
+    ctx.respond(MessageResponse::from(select_menu).add_embed(embed), false).await
 }

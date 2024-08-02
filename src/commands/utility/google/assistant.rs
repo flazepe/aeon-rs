@@ -8,12 +8,12 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         false => ctx.res.defer(false).await?,
     };
 
-    match Google::query_assistant(match ctx.input.is_string_select() {
+    let query = match ctx.input.is_string_select() {
         true => ctx.input.values.as_ref().unwrap()[0].clone(),
         false => ctx.get_string_arg("query")?,
-    })
-    .await
-    {
+    };
+
+    match Google::query_assistant(query).await {
         Ok((image, suggestions)) => {
             let mut response = MessageResponse::from(File::new("image.png", image));
 

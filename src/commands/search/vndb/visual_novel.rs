@@ -6,11 +6,11 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.get_bool_arg("search").unwrap_or(false) {
         let mut select_menu = SelectMenu::new("vndb", "visual-novel", "Select a visual novel…", None::<String>);
 
-        for result in match Vndb::search_visual_novel(ctx.get_string_arg("visual-novel")?).await {
-            Ok(results) => results,
+        for visual_novel in match Vndb::search_visual_novel(ctx.get_string_arg("visual-novel")?).await {
+            Ok(visual_novels) => visual_novels,
             Err(error) => return ctx.respond_error(error, true).await,
         } {
-            select_menu = select_menu.add_option(result.title, result.id, Some(result.dev_status));
+            select_menu = select_menu.add_option(visual_novel.title, visual_novel.id, Some(visual_novel.dev_status));
         }
 
         return ctx.respond(select_menu, false).await;
@@ -25,23 +25,22 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     };
 
     let visual_novel = match Vndb::search_visual_novel(query).await {
-        Ok(mut results) => results.remove(0),
+        Ok(mut visual_novels) => visual_novels.remove(0),
         Err(error) => return ctx.respond_error(error, true).await,
     };
 
-    ctx.respond(
-        MessageResponse::from(
-            SelectMenu::new("vndb", "visual-novel", "Select a section…", Some(&section))
-                .add_option("Overview", &visual_novel.id, None::<String>)
-                .add_option("Description", format!("{}/description", visual_novel.id), None::<String>)
-                .add_option("Tags", format!("{}/tags", visual_novel.id), None::<String>),
-        )
-        .add_embed(match section.as_str() {
-            "description" => visual_novel.format_description(),
-            "tags" => visual_novel.format_tags(),
-            _ => visual_novel.format(),
-        }),
-        false,
-    )
-    .await
+    let id = &visual_novel.id;
+
+    let select_menu = SelectMenu::new("vndb", "visual-novel", "Select a section…", Some(&section))
+        .add_option("Overview", id, None::<String>)
+        .add_option("Description", format!("{id}/description"), None::<String>)
+        .add_option("Tags", format!("{id}/tags"), None::<String>);
+
+    let embed = match section.as_str() {
+        "description" => visual_novel.format_description(),
+        "tags" => visual_novel.format_tags(),
+        _ => visual_novel.format(),
+    };
+
+    ctx.respond(MessageResponse::from(select_menu).add_embed(embed), false).await
 }

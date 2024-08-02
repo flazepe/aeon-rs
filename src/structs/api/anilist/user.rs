@@ -6,7 +6,7 @@ use crate::{
         AniList,
     },
 };
-use anyhow::{bail, Result};
+use anyhow::{Context, Result};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::{
@@ -161,7 +161,7 @@ impl AniListUser {
 
 impl AniList {
     pub async fn get_user<T: Display>(name: T) -> Result<AniListUser> {
-        match AniList::query::<_, AniListResponse<AniListUserResponse>>(
+        AniList::query::<_, AniListResponse<AniListUserResponse>>(
             format!(
                 "query($search: String) {{
 					User(name: $search) {{
@@ -174,9 +174,6 @@ impl AniList {
         .await?
         .data
         .user
-        {
-            Some(user) => Ok(user),
-            None => bail!("User not found."),
-        }
+        .context("User not found.")
     }
 }

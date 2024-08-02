@@ -40,21 +40,20 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         return ctx.respond_error("NSFW channels only.", true).await;
     }
 
-    ctx.respond(
-        MessageResponse::from(
-            SelectMenu::new("anilist", "manga", "Select a section…", Some(&section))
-                .add_option("Overview", manga.id, None::<String>)
-                .add_option("Description", format!("{}/description", manga.id), None::<String>)
-                .add_option("Characters", format!("{}/characters", manga.id), None::<String>)
-                .add_option("Relations", format!("{}/relations", manga.id), None::<String>),
-        )
-        .add_embed(match section.as_str() {
-            "description" => manga.format_description(),
-            "characters" => manga.format_characters(),
-            "relations" => manga.format_relations(),
-            _ => manga.format(),
-        }),
-        false,
-    )
-    .await
+    let id = manga.id;
+
+    let select_menu = SelectMenu::new("anilist", "manga", "Select a section…", Some(&section))
+        .add_option("Overview", id, None::<String>)
+        .add_option("Description", format!("{id}/description"), None::<String>)
+        .add_option("Characters", format!("{id}/characters"), None::<String>)
+        .add_option("Relations", format!("{id}/relations"), None::<String>);
+
+    let embed = match section.as_str() {
+        "description" => manga.format_description(),
+        "characters" => manga.format_characters(),
+        "relations" => manga.format_relations(),
+        _ => manga.format(),
+    };
+
+    ctx.respond(MessageResponse::from(select_menu).add_embed(embed), false).await
 }

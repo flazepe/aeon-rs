@@ -29,17 +29,6 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
             true => ctx.respond(format!("https://www.youtube.com/watch?v={id}"), false).await,
             false => ctx.respond_error("NSFW channels only.", true).await,
         }
-
-        /*
-        let url = format!("https://www.youtube.com/watch?v={id}");
-
-        match REQWEST.get(&url).send().await?.text().await?.contains("LOGIN_REQUIRED")
-            && ctx.input.channel.as_ref().and_then(|channel| channel.nsfw).unwrap_or(false)
-        {
-            true => ctx.respond_error("NSFW channels only.", true).await,
-            false => ctx.respond(url, false).await,
-        }
-        */
     })
 });
 

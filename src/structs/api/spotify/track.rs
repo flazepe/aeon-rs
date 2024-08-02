@@ -10,7 +10,7 @@ use crate::{
         Spotify,
     },
 };
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
@@ -154,10 +154,7 @@ impl SpotifyFullTrack {
 
 impl Spotify {
     pub async fn get_track<T: Display>(id: T) -> Result<SpotifyFullTrack> {
-        match Spotify::query(format!("tracks/{id}")).await {
-            Ok(track) => Ok(track),
-            Err(_) => bail!("Song not found."),
-        }
+        Spotify::query(format!("tracks/{id}")).await.context("Song not found.")
     }
 
     pub async fn search_track<T: Display>(query: T) -> Result<Vec<SpotifyFullTrack>> {

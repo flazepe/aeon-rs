@@ -6,8 +6,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     ctx.respond(
         format!(
-            "{}'s load is `{}`.",
-            server,
+            "{server}'s load is `{}`.",
             REQWEST.get(format!("https://heliohost.org/load/load_{server}.html").to_lowercase()).send().await?.text().await?.trim(),
         ),
         true,

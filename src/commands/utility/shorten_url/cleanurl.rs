@@ -12,7 +12,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     let json = REQWEST.post("https://cleanuri.com/api/v1/shorten").form(&[("url", url)]).send().await?.json::<Value>().await?;
 
     match json["result_url"].as_str() {
-        Some(url) => ctx.respond_success(format!("<{url}>"), true).await,
+        Some(shortened_url) => ctx.respond_success(format!("<{shortened_url}>"), true).await,
         None => ctx.respond_error("Invalid URL.", true).await,
     }
 }

@@ -18,21 +18,20 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         Err(error) => return ctx.respond_error(error, true).await,
     };
 
-    ctx.respond(
-        MessageResponse::from(
-            SelectMenu::new("osu", "user", "Select a section…", Some(&section))
-                .add_option("Overview", format!("{}|{mode}", user.id), None::<String>)
-                .add_option("About", format!("{}|{mode}/about", user.id), None::<String>)
-                .add_option("Statistics", format!("{}|{mode}/statistics", user.id), None::<String>)
-                .add_option("Website Statistics", format!("{}|{mode}/website-statistics", user.id), None::<String>),
-        )
-        .add_embed(match section.as_str() {
-            "about" => user.format_about(),
-            "statistics" => user.format_statistics(),
-            "website-statistics" => user.format_website_statistics(),
-            _ => user.format(),
-        }),
-        false,
-    )
-    .await
+    let id = user.id;
+
+    let select_menu = SelectMenu::new("osu", "user", "Select a section…", Some(&section))
+        .add_option("Overview", format!("{id}|{mode}"), None::<String>)
+        .add_option("About", format!("{id}|{mode}/about"), None::<String>)
+        .add_option("Statistics", format!("{id}|{mode}/statistics"), None::<String>)
+        .add_option("Website Statistics", format!("{id}|{mode}/website-statistics"), None::<String>);
+
+    let embed = match section.as_str() {
+        "about" => user.format_about(),
+        "statistics" => user.format_statistics(),
+        "website-statistics" => user.format_website_statistics(),
+        _ => user.format(),
+    };
+
+    ctx.respond(MessageResponse::from(select_menu).add_embed(embed), false).await
 }

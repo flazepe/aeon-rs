@@ -16,8 +16,11 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
             return ctx.autocomplete(XE_CURRENCIES.iter()).await;
         }
 
-        match Xe::convert(ctx.get_f64_arg("amount")?, ctx.get_string_arg("origin-currency")?, ctx.get_string_arg("target-currency")?).await
-        {
+        let amount = ctx.get_f64_arg("amount")?;
+        let origin_currency = ctx.get_string_arg("origin-currency")?;
+        let target_currency = ctx.get_string_arg("target-currency")?;
+
+        match Xe::convert(amount, origin_currency, target_currency).await {
             Ok(xe_conversion) => ctx.respond_success(xe_conversion.format(), false).await,
             Err(error) => ctx.respond_error(error, true).await,
         }

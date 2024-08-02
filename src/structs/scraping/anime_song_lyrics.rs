@@ -19,11 +19,7 @@ impl AnimeSongLyrics {
         );
 
         let selection = document.select("#songlist a");
-
-        let node = match selection.get(0) {
-            Some(node) => node,
-            None => bail!("Anime not found."),
-        };
+        let Some(node) = selection.get(0) else { bail!("Anime not found.") };
 
         let data = node.text();
         let mut data = data.split('\n').filter(|str| !str.is_empty());

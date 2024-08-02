@@ -13,7 +13,7 @@ use crate::{
         Spotify, SPOTIFY_EMBED_COLOR,
     },
 };
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use serde::Deserialize;
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
 use std::fmt::Display;
@@ -150,17 +150,11 @@ impl SpotifyFullAlbum {
 
 impl Spotify {
     pub async fn get_album<T: Display>(id: T) -> Result<SpotifyFullAlbum> {
-        match Spotify::query(format!("albums/{id}")).await {
-            Ok(album) => Ok(album),
-            Err(_) => bail!("Album not found."),
-        }
+        Spotify::query(format!("albums/{id}")).await.context("Album not found.")
     }
 
     async fn get_simple_album<T: Display>(id: T) -> Result<SpotifySimpleAlbum> {
-        match Spotify::query(format!("albums/{id}")).await {
-            Ok(album) => Ok(album),
-            Err(_) => bail!("Album not found."),
-        }
+        Spotify::query(format!("albums/{id}")).await.context("Album not found.")
     }
 
     pub async fn search_simple_album<T: Display>(query: T) -> Result<Vec<SpotifySimpleAlbum>> {

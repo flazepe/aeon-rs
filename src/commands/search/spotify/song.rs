@@ -45,46 +45,38 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     if let Ok(style) = ctx.get_string_arg("card").as_deref() {
         ctx.res.defer(false).await?;
 
-        return ctx
-            .respond(
-                eien(
-                    "song-card",
-                    &[&to_string(&SongActivity {
-                        service: SongActivityService::Spotify,
-                        style: style.into(),
-                        title: track.name,
-                        artist: track.artists.into_iter().map(|artist| artist.name).collect::<Vec<String>>().join(", "),
-                        album: track.album.name,
-                        album_cover: track
-                            .album
-                            .images
-                            .first()
-                            .map_or_else(|| ctx.input.user.display_avatar_url("png", 4096), |image| image.url.clone()),
-                        timestamps: None,
-                    })?],
-                )
-                .await?,
-                false,
-            )
-            .await;
+        let activity = SongActivity {
+            service: SongActivityService::Spotify,
+            style: style.into(),
+            title: track.name,
+            artist: track.artists.into_iter().map(|artist| artist.name).collect::<Vec<String>>().join(", "),
+            album: track.album.name,
+            album_cover: track
+                .album
+                .images
+                .first()
+                .map_or_else(|| ctx.input.user.display_avatar_url("png", 4096), |image| image.url.clone()),
+            timestamps: None,
+        };
+
+        return ctx.respond(eien("song-card", &[&to_string(&activity)?]).await?, false).await;
     }
 
-    ctx.respond(
-        MessageResponse::from(
-            SelectMenu::new("spotify", "song", "Select a section…", Some(&section))
-                .add_option("Overview", &track.id, None::<String>)
-                .add_option("Audio Features", format!("{}/audio-features", track.id), None::<String>)
-                .add_option("Available Countries", format!("{}/available-countries", track.id), None::<String>),
-        )
-        .add_embed(match section.as_str() {
-            "audio-features" => {
-                track.get_audio_features().await?;
-                track.format_audio_features()
-            },
-            "available-countries" => track.format_available_countries(),
-            _ => track.format(),
-        }),
-        false,
-    )
-    .await
+    let id = &track.id;
+
+    let select_menu = SelectMenu::new("spotify", "song", "Select a section…", Some(&section))
+        .add_option("Overview", id, None::<String>)
+        .add_option("Audio Features", format!("{id}/audio-features"), None::<String>)
+        .add_option("Available Countries", format!("{id}/available-countries"), None::<String>);
+
+    let embed = match section.as_str() {
+        "audio-features" => {
+            track.get_audio_features().await?;
+            track.format_audio_features()
+        },
+        "available-countries" => track.format_available_countries(),
+        _ => track.format(),
+    };
+
+    ctx.respond(MessageResponse::from(select_menu).add_embed(embed), false).await
 }

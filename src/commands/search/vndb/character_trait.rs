@@ -4,7 +4,7 @@ use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.input.is_string_select() {
-        return ctx.respond(Vndb::search_trait(&ctx.input.values.as_ref().unwrap()[0]).await?.remove(0).format(), false).await;
+        return ctx.respond(Vndb::search_trait(&ctx.input.values.as_ref().unwrap()[0]).await?[0].format(), false).await;
     }
 
     let results = match Vndb::search_trait(ctx.get_string_arg("trait")?).await {

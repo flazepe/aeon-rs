@@ -49,15 +49,13 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
                         Err(error) => ctx.respond_error(error, true).await,
                     }
                 },
-                false => Ok(ctx
-                    .res
-                    .open_modal(
-                        Modal::new("code", "modal", "Enter Code").set_components(
-                            Components::new()
-                                .add_text_input(TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code").set_label("Code")),
-                        ),
-                    )
-                    .await?),
+                false => {
+                    let code_input = TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code").set_label("Code");
+                    let components = Components::new().add_text_input(code_input);
+                    let modal = Modal::new("code", "modal", "Enter Code").set_components(components);
+
+                    Ok(ctx.res.open_modal(modal).await?)
+                },
             }
         }
     })

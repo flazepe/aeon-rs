@@ -8,7 +8,7 @@ use crate::{
     structs::{api::osu::Osu, duration::Duration},
     traits::Commas,
 };
-use anyhow::{bail, Result};
+use anyhow::{Context, Result};
 use serde::Deserialize;
 use slashook::{chrono::DateTime, structs::embeds::Embed};
 use std::fmt::{Display, Formatter, Result as FmtResult};
@@ -404,9 +404,6 @@ impl Osu {
             mode = "".into();
         }
 
-        match Osu::query(format!("users/{user}/{mode}")).await {
-            Ok(user) => Ok(user),
-            Err(_) => bail!("User not found."),
-        }
+        Osu::query(format!("users/{user}/{mode}")).await.context("User not found.")
     }
 }

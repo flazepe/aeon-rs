@@ -6,11 +6,11 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.get_bool_arg("search").unwrap_or(false) {
         let mut select_menu = SelectMenu::new("vndb", "character", "Select a character…", None::<String>);
 
-        for result in match Vndb::search_character(ctx.get_string_arg("character")?).await {
-            Ok(results) => results,
+        for character in match Vndb::search_character(ctx.get_string_arg("character")?).await {
+            Ok(characters) => characters,
             Err(error) => return ctx.respond_error(error, true).await,
         } {
-            select_menu = select_menu.add_option(result.name, result.id, Some(&result.vns[0].title));
+            select_menu = select_menu.add_option(character.name, character.id, Some(&character.vns[0].title));
         }
 
         return ctx.respond(select_menu, false).await;
@@ -25,23 +25,22 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     };
 
     let character = match Vndb::search_character(query).await {
-        Ok(mut results) => results.remove(0),
+        Ok(mut characters) => characters.remove(0),
         Err(error) => return ctx.respond_error(error, true).await,
     };
 
-    ctx.respond(
-        MessageResponse::from(
-            SelectMenu::new("vndb", "character", "Select a section…", Some(&section))
-                .add_option("Overview", &character.id, None::<String>)
-                .add_option("Traits", format!("{}/traits", character.id), None::<String>)
-                .add_option("Visual Novels", format!("{}/visual-novels", character.id), None::<String>),
-        )
-        .add_embed(match section.as_str() {
-            "traits" => character.format_traits(),
-            "visual-novels" => character.format_visual_novels(),
-            _ => character.format(),
-        }),
-        false,
-    )
-    .await
+    let id = &character.id;
+
+    let select_menu = SelectMenu::new("vndb", "character", "Select a section…", Some(&section))
+        .add_option("Overview", id, None::<String>)
+        .add_option("Traits", format!("{id}/traits"), None::<String>)
+        .add_option("Visual Novels", format!("{id}/visual-novels"), None::<String>);
+
+    let embed = match section.as_str() {
+        "traits" => character.format_traits(),
+        "visual-novels" => character.format_visual_novels(),
+        _ => character.format(),
+    };
+
+    ctx.respond(MessageResponse::from(select_menu).add_embed(embed), false).await
 }
