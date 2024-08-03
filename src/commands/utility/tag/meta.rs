@@ -16,7 +16,6 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             let created_timestamp = format_timestamp(tag.created_timestamp, TimestampFormat::Full);
             let updated_timestamp = format_timestamp(tag.updated_timestamp, TimestampFormat::Full);
             let nsfw = yes_no!(tag.nsfw);
-
             let mut aliases = tag.aliases.iter().map(|alias| format!("`{alias}`")).collect::<Vec<String>>().join(", ");
 
             if aliases.is_empty() {

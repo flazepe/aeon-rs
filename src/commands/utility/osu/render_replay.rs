@@ -18,11 +18,12 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     ctx.res.defer(false).await?;
 
-    let replay_url =
-        match ctx.get_string_arg("replay-url").or(ctx.get_attachment_arg("replay-file").map(|attachment| attachment.url.clone())) {
-            Ok(url) => url,
-            Err(_) => return ctx.respond_error("Please provide an image URL or file.", true).await,
-        };
+    let Ok(replay_url) =
+        ctx.get_string_arg("replay-url").or(ctx.get_attachment_arg("replay-file").map(|attachment| attachment.url.clone()))
+    else {
+        return ctx.respond_error("Please provide an image URL or file.", true).await;
+    };
+
     let skin = ctx.get_string_arg("skin").ok();
 
     match OrdrRender::new(replay_url, skin).await {

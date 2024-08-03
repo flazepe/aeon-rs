@@ -19,7 +19,6 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             let memory = bytes_to_mb(process.memory());
             let virtual_memory = bytes_to_mb(process.virtual_memory());
             let cache = get_cache_list().join("\n");
-
             let embed = Embed::new()
                 .set_color(PRIMARY_COLOR)?
                 .add_field("Process Started", process_started, false)

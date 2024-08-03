@@ -30,15 +30,13 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
 
         ctx.res.defer(false).await?;
 
-        let mut query = ctx.get_string_arg("song");
-
-        if query.is_err() {
-            if let Some(song) = CACHE.spotify.read().unwrap().get(&ctx.input.user.id) {
-                query = Ok(song.title.clone());
-            }
-        }
-
-        let Ok(query) = query else { return ctx.respond_error("Please provide a song.", true).await };
+        let Some(query) = ctx
+            .get_string_arg("song")
+            .ok()
+            .or_else(|| CACHE.spotify.read().unwrap().get(&ctx.input.user.id).map(|song| format!("{} - {}", song.artist, song.title)))
+        else {
+            return ctx.respond_error("Please provide a song.", true).await;
+        };
 
         let mut songs = match Ufret::search(query).await {
             Ok(songs) => songs,

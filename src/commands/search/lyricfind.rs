@@ -15,15 +15,13 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
             return ctx.respond(LyricFind::search(&ctx.input.values.as_ref().unwrap()[0]).await?[0].format(), false).await;
         }
 
-        let mut query = ctx.get_string_arg("song");
-
-        if query.is_err() {
-            if let Some(song) = CACHE.spotify.read().unwrap().get(&ctx.input.user.id) {
-                query = Ok(format!("{} - {}", song.artist, song.title));
-            }
-        }
-
-        let Ok(query) = query else { return ctx.respond_error("Please provide a song.", true).await };
+        let Some(query) = ctx
+            .get_string_arg("song")
+            .ok()
+            .or_else(|| CACHE.spotify.read().unwrap().get(&ctx.input.user.id).map(|song| format!("{} - {}", song.artist, song.title)))
+        else {
+            return ctx.respond_error("Please provide a song.", true).await;
+        };
 
         let tracks = match LyricFind::search(&query).await {
             Ok(tracks) => tracks,

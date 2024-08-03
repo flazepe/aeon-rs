@@ -57,7 +57,7 @@ impl SpotifyLyricsWithTrack {
 
 impl Spotify {
     pub async fn get_user_token() -> Result<SpotifyToken> {
-        let cookie = format!("sp_dc={}", &CONFIG.api.spotify_dc);
+        let cookie = format!("sp_dc={}", CONFIG.api.spotify_dc);
 
         REQWEST
             .get("https://open.spotify.com/get_access_token?reason=transport&productType=web_player")
