@@ -57,6 +57,7 @@ pub struct GoogleDnsQuery {
     pub comment: Option<String>,
 }
 
+#[derive(Debug)]
 pub struct GoogleDns {
     pub domain: String,
     pub record_type: String,

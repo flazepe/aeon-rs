@@ -18,6 +18,7 @@ struct GoogleTranslateResponse {
     src: String,
 }
 
+#[derive(Debug)]
 pub struct GoogleTranslateTranslation {
     pub origin_language: String,
     pub target_language: String,

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use slashook::structs::{guilds::GuildMember, Permissions};
 use std::fmt::Display;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Tag {
     pub _id: ObjectId,
     pub name: String,

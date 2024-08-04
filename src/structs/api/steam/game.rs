@@ -330,6 +330,7 @@ pub struct SteamGameResponse {
     pub data: SteamGame,
 }
 
+#[derive(Debug)]
 pub struct SteamSearchResult {
     pub name: String,
     pub id: String,

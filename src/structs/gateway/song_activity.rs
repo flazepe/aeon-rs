@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SongActivity {
     pub service: SongActivityService,
@@ -12,7 +12,7 @@ pub struct SongActivity {
     pub timestamps: Option<(u64, u64)>,
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum SongActivityService {
     Aeon,
@@ -23,7 +23,7 @@ pub enum SongActivityService {
     YouTube,
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum SongActivityStyle {
     Classic,

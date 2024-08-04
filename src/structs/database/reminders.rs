@@ -19,7 +19,7 @@ use slashook::{
 };
 use std::{fmt::Display, thread::sleep, time::Duration as TimeDuration};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Reminder {
     pub _id: ObjectId,
     pub user_id: String,
