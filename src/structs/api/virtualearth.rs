@@ -85,7 +85,7 @@ impl TimeZoneLocation {
 
         format!(
             "It is `{}:{min} {}` or `{hour}:{min}` in {} (`{date}, UTC {}`).",
-            if hour > 12 { hour - 12 } else { hour },
+            if hour == 0 { 12 } else if hour > 12 { hour - 12 } else { hour },
             if hour > 12 { "PM" } else { "AM" },
             self.place_name,
             timezone.utc_offset,
