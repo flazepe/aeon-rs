@@ -81,11 +81,17 @@ impl TimeZoneLocation {
         let timezone = &self.time_zone[0];
         let (date, time) = timezone.converted_time.local_time.split_once('T').unwrap_or(("", ""));
         let hour = time.chars().take(2).collect::<String>().parse::<u8>().unwrap_or(0);
-        let min = time.chars().skip(3).take(2).collect::<String>().parse::<u8>().unwrap_or(0);
+        let min = time.chars().skip(3).take(2).collect::<String>();
 
         format!(
             "It is `{}:{min} {}` or `{hour}:{min}` in {} (`{date}, UTC {}`).",
-            if hour == 0 { 12 } else if hour > 12 { hour - 12 } else { hour },
+            if hour == 0 {
+                12
+            } else if hour > 12 {
+                hour - 12
+            } else {
+                hour
+            },
             if hour > 12 { "PM" } else { "AM" },
             self.place_name,
             timezone.utc_offset,
