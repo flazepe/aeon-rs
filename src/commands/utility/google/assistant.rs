@@ -13,14 +13,14 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         false => ctx.get_string_arg("query")?,
     };
 
-    match Google::query_assistant(query).await {
-        Ok((image, suggestions)) => {
-            let mut response = MessageResponse::from(File::new("image.png", image));
+    match Google::assistant(query).await {
+        Ok(google_assistant) => {
+            let mut response = MessageResponse::from(File::new("image.png", google_assistant.card_image));
 
-            if !suggestions.is_empty() {
+            if !google_assistant.suggestions.is_empty() {
                 let mut select_menu = SelectMenu::new("google", "assistant", "Try saying…", None::<String>);
 
-                for suggestion in suggestions {
+                for suggestion in google_assistant.suggestions {
                     select_menu = select_menu.add_option(&suggestion, &suggestion, None::<String>);
                 }
 
