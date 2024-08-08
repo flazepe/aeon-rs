@@ -124,7 +124,13 @@ impl Google {
         page.set_content(content.replace("<html>", r#"<html style="background-image: url(https://picsum.photos/1920/1080);">"#)).await?;
 
         // Fix padding issues
-        page.evaluate(r#"document.querySelector("[data-hveid]").style.padding = "60px 90px";"#).await?;
+        page.evaluate(
+            r#"
+                const element = document.querySelector("[data-hveid]");
+                if (element) element.style.padding = "60px 90px";
+            "#,
+        )
+        .await?;
 
         let card_image = page.screenshot(ScreenshotParams::builder().build()).await?;
         let suggestions = page
