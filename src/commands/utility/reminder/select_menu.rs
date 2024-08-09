@@ -3,23 +3,20 @@ use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let message = ctx.input.message.as_ref().unwrap();
-
-    if match message.interaction_metadata.is_none() {
-        // If it's a reminder (we can tell since the message attached does not have an interaction), we need to verify the user before snoozing
+    let is_reminder_message = message.interaction_metadata.is_none();
+    let is_authorized = match is_reminder_message {
+        // It's a reminder message (we can tell since the message attached does not have an interaction)
         true => {
-            ctx.input.guild_id.is_none() // If it's a DM we don't need to verify (the message content would be empty anyway)
-            ||  ctx.input.user.id // Else, parse the ping from the message content
-                == message
-                    .content
-                    .chars()
-                    .filter(|char| char.is_numeric())
-                    .collect::<String>()
+            let is_dm = ctx.input.guild_id.is_none();
+            let is_reminder_author = ctx.input.user.id == message.content.chars().filter(|char| char.is_numeric()).collect::<String>();
+            is_dm || is_reminder_author
         },
         // Else, it's an ephemeral select menu from the message reminder command; we let it pass
         false => true,
-    } {
-        set::run(ctx).await
-    } else {
-        ctx.respond_error("This isn't your reminder.", true).await
+    };
+
+    match is_authorized {
+        true => set::run(ctx).await,
+        false => ctx.respond_error("This isn't your reminder.", true).await,
     }
 }

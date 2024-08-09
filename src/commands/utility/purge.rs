@@ -42,9 +42,9 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
 
         messages.retain(|message| {
             ctx.get_user_arg("user").map_or(true, |user| user.id == message.author.id)
-                && message.timestamp > Utc::now() - Duration::try_weeks(2).unwrap()
+                && message.timestamp > Utc::now() - Duration::weeks(2)
         });
-
+        
         messages.drain((ctx.get_i64_arg("amount").unwrap_or(1) as usize).min(messages.len())..);
 
         if messages.is_empty() {

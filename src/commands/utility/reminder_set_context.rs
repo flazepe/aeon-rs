@@ -15,23 +15,21 @@ use slashook::{
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main({
         |ctx: CommandContext| async move {
-            ctx.respond(
-                Components::new().add_select_menu(
-                    add_reminder_select_options(SelectMenu::new(SelectMenuType::STRING))
-                        .set_id(
-                            "reminder",
-                            format!(
-                                "{}/{}/{}",
-                                ctx.input.guild_id.as_deref().unwrap_or("@me"),
-                                ctx.input.channel_id.as_ref().unwrap(),
-                                ctx.input.target_message.as_ref().unwrap().id,
-                            ),
-                        )
-                        .set_placeholder("Select time to remind about message"),
-                ),
-                true,
-            )
-            .await
+            let mut select_menu = SelectMenu::new(SelectMenuType::STRING)
+                .set_id(
+                    "reminder",
+                    format!(
+                        "{}/{}/{}",
+                        ctx.input.guild_id.as_deref().unwrap_or("@me"),
+                        ctx.input.channel_id.as_ref().unwrap(),
+                        ctx.input.target_message.as_ref().unwrap().id,
+                    ),
+                )
+                .set_placeholder("Select time to remind about message");
+
+            select_menu = add_reminder_select_options(select_menu);
+
+            ctx.respond(Components::new().add_select_menu(select_menu), true).await
         }
     })
 });
