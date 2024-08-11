@@ -25,7 +25,12 @@ impl SelectMenu {
     }
 
     pub fn add_option<T: Display, U: Display, V: Display>(mut self, label: T, value: U, description: Option<V>) -> Self {
-        let value = value.to_string().chars().take(100).collect::<String>();
+        let value = value.to_string().chars().take(100).collect::<String>().trim().to_string();
+
+        if self.options.iter().any(|option| option.value == value) {
+            return self;
+        }
+
         let mut option = SelectOption::new(label.to_string().chars().take(100).collect::<String>(), &value);
 
         if let Some(default) = self.default.as_ref() {

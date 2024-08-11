@@ -31,7 +31,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
         let mut select_menu = SelectMenu::new("lyricfind", "search", "View other results…", None::<String>);
 
         for track in &tracks {
-            select_menu = select_menu.add_option(&track.title, format!("{query} {}", &track.artist.name), Some(track.artist.name.clone()));
+            select_menu = select_menu.add_option(&track.title, format!("{} {query}", &track.artist.name), Some(track.artist.name.clone()));
         }
 
         ctx.respond(MessageResponse::from(select_menu).add_embed(tracks[0].format()), false).await
