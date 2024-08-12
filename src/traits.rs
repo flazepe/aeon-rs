@@ -1,4 +1,3 @@
-use crate::functions::escape_markdown;
 use slashook::structs::{messages::Message as SlashookMessage, users::User as SlashookUser};
 use std::fmt::Display;
 use twilight_model::{channel::Message as TwilightMessage, user::User as TwilightUser};
@@ -78,7 +77,7 @@ impl MessageExt for SlashookMessage {
     fn reply_text(&self) -> Option<String> {
         self.message_reference.as_ref().map(|_| match &self.referenced_message {
             Some(referenced_message) => format_reply_text!(
-                escape_markdown(referenced_message.author.label()),
+                referenced_message.author.label(),
                 referenced_message.guild_id.as_ref().map(|guild_id| guild_id.to_string()).as_deref().unwrap_or("@me"),
                 referenced_message.channel_id.clone(),
                 referenced_message.id.clone(),
@@ -92,7 +91,7 @@ impl MessageExt for TwilightMessage {
     fn reply_text(&self) -> Option<String> {
         self.reference.as_ref().map(|_| match &self.referenced_message {
             Some(referenced_message) => format_reply_text!(
-                escape_markdown(referenced_message.author.label()),
+                referenced_message.author.label(),
                 referenced_message.guild_id.map(|guild_id| guild_id.to_string()).as_deref().unwrap_or("@me"),
                 referenced_message.channel_id,
                 referenced_message.id,
