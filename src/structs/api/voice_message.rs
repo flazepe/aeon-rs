@@ -18,13 +18,11 @@ impl VoiceMessage {
             res.edit_original_message("Please provide a valid audio URL.").await?;
             return Ok(());
         };
-
         let mut child = Command::new("ffprobe")
             .args(["-i", "-", "-show_entries", "packet=dts_time", "-of", "csv=p=0", "-v", "quiet"])
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .spawn()?;
-
         let mut stdin = child.stdin.take().unwrap();
         let task_bytes = bytes.clone();
         let handle = spawn(async move { stdin.write_all(&task_bytes).await.unwrap() });
@@ -35,16 +33,10 @@ impl VoiceMessage {
             .map_or(0., |line| line.replace(',', "").parse::<f64>().unwrap_or(0.));
         handle.await?; // Wait until task is done before getting Arc's inner value
 
-        if let Err(error) = res
-            .send_followup_message(
-                MessageResponse::from(
-                    File::new("voice-message.ogg", Arc::into_inner(bytes).unwrap()).set_duration_secs(duration_secs).set_waveform(""),
-                )
-                .set_ephemeral(ephemeral)
-                .set_as_voice_message(true),
-            )
-            .await
-        {
+        let file = File::new("voice-message.ogg", Arc::into_inner(bytes).unwrap()).set_duration_secs(duration_secs).set_waveform("");
+        let response = MessageResponse::from(file).set_ephemeral(ephemeral).set_as_voice_message(true);
+
+        if let Err(error) = res.send_followup_message(response).await {
             res.edit_original_message(format!(
                 "`{error}`\nMake sure the file is a valid audio file and I have the permission to send voice messages.",
             ))

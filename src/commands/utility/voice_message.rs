@@ -8,33 +8,31 @@ use slashook::{
 
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
-        VoiceMessage::send(
-            &ctx.res,
-            match ctx.get_string_arg("audio-url").or(ctx.get_attachment_arg("audio-file").map(|attachment| attachment.url.clone())) {
+        let audio_url =
+            match ctx.get_string_arg("media-url").or(ctx.get_attachment_arg("media-file").map(|attachment| attachment.url.clone())) {
                 Ok(url) => url,
-                Err(_) => return ctx.respond_error("Please provide an audio URL or file.", true).await,
-            },
-            false,
-        )
-        .await
+                Err(_) => return ctx.respond_error("Please provide a media URL or file.", true).await,
+            };
+
+        VoiceMessage::send(&ctx.res, audio_url, false).await
     })
 });
 
 pub fn get_command() -> SlashookCommand {
     #[command(
 		name = "voice-message",
-		description = "Sends an audio file as a voice message.",
+		description = "Sends a media file as a voice message.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
 		options = [
 			{
-				name = "audio-url",
-				description = "The audio URL",
+				name = "media-url",
+				description = "The media URL",
 				option_type = InteractionOptionType::STRING,
 			},
 			{
-				name = "audio-file",
-				description = "The audio file",
+				name = "media-file",
+				description = "The media file",
 				option_type = InteractionOptionType::ATTACHMENT,
 			},
         ]

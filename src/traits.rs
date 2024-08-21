@@ -65,7 +65,7 @@ pub trait MessageExt {
 }
 
 macro_rules! format_reply_text {
-    ($user_label:expr, $guild_id: expr, $channel_id:expr, $id:expr $(,)?) => {
+    ($user_label:expr, $guild_id:expr, $channel_id:expr, $id:expr $(,)?) => {
         format!("[Replying to {}](https://discord.com/channels/{}/{}/{})", $user_label, $guild_id, $channel_id, $id)
     };
     () => {
