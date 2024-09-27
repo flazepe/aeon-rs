@@ -3,6 +3,8 @@ use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
+    ctx.res.defer(false).await?;
+
     if ctx.get_bool_arg("search").unwrap_or(false) {
         let mut select_menu = SelectMenu::new("spotify", "album", "Select an album…", None::<String>);
 
