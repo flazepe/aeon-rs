@@ -45,8 +45,6 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     };
 
     if let Ok(style) = ctx.get_string_arg("card").as_deref() {
-        ctx.res.defer(false).await?;
-
         let activity = SongActivity {
             service: SongActivityService::Spotify,
             style: style.into(),
