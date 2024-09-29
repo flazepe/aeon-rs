@@ -16,7 +16,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         return ctx.respond_error("You already have an ongoing replay rendering.", true).await;
     }
 
-    ctx.res.defer(false).await?;
+    ctx.defer(false).await?;
 
     let Ok(replay_url) =
         ctx.get_string_arg("replay-url").or(ctx.get_attachment_arg("replay-file").map(|attachment| attachment.url.clone()))

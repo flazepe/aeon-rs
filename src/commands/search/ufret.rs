@@ -20,7 +20,7 @@ use slashook::{
 static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         if let Some(value) = ctx.input.values.as_ref().and_then(|values| values.first()) {
-            ctx.res.defer_update().await?;
+            ctx.defer(true).await?;
 
             return match UfretSong::from(value).screenshot().await {
                 Ok(song) => ctx.respond(song.format(), false).await,
@@ -28,7 +28,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
             };
         }
 
-        ctx.res.defer(false).await?;
+        ctx.defer(false).await?;
 
         let Some(query) = ctx
             .get_string_arg("song")

@@ -10,7 +10,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
     Command::new().main(|ctx: CommandContext| {
         async move {
             // We have to defer since scraping this takes a bit of time
-            ctx.res.defer(false).await?;
+            ctx.defer(false).await?;
 
             match Stock::get(ctx.get_string_arg("ticker")?).await {
                 Ok(stock) => ctx.respond(stock.format(), false).await,

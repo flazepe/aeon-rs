@@ -14,7 +14,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         return ctx.respond_error(format!("No Spotify activity found for <@{}>.", user.id), true).await;
     };
 
-    ctx.res.defer(false).await?;
+    ctx.defer(false).await?;
 
     // Set to proper style
     if let Ok(style) = ctx.get_string_arg("card").as_deref() {

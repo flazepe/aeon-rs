@@ -2,6 +2,7 @@ use crate::structs::{command_context::CommandContext, database::reminders::Remin
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
+    // Must use res.defer to not update original message
     ctx.res.defer(ctx.input.is_string_select()).await?;
 
     // Delete snoozed reminder

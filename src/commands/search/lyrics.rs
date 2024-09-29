@@ -19,7 +19,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
             return ctx.respond_error("Please provide a song.", true).await;
         };
 
-        ctx.res.defer(false).await?;
+        ctx.defer(false).await?;
 
         let Ok(mut track) = Spotify::search_track(query).await else { return ctx.respond_error("Song not found.", true).await };
 

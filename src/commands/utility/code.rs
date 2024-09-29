@@ -42,7 +42,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
 
             match ctx.input.is_modal_submit() {
                 true => {
-                    ctx.res.defer(false).await?;
+                    ctx.defer(false).await?;
 
                     match Tio::new(programming_language, ctx.get_string_arg("code")?).run().await {
                         Ok(tio) => ctx.respond(tio.format(), false).await,

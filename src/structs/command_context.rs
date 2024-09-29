@@ -51,6 +51,15 @@ impl CommandContext {
         Ok(self)
     }
 
+    pub async fn defer(&self, ephemeral: bool) -> Result<()> {
+        match self.input.message.is_some() {
+            true => self.res.defer_update().await?,
+            false => self.res.defer(ephemeral).await?,
+        };
+
+        Ok(())
+    }
+
     pub async fn respond<T: Into<MessageResponse>>(&self, response: T, ephemeral: bool) -> Result<()> {
         if !self.verified {
             bail!("Interaction isn't verified.");

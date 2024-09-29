@@ -55,7 +55,7 @@ static COMMAND: Lazy<Command> = Lazy::new(|| {
             1 => messages[0].delete(&ctx.input.rest).await?,
             _ => match is_self_purge && !ctx.input.app_permissions.contains(Permissions::MANAGE_MESSAGES) {
                 true => {
-                    ctx.res.defer(true).await?;
+                    ctx.defer(true).await?;
 
                     for message in &messages {
                         message.delete(&ctx.input.rest).await?;

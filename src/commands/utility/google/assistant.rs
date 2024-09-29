@@ -3,10 +3,7 @@ use anyhow::Result;
 use slashook::{commands::MessageResponse, structs::utils::File};
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    match ctx.input.is_string_select() {
-        true => ctx.res.defer_update().await?,
-        false => ctx.res.defer(false).await?,
-    };
+    ctx.defer(true).await?;
 
     let query = match ctx.input.is_string_select() {
         true => ctx.input.values.as_ref().unwrap()[0].clone(),

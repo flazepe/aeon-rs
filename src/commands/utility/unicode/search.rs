@@ -5,7 +5,7 @@ use crate::{
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    ctx.res.defer(false).await?;
+    ctx.defer(false).await?;
 
     let mut formatted = match Unicode::search(ctx.get_string_arg("character")?).await {
         Ok(unicode) => unicode.format(),
