@@ -17,7 +17,8 @@ use tokio::spawn;
 #[main]
 async fn main() -> Result<()> {
     let mut mongodb_options = ClientOptions::parse(&CONFIG.database.mongodb_uri).await?;
-    mongodb_options.min_pool_size = Some(1);
+    mongodb_options.min_pool_size = Some(10);
+    mongodb_options.max_connecting = Some(10);
 
     let mongodb = MongoDBClient::with_options(mongodb_options)?;
     mongodb.warm_connection_pool().await;
