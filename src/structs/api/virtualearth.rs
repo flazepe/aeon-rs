@@ -92,7 +92,7 @@ impl TimeZoneLocation {
             } else {
                 hour
             },
-            if hour > 12 { "PM" } else { "AM" },
+            if hour >= 12 { "PM" } else { "AM" },
             self.place_name,
             timezone.utc_offset,
         )
