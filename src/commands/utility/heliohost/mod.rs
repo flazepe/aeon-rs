@@ -35,7 +35,6 @@ pub fn get_command() -> SlashookCommand {
                         description = "The server",
                         option_type = InteractionOptionType::STRING,
 						choices = [
-							ApplicationCommandOptionChoice::new("Cody", "Cody"),
 							ApplicationCommandOptionChoice::new("Tommy", "Tommy"),
 							ApplicationCommandOptionChoice::new("Ricky", "Ricky"),
 							ApplicationCommandOptionChoice::new("Johnny", "Johnny"),
