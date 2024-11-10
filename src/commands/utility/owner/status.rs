@@ -11,9 +11,7 @@ use sysinfo::{get_current_pid, System};
 pub async fn run(ctx: CommandContext) -> Result<()> {
     match get_current_pid() {
         Ok(pid) => {
-            let mut system = System::new();
-            system.refresh_process(pid);
-
+            let system = System::new_all();
             let process = system.process(pid).context("Could not get process.")?;
             let process_started = format_timestamp(process.start_time(), TimestampFormat::Full);
             let memory = bytes_to_mb(process.memory());
