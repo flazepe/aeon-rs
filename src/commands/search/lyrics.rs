@@ -2,14 +2,14 @@ use crate::{
     statics::CACHE,
     structs::{api::spotify::Spotify, command::Command, command_context::CommandContext},
 };
-use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         let Some(query) = ctx
             .get_string_arg("song")

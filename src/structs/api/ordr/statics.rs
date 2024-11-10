@@ -1,7 +1,7 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::collections::HashMap;
 
-pub static ORDR_SKINS: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
+pub static ORDR_SKINS: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
     HashMap::from([
         ("-atmosphere-", "- a t m o s p h e r e -"),
         ("105_degrees_c_chocolate", "105°C Chocolate"),

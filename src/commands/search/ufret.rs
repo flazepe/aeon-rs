@@ -7,7 +7,6 @@ use crate::{
         select_menu::SelectMenu,
     },
 };
-use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -16,8 +15,9 @@ use slashook::{
         interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
     },
 };
+use std::sync::LazyLock;
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         if let Some(value) = ctx.input.values.as_ref().and_then(|values| values.first()) {
             ctx.defer(true).await?;

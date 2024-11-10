@@ -8,13 +8,16 @@ use crate::structs::{
     gateway::cache::Cache,
 };
 use mongodb::Database;
-use once_cell::sync::Lazy;
 use reqwest::Client;
 use slashook::rest::Rest;
-use std::{collections::HashMap, fs::read_to_string, sync::OnceLock, sync::RwLock};
+use std::{
+    collections::HashMap,
+    fs::read_to_string,
+    sync::{LazyLock, OnceLock, RwLock},
+};
 use toml::from_str;
 
-pub static CACHE: Lazy<Cache> = Lazy::new(|| Cache {
+pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
     channels: RwLock::new(HashMap::new()),
     snipes: RwLock::new(HashMap::new()),
     edit_snipes: RwLock::new(HashMap::new()),
@@ -26,13 +29,13 @@ pub static CACHE: Lazy<Cache> = Lazy::new(|| Cache {
     ordr_rendering_users: RwLock::new(HashMap::new()),
     localdown_novels: RwLock::new(vec![]),
 });
-pub static COLLECTIONS: Lazy<Collections> = Lazy::new(|| Collections {
+pub static COLLECTIONS: LazyLock<Collections> = LazyLock::new(|| Collections {
     oauth: MONGODB.get().unwrap().collection::<OauthToken>("oauth"),
     reminders: MONGODB.get().unwrap().collection::<Reminder>("reminders"),
     tags: MONGODB.get().unwrap().collection::<Tag>("tags"),
 });
-pub static CONFIG: Lazy<Config> = Lazy::new(|| from_str(&read_to_string("config.toml").unwrap()).unwrap());
+pub static CONFIG: LazyLock<Config> = LazyLock::new(|| from_str(&read_to_string("config.toml").unwrap()).unwrap());
 pub static FLAZEPE_ID: &str = "590455379931037697";
 pub static MONGODB: OnceLock<Database> = OnceLock::new();
-pub static REQWEST: Lazy<Client> = Lazy::new(Client::new);
-pub static REST: Lazy<Rest> = Lazy::new(|| Rest::with_token(CONFIG.bot.token.clone()));
+pub static REQWEST: LazyLock<Client> = LazyLock::new(Client::new);
+pub static REST: LazyLock<Rest> = LazyLock::new(|| Rest::with_token(CONFIG.bot.token.clone()));

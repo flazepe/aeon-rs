@@ -1,7 +1,7 @@
-use once_cell::sync::Lazy;
 use std::collections::HashMap;
+use std::sync::LazyLock;
 
-pub static CONTROL_CHARACTERS: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
+pub static CONTROL_CHARACTERS: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
     HashMap::from([
         ("0", "NULL"),
         ("1", "START OF HEADING"),

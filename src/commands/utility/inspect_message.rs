@@ -1,5 +1,5 @@
 use crate::structs::{command::Command, command_context::CommandContext};
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use serde_json::{to_string_pretty, Value};
 use slashook::{
     command,
@@ -11,7 +11,7 @@ use slashook::{
     },
 };
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         let mut response = MessageResponse::from(File::new("message.rs", format!("{:#?}", ctx.input.target_message.as_ref().unwrap())));
 

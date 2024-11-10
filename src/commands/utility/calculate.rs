@@ -2,7 +2,7 @@ use crate::{
     statics::REQWEST,
     structs::{command::Command, command_context::CommandContext},
 };
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -10,7 +10,7 @@ use slashook::{
 };
 use std::time::Duration;
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         let expression = ctx.get_string_arg("expression")?;
 

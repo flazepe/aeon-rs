@@ -3,15 +3,15 @@ mod member;
 mod song;
 
 use crate::structs::command::Command;
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, IntegrationType, InteractionContextType, InteractionOptionType},
 };
 
-static COMMAND: Lazy<Command> =
-    Lazy::new(|| Command::new().subcommand("album", album::run).subcommand("member", member::run).subcommand("song", song::run));
+static COMMAND: LazyLock<Command> =
+    LazyLock::new(|| Command::new().subcommand("album", album::run).subcommand("member", member::run).subcommand("song", song::run));
 
 pub fn get_command() -> SlashookCommand {
     #[command(

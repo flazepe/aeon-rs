@@ -1,12 +1,12 @@
 use crate::structs::{command::Command, command_context::CommandContext, snipes::ReactionSnipes};
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandType, IntegrationType, InteractionContextType},
 };
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         match ReactionSnipes::new(
             ctx.input.guild_id.as_ref().unwrap(),

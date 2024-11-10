@@ -3,14 +3,14 @@ mod dns;
 mod translate;
 
 use crate::structs::{api::google::statics::GOOGLE_DNS_RECORD_TYPES, command::Command};
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, IntegrationType, InteractionContextType, InteractionOptionType},
 };
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().subcommand("assistant", assistant::run).subcommand("dns", dns::run).subcommand("translate", translate::run)
 });
 

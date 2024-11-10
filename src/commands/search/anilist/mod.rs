@@ -3,15 +3,15 @@ mod manga;
 mod user;
 
 use crate::structs::command::Command;
-use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: Lazy<Command> =
-    Lazy::new(|| Command::new().subcommand("anime", anime::run).subcommand("manga", manga::run).subcommand("user", user::run));
+static COMMAND: LazyLock<Command> =
+    LazyLock::new(|| Command::new().subcommand("anime", anime::run).subcommand("manga", manga::run).subcommand("user", user::run));
 
 pub fn get_command() -> SlashookCommand {
     #[command(

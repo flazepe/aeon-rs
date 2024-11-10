@@ -1,12 +1,12 @@
 use crate::structs::{api::jisho::JishoSearch, command::Command, command_context::CommandContext, select_menu::SelectMenu};
-use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, MessageResponse},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         if ctx.input.is_string_select() {
             return ctx.respond(JishoSearch::get(&ctx.input.values.as_ref().unwrap()[0]).await?.format(), false).await;

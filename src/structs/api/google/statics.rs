@@ -1,4 +1,4 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::collections::HashMap;
 
 pub static GOOGLE_DNS_RECORD_TYPES: [&str; 19] = [
@@ -6,7 +6,7 @@ pub static GOOGLE_DNS_RECORD_TYPES: [&str; 19] = [
     "SSHFP", "SVCB", "TLSA", "TXT",
 ];
 
-pub static GOOGLE_DNS_CODES: Lazy<HashMap<u8, &str>> = Lazy::new(|| {
+pub static GOOGLE_DNS_CODES: LazyLock<HashMap<u8, &str>> = LazyLock::new(|| {
     HashMap::from([
         (0, "NOERROR: DNS Query completed successfully."),
         (1, "FORMERR: DNS Query Format Error."),
@@ -21,7 +21,7 @@ pub static GOOGLE_DNS_CODES: Lazy<HashMap<u8, &str>> = Lazy::new(|| {
     ])
 });
 
-pub static GOOGLE_TRANSLATE_LANGUAGES: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
+pub static GOOGLE_TRANSLATE_LANGUAGES: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
     HashMap::from([
         ("auto", "Automatic"),
         ("af", "Afrikaans"),

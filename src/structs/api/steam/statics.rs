@@ -1,10 +1,10 @@
 use crate::structs::api::steam::country::SteamCountry;
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::collections::HashMap;
 
 pub static STEAM_EMBED_COLOR: &str = "#377096";
 
-pub static STEAM_COUNTRIES: Lazy<HashMap<&str, SteamCountry>> = Lazy::new(|| {
+pub static STEAM_COUNTRIES: LazyLock<HashMap<&str, SteamCountry>> = LazyLock::new(|| {
     HashMap::from([
         (
             "MR",

@@ -1,12 +1,12 @@
 use crate::structs::{api::voice_message::VoiceMessage, command::Command, command_context::CommandContext};
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandType, IntegrationType, InteractionContextType},
 };
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         let audio_url = match ctx.input.target_message.as_ref().unwrap().attachments.first() {
             Some(attachment) => &attachment.url,

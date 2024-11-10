@@ -1,8 +1,8 @@
-use once_cell::sync::Lazy;
 use regex::{Regex, RegexBuilder};
+use std::sync::LazyLock;
 
-pub static MARKDOWN_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"\\?[*_~`]").unwrap());
-pub static COPYRIGHT_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"\((C|P)\)|©|℗").unwrap());
-pub static HTTPS_URL_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"https://(.+?)/").unwrap());
-pub static BBCODE_REGEX: Lazy<Regex> =
-    Lazy::new(|| RegexBuilder::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]").case_insensitive(true).build().unwrap());
+pub static MARKDOWN_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\?[*_~`]").unwrap());
+pub static COPYRIGHT_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\((C|P)\)|©|℗").unwrap());
+pub static HTTPS_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"https://(.+?)/").unwrap());
+pub static BBCODE_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| RegexBuilder::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]").case_insensitive(true).build().unwrap());

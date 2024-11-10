@@ -1,7 +1,7 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::collections::HashMap;
 
-pub static GENRES: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
+pub static GENRES: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
     HashMap::from([
         ("action", "Action"),
         ("adult", "Adult"),

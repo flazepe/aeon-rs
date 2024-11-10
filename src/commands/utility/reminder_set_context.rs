@@ -2,7 +2,7 @@ use crate::{
     functions::add_reminder_select_options,
     structs::{command::Command, command_context::CommandContext},
 };
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -12,7 +12,7 @@ use slashook::{
     },
 };
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main({
         |ctx: CommandContext| async move {
             let mut select_menu = SelectMenu::new(SelectMenuType::STRING)

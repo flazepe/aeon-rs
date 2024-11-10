@@ -1,12 +1,12 @@
 use crate::structs::{command::Command, command_context::CommandContext, scraping::stock::Stock};
-use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| {
         async move {
             // We have to defer since scraping this takes a bit of time

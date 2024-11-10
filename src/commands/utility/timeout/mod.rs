@@ -2,7 +2,7 @@ mod remove;
 mod set;
 
 use crate::structs::command::Command;
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -12,7 +12,7 @@ use slashook::{
     },
 };
 
-static COMMAND: Lazy<Command> = Lazy::new(|| Command::new().subcommand("remove", remove::run).subcommand("set", set::run));
+static COMMAND: LazyLock<Command> = LazyLock::new(|| Command::new().subcommand("remove", remove::run).subcommand("set", set::run));
 
 pub fn get_command() -> SlashookCommand {
     #[command(

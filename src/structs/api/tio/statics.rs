@@ -1,7 +1,7 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::collections::HashMap;
 
-pub static TIO_PROGRAMMING_LANGUAGES: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
+pub static TIO_PROGRAMMING_LANGUAGES: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
     HashMap::from([
         ("4", "4"),
         ("7", "7"),

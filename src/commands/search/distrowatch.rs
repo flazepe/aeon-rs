@@ -3,14 +3,14 @@ use crate::structs::{
     command_context::CommandContext,
     scraping::distrowatch::{statics::DISTRIBUTIONS, Distribution},
 };
-use once_cell::sync::Lazy;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         if ctx.input.is_autocomplete() {
             return ctx.autocomplete(DISTRIBUTIONS.iter()).await;

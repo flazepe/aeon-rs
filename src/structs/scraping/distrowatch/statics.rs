@@ -1,9 +1,9 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::collections::HashMap;
 
 // [...document.querySelector("select").options].map(x => [x.attributes[0].value, x.label])
 
-pub static DISTRIBUTIONS: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
+pub static DISTRIBUTIONS: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
     HashMap::from([
         ("3cx", "3CX"),
         ("4mlinux", "4MLinux"),

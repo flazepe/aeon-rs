@@ -1,7 +1,7 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::collections::HashMap;
 
-pub static XE_CURRENCIES: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
+pub static XE_CURRENCIES: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
     HashMap::from([
         ("GBP", "British Pound"),
         ("USD", "US Dollar"),

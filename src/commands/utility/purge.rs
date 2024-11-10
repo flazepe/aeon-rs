@@ -4,7 +4,7 @@ use crate::{
     structs::{command::Command, command_context::CommandContext},
     traits::UserExt,
 };
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use slashook::{
     chrono::{Duration, Utc},
     command,
@@ -16,7 +16,7 @@ use slashook::{
     },
 };
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         let is_self_purge = ctx.get_user_arg("user").map_or(false, |user| user.id == CONFIG.bot.client_id);
 

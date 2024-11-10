@@ -2,7 +2,7 @@ mod message;
 mod reaction;
 
 use crate::structs::command::Command;
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -12,7 +12,7 @@ use slashook::{
     },
 };
 
-static COMMAND: Lazy<Command> = Lazy::new(|| Command::new().subcommand("message", message::run).subcommand("reaction", reaction::run));
+static COMMAND: LazyLock<Command> = LazyLock::new(|| Command::new().subcommand("message", message::run).subcommand("reaction", reaction::run));
 
 pub fn get_command() -> SlashookCommand {
     #[command(

@@ -6,7 +6,7 @@ use crate::{
         command_context::CommandContext,
     },
 };
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, Modal},
@@ -16,7 +16,7 @@ use slashook::{
     },
 };
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| {
         async move {
             if ctx.input.is_autocomplete() {

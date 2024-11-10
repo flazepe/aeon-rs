@@ -1,12 +1,12 @@
 use crate::structs::{api::ip_info::IpInfo, command::Command, command_context::CommandContext};
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
 
-static COMMAND: Lazy<Command> = Lazy::new(|| {
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         match IpInfo::get(ctx.get_string_arg("ip")?).await {
             Ok(ip_info) => ctx.respond(ip_info.format(), false).await,
