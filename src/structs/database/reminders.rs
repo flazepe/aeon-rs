@@ -1,11 +1,17 @@
 use crate::{
     functions::{add_reminder_select_options, now},
-    statics::{colors::NOTICE_COLOR, COLLECTIONS, REST},
-    structs::duration::{statics::SECS_PER_MONTH, Duration},
+    statics::{colors::NOTICE_COLOR, COLLECTIONS, CONFIG, REST},
+    structs::{
+        client::AeonClient,
+        duration::{statics::SECS_PER_MONTH, Duration},
+    },
 };
 use anyhow::{bail, Result};
 use futures::stream::TryStreamExt;
-use mongodb::bson::{doc, oid::ObjectId};
+use mongodb::{
+    bson::{doc, oid::ObjectId},
+    Client as MongoDBClient,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use slashook::{
@@ -34,19 +40,18 @@ pub struct Reminders;
 
 impl Reminders {
     pub async fn poll() -> Result<()> {
+        // Use a separate client for polling
+        let reminders = AeonClient::connect_to_database().await?.collection("reminders");
+
         loop {
             let current_timestamp = now();
 
-            for mut reminder in COLLECTIONS
-                .reminders
-                .find(doc! { "timestamp": { "$lte": current_timestamp as i64 } })
-                .await?
-                .try_collect::<Vec<Reminder>>()
-                .await?
+            for mut reminder in
+                reminders.find(doc! { "timestamp": { "$lte": current_timestamp as i64 } }).await?.try_collect::<Vec<Reminder>>().await?
             {
                 match Self::handle(&reminder).await {
                     Ok(_) => {
-                        COLLECTIONS.reminders.delete_one(doc! { "_id": reminder._id }).await?;
+                        reminders.delete_one(doc! { "_id": reminder._id }).await?;
 
                         if reminder.interval > 0 {
                             // To prevent spam and keeping precision, while loop is needed to ensure that the new timestamp isn't behind the current timestamp
@@ -54,7 +59,7 @@ impl Reminders {
                                 reminder.timestamp += reminder.interval;
                             }
 
-                            COLLECTIONS.reminders.insert_one(&reminder).await?;
+                            reminders.insert_one(&reminder).await?;
                         }
                     },
                     Err(error) => {
@@ -66,7 +71,7 @@ impl Reminders {
                             .iter()
                             .find(|message| error.contains(&message.to_string()))
                         {
-                            COLLECTIONS.reminders.delete_one(doc! { "_id": reminder._id }).await?;
+                            reminders.delete_one(doc! { "_id": reminder._id }).await?;
                             println!(r#"[REMINDERS] Deleted reminder {} due to fatal error "{fatal_error}"."#, reminder._id);
                         }
                     },

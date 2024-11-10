@@ -6,17 +6,16 @@ mod structs;
 mod traits;
 
 use crate::{
-    statics::{CONFIG, MONGODB},
+    statics::MONGODB,
     structs::{api::ordr::OrdrRender, client::AeonClient, database::reminders::Reminders, gateway::client::GatewayClient},
 };
 use anyhow::Result;
-use mongodb::Client as MongoDBClient;
 use slashook::main;
 use tokio::spawn;
 
 #[main]
 async fn main() -> Result<()> {
-    MONGODB.set(MongoDBClient::with_uri_str(&CONFIG.database.mongodb_uri).await?.database("aeon")).expect("Could not set MongoDB client.");
+    MONGODB.set(AeonClient::connect_to_database().await?).expect("Could not set MongoDB client.");
     println!("[DATABASE] Connected to MongoDB.");
 
     spawn(Reminders::poll());

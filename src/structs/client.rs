@@ -1,5 +1,6 @@
 use crate::{commands::get_commands, statics::CONFIG};
 use anyhow::Result;
+use mongodb::{Client as MongoDBClient, Database};
 use slashook::{structs::interactions::ApplicationCommand, Client as SlashookClient, Config as SlashookConfig};
 
 pub struct AeonClient {
@@ -17,6 +18,10 @@ impl AeonClient {
                 ..Default::default()
             }),
         }
+    }
+
+    pub async fn connect_to_database() -> Result<Database> {
+        Ok(MongoDBClient::with_uri_str(&CONFIG.database.mongodb_uri).await?.database("aeon"))
     }
 
     pub async fn register_commands(&mut self) -> Result<Vec<ApplicationCommand>> {
