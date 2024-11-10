@@ -75,7 +75,7 @@ impl Vndb {
     pub async fn search_tag<T: Display>(query: T) -> Result<Vec<VndbTag>> {
         let query = query.to_string();
 
-        let results = Vndb::query(
+        let results = Self::query(
             "tag",
             match query.starts_with('g') && query.chars().skip(1).all(|char| char.is_numeric()) {
                 true => json!({

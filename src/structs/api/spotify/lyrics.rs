@@ -72,7 +72,7 @@ impl Spotify {
 
     pub async fn get_lyrics(track: SpotifyFullTrack) -> Result<SpotifyLyricsWithTrack> {
         let url = format!("https://spclient.wg.spotify.com/color-lyrics/v2/track/{}?format=json", track.id);
-        let bearer_token = Spotify::get_user_token().await?.access_token;
+        let bearer_token = Self::get_user_token().await?.access_token;
 
         REQWEST
             .get(url)

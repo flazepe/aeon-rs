@@ -201,7 +201,7 @@ impl AniListAnime {
 
 impl AniList {
     pub async fn get_anime(id: u64) -> Result<AniListAnime> {
-        AniList::query::<_, AniListResponse<AniListMediaResponse<AniListAnime>>>(
+        Self::query::<_, AniListResponse<AniListMediaResponse<AniListAnime>>>(
             format!(
                 "query($id: Int) {{
                     Media(id: $id) {{
@@ -218,7 +218,7 @@ impl AniList {
     }
 
     pub async fn search_anime<T: Display>(search: T) -> Result<Vec<AniListAnime>> {
-        let result: AniListResponse<AniListMediaPageResponse<AniListAnime>> = AniList::query(
+        let result: AniListResponse<AniListMediaPageResponse<AniListAnime>> = Self::query(
             format!(
                 "query($search: String) {{
                     Page(perPage: 10) {{

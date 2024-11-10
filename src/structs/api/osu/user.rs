@@ -404,6 +404,6 @@ impl Osu {
             mode = "".into();
         }
 
-        Osu::query(format!("users/{user}/{mode}")).await.context("User not found.")
+        Self::query(format!("users/{user}/{mode}")).await.context("User not found.")
     }
 }

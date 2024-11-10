@@ -150,21 +150,21 @@ impl SpotifyFullAlbum {
 
 impl Spotify {
     pub async fn get_album<T: Display>(id: T) -> Result<SpotifyFullAlbum> {
-        Spotify::query(format!("albums/{id}")).await.context("Album not found.")
+        Self::query(format!("albums/{id}")).await.context("Album not found.")
     }
 
     async fn get_simple_album<T: Display>(id: T) -> Result<SpotifySimpleAlbum> {
-        Spotify::query(format!("albums/{id}")).await.context("Album not found.")
+        Self::query(format!("albums/{id}")).await.context("Album not found.")
     }
 
     pub async fn search_simple_album<T: Display>(query: T) -> Result<Vec<SpotifySimpleAlbum>> {
         let query = query.to_string();
 
         if query.contains("album") {
-            return Ok(vec![Spotify::get_simple_album(query.split('/').last().unwrap().split('?').next().unwrap()).await?]);
+            return Ok(vec![Self::get_simple_album(query.split('/').last().unwrap().split('?').next().unwrap()).await?]);
         }
 
-        let results = Spotify::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}")).await?.albums.items;
+        let results = Self::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}")).await?.albums.items;
 
         match results.is_empty() {
             true => bail!("Album not found."),

@@ -18,7 +18,7 @@ pub struct SteamUserVanity {
 
 impl Steam {
     pub async fn get_user_vanity<T: Display>(player: T) -> Result<String> {
-        Steam::query::<_, _, SteamUserVanityResponse>("ResolveVanityURL/v0001/", &[("vanityurl", player.to_string().as_str())])
+        Self::query::<_, _, SteamUserVanityResponse>("ResolveVanityURL/v0001/", &[("vanityurl", player.to_string().as_str())])
             .await?
             .response
             .id

@@ -30,7 +30,7 @@ pub struct SteamUserBans {
 
 impl Steam {
     pub async fn get_user_bans<T: Display>(id: T) -> Result<SteamUserBans> {
-        Steam::query::<_, _, SteamUserBansResponse>("GetPlayerBans/v1/", &[("steamids", id.to_string().as_str())])
+        Self::query::<_, _, SteamUserBansResponse>("GetPlayerBans/v1/", &[("steamids", id.to_string().as_str())])
             .await?
             .players
             .into_iter()

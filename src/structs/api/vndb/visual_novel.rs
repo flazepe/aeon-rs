@@ -585,7 +585,7 @@ impl Vndb {
     pub async fn search_visual_novel<T: Display>(query: T) -> Result<Vec<VndbVisualNovel>> {
         let query = query.to_string();
 
-        let results = Vndb::query(
+        let results = Self::query(
             "vn",
             match query.starts_with('v') && query.chars().skip(1).all(|char| char.is_numeric()) {
                 true => json!({

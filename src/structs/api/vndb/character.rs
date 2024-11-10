@@ -199,7 +199,7 @@ impl Vndb {
     pub async fn search_character<T: Display>(query: T) -> Result<Vec<VndbCharacter>> {
         let query = query.to_string();
 
-        let results = Vndb::query(
+        let results = Self::query(
             "character",
             match query.starts_with('c') && query.chars().skip(1).all(|char| char.is_numeric()) {
                 true => json!({

@@ -51,7 +51,7 @@ impl Vndb {
     pub async fn search_trait<T: Display>(query: T) -> Result<Vec<VndbTrait>> {
         let query = query.to_string();
 
-        let results = Vndb::query(
+        let results = Self::query(
             "trait",
             match query.starts_with('i') && query.chars().skip(1).all(|char| char.is_numeric()) {
                 true => json!({

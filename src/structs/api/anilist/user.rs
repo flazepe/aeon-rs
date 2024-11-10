@@ -161,7 +161,7 @@ impl AniListUser {
 
 impl AniList {
     pub async fn get_user<T: Display>(name: T) -> Result<AniListUser> {
-        AniList::query::<_, AniListResponse<AniListUserResponse>>(
+        Self::query::<_, AniListResponse<AniListUserResponse>>(
             format!(
                 "query($search: String) {{
 					User(name: $search) {{

@@ -181,10 +181,10 @@ impl Steam {
         let mut id = id.to_string();
 
         if !id.chars().all(|char| char.is_numeric()) {
-            id = Steam::get_user_vanity(&id).await?;
+            id = Self::get_user_vanity(&id).await?;
         }
 
-        let mut user = Steam::query::<_, _, SteamUsersResponse>("GetPlayerSummaries/v0002/", &[("steamids", id.as_str())])
+        let mut user = Self::query::<_, _, SteamUsersResponse>("GetPlayerSummaries/v0002/", &[("steamids", id.as_str())])
             .await?
             .response
             .players
@@ -193,7 +193,7 @@ impl Steam {
             .context("User not found.")?;
 
         // Get user bans
-        user.bans = Steam::get_user_bans(&user.id).await.ok();
+        user.bans = Self::get_user_bans(&user.id).await.ok();
 
         Ok(user)
     }
