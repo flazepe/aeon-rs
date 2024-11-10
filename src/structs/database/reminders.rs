@@ -1,6 +1,6 @@
 use crate::{
     functions::{add_reminder_select_options, now},
-    statics::{colors::NOTICE_COLOR, COLLECTIONS, CONFIG, REST},
+    statics::{colors::NOTICE_COLOR, COLLECTIONS, REST},
     structs::{
         client::AeonClient,
         duration::{statics::SECS_PER_MONTH, Duration},
@@ -8,10 +8,7 @@ use crate::{
 };
 use anyhow::{bail, Result};
 use futures::stream::TryStreamExt;
-use mongodb::{
-    bson::{doc, oid::ObjectId},
-    Client as MongoDBClient,
-};
+use mongodb::bson::{doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use slashook::{
