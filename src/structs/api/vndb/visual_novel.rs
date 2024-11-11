@@ -520,9 +520,10 @@ impl VndbVisualNovel {
         let thumbnail = self.image.as_ref().map_or("", |image| if image.sexual > 1.0 { "" } else { image.url.as_str() });
         let title = format!(
             "{} ({})",
-            match self.title.len() > 230 {
-                true => format!("{}…", self.title.chars().take(229).collect::<String>().trim()),
-                false => self.title.clone(),
+            if self.title.len() > 230 {
+                format!("{}…", self.title.chars().take(229).collect::<String>().trim())
+            } else {
+                self.title.clone()
             },
             self.dev_status,
         );
@@ -587,24 +588,26 @@ impl Vndb {
 
         let results = Self::query(
             "vn",
-            match query.starts_with('v') && query.chars().skip(1).all(|char| char.is_numeric()) {
-                true => json!({
+            if query.starts_with('v') && query.chars().skip(1).all(|char| char.is_numeric()) {
+                json!({
                     "filters": ["id", "=", query],
                     "fields": VISUAL_NOVEL_FIELDS,
-                }),
-                false => json!({
+                })
+            } else {
+                json!({
                     "filters": ["search", "=", query],
                     "fields": VISUAL_NOVEL_FIELDS,
                     "sort": "searchrank",
-                }),
+                })
             },
         )
         .await?
         .results;
 
-        match results.is_empty() {
-            true => bail!("Visual novel not found."),
-            false => Ok(results),
+        if results.is_empty() {
+            bail!("Visual novel not found.");
         }
+
+        Ok(results)
     }
 }

@@ -87,16 +87,14 @@ impl OrdrRender {
             .text()
             .await?;
 
-        match from_str::<Self>(text.as_str()) {
-            Ok(render) => {
-                match render.render_id.is_none() {
-                    // If render_id is None, then message should be returned as it would contain the error message
-                    true => bail!(render.message),
-                    false => Ok(render),
-                }
-            },
-            Err(_) => bail!(text), // Sometimes it returns the error as plain text, so we just send the text as the error
+        let Ok(render) = from_str::<Self>(text.as_str()) else { bail!(text) }; // Sometimes it returns the error as plain text, so we just send the text as the error
+
+        // If render_id is None, then message should be returned as it would contain the error message
+        if render.render_id.is_none() {
+            bail!(render.message);
         }
+
+        Ok(render)
     }
 
     pub async fn poll_progress(&self, ctx: &CommandContext) -> Result<()> {

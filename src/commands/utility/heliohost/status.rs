@@ -12,8 +12,9 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         status.trim().to_string()
     };
 
-    match status.is_empty() || status.contains("no account") {
-        true => ctx.respond_error("Account not found.", true).await,
-        false => ctx.respond(format!("[{user}]({url})\n{status}"), true).await,
+    if status.is_empty() || status.contains("no account") {
+        ctx.respond_error("Account not found.", true).await
+    } else {
+        ctx.respond(format!("[{user}]({url})\n{status}"), true).await
     }
 }

@@ -63,9 +63,10 @@ impl AniListAnime {
         let title = format!(
             ":flag_{}: {} ({})",
             self.country_of_origin.to_lowercase(),
-            match self.title.romaji.len() > 230 {
-                true => format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim()),
-                false => self.title.romaji.clone(),
+            if self.title.romaji.len() > 230 {
+                format!("{}…", self.title.romaji.chars().take(229).collect::<String>().trim())
+            } else {
+                self.title.romaji.clone()
             },
             self.format.as_ref().map(|format| format.to_string()).as_deref().unwrap_or("TBA"),
         );
@@ -110,8 +111,7 @@ impl AniListAnime {
             .nodes
             .iter()
             .find(|node| node.time_until_airing.map_or(false, |time| time > 0))
-            .map(|node| format!("\nNext episode airs <t:{}:R>", now() + node.time_until_airing.unwrap() as u64,))
-            .unwrap_or_else(|| "".into());
+            .map_or_else(|| "".into(), |node| format!("\nNext episode airs <t:{}:R>", now() + node.time_until_airing.unwrap() as u64));
         let aired = format!("{season}{airing_date} ({status}){airing_in}");
 
         let studios =
@@ -150,9 +150,10 @@ impl AniListAnime {
                 scores.push(format!("Mean {mean_score}%"))
             }
 
-            match scores.is_empty() {
-                true => "N/A".into(),
-                false => scores.join("\n"),
+            if scores.is_empty() {
+                "N/A".into()
+            } else {
+                scores.join("\n")
             }
         };
         let timestamp = Utc.timestamp_opt(self.updated_at as i64, 0).unwrap();
@@ -232,9 +233,10 @@ impl AniList {
         )
         .await?;
 
-        match result.data.page.media.is_empty() {
-            true => bail!("Anime not found."),
-            false => Ok(result.data.page.media),
+        if result.data.page.media.is_empty() {
+            bail!("Anime not found.");
         }
+
+        Ok(result.data.page.media)
     }
 }

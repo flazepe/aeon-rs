@@ -6,9 +6,7 @@ mod lyrics;
 mod novel_updates;
 mod spotify;
 mod steam;
-mod stock;
 mod time;
-mod ufret;
 mod vndb;
 mod youtube;
 
@@ -24,9 +22,7 @@ pub fn get_commands() -> Vec<SlashookCommand> {
         novel_updates::get_command(),
         spotify::get_command(),
         steam::get_command(),
-        stock::get_command(),
         time::get_command(),
-        ufret::get_command(),
         vndb::get_command(),
         youtube::get_command(),
     ]

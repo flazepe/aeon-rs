@@ -73,10 +73,7 @@ impl Google {
             origin_language: format!(
                 "{}{}",
                 GOOGLE_TRANSLATE_LANGUAGES.get(&google_translate_response.src.as_str()).context("Unexpected language code from API.")?,
-                match origin_language.0 == &"auto" {
-                    true => " (detected)",
-                    false => "",
-                },
+                if origin_language.0 == &"auto" { " (detected)" } else { "" },
             ),
             target_language: target_language.1.to_string(),
             translation: google_translate_response

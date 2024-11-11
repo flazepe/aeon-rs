@@ -19,13 +19,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     ctx.respond(
         MessageResponse::from(format!("<{banner}>")).add_file(File::new(
-            format!(
-                "image.{}",
-                match banner_hash.starts_with("a_") {
-                    true => "gif",
-                    false => "png",
-                },
-            ),
+            format!("image.{}", if banner_hash.starts_with("a_") { "gif" } else { "png" }),
             REQWEST.get(banner).send().await?.bytes().await?,
         )),
         false,

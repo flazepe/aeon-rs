@@ -19,14 +19,8 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         .set_description(format!("[Signups](https://heliohost.org/signup/) will reset in: **{duration_diff}**"));
 
     for (server, plan) in [("Tommy", "2"), ("Ricky", "1"), ("Johnny", "9")] {
-        embed = embed.add_field(
-            server,
-            match REQWEST.get("https://heliohost.org/assets/monitor.php").query(&[("plan", plan)]).send().await?.text().await? == "1" {
-                true => "Open",
-                false => "Closed",
-            },
-            true,
-        );
+        let status = REQWEST.get("https://heliohost.org/assets/monitor.php").query(&[("plan", plan)]).send().await?.text().await?;
+        embed = embed.add_field(server, if status == "1" { "Open" } else { "Closed" }, true);
     }
 
     ctx.respond(embed, true).await

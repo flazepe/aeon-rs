@@ -26,29 +26,20 @@ impl Snipes {
 
     pub fn to_response(&self) -> Result<MessageResponse> {
         let empty_vec = vec![];
-
-        let snipes = match self.is_edit {
-            true => &CACHE.edit_snipes,
-            false => &CACHE.snipes,
-        }
-        .read()
-        .unwrap();
-
+        let snipes = if self.is_edit { &CACHE.edit_snipes } else { &CACHE.snipes }.read().unwrap();
         let snipes = snipes.get(&self.channel_id).unwrap_or(&empty_vec);
 
         if snipes.is_empty() {
-            bail!(match self.permissions.contains(Permissions::VIEW_CHANNEL) {
-                true => "No snipes found.",
-                false => "I do not have the view channel permission to collect snipes.",
-            });
+            if !self.permissions.contains(Permissions::VIEW_CHANNEL) {
+                bail!("I do not have the view channel permission to collect snipes.");
+            }
+
+            bail!("No snipes found.");
         }
 
-        Ok(match self.send_list {
-            true => File::new(
-                match self.is_edit {
-                    true => "edit-snipes.txt",
-                    false => "snipes.txt",
-                },
+        if self.send_list {
+            return Ok(File::new(
+                if self.is_edit { "edit-snipes.txt" } else { "snipes.txt" },
                 snipes
                     .iter()
                     .rev()
@@ -60,13 +51,7 @@ impl Snipes {
                             SimpleMessage::from(message.clone())
                                 .to_string()
                                 .split('\n')
-                                .map(|line| format!(
-                                    "\t{}",
-                                    match line.is_empty() {
-                                        true => "<empty>",
-                                        false => line,
-                                    },
-                                ))
+                                .map(|line| format!("\t{}", if line.is_empty() { "<empty>" } else { line }))
                                 .collect::<Vec<String>>()
                                 .join("\n"),
                         )
@@ -74,18 +59,17 @@ impl Snipes {
                     .collect::<Vec<String>>()
                     .join("\n\n"),
             )
-            .into(),
-            false => {
-                let snipe = &snipes[snipes.len() - 1];
+            .into());
+        }
 
-                Embed::new()
-                    .set_color(PRIMARY_COLOR)?
-                    .set_description(SimpleMessage::from(snipe.clone()))
-                    .set_footer(&snipe.author.name, Some(snipe.author.display_avatar_url("png", 64)))
-                    .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?)
-                    .into()
-            },
-        })
+        let snipe = &snipes[snipes.len() - 1];
+
+        Ok(Embed::new()
+            .set_color(PRIMARY_COLOR)?
+            .set_description(SimpleMessage::from(snipe.clone()))
+            .set_footer(&snipe.author.name, Some(snipe.author.display_avatar_url("png", 64)))
+            .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?)
+            .into())
     }
 }
 
@@ -107,10 +91,11 @@ impl ReactionSnipes {
         let reaction_snipes = reaction_snipes.get(&format!("{}/{}", self.channel_id, self.message_id)).unwrap_or(&empty_vec);
 
         if reaction_snipes.is_empty() {
-            bail!(match self.permissions.contains(Permissions::VIEW_CHANNEL) {
-                true => "No reaction snipes found.",
-                false => "I do not have the view channel permission to collect reaction snipes.",
-            });
+            if !self.permissions.contains(Permissions::VIEW_CHANNEL) {
+                bail!("I do not have the view channel permission to collect reaction snipes.");
+            }
+
+            bail!("No reaction snipes found.");
         }
 
         Ok(MessageResponse::from(format!(

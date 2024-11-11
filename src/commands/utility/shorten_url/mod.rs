@@ -1,22 +1,20 @@
 mod cdpt;
 mod cleanurl;
-mod isgd;
 mod waaai;
 mod zws;
 
 use crate::structs::command::Command;
-use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
 static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new()
         .subcommand("cdpt", cdpt::run)
         .subcommand("cleanurl", cleanurl::run)
-        .subcommand("isgd", isgd::run)
         .subcommand("waaai", waaai::run)
         .subcommand("zws", zws::run)
 });
@@ -49,33 +47,6 @@ pub fn get_command() -> SlashookCommand {
                         description = "The URL",
                         option_type = InteractionOptionType::STRING,
 						required = true,
-                    },
-                ],
-            },
-			{
-                name = "isgd",
-                description = "Shortens a URL using is.gd. Works for any protocol",
-                options = [
-                    {
-                        name = "url",
-                        description = "The URL",
-                        option_type = InteractionOptionType::STRING,
-						required = true,
-                    },
-					{
-                        name = "custom-id",
-                        description = "The custom ID",
-                        option_type = InteractionOptionType::STRING,
-                    },
-					{
-                        name = "lowercase",
-                        description = "Whether to generate lowercased shortened URL",
-                        option_type = InteractionOptionType::BOOLEAN,
-                    },
-					{
-                        name = "pronounceable",
-                        description = "Whether to generate pronounceable shortened URL",
-                        option_type = InteractionOptionType::BOOLEAN,
                     },
                 ],
             },

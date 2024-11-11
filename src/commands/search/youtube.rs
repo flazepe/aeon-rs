@@ -25,9 +25,10 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
             return ctx.respond_error("Video not found.", true).await;
         }
 
-        match ctx.input.channel.as_ref().and_then(|channel| channel.nsfw).unwrap_or(false) {
-            true => ctx.respond(format!("https://www.youtube.com/watch?v={id}"), false).await,
-            false => ctx.respond_error("NSFW channels only.", true).await,
+        if ctx.input.channel.as_ref().and_then(|channel| channel.nsfw).unwrap_or(false) {
+            ctx.respond(format!("https://www.youtube.com/watch?v={id}"), false).await
+        } else {
+            ctx.respond_error("NSFW channels only.", true).await
         }
     })
 });

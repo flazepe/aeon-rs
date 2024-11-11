@@ -24,10 +24,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     let mut request = REQWEST.request(method, url).header("authorization", format!("Bot {}", CONFIG.bot.token));
 
     if let Ok(body) = ctx.get_string_arg("body") {
-        let content_type = match from_str::<Value>(&body).is_ok() {
-            true => "application/json",
-            false => "application/x-www-form-urlencoded",
-        };
+        let content_type = from_str::<Value>(&body).map_or("application/x-www-form-urlencoded", |_| "application/json");
         request = request.header("content-type", content_type).body(body);
     }
 
@@ -36,9 +33,12 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             let text = response.text().await.unwrap_or_else(|_| "An error occurred while encoding text.".into());
             let result = match from_str::<Value>(text.as_str()) {
                 Ok(json) => format!("{json:#}"),
-                Err(_) => match text.is_empty() {
-                    true => "No response.".into(),
-                    false => text,
+                Err(_) => {
+                    if text.is_empty() {
+                        "No response.".into()
+                    } else {
+                        text
+                    }
                 },
             }
             .chars()

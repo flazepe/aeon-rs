@@ -214,18 +214,22 @@ impl SteamGame {
                 )
             })
             .unwrap_or_else(|| "TBA".into());
-        let price = match self.is_free {
-            true => "Free".into(),
-            false => self.price_overview.as_ref().map_or_else(
+        let price = if self.is_free {
+            "Free".into()
+        } else {
+            self.price_overview.as_ref().map_or_else(
                 || "N/A".into(),
-                |price_overview| match price_overview.discount_percent > 0 {
-                    true => format!(
-                        "~~{}~~ {} ({}% off)",
-                        price_overview.initial_formatted, price_overview.final_formatted, price_overview.discount_percent,
-                    ),
-                    false => price_overview.final_formatted.clone(),
+                |price_overview| {
+                    if price_overview.discount_percent > 0 {
+                        format!(
+                            "~~{}~~ {} ({}% off)",
+                            price_overview.initial_formatted, price_overview.final_formatted, price_overview.discount_percent,
+                        )
+                    } else {
+                        price_overview.final_formatted.clone()
+                    }
                 },
-            ),
+            )
         };
 
         self._format()

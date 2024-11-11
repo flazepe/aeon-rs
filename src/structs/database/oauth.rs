@@ -56,15 +56,14 @@ impl Oauth {
     }
 
     pub async fn get_token(self) -> Result<String> {
-        Ok(match COLLECTIONS.oauth.find_one(doc! { "_id": &self.name }).await? {
-            Some(token) => {
-                match token.expires_at > self.timestamp {
-                    true => token,
-                    false => self.generate_token().await?,
-                }
-                .token
-            },
-            None => self.generate_token().await?.token,
-        })
+        let Some(token) = COLLECTIONS.oauth.find_one(doc! { "_id": &self.name }).await? else {
+            return Ok(self.generate_token().await?.token);
+        };
+
+        if token.expires_at > self.timestamp {
+            Ok(token.token)
+        } else {
+            Ok(self.generate_token().await?.token)
+        }
     }
 }

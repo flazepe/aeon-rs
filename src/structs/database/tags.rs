@@ -54,10 +54,11 @@ impl Tags {
             .try_collect::<Vec<Tag>>()
             .await?;
 
-        match tags.is_empty() {
-            true => bail!("No tags found."),
-            false => Ok(tags),
+        if tags.is_empty() {
+            bail!("No tags found.");
         }
+
+        Ok(tags)
     }
 
     pub async fn create<T: Display, U: Display + Copy, V: Display + Copy, W: Display>(
@@ -67,9 +68,10 @@ impl Tags {
         content: W,
         modifier: &GuildMember,
     ) -> Result<String> {
-        if !modifier.permissions.unwrap_or_else(Permissions::empty).contains(Permissions::MANAGE_MESSAGES)
-            && author_id.to_string() != FLAZEPE_ID
-        {
+        let has_permission = modifier.permissions.unwrap_or_else(Permissions::empty).contains(Permissions::MANAGE_MESSAGES);
+        let is_flazepe = author_id.to_string() == FLAZEPE_ID;
+
+        if !has_permission && !is_flazepe {
             bail!("Only members with the Manage Messages permission can create tags.");
         }
 
@@ -121,16 +123,16 @@ impl Tags {
         let name = {
             let new_name = new_name.to_string();
 
-            match new_name.is_empty() {
-                true => tag.name.clone(),
-                false => {
-                    let new_name = Self::validate_tag_name(new_name)?;
+            if new_name.is_empty() {
+                tag.name.clone()
+            } else {
+                let new_name = Self::validate_tag_name(new_name)?;
 
-                    match Self::get(&new_name, guild_id).await.is_ok() {
-                        true => bail!("Tag with that new name already exists."),
-                        false => new_name,
-                    }
-                },
+                if Self::get(&new_name, guild_id).await.is_ok() {
+                    bail!("Tag with that new name already exists.");
+                }
+
+                new_name
             }
         };
 
@@ -169,19 +171,18 @@ impl Tags {
         let alias = Tags::validate_tag_name(alias)?;
         let new = !tag.aliases.contains(&alias);
 
-        match new {
-            true => {
-                if tag.aliases.len() >= 5 {
-                    bail!("Maximum alias amount reached.");
-                }
+        if new {
+            if tag.aliases.len() >= 5 {
+                bail!("Maximum alias amount reached.");
+            }
 
-                if Self::get(&alias, guild_id).await.is_ok() {
-                    bail!("Tag with that new alias already exists.");
-                }
+            if Self::get(&alias, guild_id).await.is_ok() {
+                bail!("Tag with that new alias already exists.");
+            }
 
-                tag.aliases.push(alias.clone());
-            },
-            false => tag.aliases.retain(|entry| entry != &alias),
+            tag.aliases.push(alias.clone());
+        } else {
+            tag.aliases.retain(|entry| entry != &alias)
         }
 
         COLLECTIONS
@@ -200,10 +201,11 @@ impl Tags {
             )
             .await?;
 
-        Ok(match new {
-            true => format!("Added `{}` to `{}` alias.", alias, tag.name),
-            false => format!("Removed `{}` from `{}` alias.", alias, tag.name),
-        })
+        if new {
+            Ok(format!("Added `{alias}` to `{}` alias.", tag.name))
+        } else {
+            Ok(format!("Removed `{alias}` from `{}` alias.", tag.name))
+        }
     }
 
     pub async fn toggle_nsfw<T: Display, U: Display>(name: T, guild_id: U, modifier: &GuildMember) -> Result<String> {
@@ -226,23 +228,18 @@ impl Tags {
             )
             .await?;
 
-        Ok(format!(
-            "Set tag `{}` as {}.",
-            tag.name,
-            match nsfw {
-                true => "NSFW",
-                false => "non-NSFW",
-            },
-        ))
+        Ok(format!("Set tag `{}` as {}.", tag.name, if nsfw { "NSFW" } else { "non-NSFW" }))
     }
 
     pub fn validate_tag_modifier(tag: Tag, member: &GuildMember) -> Result<Tag> {
-        match !member.user.as_ref().map_or(false, |user| tag.author_id == user.id.as_str())
-            && !member.permissions.unwrap_or_else(Permissions::empty).contains(Permissions::MANAGE_MESSAGES)
-        {
-           true => bail!("You're not the author of that tag. Only tag authors and members with the Manage Messages permission can update or delete tags."),
-           false => Ok(tag)
+        let has_permission = member.permissions.unwrap_or_else(Permissions::empty).contains(Permissions::MANAGE_MESSAGES);
+        let is_author = member.user.as_ref().map_or(false, |user| tag.author_id == user.id.as_str());
+
+        if !has_permission && !is_author {
+            bail!("You're not the author of that tag. Only tag authors and members with the Manage Messages permission can update or delete tags.");
         }
+
+        Ok(tag)
     }
 
     fn validate_tag_name<T: Display>(name: T) -> Result<String> {

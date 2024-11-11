@@ -41,10 +41,11 @@ impl LocalDownNovel {
             .json::<Vec<LocalDownNovelSearchResult>>()
             .await?;
 
-        match results.is_empty() {
-            true => bail!("Novel not found."),
-            false => Ok(results),
+        if results.is_empty() {
+            bail!("Novel not found.");
         }
+
+        Ok(results)
     }
 
     pub async fn get(id: u64) -> Result<Self> {
@@ -71,9 +72,10 @@ impl LocalDownNovel {
         let thumbnail = &self.cover_url;
         let title = format!(
             "{} ({})",
-            match self.title.len() > 249 {
-                true => format!("{}…", self.title.chars().take(248).collect::<String>().trim()),
-                false => self.title.clone(),
+            if self.title.len() > 249 {
+                format!("{}…", self.title.chars().take(248).collect::<String>().trim())
+            } else {
+                self.title.clone()
             },
             self.start_year,
         );
@@ -82,12 +84,14 @@ impl LocalDownNovel {
             self.title
                 .to_lowercase()
                 .chars()
-                .map(|char| match [' ', '-'].contains(&char) {
-                    true => '-',
-                    false => match char.is_ascii_alphanumeric() {
-                        true => char,
-                        false => '_',
-                    },
+                .map(|char| {
+                    if [' ', '-'].contains(&char) {
+                        '-'
+                    } else if char.is_ascii_alphanumeric() {
+                        char
+                    } else {
+                        '_'
+                    }
                 })
                 .filter(|char| char != &'_')
                 .collect::<String>(),

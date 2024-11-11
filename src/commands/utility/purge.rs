@@ -4,7 +4,6 @@ use crate::{
     structs::{command::Command, command_context::CommandContext},
     traits::UserExt,
 };
-use std::sync::LazyLock;
 use slashook::{
     chrono::{Duration, Utc},
     command,
@@ -15,22 +14,25 @@ use slashook::{
         Permissions,
     },
 };
+use std::sync::LazyLock;
 
 static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
+        let has_permission = ctx.input.app_permissions.contains(Permissions::MANAGE_MESSAGES);
         let is_self_purge = ctx.get_user_arg("user").map_or(false, |user| user.id == CONFIG.bot.client_id);
 
-        if !is_self_purge && !ctx.input.app_permissions.contains(Permissions::MANAGE_MESSAGES) {
+        if !has_permission && !is_self_purge {
             return ctx.respond_error("I do not have the Manage Messages permission to purge messages.", true).await;
         }
 
-        if ctx.input.user.id != FLAZEPE_ID
-            && !ctx
-                .input
-                .member
-                .as_ref()
-                .map_or(false, |member| member.permissions.map_or(false, |permissions| permissions.contains(Permissions::MANAGE_MESSAGES)))
-        {
+        let has_permission = ctx
+            .input
+            .member
+            .as_ref()
+            .map_or(false, |member| member.permissions.map_or(false, |permissions| permissions.contains(Permissions::MANAGE_MESSAGES)));
+        let is_flazepe = ctx.input.user.id == FLAZEPE_ID;
+
+        if !has_permission && !is_flazepe {
             return ctx.respond_error("You do not have the Manage Messages permission to purge messages.", true).await;
         }
 
@@ -44,7 +46,7 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
             ctx.get_user_arg("user").map_or(true, |user| user.id == message.author.id)
                 && message.timestamp > Utc::now() - Duration::weeks(2)
         });
-        
+
         messages.drain((ctx.get_i64_arg("amount").unwrap_or(1) as usize).min(messages.len())..);
 
         if messages.is_empty() {
@@ -53,19 +55,18 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
 
         match messages.len() {
             1 => messages[0].delete(&ctx.input.rest).await?,
-            _ => match is_self_purge && !ctx.input.app_permissions.contains(Permissions::MANAGE_MESSAGES) {
-                true => {
+            _ => {
+                if is_self_purge && !ctx.input.app_permissions.contains(Permissions::MANAGE_MESSAGES) {
                     ctx.defer(true).await?;
 
                     for message in &messages {
                         message.delete(&ctx.input.rest).await?;
                     }
-                },
-                false => {
+                } else {
                     channel
                         .bulk_delete_messages(&ctx.input.rest, messages.iter().map(|message| message.id.clone()).collect::<Vec<String>>())
                         .await?
-                },
+                }
             },
         };
 
@@ -74,10 +75,7 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
                 "Deleted {}{}{}.",
                 label_num(messages.len(), "message", "messages"),
                 ctx.get_user_arg("user").map(|user| format!(" from {}", user.label())).as_deref().unwrap_or(""),
-                match channel.id != *ctx.input.channel_id.as_ref().unwrap() {
-                    true => format!(" in <#{}>", channel.id),
-                    false => "".into(),
-                },
+                if channel.id != *ctx.input.channel_id.as_ref().unwrap() { format!(" in <#{}>", channel.id) } else { "".into() },
             ),
             true,
         )

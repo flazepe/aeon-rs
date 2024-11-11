@@ -53,24 +53,26 @@ impl Vndb {
 
         let results = Self::query(
             "trait",
-            match query.starts_with('i') && query.chars().skip(1).all(|char| char.is_numeric()) {
-                true => json!({
+            if query.starts_with('i') && query.chars().skip(1).all(|char| char.is_numeric()) {
+                json!({
                     "filters": ["id", "=", query],
                     "fields": TRAIT_FIELDS,
-                }),
-                false => json!({
+                })
+            } else {
+                json!({
                     "filters": ["search", "=", query],
                     "fields": TRAIT_FIELDS,
                     "sort": "searchrank",
-                }),
+                })
             },
         )
         .await?
         .results;
 
-        match results.is_empty() {
-            true => bail!("Trait not found."),
-            false => Ok(results),
+        if results.is_empty() {
+            bail!("Trait not found.");
         }
+
+        Ok(results)
     }
 }

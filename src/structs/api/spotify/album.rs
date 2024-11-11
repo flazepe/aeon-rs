@@ -56,10 +56,7 @@ pub struct SpotifyFullAlbum {
 impl SpotifyFullAlbum {
     fn _format(&self) -> Embed {
         let thumbnail = self.images.first().as_ref().map_or("", |image| image.url.as_str());
-        let title = match self.name.is_empty() {
-            true => "N/A".into(),
-            false => self.name.clone(),
-        };
+        let title = if self.name.is_empty() { "N/A".into() } else { self.name.clone() };
         let url = &self.external_urls.spotify;
 
         Embed::new().set_color(SPOTIFY_EMBED_COLOR).unwrap_or_default().set_thumbnail(thumbnail).set_title(title).set_url(url)
@@ -77,10 +74,7 @@ impl SpotifyFullAlbum {
             ),
             _ => self.release_date.clone(),
         };
-        let genres = match self.genres.is_empty() {
-            true => "N/A".into(),
-            false => self.genres.join(", "),
-        };
+        let genres = if self.genres.is_empty() { "N/A".into() } else { self.genres.join(", ") };
         let duration = format!(
             "{} ({})",
             Spotify::format_duration(self.tracks.items.iter().map(|track| track.duration_ms).reduce(|acc, cur| acc + cur).unwrap_or(0)),
@@ -118,9 +112,10 @@ impl SpotifyFullAlbum {
             self.tracks.items.iter().map(|track| {
                 format!(
                     "`{}{:0pad_length$}.` [{}]({}) [{}]",
-                    match self.tracks.items.iter().any(|track| track.disc_number == 2) {
-                        true => format!("{}-", track.disc_number),
-                        false => "".into(),
+                    if self.tracks.items.iter().any(|track| track.disc_number == 2) {
+                        format!("{}-", track.disc_number)
+                    } else {
+                        "".into()
                     },
                     track.track_number,
                     track.name,
@@ -166,9 +161,10 @@ impl Spotify {
 
         let results = Self::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}")).await?.albums.items;
 
-        match results.is_empty() {
-            true => bail!("Album not found."),
-            false => Ok(results),
+        if results.is_empty() {
+            bail!("Album not found.");
         }
+
+        Ok(results)
     }
 }

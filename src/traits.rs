@@ -135,9 +135,10 @@ impl<T: Display> Commas for T {
             formatted_integer += &char.to_string();
         }
 
-        match fraction.is_empty() {
-            true => formatted_integer,
-            false => format!("{formatted_integer}.{fraction}"),
+        if fraction.is_empty() {
+            formatted_integer
+        } else {
+            format!("{formatted_integer}.{fraction}")
         }
     }
 }

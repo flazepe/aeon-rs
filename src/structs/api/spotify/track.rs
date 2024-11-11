@@ -55,14 +55,7 @@ impl SpotifyFullTrack {
 
     fn _format(&self) -> Embed {
         let thumbnail = self.album.images.first().map_or("", |image| image.url.as_str());
-        let title = format!(
-            "{}{}",
-            match self.explicit {
-                true => format!("{EXPLICIT_EMOJI} "),
-                false => "".into(),
-            },
-            self.name,
-        );
+        let title = format!("{}{}", if self.explicit { format!("{EXPLICIT_EMOJI} ") } else { "".into() }, self.name);
         let url = &self.external_urls.spotify;
 
         Embed::new().set_color(SPOTIFY_EMBED_COLOR).unwrap_or_default().set_thumbnail(thumbnail).set_title(title).set_url(url)
@@ -94,10 +87,7 @@ impl SpotifyFullTrack {
     pub fn format_audio_features(&self) -> Embed {
         let mut embed = self._format();
         let Some(audio_features) = self.audio_features.as_ref() else { return embed };
-        let pitch_notation = match audio_features.key == -1 {
-            true => None,
-            false => Some(SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize]),
-        };
+        let pitch_notation = if audio_features.key == -1 { None } else { Some(SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize]) };
         let key = pitch_notation
             .map(|pitch_notation| format!("{pitch_notation} {}", ["Minor", "Major"][audio_features.mode as usize]))
             .unwrap_or_else(|| "N/A".into());
@@ -166,9 +156,10 @@ impl Spotify {
 
         let results = Spotify::query::<_, SpotifySearchTrackResponse>(format!("search?type=track&q={query}")).await?.tracks.items;
 
-        match results.is_empty() {
-            true => bail!("Song not found."),
-            false => Ok(results),
+        if results.is_empty() {
+            bail!("Song not found.");
         }
+
+        Ok(results)
     }
 }

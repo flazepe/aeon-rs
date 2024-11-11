@@ -50,15 +50,16 @@ impl AniList {
             }
         }
 
-        match dates.is_empty() {
-            true => "TBA".into(),
-            false => dates.join(" - "),
+        if dates.is_empty() {
+            "TBA".into()
+        } else {
+            dates.join(" - ")
         }
     }
 
     pub fn format_embed_description<T: Display>(embed: Embed, description: Option<&T>) -> Embed {
         embed.set_description(limit_strings(
-            Document::from(&description.map(|description| description.to_string()).unwrap_or_else(|| "N/A".into()))
+            Document::from(&description.map_or_else(|| "N/A".into(), |description| description.to_string()))
                 .select("body")
                 .text()
                 .split('\n'),

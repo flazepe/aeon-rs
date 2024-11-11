@@ -6,7 +6,6 @@ use crate::{
         command_context::CommandContext,
     },
 };
-use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, Modal},
@@ -15,6 +14,7 @@ use slashook::{
         interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
     },
 };
+use std::sync::LazyLock;
 
 static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| {
@@ -40,22 +40,19 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
                 None => return ctx.respond_error("Please provide a programming language.", true).await,
             };
 
-            match ctx.input.is_modal_submit() {
-                true => {
-                    ctx.defer(false).await?;
+            if ctx.input.is_modal_submit() {
+                ctx.defer(false).await?;
 
-                    match Tio::new(programming_language, ctx.get_string_arg("code")?).run().await {
-                        Ok(tio) => ctx.respond(tio.format(), false).await,
-                        Err(error) => ctx.respond_error(error, true).await,
-                    }
-                },
-                false => {
-                    let code_input = TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code").set_label("Code");
-                    let components = Components::new().add_text_input(code_input);
-                    let modal = Modal::new("code", "modal", "Enter Code").set_components(components);
+                match Tio::new(programming_language, ctx.get_string_arg("code")?).run().await {
+                    Ok(tio) => ctx.respond(tio.format(), false).await,
+                    Err(error) => ctx.respond_error(error, true).await,
+                }
+            } else {
+                let code_input = TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code").set_label("Code");
+                let components = Components::new().add_text_input(code_input);
+                let modal = Modal::new("code", "modal", "Enter Code").set_components(components);
 
-                    Ok(ctx.res.open_modal(modal).await?)
-                },
+                Ok(ctx.res.open_modal(modal).await?)
             }
         }
     })

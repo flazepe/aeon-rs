@@ -32,10 +32,11 @@ impl UrbanDictionary {
             .json::<Self>()
             .await?;
 
-        match result.list.is_empty() {
-            true => bail!("Word not found."),
-            false => Ok(result),
+        if result.list.is_empty() {
+            bail!("Word not found.");
         }
+
+        Ok(result)
     }
 
     pub fn format(&self) -> String {

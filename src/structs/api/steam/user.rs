@@ -103,10 +103,7 @@ impl SteamUser {
         let title = self.real_name.as_ref().unwrap_or(&self.persona_name);
         let url = &self.profile_url;
         let id = &self.id;
-        let custom_id = match self.id == vanity {
-            true => "None".into(),
-            false => format!("`{vanity}`"),
-        };
+        let custom_id = if self.id == vanity { "None".into() } else { format!("`{vanity}`") };
         let status = STEAM_USER_STATES
             .iter()
             .enumerate()

@@ -5,10 +5,7 @@ use slashook::{commands::MessageResponse, structs::utils::File};
 pub async fn run(ctx: CommandContext) -> Result<()> {
     ctx.defer(true).await?;
 
-    let query = match ctx.input.is_string_select() {
-        true => ctx.input.values.as_ref().unwrap()[0].clone(),
-        false => ctx.get_string_arg("query")?,
-    };
+    let query = ctx.get_string_arg("query").unwrap_or_else(|_| ctx.input.values.as_ref().unwrap()[0].clone());
 
     match Google::assistant(query).await {
         Ok(google_assistant) => {

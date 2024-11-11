@@ -7,10 +7,7 @@ macro_rules! yes_no {
             let _no = "No";
             $(let _no = $no;)?
 
-            match $condition {
-                true => _yes,
-                false => _no,
-            }
+            if $condition { _yes } else { _no }
         }
     };
 }

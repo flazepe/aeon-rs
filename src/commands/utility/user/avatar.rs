@@ -18,27 +18,23 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         None => None,
     };
 
-    let avatar = match ctx.get_bool_arg("force-user-avatar").unwrap_or(false) {
-        true => user.display_avatar_url("gif", 4096),
-        false => guild_avatar.unwrap_or_else(|| user.display_avatar_url("gif", 4096)),
+    let avatar = if ctx.get_bool_arg("force-user-avatar").unwrap_or(false) {
+        user.display_avatar_url("gif", 4096)
+    } else {
+        guild_avatar.unwrap_or_else(|| user.display_avatar_url("gif", 4096))
     };
 
     ctx.respond(
         MessageResponse::from(format!(
             "{}<{avatar}>",
-            match avatar.contains("guild") {
-                true => "**Showing member's server avatar**. To view member's user avatar, set `force-user-avatar` to `true`.\n",
-                false => "",
+            if avatar.contains("guild") {
+                "**Showing member's server avatar**. To view member's user avatar, set `force-user-avatar` to `true`.\n"
+            } else {
+                ""
             },
         ))
         .add_file(File::new(
-            format!(
-                "image.{}",
-                match avatar.contains("a_") {
-                    true => "gif",
-                    false => "png",
-                },
-            ),
+            format!("image.{}", if avatar.contains("a_") { "gif" } else { "png" }),
             REQWEST.get(avatar).send().await?.bytes().await?,
         )),
         false,

@@ -42,9 +42,12 @@ pub async fn eien<T: Display>(command: T, extra_args: &[&str]) -> Result<File> {
 
 pub fn escape_markdown<T: Display>(string: T) -> String {
     MARKDOWN_REGEX
-        .replace_all(&string.to_string(), |caps: &Captures| match caps[0].starts_with('\\') {
-            true => caps[0].to_string(),
-            false => format!("\\{}", &caps[0]),
+        .replace_all(&string.to_string(), |captures: &Captures| {
+            if captures[0].starts_with('\\') {
+                captures[0].to_string()
+            } else {
+                format!("\\{}", &captures[0])
+            }
         })
         .to_string()
 }

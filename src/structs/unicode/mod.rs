@@ -39,10 +39,11 @@ impl Unicode {
 
         let text = document.select("td:nth-child(4)").text();
 
-        match text.is_empty() {
-            true => bail!("Unicode character not found."),
-            false => Ok(Self::list(text)),
+        if text.is_empty() {
+            bail!("Unicode character not found.");
         }
+
+        Ok(Self::list(text))
     }
 
     fn get_name(char: char) -> String {

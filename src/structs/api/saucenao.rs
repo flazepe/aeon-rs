@@ -35,7 +35,7 @@ pub struct SauceNaoResult {
 
 #[derive(Deserialize, Debug)]
 pub struct SauceNaoSearch {
-    pub results: Vec<SauceNaoResult>,
+    pub results: Option<Vec<SauceNaoResult>>,
 }
 
 impl SauceNaoSearch {
@@ -48,68 +48,57 @@ impl SauceNaoSearch {
             .json::<Self>()
             .await?;
 
-        match search.results.is_empty() {
-            true => bail!("Sauce not found."),
-            false => Ok(search),
+        if search.results.as_ref().map_or(true, |results| results.is_empty()) {
+            bail!("Sauce not found.");
         }
+
+        Ok(search)
     }
 
     pub fn format(&self) -> Embed {
-        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_description(
-            self.results
+        let description = if let Some(results) = &self.results {
+            results
                 .iter()
+                .take(5)
                 .map(|result| {
+                    let additional_info = [
+                        result.data.year.as_deref().unwrap_or("").into(),
+                        result.data.part.as_ref().map_or_else(
+                            || "".into(),
+                            |part| {
+                                format!(
+                                    "{} {}",
+                                    if part.chars().all(|char| char.is_numeric()) { "Episode" } else { "" },
+                                    part.replace('-', "").trim(),
+                                )
+                            },
+                        ),
+                        result.data.est_time.as_deref().unwrap_or("").into(),
+                    ]
+                    .into_iter()
+                    .filter(|entry| !entry.is_empty())
+                    .collect::<Vec<String>>()
+                    .join("\n");
+
                     format!(
                         "`[{}%]` [{}]({}){}",
                         result.header.similarity,
-                        {
-                            let title;
-
-                            if result.data.pixiv_id.is_some() {
-                                title = "Pixiv Source";
-                            } else if result.data.gelbooru_id.is_some() {
-                                title = "Gelbooru Source";
-                            } else {
-                                title = result.data.source.as_deref().unwrap_or("");
-                            }
-
-                            match title.is_empty() {
-                                true => "Source",
-                                false => title,
-                            }
-                        },
-                        result.data.ext_urls.as_ref().unwrap_or(&vec![]).first().map_or("https://google.com", |url| url.as_str()),
-                        {
-                            let joined = [
-                                result.data.year.as_deref().unwrap_or("").into(),
-                                match &result.data.part {
-                                    Some(part) => format!(
-                                        "{} {}",
-                                        match part.chars().all(|char| char.is_numeric()) {
-                                            true => "Episode",
-                                            false => "",
-                                        },
-                                        part.replace('-', "").trim(),
-                                    ),
-                                    None => "".into(),
-                                },
-                                result.data.est_time.as_deref().unwrap_or("").into(),
-                            ]
-                            .into_iter()
-                            .filter(|entry| !entry.is_empty())
-                            .collect::<Vec<String>>()
-                            .join("\n");
-
-                            match joined.is_empty() {
-                                true => "".into(),
-                                false => format!("\n{joined}"),
-                            }
-                        },
+                        result.header.index_name,
+                        result
+                            .data
+                            .ext_urls
+                            .as_ref()
+                            .and_then(|ext_urls| ext_urls.first())
+                            .map_or("https://google.com", |url| url.as_str()),
+                        if additional_info.is_empty() { "".into() } else { format!("\n{additional_info}\n") },
                     )
                 })
-                .take(5)
                 .collect::<Vec<String>>()
-                .join("\n\n"),
-        )
+                .join("\n")
+        } else {
+            "-".into()
+        };
+
+        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_description(description)
     }
 }

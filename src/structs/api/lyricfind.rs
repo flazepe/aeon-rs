@@ -85,10 +85,11 @@ impl LyricFind {
             .await?
             .tracks;
 
-        match tracks.is_empty() {
-            true => bail!("Song not found."),
-            false => Ok(tracks),
+        if tracks.is_empty() {
+            bail!("Song not found.");
         }
+
+        Ok(tracks)
     }
 }
 

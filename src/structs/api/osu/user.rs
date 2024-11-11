@@ -243,16 +243,11 @@ impl Display for OsuMode {
 
 impl OsuUser {
     fn _format(&self) -> Embed {
-        let thumbnail = match self.avatar_url.starts_with('/') {
-            true => format!("https://osu.ppy.sh{}", self.avatar_url),
-            false => self.avatar_url.clone(),
-        };
+        let thumbnail =
+            if self.avatar_url.starts_with('/') { format!("https://osu.ppy.sh{}", self.avatar_url) } else { self.avatar_url.clone() };
         let title = format!(
             "{} {}{}",
-            match self.is_online {
-                true => ONLINE_EMOJI,
-                false => OFFLINE_EMOJI,
-            },
+            if self.is_online { ONLINE_EMOJI } else { OFFLINE_EMOJI },
             match self.support_level {
                 1 => format!("{OSU_SUPPORTER_1_EMOJI} "),
                 2 => format!("{OSU_SUPPORTER_2_EMOJI} "),
@@ -352,19 +347,11 @@ impl OsuUser {
     }
 
     pub fn format_website_statistics(&self) -> Embed {
-        let previous_usernames = match self.previous_usernames.is_empty() {
-            true => "-".into(),
-            false => self.previous_usernames.join(", "),
-        };
-        let supporter = match self.is_supporter {
-            true => format!("Yes (level {})", self.support_level),
-            false => format!(
-                "No ({})",
-                match self.has_supported {
-                    true => "has supported before",
-                    false => "had never supported before",
-                },
-            ),
+        let previous_usernames = if self.previous_usernames.is_empty() { "-".into() } else { self.previous_usernames.join(", ") };
+        let supporter = if self.is_supporter {
+            format!("Yes (level {})", self.support_level)
+        } else {
+            format!("No ({})", if self.has_supported { "has supported before" } else { "had never supported before" })
         };
         let bot = yes_no!(self.is_bot);
         let forum_posts = format!("[{}](https://osu.ppy.sh/users/{}/posts)", self.post_count.commas(), self.id);

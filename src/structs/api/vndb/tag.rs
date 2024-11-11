@@ -77,24 +77,26 @@ impl Vndb {
 
         let results = Self::query(
             "tag",
-            match query.starts_with('g') && query.chars().skip(1).all(|char| char.is_numeric()) {
-                true => json!({
+            if query.starts_with('g') && query.chars().skip(1).all(|char| char.is_numeric()) {
+                json!({
                     "filters": ["id", "=", query],
                     "fields": TAG_FIELDS,
-                }),
-                false => json!({
+                })
+            } else {
+                json!({
                     "filters": ["search", "=", query],
                     "fields": TAG_FIELDS,
                     "sort": "searchrank",
-                }),
+                })
             },
         )
         .await?
         .results;
 
-        match results.is_empty() {
-            true => bail!("Tag not found."),
-            false => Ok(results),
+        if results.is_empty() {
+            bail!("Tag not found.");
         }
+
+        Ok(results)
     }
 }

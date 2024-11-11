@@ -52,9 +52,10 @@ impl CommandContext {
     }
 
     pub async fn defer(&self, ephemeral: bool) -> Result<()> {
-        match self.input.message.is_some() {
-            true => self.res.defer_update().await?,
-            false => self.res.defer(ephemeral).await?,
+        if self.input.message.is_some() {
+            self.res.defer_update().await?
+        } else {
+            self.res.defer(ephemeral).await?
         };
 
         Ok(())
@@ -67,9 +68,10 @@ impl CommandContext {
 
         let response = response.into().set_ephemeral(ephemeral);
 
-        match self.input.message.is_some() && !ephemeral {
-            true => self.res.update_message(response).await?,
-            false => self.res.send_message(response).await?,
+        if self.input.message.is_some() && !ephemeral {
+            self.res.update_message(response).await?
+        } else {
+            self.res.send_message(response).await?
         };
 
         Ok(())

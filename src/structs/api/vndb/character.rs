@@ -201,24 +201,26 @@ impl Vndb {
 
         let results = Self::query(
             "character",
-            match query.starts_with('c') && query.chars().skip(1).all(|char| char.is_numeric()) {
-                true => json!({
+            if query.starts_with('c') && query.chars().skip(1).all(|char| char.is_numeric()) {
+                json!({
                     "filters": ["id", "=", query],
                     "fields": CHARACTER_FIELDS,
-                }),
-                false => json!({
+                })
+            } else {
+                json!({
                     "filters": ["search", "=", query],
                     "fields": CHARACTER_FIELDS,
                     "sort": "searchrank",
-                }),
+                })
             },
         )
         .await?
         .results;
 
-        match results.is_empty() {
-            true => bail!("Character not found."),
-            false => Ok(results),
+        if results.is_empty() {
+            bail!("Character not found.");
         }
+
+        Ok(results)
     }
 }

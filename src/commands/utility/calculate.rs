@@ -2,12 +2,12 @@ use crate::{
     statics::REQWEST,
     structs::{command::Command, command_context::CommandContext},
 };
-use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 use std::time::Duration;
 
 static COMMAND: LazyLock<Command> = LazyLock::new(|| {
@@ -24,9 +24,10 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
                 Err(_) => return ctx.respond_error("Calculation took too long.", true).await,
             };
 
-        match body.is_empty() || body.contains("Error") {
-            true => ctx.respond_error("Invalid expression.", true).await,
-            false => ctx.respond_success(format!("`{}`", body.chars().take(1000).collect::<String>().replace('`', "｀")), false).await,
+        if body.is_empty() || body.contains("Error") {
+            ctx.respond_error("Invalid expression.", true).await
+        } else {
+            ctx.respond_success(format!("`{}`", body.chars().take(1000).collect::<String>().replace('`', "｀")), false).await
         }
     })
 });

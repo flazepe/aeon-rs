@@ -19,9 +19,10 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                         reminder.reminder.replace('`', "｀"),
                         reminder.url,
                         format_timestamp(reminder.timestamp, TimestampFormat::Full),
-                        match reminder.interval > 0 {
-                            true => format!(" (every {})", Duration::new().parse(reminder.interval).unwrap_or_default()),
-                            false => "".into(),
+                        if reminder.interval > 0 {
+                            format!(" (every {})", Duration::new().parse(reminder.interval).unwrap_or_default())
+                        } else {
+                            "".into()
                         },
                     )
                 })

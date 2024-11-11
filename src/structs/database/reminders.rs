@@ -80,11 +80,9 @@ impl Reminders {
     }
 
     async fn handle(reminder: &Reminder) -> Result<()> {
-        let mut response = MessageResponse::from(match reminder.dm {
-            true => "".into(),
-            false => format!("<@{}>", reminder.user_id),
-        })
-        .add_embed(
+        let mention: String = if reminder.dm { "".into() } else { format!("<@{}>", reminder.user_id) };
+
+        let mut response = MessageResponse::from(mention).add_embed(
             Embed::new()
                 .set_color(NOTICE_COLOR)?
                 .set_title("Reminder")
@@ -102,17 +100,15 @@ impl Reminders {
             );
         }
 
-        Message::create(
-            &REST,
-            match reminder.dm {
-                // If the reminder should be DM'd, we have to create a new DM channel
-                true => REST.post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": reminder.user_id })).await?.id,
-                // Else, just grab channel ID from the URL
-                false => reminder.url.split('/').nth(1).unwrap().to_string(),
-            },
-            response,
-        )
-        .await?;
+        let channel_id = if reminder.dm {
+            // If the reminder should be DM'd, we have to create a new DM channel
+            REST.post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": reminder.user_id })).await?.id
+        } else {
+            // Else, just grab channel ID from the URL
+            reminder.url.split('/').nth(1).unwrap().to_string()
+        };
+
+        Message::create(&REST, channel_id, response).await?;
 
         Ok(())
     }
@@ -120,10 +116,11 @@ impl Reminders {
     pub async fn get_many<T: Display>(user_id: T) -> Result<Vec<Reminder>> {
         let reminders = COLLECTIONS.reminders.find(doc! { "user_id": user_id.to_string() }).await?.try_collect::<Vec<Reminder>>().await?;
 
-        match reminders.is_empty() {
-            true => bail!("No reminders found."),
-            false => Ok(reminders),
+        if reminders.is_empty() {
+            bail!("No reminders found.");
         }
+
+        Ok(reminders)
     }
 
     pub async fn set<T: Display, U: Display, V: Display>(
@@ -171,14 +168,8 @@ impl Reminders {
         Ok(format!(
             "I will remind you about `{}`[*](<https://discord.com/channels/{url}>) in {time}{}. Make sure I {}.",
             reminder.to_string().replace('`', "｀"),
-            match interval.total_secs > 0 {
-                true => format!(" and every {interval} after that"),
-                false => "".into(),
-            },
-            match dm {
-                true => "can DM you",
-                false => "have the View Channel and Send Messages permission",
-            },
+            if interval.total_secs > 0 { format!(" and every {interval} after that") } else { "".into() },
+            if dm { "can DM you" } else { "have the View Channel and Send Messages permission" },
         ))
     }
 
