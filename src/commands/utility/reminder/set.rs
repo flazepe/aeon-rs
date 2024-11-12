@@ -1,5 +1,6 @@
 use crate::structs::{command_context::CommandContext, database::reminders::Reminders, duration::Duration};
 use anyhow::Result;
+use slashook::structs::Permissions;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     // Must use res.defer to not update original message
@@ -32,12 +33,10 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         }
         reminder
     };
-    let dm = ctx.input.message.as_ref().map_or(
-        false,
-        // DM if select menu's message was from an interaction
-        |message| message.interaction_metadata.is_some(),
-    ) || ctx.input.guild_id.is_none()
-        || ctx.get_bool_arg("dm").unwrap_or(false);
+    let dm = ctx.get_bool_arg("dm").unwrap_or(false)
+        || ctx.input.guild_id.is_none()
+        || ctx.input.message.as_ref().map_or(false, |message| message.interaction_metadata.is_some()) // DM if select menu's message was from an interaction
+        || !ctx.input.app_permissions.contains(Permissions::VIEW_CHANNEL | Permissions::SEND_MESSAGES);
 
     match Reminders::set(user_id, url, time, interval, reminder, dm).await {
         Ok(response) => ctx.respond_success(response, false).await,
