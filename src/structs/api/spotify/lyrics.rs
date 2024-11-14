@@ -60,7 +60,8 @@ impl Spotify {
         let cookie = format!("sp_dc={}", CONFIG.api.spotify_dc);
 
         REQWEST
-            .get("https://open.spotify.com/get_access_token?reason=transport&productType=web_player")
+            .get("https://open.spotify.com/get_access_token")
+            .query(&[("reason", "transport"), ("productType", "web_player")])
             .header("user-agent", "yes")
             .header("cookie", cookie)
             .send()
