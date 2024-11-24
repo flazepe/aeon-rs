@@ -1,23 +1,38 @@
-use crate::structs::{api::latex::LaTeX, command::Command, command_context::CommandContext};
+use crate::structs::{command::Command, command_context::CommandContext};
+use image::ImageOutputFormat;
+use mathjax::MathJax;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
-    structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
+    structs::{
+        interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
+        utils::File,
+    },
 };
-use std::sync::LazyLock;
+use std::{io::Cursor, sync::LazyLock};
 
 static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
-        match LaTeX::render(
-            ctx.get_string_arg("expression")?,
-            ctx.get_string_arg("preamble").ok(),
-            ctx.get_bool_arg("transparent").unwrap_or(false),
-        )
-        .await
-        {
-            Ok(image) => ctx.respond(image, false).await,
-            Err(error) => ctx.respond_error(error, true).await,
-        }
+        ctx.defer(false).await?;
+
+        let Ok(mathjax) = MathJax::new() else {
+            return ctx.respond_error("Could not instantiate renderer.", false).await;
+        };
+
+        let Ok(mut render) = mathjax.render(ctx.get_string_arg("expression")?) else {
+            return ctx.respond_error("Could not render expression.", false).await;
+        };
+
+        render.set_color(ctx.get_string_arg("color").as_deref().unwrap_or("#fff"));
+
+        let Ok(image) = render.into_image(10.) else {
+            return ctx.respond_error("Could not convert render into image.", false).await;
+        };
+
+        let mut bytes = Vec::new();
+        image.write_to(&mut Cursor::new(&mut bytes), ImageOutputFormat::Png)?;
+
+        ctx.respond(File::new("image.png", bytes), false).await
     })
 });
 
@@ -35,14 +50,9 @@ pub fn get_command() -> SlashookCommand {
                 required = true,
             },
             {
-                name = "preamble",
-                description = "The preamble",
+                name = "color",
+                description = "The font color",
                 option_type = InteractionOptionType::STRING,
-            },
-            {
-                name = "transparent",
-                description = "Whether to produce a transparent image",
-                option_type = InteractionOptionType::BOOLEAN,
             },
         ],
     )]

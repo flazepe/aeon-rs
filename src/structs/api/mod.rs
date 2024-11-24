@@ -3,7 +3,6 @@ pub mod dictionary;
 pub mod google;
 pub mod ip_info;
 pub mod jisho;
-pub mod latex;
 pub mod localdown;
 pub mod lyricfind;
 pub mod ordr;
