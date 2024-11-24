@@ -3,7 +3,7 @@ use anyhow::Result;
 use slashook::{commands::MessageResponse, structs::utils::File};
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    ctx.defer(true).await?;
+    ctx.defer(false).await?;
 
     let query = ctx.get_string_arg("query").unwrap_or_else(|_| ctx.input.values.as_ref().unwrap()[0].clone());
 
