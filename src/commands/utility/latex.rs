@@ -8,7 +8,13 @@ use std::sync::LazyLock;
 
 static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
-        match LaTeX::render(ctx.get_string_arg("expression")?, ctx.get_string_arg("preamble").ok()).await {
+        match LaTeX::render(
+            ctx.get_string_arg("expression")?,
+            ctx.get_string_arg("preamble").ok(),
+            ctx.get_bool_arg("transparent").unwrap_or(false),
+        )
+        .await
+        {
             Ok(image) => ctx.respond(image, false).await,
             Err(error) => ctx.respond_error(error, true).await,
         }
@@ -32,6 +38,11 @@ pub fn get_command() -> SlashookCommand {
                 name = "preamble",
                 description = "The preamble",
                 option_type = InteractionOptionType::STRING,
+            },
+            {
+                name = "transparent",
+                description = "Whether to produce a transparent image",
+                option_type = InteractionOptionType::BOOLEAN,
             },
         ],
     )]

@@ -14,7 +14,7 @@ pub struct LaTeXOptions {
     pub font_size: String,
 
     #[serde(rename = "bcolor")]
-    pub background_color: String,
+    pub background_color: Option<String>,
 
     #[serde(rename = "fcolor")]
     pub font_color: String,
@@ -24,13 +24,13 @@ pub struct LaTeXOptions {
 }
 
 impl LaTeX {
-    pub async fn render<T: Display, U: Display>(expression: T, preamble: Option<U>) -> Result<File> {
+    pub async fn render<T: Display, U: Display>(expression: T, preamble: Option<U>, transparent: bool) -> Result<File> {
         let body = REQWEST
             .post("https://www.quicklatex.com/latex3.f")
             .form(&LaTeXOptions {
                 formula: expression.to_string(),
                 font_size: "99px".into(),
-                background_color: "ffffff".into(),
+                background_color: if transparent { None } else { Some("ffffff".into()) },
                 font_color: "000000".into(),
                 out: 1,
                 preamble: preamble.map_or_else(
