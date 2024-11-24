@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1"
 base64 = "0.22"
-chromiumoxide = { version = "0.7", default-features = false, features = ["tokio-runtime"]}
+chromiumoxide = { git = "https://github.com/caido/dependency-chromiumoxide.git", rev = "3e5dcdc", default-features = false, features = ["tokio-runtime"] }
 flate2 = "1"
 futures = "0.3"
 gouth = "0.2"
