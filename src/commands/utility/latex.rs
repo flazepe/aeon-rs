@@ -51,7 +51,7 @@ pub fn get_command() -> SlashookCommand {
             },
             {
                 name = "color",
-                description = "The font color",
+                description = "The text color",
                 option_type = InteractionOptionType::STRING,
             },
         ],
