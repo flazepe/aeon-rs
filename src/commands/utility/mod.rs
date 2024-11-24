@@ -7,6 +7,7 @@ mod google_translate_context;
 mod heliohost;
 mod inspect_message;
 mod ip;
+mod latex;
 mod osu;
 mod owner;
 mod purge;
@@ -36,6 +37,7 @@ pub fn get_commands() -> Vec<SlashookCommand> {
         heliohost::get_command(),
         inspect_message::get_command(),
         ip::get_command(),
+        latex::get_command(),
         osu::get_command(),
         owner::get_command(),
         purge::get_command(),
