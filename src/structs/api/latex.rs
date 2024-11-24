@@ -34,7 +34,7 @@ impl LaTeX {
                 font_color: "000000".into(),
                 out: 1,
                 preamble: preamble.map_or_else(
-                    || "\\usepackage{amsmath}\n\\usepackage{amsfonts}\n\\usepackage{amssymb}".into(),
+                    || "\\usepackage{amsmath}\\usepackage{amsfonts}\\usepackage{amssymb}".into(),
                     |preamble| preamble.to_string(),
                 ),
             })
