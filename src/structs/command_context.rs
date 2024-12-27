@@ -140,6 +140,15 @@ impl CommandContext {
         self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_channel().context("Could not convert arg to Channel.")
     }
 
+    pub fn get_query_and_section<T: Display>(&self, option_name: T) -> Result<(String, String)> {
+        if self.input.is_string_select() {
+            let mut split = self.input.values.as_ref().unwrap()[0].split('/');
+            Ok((split.next().unwrap().into(), split.next().unwrap_or("").into()))
+        } else {
+            Ok((self.get_string_arg(option_name)?, "".into()))
+        }
+    }
+
     /*
     pub fn get_role_arg<T: Display>(&self, arg: T) -> Result<&Role> {
         self.input.args.get(&arg.to_string()).context("Could not get arg.")?.as_role().context("Could not convert arg to Role.")

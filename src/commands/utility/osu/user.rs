@@ -1,16 +1,17 @@
 use crate::structs::{api::osu::Osu, command_context::CommandContext, select_menu::SelectMenu};
 use anyhow::Result;
-use slashook::commands::MessageResponse;
+use slashook::{commands::MessageResponse, structs::interactions::OptionValue};
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let (query, section): (String, String) = match ctx.input.is_string_select() {
-        true => {
-            let mut split = ctx.input.values.as_ref().unwrap()[0].split('/');
-            (split.next().unwrap().into(), split.next().unwrap_or("").into())
-        },
-        false => (format!("{}|{}", ctx.get_string_arg("user")?, ctx.get_string_arg("mode").as_deref().unwrap_or("default")), "".into()),
-    };
+pub async fn run(mut ctx: CommandContext) -> Result<()> {
+    // Scuffed but I have to append the mode after the user option for get_query_and_section()
+    if ctx.input.is_command() {
+        ctx.input.args.insert(
+            "user".into(),
+            OptionValue::String(format!("{}|{}", ctx.get_string_arg("user")?, ctx.get_string_arg("mode").as_deref().unwrap_or("default"))),
+        );
+    }
 
+    let (query, section) = ctx.get_query_and_section("user")?;
     let (user, mode) = query.split_once('|').unwrap();
 
     let user = match Osu::get_user(user, mode).await {

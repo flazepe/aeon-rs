@@ -139,23 +139,18 @@ impl AniListAnime {
             .collect::<Vec<String>>()
             .join(", ");
         let source = self.source.as_ref().map(|source| source.to_string()).unwrap_or_else(|| "N/A".into());
-        let scores = {
-            let mut scores = vec![];
-
-            if let Some(average_score) = self.average_score {
-                scores.push(format!("Average {average_score}%"))
+        let scores = [
+            self.average_score.map(|average_score| format!("Average {average_score}%\n")),
+            self.mean_score.map(|mean_score| format!("Mean {mean_score}%")),
+        ]
+        .into_iter()
+        .fold(vec![], |mut acc, cur| {
+            if let Some(cur) = cur {
+                acc.push(cur);
             }
-
-            if let Some(mean_score) = self.mean_score {
-                scores.push(format!("Mean {mean_score}%"))
-            }
-
-            if scores.is_empty() {
-                "N/A".into()
-            } else {
-                scores.join("\n")
-            }
-        };
+            acc
+        });
+        let score = if scores.is_empty() { "N/A".into() } else { scores.join("\n") };
         let timestamp = Utc.timestamp_opt(self.updated_at as i64, 0).unwrap();
 
         self._format()
@@ -166,7 +161,7 @@ impl AniListAnime {
             .add_field("Twitter Hashtag", hashtags, true)
             .add_field("Genre", genres, true)
             .add_field("Source", source, true)
-            .add_field("Score", scores, true)
+            .add_field("Score", score, true)
             .set_footer("Last updated", None::<String>)
             .set_timestamp(timestamp)
     }

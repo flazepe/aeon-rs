@@ -26,13 +26,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         return ctx.respond(select_menu, false).await;
     }
 
-    let (query, section): (String, String) = match ctx.input.is_string_select() {
-        true => {
-            let mut split = ctx.input.values.as_ref().unwrap()[0].split('/');
-            (split.next().unwrap().into(), split.next().unwrap_or("").into())
-        },
-        false => (ctx.get_string_arg("song")?, "".into()),
-    };
+    let (query, section) = ctx.get_query_and_section("song")?;
 
     let mut track = match ctx.input.is_string_select() {
         true => Spotify::get_track(query).await?,
