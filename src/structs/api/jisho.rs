@@ -11,18 +11,21 @@ pub struct JishoJapanese {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct JishoLink {
     pub text: String,
     pub url: String,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct JishoSource {
     pub language: String,
     pub word: String,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct JishoSense {
     pub english_definitions: Vec<String>,
     pub parts_of_speech: Vec<String>,
@@ -34,6 +37,7 @@ pub struct JishoSense {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct JishoAttribution {
     pub jmdict: bool,
     pub jmnedict: bool,
@@ -46,6 +50,7 @@ struct JishoSearchResult {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct JishoSearch {
     pub slug: String,
     pub is_common: Option<bool>,

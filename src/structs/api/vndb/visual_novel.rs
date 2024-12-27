@@ -13,6 +13,7 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 // Enum reference: https://code.blicky.net/yorhel/vndb/src/branch/master/lib/VNDB/Types.pm
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct VndbTitle {
     pub lang: String,
     pub title: String,
@@ -415,6 +416,7 @@ impl Display for VndbPlatform {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct VndbImage {
     pub id: String,
     pub url: String,
@@ -467,6 +469,7 @@ pub enum VndbTagCategory {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct VndbTag {
     pub rating: f64,
     pub spoiler: f32,
@@ -482,6 +485,7 @@ pub struct VndbTag {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct VndbVisualNovel {
     pub id: String,
     pub title: String,

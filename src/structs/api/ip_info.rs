@@ -4,12 +4,14 @@ use serde::Deserialize;
 use std::fmt::Display;
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct IpInfoError {
     pub title: String,
     pub message: String,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct IpInfo {
     pub bogon: Option<bool>,
     pub city: Option<String>,

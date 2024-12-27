@@ -30,6 +30,7 @@ pub struct SpotifyRawLyricsLine {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct SpotifyToken {
     pub access_token: String,
     pub access_token_expiration_timestamp_ms: i64,

@@ -12,6 +12,7 @@ pub struct LyricFindSearchResult {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct LyricFindSearchResultTrack {
     pub title: String,
 
@@ -50,6 +51,7 @@ pub struct LyricFindSearchResultTrack {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct LyricFindSearchResultArtist {
     pub name: String,
     pub name_romanized: Option<String>,
@@ -57,6 +59,7 @@ pub struct LyricFindSearchResultArtist {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct LyricFindSearchResultAlbum {
     pub title: String,
     pub release_year: Option<i64>,

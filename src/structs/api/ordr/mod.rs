@@ -22,6 +22,7 @@ pub struct OrdrRender {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct OrdrWsRenderProgress {
     #[serde(rename = "renderID")]
     pub render_id: u64,

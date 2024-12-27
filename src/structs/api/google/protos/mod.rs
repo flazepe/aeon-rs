@@ -8,6 +8,7 @@ pub mod r#type {
 
 pub mod assistant {
     pub mod embedded {
+        #[allow(clippy::doc_lazy_continuation)]
         pub mod v1alpha2 {
             include!("google.assistant.embedded.v1alpha2.rs");
         }

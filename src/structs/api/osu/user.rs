@@ -14,6 +14,7 @@ use slashook::{chrono::DateTime, structs::embeds::Embed};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct OsuUser {
     pub avatar_url: String,
     pub country_code: String,
@@ -82,6 +83,7 @@ pub struct OsuUser {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct OsuUserBadge {
     pub awarded_at: String,
     pub description: String,
@@ -90,12 +92,14 @@ pub struct OsuUserBadge {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct OsuUserDateCount {
     pub start_date: String,
     pub count: u64,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct OsuUserAchievement {
     pub achieved_at: String,
     pub achievement_id: u64,
@@ -108,6 +112,7 @@ pub struct OsuUserCountry {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct OsuUserCover {
     pub custom_url: Option<String>,
     pub url: String,
@@ -124,6 +129,7 @@ pub struct OsuUserGradeCount {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct OsuUserGroup {
     pub colour: String,
     pub has_listing: bool,
@@ -149,6 +155,7 @@ pub struct OsuUserLevel {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct OsuUserPage {
     pub html: String,
     pub raw: String,
@@ -176,23 +183,27 @@ pub enum OsuUserProfileSection {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct OsuUserRank {
     pub country: Option<u64>,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct OsuUserRankHighest {
     pub rank: u64,
     pub updated_at: String,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct OsuUserRankHistory {
     pub mode: OsuMode,
     pub data: Vec<u64>,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct OsuUserStatistics {
     pub count_100: u64,
     pub count_300: u64,

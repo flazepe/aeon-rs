@@ -21,6 +21,7 @@ struct SpotifySearchTrackResponse {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SpotifyFullTrack {
     // These are copy pasted from SpotifySimpleTrack
     pub artists: Vec<SpotifySimpleArtist>,

@@ -10,6 +10,7 @@ pub struct Dictionary {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct DictionaryEntry {
     pub word: String,
     pub phonetic: Option<String>,
@@ -21,6 +22,7 @@ pub struct DictionaryEntry {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct DictionaryPhonetic {
     pub text: Option<String>,
     pub audio: String,
@@ -30,6 +32,7 @@ pub struct DictionaryPhonetic {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct DictionaryMeaning {
     pub part_of_speech: String,
     pub definitions: Vec<DictionaryDefinition>,
@@ -38,6 +41,7 @@ pub struct DictionaryMeaning {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct DictionaryDefinition {
     pub definition: String,
     pub synonyms: Vec<String>,
@@ -46,6 +50,7 @@ pub struct DictionaryDefinition {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct DictionaryLicense {
     pub name: String,
     pub url: String,

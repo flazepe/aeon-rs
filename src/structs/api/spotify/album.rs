@@ -24,6 +24,7 @@ struct SpotifySearchAlbumResponse {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SpotifyFullAlbum {
     // These are copy pasted from SpotifySimpleAlbum
     #[serde(rename = "type")]

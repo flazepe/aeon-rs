@@ -5,6 +5,7 @@ use std::fmt::Display;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct TimeZoneConvertedTime {
     pub local_time: String,
     pub utc_offset_with_dst: String,
@@ -14,6 +15,7 @@ pub struct TimeZoneConvertedTime {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct TimeZone {
     pub generic_name: String,
     pub abbreviation: Option<String>,
@@ -41,6 +43,7 @@ pub struct TimeZoneResource {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct TimeZoneResourceSet {
     pub estimated_total: u64,
     pub resources: Vec<TimeZoneResource>,
@@ -48,6 +51,7 @@ pub struct TimeZoneResourceSet {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct TimeZoneResponse {
     pub authentication_result_code: String,
     pub brand_logo_uri: String,

@@ -75,6 +75,7 @@ pub enum VndbSpoilerLevel {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct VndbTrait {
     pub id: String,
     pub name: String,
@@ -90,6 +91,7 @@ pub struct VndbTrait {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct VndbCharacter {
     pub id: String,
     pub name: String,

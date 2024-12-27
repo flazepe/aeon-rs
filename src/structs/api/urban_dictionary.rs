@@ -9,6 +9,7 @@ pub struct UrbanDictionary {
 }
 
 #[derive(Deserialize, Clone, Debug)]
+#[allow(dead_code)]
 pub struct UrbanDictionaryEntry {
     pub author: String,
     pub current_vote: String,

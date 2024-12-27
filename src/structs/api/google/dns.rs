@@ -11,6 +11,7 @@ use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct GoogleDnsRecord {
     pub name: String,
 
@@ -24,6 +25,7 @@ pub struct GoogleDnsRecord {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct GoogleDnsQuestion {
     pub name: String,
 
@@ -33,6 +35,7 @@ pub struct GoogleDnsQuestion {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
+#[allow(dead_code)]
 pub struct GoogleDnsQuery {
     pub status: u8,
 

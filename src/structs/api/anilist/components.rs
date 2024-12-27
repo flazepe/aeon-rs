@@ -53,6 +53,7 @@ pub struct AniListMangaCharacter {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct AniListCharacterNode {
     pub name: AniListName,
     pub image: AniListImage,
@@ -75,6 +76,7 @@ impl Display for AniListCharacterRole {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct AniListCharacterVoiceActor {
     pub name: AniListName,
     pub language_v2: String,
@@ -145,6 +147,7 @@ pub struct AniListCoverImage {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct AniListExternalLink {
     pub site: Option<String>,
     pub url: String,
@@ -203,6 +206,7 @@ pub struct AniListName {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct AniListRanking {
     pub rank: u64,
 

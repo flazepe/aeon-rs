@@ -25,6 +25,7 @@ struct SteamUsers {
 
 #[derive(Deserialize, Debug)] // Can't use `rename_all = "lowercase"` since serde doesn't remove underscores
 #[serde(rename_all = "lowercase")]
+#[allow(dead_code)]
 pub struct SteamUser {
     #[serde(rename = "steamid")]
     pub id: String,

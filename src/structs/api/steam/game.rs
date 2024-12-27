@@ -11,12 +11,14 @@ use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
 use std::fmt::Display;
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamGameRequirements {
     pub minimum: String,
     pub recommended: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamGamePriceOverview {
     pub currency: String,
     pub initial: u64,
@@ -30,6 +32,7 @@ pub struct SteamGamePriceOverview {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamPackageGroup {
     pub name: String,
     pub title: String,
@@ -42,6 +45,7 @@ pub struct SteamPackageGroup {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamPackageGroupSub {
     #[serde(rename = "packageid")]
     pub id: u64,
@@ -69,18 +73,21 @@ pub struct SteamMetacritic {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamCategory {
     pub id: u64,
     pub description: String,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamGenre {
     pub id: String, // Why is this one inside a string
     pub description: String,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamScreenshot {
     pub id: u64,
     pub path_thumbnail: String,
@@ -88,6 +95,7 @@ pub struct SteamScreenshot {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamMovie {
     pub id: u64,
     pub name: String,
@@ -98,6 +106,7 @@ pub struct SteamMovie {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamMovieSizes {
     #[serde(rename = "480")]
     pub min: String,
@@ -106,11 +115,13 @@ pub struct SteamMovieSizes {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamRecommendations {
     pub total: u64,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamAchievements {
     pub total: u64,
     pub highlighted: Vec<SteamAchievement>,
@@ -129,18 +140,21 @@ pub struct SteamReleaseDate {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamSupportInfo {
     pub url: String,
     pub email: String,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamContentDescriptor {
     pub ids: Vec<u64>,
     pub notes: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamGame {
     #[serde(rename = "type")]
     pub app_type: String,
@@ -329,6 +343,7 @@ impl SteamGame {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamGameResponse {
     pub success: bool,
     pub data: SteamGame,

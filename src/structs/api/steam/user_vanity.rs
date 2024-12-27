@@ -9,6 +9,7 @@ struct SteamUserVanityResponse {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SteamUserVanity {
     #[serde(rename = "steamid")]
     pub id: Option<String>,

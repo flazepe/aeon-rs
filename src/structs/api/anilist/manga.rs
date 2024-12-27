@@ -22,6 +22,7 @@ use std::fmt::Display;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct AniListManga {
     pub id: u64,
     pub site_url: String,

@@ -5,6 +5,7 @@ use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SauceNaoHeader {
     pub similarity: String,
     pub thumbnail: String,
@@ -15,6 +16,7 @@ pub struct SauceNaoHeader {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SauceNaoData {
     pub est_time: Option<String>,
     pub ext_urls: Option<Vec<String>>,

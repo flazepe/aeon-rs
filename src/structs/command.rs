@@ -57,9 +57,7 @@ impl Command {
             return Ok(());
         }
 
-        if let Some(subcommand) =
-            self.subcommands.get(&ctx.input.subcommand.as_deref().or(ctx.input.custom_id.as_deref()).unwrap_or("").to_string())
-        {
+        if let Some(subcommand) = self.subcommands.get(ctx.input.subcommand.as_deref().or(ctx.input.custom_id.as_deref()).unwrap_or("")) {
             if let Err(error) = subcommand.call(ctx).await {
                 println!("{error}");
             }

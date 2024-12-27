@@ -18,6 +18,7 @@ pub enum SpotifyAlbumType {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SpotifyAudioFeatures {
     pub acousticness: f64,
     pub analysis_url: String,
@@ -60,6 +61,7 @@ pub enum SpotifyCopyrightType {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SpotifyExternalIDs {
     pub isrc: Option<String>,
     pub ean: Option<String>,
@@ -72,6 +74,7 @@ pub struct SpotifyExternalURLs {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SpotifyImage {
     pub width: u64,
     pub height: Option<u64>,
@@ -95,6 +98,7 @@ pub enum SpotifyObjectType {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SpotifyPaging<T> {
     pub href: String,
     pub items: Vec<T>,
@@ -114,11 +118,13 @@ pub enum SpotifyReleaseDatePrecision {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SpotifyRestrictions {
     pub reason: String,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SpotifySimpleAlbum {
     #[serde(rename = "type")]
     pub object_type: SpotifyObjectType,
@@ -140,6 +146,7 @@ pub struct SpotifySimpleAlbum {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SpotifySimpleArtist {
     pub name: String,
     pub id: String,
@@ -153,6 +160,7 @@ pub struct SpotifySimpleArtist {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SpotifySimpleTrack {
     pub artists: Vec<SpotifySimpleArtist>,
     pub available_markets: Option<Vec<String>>,
@@ -172,6 +180,7 @@ pub struct SpotifySimpleTrack {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct SpotifyTrackLink {
     pub external_urls: SpotifyExternalURLs,
     pub href: String,

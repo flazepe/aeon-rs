@@ -12,6 +12,7 @@ use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 pub struct VndbTrait {
     pub id: String,
     pub name: String,

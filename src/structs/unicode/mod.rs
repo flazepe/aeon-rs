@@ -75,6 +75,7 @@ impl Unicode {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct UnicodeCharacter {
     pub codepoint: String,
     pub name: String,

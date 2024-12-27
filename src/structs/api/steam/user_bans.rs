@@ -10,6 +10,7 @@ struct SteamUserBansResponse {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
+#[allow(dead_code)]
 pub struct SteamUserBans {
     #[serde(rename = "SteamId")]
     pub id: String,
