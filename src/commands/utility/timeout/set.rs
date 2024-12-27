@@ -13,7 +13,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     match Duration::new().parse(ctx.get_string_arg("duration")?) {
         Ok(duration) => {
             if duration.total_secs < 30 || duration.total_secs > SECS_PER_DAY * 28 {
-                return ctx.respond_error("Time cannot be under 30 seconds or over 28 days.", true).await;
+                return ctx.respond_error("Duration cannot be under 30 seconds or over 28 days.", true).await;
             }
 
             let user = ctx.get_user_arg("member")?;

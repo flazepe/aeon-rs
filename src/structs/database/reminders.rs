@@ -126,7 +126,7 @@ impl Reminders {
     pub async fn set<T: Display, U: Display, V: Display>(
         user_id: T,
         url: U,
-        time: Duration,
+        duration: Duration,
         interval: Duration,
         reminder: V,
         dm: bool,
@@ -135,8 +135,8 @@ impl Reminders {
             bail!("You can only have up to 10 reminders.");
         }
 
-        if time.total_secs < 30 || time.total_secs > SECS_PER_MONTH * 12 {
-            bail!("Time cannot be under 30 seconds or over a year.");
+        if duration.total_secs < 30 || duration.total_secs > SECS_PER_MONTH * 12 {
+            bail!("Duration cannot be under 30 seconds or over a year.");
         }
 
         if interval.total_secs > 0 && (interval.total_secs < 30 || interval.total_secs > SECS_PER_MONTH * 12) {
@@ -158,7 +158,7 @@ impl Reminders {
                 _id: ObjectId::new(),
                 user_id: user_id.to_string(),
                 url: url.to_string(),
-                timestamp: now() + time.total_secs,
+                timestamp: now() + duration.total_secs,
                 interval: interval.total_secs,
                 reminder: reminder.to_string(),
                 dm,
@@ -166,7 +166,7 @@ impl Reminders {
             .await?;
 
         Ok(format!(
-            "I will remind you about `{}`[*](<https://discord.com/channels/{url}>) in {time}{}. Make sure I {}.",
+            "I will remind you about `{}`[*](<https://discord.com/channels/{url}>) in {duration}{}. Make sure I {}.",
             reminder.to_string().replace('`', "｀"),
             if interval.total_secs > 0 { format!(" and every {interval} after that") } else { "".into() },
             if dm { "can DM you" } else { "have the View Channel and Send Messages permission" },
