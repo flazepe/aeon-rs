@@ -141,7 +141,7 @@ impl AniListAnime {
             .join(", ");
         let source = self.source.as_ref().map(|source| source.to_string()).unwrap_or_else(|| "N/A".into());
         let scores = [
-            self.average_score.map(|average_score| format!("Average {average_score}%\n")),
+            self.average_score.map(|average_score| format!("Average {average_score}%")),
             self.mean_score.map(|mean_score| format!("Mean {mean_score}%")),
         ]
         .into_iter()
