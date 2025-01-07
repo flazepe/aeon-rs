@@ -89,6 +89,7 @@ pub struct SpotifyItems<T> {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum SpotifyObjectType {
+    Track,
     Artist,
     Playlist,
     Album,
@@ -170,6 +171,7 @@ pub struct SpotifySimpleTrack {
     pub external_urls: SpotifyExternalURLs,
     pub href: String,
     pub id: String,
+    pub is_local: Option<bool>,
     pub is_playable: Option<bool>,
     pub linked_from: Option<SpotifyTrackLink>,
     pub restrictions: Option<SpotifyRestrictions>,
