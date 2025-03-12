@@ -1,4 +1,3 @@
-mod cdpt;
 mod cleanurl;
 mod waaai;
 mod zws;
@@ -11,13 +10,8 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new()
-        .subcommand("cdpt", cdpt::run)
-        .subcommand("cleanurl", cleanurl::run)
-        .subcommand("waaai", waaai::run)
-        .subcommand("zws", zws::run)
-});
+static COMMAND: LazyLock<Command> =
+    LazyLock::new(|| Command::new().subcommand("cleanurl", cleanurl::run).subcommand("waaai", waaai::run).subcommand("zws", zws::run));
 
 pub fn get_command() -> SlashookCommand {
     #[command(
@@ -26,18 +20,6 @@ pub fn get_command() -> SlashookCommand {
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
         subcommands = [
-            {
-                name = "cdpt",
-                description = "Shortens a URL using cdpt.in.",
-                options = [
-                    {
-                        name = "url",
-                        description = "The URL",
-                        option_type = InteractionOptionType::STRING,
-						required = true,
-                    },
-                ],
-            },
 			{
                 name = "cleanurl",
                 description = "Shortens a URL using cleanuri.com.",
