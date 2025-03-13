@@ -3,7 +3,7 @@ use crate::{
     structs::gateway::events::handler::EventHandler,
 };
 use slashook::structs::messages::Message;
-use twilight_model::{channel::message::ReactionType, gateway::payload::incoming::ReactionAdd};
+use twilight_model::{channel::message::EmojiReactionType, gateway::payload::incoming::ReactionAdd, id::Id};
 
 impl EventHandler {
     pub async fn on_reaction_add(reaction: Box<ReactionAdd>) {
@@ -11,8 +11,8 @@ impl EventHandler {
 
         if !["🗑️", "❌", "🇽", "delete"].contains(
             &match reaction.emoji {
-                ReactionType::Custom { name, animated: _, id: _ } => name.unwrap_or_else(|| "".into()),
-                ReactionType::Unicode { name } => name,
+                EmojiReactionType::Custom { name, animated: _, id: _ } => name.unwrap_or_else(|| "".into()),
+                EmojiReactionType::Unicode { name } => name,
             }
             .as_str(),
         ) {
@@ -32,9 +32,9 @@ impl EventHandler {
             {
                 author_id = Some(message.author.id.to_string());
 
-                if let Some(interaction) = message.interaction.as_ref() {
-                    if interaction.name != "voice-message" {
-                        user_id = Some(interaction.user.id.to_string());
+                if let Some(interaction_metadata) = message.interaction_metadata.as_ref() {
+                    if interaction_metadata.id != Id::new(1202934262123470899) {
+                        user_id = Some(interaction_metadata.user.id.to_string());
                     }
                 }
             }

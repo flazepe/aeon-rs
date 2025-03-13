@@ -7,9 +7,9 @@ use crate::{
 };
 use anyhow::{bail, Result};
 use futures::FutureExt;
+use rust_socketio::{asynchronous::ClientBuilder, Payload};
 use serde::Deserialize;
 use serde_json::{from_str, from_value, json};
-use socketio_rs::{ClientBuilder, Payload};
 use std::{fmt::Display, time::Duration};
 use tokio::time::sleep;
 
@@ -129,44 +129,57 @@ impl OrdrRender {
     }
 
     pub async fn connect() -> Result<()> {
-        ClientBuilder::new("https://ordr-ws.issou.best")
-            .on("render_progress_json", |payload, _, _| {
-                async {
-                    if let Some(Payload::Json(value)) = payload {
-                        let render = from_value::<OrdrWsRenderProgress>(value).unwrap();
+        ClientBuilder::new("https://apis.issou.best")
+            .namespace("/ordr/ws")
+            .on("render_progress_json", |payload, _| {
+                async move {
+                    let Payload::Text(mut value) = payload else { return };
 
-                        if render.progress.contains("0%") && CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
-                            CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.progress);
-                        }
+                    if value.is_empty() {
+                        return;
+                    }
+
+                    let render = from_value::<OrdrWsRenderProgress>(value.remove(0)).unwrap();
+
+                    if render.progress.contains("0%") && CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
+                        CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.progress);
                     }
                 }
                 .boxed()
             })
-            .on("render_done_json", |payload, _, _| {
-                async {
-                    if let Some(Payload::Json(value)) = payload {
-                        let render = from_value::<OrdrWsRenderDone>(value).unwrap();
+            .on("render_done_json", |payload, _| {
+                async move {
+                    let Payload::Text(mut value) = payload else { return };
 
-                        if CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
-                            CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.video_url);
-                        }
+                    if value.is_empty() {
+                        return;
+                    }
+
+                    let render = from_value::<OrdrWsRenderDone>(value.remove(0)).unwrap();
+
+                    if CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
+                        CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.video_url);
                     }
                 }
                 .boxed()
             })
-            .on("render_failed_json", |payload, _, _| {
-                async {
-                    if let Some(Payload::Json(value)) = payload {
-                        let render = from_value::<OrdrWsRenderFailed>(value).unwrap();
+            .on("render_failed_json", |payload, _| {
+                async move {
+                    let Payload::Text(mut value) = payload else { return };
 
-                        if CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
-                            CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.error_message);
-                        }
+                    if value.is_empty() {
+                        return;
+                    }
+
+                    let render = from_value::<OrdrWsRenderFailed>(value.remove(0)).unwrap();
+
+                    if CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
+                        CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.error_message);
                     }
                 }
                 .boxed()
             })
-            .reconnect(true)
+            .reconnect_on_disconnect(true)
             .connect()
             .await?;
 

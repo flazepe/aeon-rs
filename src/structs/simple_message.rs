@@ -80,9 +80,9 @@ impl Display for SimpleMessage {
 }
 
 macro_rules! impl_simple_message {
-    ($struct_name:ident, $sticker_items_struct_name:ident) => {
-        impl From<$struct_name> for SimpleMessage {
-            fn from(value: $struct_name) -> Self {
+    ($message_struct_name:ident, $sticker_items_struct_name:ident) => {
+        impl From<$message_struct_name> for SimpleMessage {
+            fn from(value: $message_struct_name) -> Self {
                 let reply_text = value.reply_text();
                 let sticker_items: Option<Vec<$sticker_items_struct_name>> = value.sticker_items.into();
 
@@ -112,10 +112,10 @@ pub struct SimpleEmbed {
 }
 
 macro_rules! impl_simple_embed {
-    ($struct_name:ident, $field_struct_name:ident) => {
-        impl From<$struct_name> for SimpleEmbed {
-            fn from(value: $struct_name) -> Self {
-                let fields: Option<Vec<$field_struct_name>> = value.fields.into();
+    ($embed_struct_name:ident, $embed_field_struct_name:ident) => {
+        impl From<$embed_struct_name> for SimpleEmbed {
+            fn from(value: $embed_struct_name) -> Self {
+                let fields: Option<Vec<$embed_field_struct_name>> = value.fields.into();
 
                 Self {
                     title: value.title,
@@ -154,9 +154,9 @@ pub struct SimpleSticker {
 }
 
 macro_rules! impl_simple_sticker {
-    ($s:ident) => {
-        impl From<$s> for SimpleSticker {
-            fn from(value: $s) -> Self {
+    ($sticker_item_struct_name:ident) => {
+        impl From<$sticker_item_struct_name> for SimpleSticker {
+            fn from(value: $sticker_item_struct_name) -> Self {
                 Self { id: value.id.to_string(), name: value.name, format: format!("{:?}", value.format_type).to_lowercase() }
             }
         }

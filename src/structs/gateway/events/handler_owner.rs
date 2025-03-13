@@ -8,11 +8,11 @@ use slashook::{
     structs::{messages::Message, utils::File},
 };
 use std::{fmt::Display, process::Command};
-use twilight_gateway::stream::ShardRef;
+use twilight_gateway::MessageSender;
 use twilight_model::gateway::{payload::incoming::MessageCreate, presence::ActivityType, OpCode};
 
-impl<'a> EventHandler {
-    pub async fn handle_owner(message: Box<MessageCreate>, shard: ShardRef<'a>) {
+impl EventHandler {
+    pub async fn handle_owner(message: Box<MessageCreate>, sender: MessageSender) {
         let prefix = "";
 
         if message.author.id.to_string() != FLAZEPE_ID || !message.content.to_lowercase().starts_with(prefix) {
@@ -22,7 +22,7 @@ impl<'a> EventHandler {
         let prefixless = message.content.chars().skip(prefix.len()).collect::<String>();
         let (command, args) = prefixless.split_once(' ').unwrap_or(("", ""));
 
-        let mut owner_commands = OwnerCommands { message, shard, args: args.to_string() };
+        let mut owner_commands = OwnerCommands { message, sender, args: args.to_string() };
 
         match command {
             "delete" => owner_commands.delete().await,
@@ -33,13 +33,13 @@ impl<'a> EventHandler {
     }
 }
 
-pub struct OwnerCommands<'a> {
+pub struct OwnerCommands {
     message: Box<MessageCreate>,
-    shard: ShardRef<'a>,
+    sender: MessageSender,
     args: String,
 }
 
-impl OwnerCommands<'_> {
+impl OwnerCommands {
     pub async fn delete(&self) {
         let url = self.args.split('/').skip(5).map(|id| id.to_string()).collect::<Vec<String>>().join("/");
         let (channel_id, message_id) = url.split_once('/').unwrap_or(("", ""));
@@ -98,25 +98,22 @@ impl OwnerCommands<'_> {
     }
 
     pub async fn status(&mut self) {
-        self.shard
-            .send(
-                json!({
-                    "op": OpCode::PresenceUpdate,
-                    "d": {
-                        "since": null,
-                        "activities": [{
-                            "name": "yes",
-                            "type": ActivityType::Custom,
-                            "state": self.args,
-                        }],
-                        "status": "online",
-                        "afk": false,
-                    },
-                })
-                .to_string(),
-            )
-            .await
-            .ok();
+        let _ = self.sender.send(
+            json!({
+                "op": OpCode::PresenceUpdate,
+                "d": {
+                    "since": null,
+                    "activities": [{
+                        "name": "yes",
+                        "type": ActivityType::Custom,
+                        "state": self.args,
+                    }],
+                    "status": "online",
+                    "afk": false,
+                },
+            })
+            .to_string(),
+        );
     }
 }
 

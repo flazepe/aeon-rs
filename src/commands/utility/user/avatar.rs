@@ -6,6 +6,8 @@ use slashook::{
 };
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
+    ctx.defer(false).await?;
+
     let user = ctx.get_user_arg("user").unwrap_or(&ctx.input.user);
 
     let guild_avatar = match ctx.input.guild_id.as_ref() {
@@ -34,7 +36,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             },
         ))
         .add_file(File::new(
-            format!("image.{}", if avatar.contains("a_") { "gif" } else { "png" }),
+            format!("image.{}", if avatar.starts_with("a_") { "gif" } else { "png" }),
             REQWEST.get(avatar).send().await?.bytes().await?,
         )),
         false,

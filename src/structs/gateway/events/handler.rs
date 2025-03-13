@@ -1,12 +1,12 @@
-use twilight_gateway::{stream::ShardRef, Event};
+use twilight_gateway::{Event, MessageSender};
 
 pub struct EventHandler;
 
-impl<'a> EventHandler {
-    pub async fn handle(event: Event, shard: ShardRef<'a>) {
+impl EventHandler {
+    pub async fn handle(event: Event, sender: MessageSender) {
         match event {
             Event::MessageCreate(message) => {
-                Self::handle_owner(message.clone(), shard).await;
+                Self::handle_owner(message.clone(), sender).await;
                 Self::on_message_create(message).await;
             },
             Event::MessageDelete(message) => Self::on_message_delete(message).await,

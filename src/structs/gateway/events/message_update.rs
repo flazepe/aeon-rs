@@ -3,6 +3,8 @@ use twilight_model::gateway::payload::incoming::MessageUpdate;
 
 impl EventHandler {
     pub async fn on_message_update(message: Box<MessageUpdate>) {
+        let message = message.0;
+
         let mut channels = CACHE.channels.write().unwrap();
         let channel_id = message.channel_id.to_string();
 
@@ -16,21 +18,11 @@ impl EventHandler {
             let cloned_old_message = old_message.clone();
 
             // Update message
-            if let Some(attachments) = message.attachments {
-                old_message.attachments = attachments;
-            }
-
-            if let Some(content) = message.content {
-                old_message.content = content;
-            }
-
+            old_message.attachments = message.attachments;
+            old_message.content = message.content;
             old_message.edited_timestamp = message.edited_timestamp;
-
-            if let Some(embeds) = message.embeds {
-                old_message.embeds = embeds;
-            }
-
-            old_message.pinned = message.pinned.unwrap_or(old_message.pinned);
+            old_message.embeds = message.embeds;
+            old_message.pinned = message.pinned;
 
             // Edit snipes
             let mut channels = CACHE.edit_snipes.write().unwrap();

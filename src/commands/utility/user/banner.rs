@@ -9,6 +9,8 @@ struct UserBanner {
 }
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
+    ctx.defer(false).await?;
+
     let user = ctx.get_user_arg("user").unwrap_or(&ctx.input.user);
 
     let Some(banner_hash) = ctx.input.rest.get::<UserBanner>(format!("users/{}", user.id)).await?.banner else {

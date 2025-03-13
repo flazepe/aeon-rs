@@ -3,7 +3,7 @@ use crate::{
     statics::CACHE,
     structs::gateway::events::handler::EventHandler,
 };
-use twilight_model::{channel::message::ReactionType, gateway::payload::incoming::ReactionRemove};
+use twilight_model::{channel::message::EmojiReactionType, gateway::payload::incoming::ReactionRemove};
 
 impl EventHandler {
     pub async fn on_reaction_remove(reaction: Box<ReactionRemove>) {
@@ -22,9 +22,9 @@ impl EventHandler {
             "<@{}> - {}\n{}",
             reaction.user_id,
             match reaction.emoji {
-                ReactionType::Custom { name, id, animated: _ } =>
+                EmojiReactionType::Custom { name, id, animated: _ } =>
                     format!("[{}](https://cdn.discordapp.com/emojis/{id})", name.as_deref().unwrap_or("<unknown>")),
-                ReactionType::Unicode { name } => name,
+                EmojiReactionType::Unicode { name } => name,
             },
             format_timestamp(now(), TimestampFormat::Full),
         ));
