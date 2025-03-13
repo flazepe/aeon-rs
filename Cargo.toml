@@ -21,6 +21,7 @@ reqwest = { version = "0.12" }
 serde = "1"
 serde_json = "1"
 serde_repr = "0.1"
+serde_with = "3"
 slashook = { git = "https://github.com/tonkku107/slashook.git", rev = "b222e86" }
 socketio-rs = "0.1"
 sysinfo = "0.32"

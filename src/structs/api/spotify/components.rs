@@ -1,4 +1,5 @@
-use serde::Deserialize;
+use serde::{de::DeserializeOwned, Deserialize};
+use serde_with::{serde_as, VecSkipError};
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]
@@ -81,8 +82,10 @@ pub struct SpotifyImage {
     pub url: String,
 }
 
+#[serde_as]
 #[derive(Deserialize, Debug)]
-pub struct SpotifyItems<T> {
+pub struct SpotifyItems<T: DeserializeOwned> {
+    #[serde_as(as = "VecSkipError<_>")]
     pub items: Vec<T>,
 }
 
