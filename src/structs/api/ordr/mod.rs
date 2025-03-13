@@ -133,13 +133,9 @@ impl OrdrRender {
             .namespace("/ordr/ws")
             .on("render_progress_json", |payload, _| {
                 async move {
-                    let Payload::Text(mut value) = payload else { return };
-
-                    if value.is_empty() {
-                        return;
-                    }
-
-                    let render = from_value::<OrdrWsRenderProgress>(value.remove(0)).unwrap();
+                    let Payload::Text(mut values) = payload else { return };
+                    let value = if values.is_empty() { return } else { values.remove(0) };
+                    let render = from_value::<OrdrWsRenderProgress>(value).unwrap();
 
                     if render.progress.contains("0%") && CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
                         CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.progress);
@@ -149,13 +145,9 @@ impl OrdrRender {
             })
             .on("render_done_json", |payload, _| {
                 async move {
-                    let Payload::Text(mut value) = payload else { return };
-
-                    if value.is_empty() {
-                        return;
-                    }
-
-                    let render = from_value::<OrdrWsRenderDone>(value.remove(0)).unwrap();
+                    let Payload::Text(mut values) = payload else { return };
+                    let value = if values.is_empty() { return } else { values.remove(0) };
+                    let render = from_value::<OrdrWsRenderDone>(value).unwrap();
 
                     if CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
                         CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.video_url);
@@ -165,13 +157,9 @@ impl OrdrRender {
             })
             .on("render_failed_json", |payload, _| {
                 async move {
-                    let Payload::Text(mut value) = payload else { return };
-
-                    if value.is_empty() {
-                        return;
-                    }
-
-                    let render = from_value::<OrdrWsRenderFailed>(value.remove(0)).unwrap();
+                    let Payload::Text(mut values) = payload else { return };
+                    let value = if values.is_empty() { return } else { values.remove(0) };
+                    let render = from_value::<OrdrWsRenderFailed>(value).unwrap();
 
                     if CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
                         CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.error_message);
