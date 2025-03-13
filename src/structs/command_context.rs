@@ -10,7 +10,7 @@ use slashook::{
     commands::{CommandInput, CommandResponder, MessageResponse},
     structs::{channels::Channel, components::Components, interactions::ApplicationCommandOptionChoice, messages::Attachment, users::User},
 };
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 
 pub struct CommandContext {
     pub input: CommandInput,
@@ -77,9 +77,9 @@ impl CommandContext {
         Ok(())
     }
 
-    pub async fn respond_error<T: Display>(&self, response: T, ephemeral: bool) -> Result<()> {
+    pub async fn respond_error<T: Debug>(&self, response: T, ephemeral: bool) -> Result<()> {
         self.respond(
-            MessageResponse::from(format!("{ERROR_EMOJI} {response}"))
+            MessageResponse::from(format!("{ERROR_EMOJI} {response:?}"))
                 .set_components(Components::empty())
                 .clear_embeds()
                 .clear_attachments(),
