@@ -9,12 +9,12 @@ mod view;
 
 use crate::structs::{command::Command, database::tags::Tags};
 use anyhow::Context;
-use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
 static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new()

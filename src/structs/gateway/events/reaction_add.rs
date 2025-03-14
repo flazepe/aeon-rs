@@ -8,14 +8,12 @@ use twilight_model::{channel::message::EmojiReactionType, gateway::payload::inco
 impl EventHandler {
     pub async fn on_reaction_add(reaction: Box<ReactionAdd>) {
         let reaction = reaction.0;
+        let reaction_emoji_name = match reaction.emoji {
+            EmojiReactionType::Custom { name, animated: _, id: _ } => name,
+            EmojiReactionType::Unicode { name } => Some(name),
+        };
 
-        if !["🗑️", "❌", "🇽", "delete"].contains(
-            &match reaction.emoji {
-                EmojiReactionType::Custom { name, animated: _, id: _ } => name.unwrap_or_else(|| "".into()),
-                EmojiReactionType::Unicode { name } => name,
-            }
-            .as_str(),
-        ) {
+        if !["🗑️", "❌", "🇽", "delete"].contains(&reaction_emoji_name.as_deref().unwrap_or("")) {
             return;
         }
 
@@ -55,7 +53,9 @@ impl EventHandler {
         let Some(author_id) = author_id else { return };
 
         if user_id.as_deref().unwrap_or(FLAZEPE_ID) == reaction.user_id.to_string() && author_id == CONFIG.bot.client_id {
-            REST.delete::<()>(format!("channels/{}/messages/{}", reaction.channel_id, reaction.message_id)).await.ok();
+            let channel_id = reaction.channel_id;
+            let message_id = reaction.message_id;
+            let _ = REST.delete::<()>(format!("channels/{channel_id}/messages/{message_id}")).await;
         }
     }
 }

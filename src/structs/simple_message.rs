@@ -35,9 +35,10 @@ impl Display for SimpleMessage {
                 "\n\n{}",
                 self.stickers
                     .iter()
-                    .map(|sticker| {
-                        format!("[{}](https://cdn.discordapp.com/stickers/{}.{}?size=4096)", sticker.name, sticker.id, sticker.format)
-                    })
+                    .map(|sticker| format!(
+                        "[{}](https://cdn.discordapp.com/stickers/{}.{}?size=4096)",
+                        sticker.name, sticker.id, sticker.format,
+                    ))
                     .collect::<Vec<String>>()
                     .join("\n"),
             );
@@ -66,7 +67,7 @@ impl Display for SimpleMessage {
             text += &embed
                 .fields
                 .iter()
-                .map(|(name, value)| format!("\n**{}**\n{}", escape_markdown(name.trim()), value))
+                .map(|(name, value)| format!("\n**{}**\n{value}", escape_markdown(name)))
                 .collect::<Vec<String>>()
                 .join("");
 
@@ -122,18 +123,17 @@ macro_rules! impl_simple_embed {
                     description: value.description,
                     url: value.url,
                     footer: value.footer.map(|footer| match footer.icon_url {
-                        Some(icon_url) => format!("[{}]({icon_url})", footer.text),
+                        Some(icon_url) => format!("[{text}]({icon_url})", text = footer.text),
                         None => footer.text,
                     }),
                     author: value.author.map(|author| {
-                        let icon_url = match author.icon_url {
-                            Some(icon_url) => format!("[[Icon]]({icon_url}) "),
-                            None => "".into(),
-                        };
+                        let icon_url = author.icon_url.as_ref().map(|icon_url| format!("[[Icon]]({icon_url}) "));
+                        let icon_url = icon_url.as_deref().unwrap_or("");
+                        let name = author.name;
 
                         match author.url {
-                            Some(url) => format!("{icon_url}[{}]({url})", author.name),
-                            None => format!("{icon_url}{}", author.name),
+                            Some(url) => format!("{icon_url}[{name}]({url})"),
+                            None => format!("{icon_url}{name}"),
                         }
                     }),
                     fields: fields.unwrap_or_default().into_iter().map(|field| (field.name, field.value)).collect(),

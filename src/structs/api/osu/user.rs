@@ -287,11 +287,8 @@ impl OsuUser {
             self.country.name,
             self.country_code,
         );
-        let playstyle = self
-            .playstyle
-            .as_ref()
-            .map(|playstyle| playstyle.iter().map(|entry| format!("{entry:?}")).collect::<Vec<String>>().join(", "))
-            .unwrap_or_else(|| "N/A".into());
+        let playstyle =
+            self.playstyle.as_ref().map(|playstyle| playstyle.iter().map(|entry| format!("{entry:?}")).collect::<Vec<String>>().join(", "));
         let created = format_timestamp(DateTime::parse_from_rfc3339(self.join_date.as_str()).unwrap().timestamp(), TimestampFormat::Full);
 
         self._format()
@@ -300,25 +297,20 @@ impl OsuUser {
             .add_field("ID", id, true)
             .add_field("Followers", followers, true)
             .add_field("Country", country, true)
-            .add_field("Playstyle", playstyle, true)
+            .add_field("Playstyle", playstyle.as_deref().unwrap_or("N/A"), true)
             .add_field("Created", created, false)
     }
 
     pub fn format_about(&self) -> Embed {
-        let location = self.location.as_deref().unwrap_or("N/A");
-        let interests = self.interests.as_deref().unwrap_or("N/A");
-        let occupation = self.occupation.as_deref().unwrap_or("N/A");
-        let website = self.website.as_deref().unwrap_or("N/A");
-        let twitter = self.twitter.as_ref().map(|twitter| format!("[@{twitter}](https://x.com/{twitter})")).unwrap_or_else(|| "N/A".into());
-        let discord = self.discord.as_deref().unwrap_or("N/A");
+        let twitter = self.twitter.as_ref().map(|twitter| format!("[@{twitter}](https://x.com/{twitter})"));
 
         self._format()
-            .add_field("Location", location, true)
-            .add_field("Interests", interests, true)
-            .add_field("Occupation", occupation, true)
-            .add_field("Website", website, true)
-            .add_field("Twitter", twitter, true)
-            .add_field("Discord", discord, true)
+            .add_field("Location", self.location.as_deref().unwrap_or("N/A"), true)
+            .add_field("Interests", self.interests.as_deref().unwrap_or("N/A"), true)
+            .add_field("Occupation", self.occupation.as_deref().unwrap_or("N/A"), true)
+            .add_field("Website", self.website.as_deref().unwrap_or("N/A"), true)
+            .add_field("X", twitter.as_deref().unwrap_or("N/A"), true)
+            .add_field("Discord", self.discord.as_deref().unwrap_or("N/A"), true)
     }
 
     pub fn format_statistics(&self) -> Embed {

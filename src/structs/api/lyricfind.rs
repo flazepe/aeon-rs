@@ -102,8 +102,7 @@ impl LyricFindSearchResultTrack {
             .album
             .as_ref()
             .and_then(|album| album.cover_art.as_ref())
-            .map(|cover_art| format!("http://images.lyricfind.com/images/{cover_art}"))
-            .unwrap_or_else(|| "".into());
+            .map(|cover_art| format!("http://images.lyricfind.com/images/{cover_art}"));
         let author = &self.artist.name;
         let title = &self.title;
         let url = format!("https://lyrics.lyricfind.com/lyrics/{}", self.slug);
@@ -111,7 +110,7 @@ impl LyricFindSearchResultTrack {
         let mut embed = Embed::new()
             .set_color(PRIMARY_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(thumbnail)
+            .set_thumbnail(thumbnail.as_deref().unwrap_or(""))
             .set_author(author, None::<String>, None::<String>)
             .set_title(title)
             .set_url(url);

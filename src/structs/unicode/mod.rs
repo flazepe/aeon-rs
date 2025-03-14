@@ -14,13 +14,11 @@ impl Unicode {
         let mut characters: Vec<UnicodeCharacter> = vec![];
 
         for char in string.to_string().chars() {
-            let codepoint = format!("U+{:04X}", char as u32);
-
-            if characters.iter().any(|character| character.codepoint == codepoint) {
+            if characters.iter().any(|character| character.0 == char) {
                 continue;
             }
 
-            characters.push(UnicodeCharacter { codepoint, name: Self::get_name(char), character: char.to_string() });
+            characters.push(UnicodeCharacter(char));
         }
 
         Self(characters)
@@ -46,27 +44,16 @@ impl Unicode {
         Ok(Self::list(text))
     }
 
-    fn get_name(char: char) -> String {
-        if let Some(name) = CONTROL_CHARACTERS.get(format!("{:X}", char as u32).as_str()) {
-            return name.to_string();
-        }
-
-        if let Some(name) = get_unicode_name(char) {
-            return name.to_string();
-        }
-
-        "UNKNOWN".to_string()
-    }
-
     pub fn format(&self) -> String {
         self.0
             .iter()
             .map(|character| {
+                let codepoint = character.get_codepoint();
+
                 format!(
-                    "[`{}`](<https://www.fileformat.info/info/unicode/char/{}/index.htm>) - {}",
-                    character.codepoint,
-                    character.codepoint.chars().skip(2).collect::<String>().to_lowercase(),
-                    character.name,
+                    "[`{codepoint}`](<https://www.fileformat.info/info/unicode/char/{}/index.htm>) - {}",
+                    codepoint.trim_start_matches("U+"),
+                    character.get_name(),
                 )
             })
             .collect::<Vec<String>>()
@@ -76,8 +63,22 @@ impl Unicode {
 
 #[derive(Debug)]
 #[allow(dead_code)]
-pub struct UnicodeCharacter {
-    pub codepoint: String,
-    pub name: String,
-    pub character: String,
+pub struct UnicodeCharacter(char);
+
+impl UnicodeCharacter {
+    fn get_codepoint(&self) -> String {
+        format!("U+{:04X}", self.0 as u32)
+    }
+
+    fn get_name(&self) -> String {
+        if let Some(name) = CONTROL_CHARACTERS.get(format!("{:X}", self.0 as u32).as_str()) {
+            return name.to_string();
+        }
+
+        if let Some(name) = get_unicode_name(self.0) {
+            return name.to_string();
+        }
+
+        "UNKNOWN".to_string()
+    }
 }

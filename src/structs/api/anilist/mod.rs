@@ -36,15 +36,9 @@ impl AniList {
         let mut dates = vec![];
 
         for fuzzy_date in [start, end] {
-            if fuzzy_date.day.is_some() && fuzzy_date.month.is_some() && fuzzy_date.year.is_some() {
+            if let (Some(day), Some(month), Some(year)) = (fuzzy_date.day, fuzzy_date.month, fuzzy_date.year) {
                 dates.push(format_timestamp(
-                    NaiveDateTime::parse_from_str(
-                        &format!("{}-{}-{} 00:00", fuzzy_date.year.unwrap(), fuzzy_date.month.unwrap(), fuzzy_date.day.unwrap()),
-                        "%F %R",
-                    )
-                    .unwrap()
-                    .and_utc()
-                    .timestamp(),
+                    NaiveDateTime::parse_from_str(&format!("{day}-{month}-{year} 00:00"), "%F %R").unwrap().and_utc().timestamp(),
                     TimestampFormat::Simple,
                 ));
             }
@@ -58,11 +52,10 @@ impl AniList {
     }
 
     pub fn format_embed_description<T: Display>(embed: Embed, description: Option<&T>) -> Embed {
+        let description = description.map(|description| description.to_string());
+
         embed.set_description(limit_strings(
-            Document::from(&description.map_or_else(|| "N/A".into(), |description| description.to_string()))
-                .select("body")
-                .text()
-                .split('\n'),
+            Document::from(description.as_deref().unwrap_or("N/A")).select("body").text().split('\n'),
             "\n",
             4096,
         ))

@@ -110,8 +110,7 @@ impl SteamUser {
             .enumerate()
             .find(|(index, _)| &(self.persona_state as usize) == index)
             .map_or(&"Unknown", |state| state.1);
-        let created =
-            self.time_created.map(|time_created| format_timestamp(time_created, TimestampFormat::Full)).unwrap_or_else(|| "N/A".into());
+        let created = self.time_created.map(|time_created| format_timestamp(time_created, TimestampFormat::Full));
         let location = match STEAM_COUNTRIES.get_key_value(self.loc_country_code.as_deref().unwrap_or("")) {
             Some((country_code, country)) => format!(
                 ":flag_{}: {}{}",
@@ -125,18 +124,14 @@ impl SteamUser {
             ),
             None => "N/A".into(),
         };
-        let playing = self
-            .game_extra_info
-            .as_ref()
-            .map(|game_extra_info| {
-                format!(
-                    "[{}](https://store.steampowered.com/app/{}){}",
-                    game_extra_info,
-                    self.game_id.unwrap_or(0),
-                    format!("\n{}", self.game_server_ip.as_deref().unwrap_or("")).trim(),
-                )
-            })
-            .unwrap_or_else(|| "None".into());
+        let playing = self.game_extra_info.as_ref().map(|game_extra_info| {
+            format!(
+                "[{}](https://store.steampowered.com/app/{}){}",
+                game_extra_info,
+                self.game_id.unwrap_or(0),
+                format!("\n{}", self.game_server_ip.as_deref().unwrap_or("")).trim(),
+            )
+        });
         let allows_profile_comments = yes_no!(self.comment_permission.is_some());
 
         let mut embed = Embed::new()
@@ -148,9 +143,9 @@ impl SteamUser {
             .add_field("ID", id, true)
             .add_field("Custom ID", custom_id, true)
             .add_field("Status", status, true)
-            .add_field("Created", created, false)
+            .add_field("Created", created.as_deref().unwrap_or("N/A"), false)
             .add_field("Location", location, true)
-            .add_field("Playing", playing, true)
+            .add_field("Playing", playing.as_deref().unwrap_or("None"), true)
             .add_field("Allows Profile Comments", allows_profile_comments, true);
 
         if let Some(bans) = self.bans.as_ref() {

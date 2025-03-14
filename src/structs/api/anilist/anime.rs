@@ -85,26 +85,21 @@ impl AniListAnime {
     pub fn format(&self) -> Embed {
         let synonyms = self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n");
 
-        let trailer = self
-            .trailer
-            .as_ref()
-            .map(|trailer| {
-                format!(
-                    " - [Trailer]({}{})",
-                    match trailer.site.as_str() {
-                        "youtube" => "https://www.youtube.com/watch?v=".into(),
-                        "dailymotion" => "https://www.dailymotion.com/video/".into(),
-                        site => format!("https://www.google.com/search?q={site}+"),
-                    },
-                    trailer.id,
-                )
-            })
-            .unwrap_or_else(|| "".into());
+        let trailer = self.trailer.as_ref().map(|trailer| {
+            format!(
+                " - [Trailer]({}{})",
+                match trailer.site.as_str() {
+                    "youtube" => "https://www.youtube.com/watch?v=".into(),
+                    "dailymotion" => "https://www.dailymotion.com/video/".into(),
+                    site => format!("https://www.google.com/search?q={site}+"),
+                },
+                trailer.id,
+            )
+        });
         let season = self
             .season
             .as_ref()
-            .map(|season| format!("Premiered {season} {}{trailer}\n", self.season_year.unwrap()))
-            .unwrap_or_else(|| "".into());
+            .map(|season| format!("Premiered {season} {}{}\n", self.season_year.unwrap(), trailer.as_deref().unwrap_or("")));
         let airing_date = AniList::format_airing_date(&self.start_date, &self.end_date);
         let status = &self.status;
         let airing_in = self
@@ -112,8 +107,12 @@ impl AniListAnime {
             .nodes
             .iter()
             .find(|node| node.time_until_airing.map_or(false, |time| time > 0))
-            .map_or_else(|| "".into(), |node| format!("\nNext episode airs <t:{}:R>", now() + node.time_until_airing.unwrap() as u64));
-        let aired = format!("{season}{airing_date} ({status}){airing_in}");
+            .map(|node| format!("\nNext episode airs <t:{}:R>", now() + node.time_until_airing.unwrap() as u64));
+        let aired = format!(
+            "{season}{airing_date} ({status}){airing_in}",
+            season = season.as_deref().unwrap_or(""),
+            airing_in = airing_in.as_deref().unwrap_or(""),
+        );
 
         let studios =
             self.studios.nodes.iter().map(|studio| format!("[{}]({})", studio.name, studio.site_url)).collect::<Vec<String>>().join(", ");
@@ -122,24 +121,20 @@ impl AniListAnime {
             self.episodes.map(|episodes| episodes.to_string()).as_deref().unwrap_or("TBA"),
             self.duration.map(|duration| format!(" ({duration} minutes per episode)")).as_deref().unwrap_or(""),
         );
-        let hashtags = self
-            .hashtag
-            .as_ref()
-            .map(|hashtag| {
-                hashtag
-                    .split(' ')
-                    .map(|hashtag| format!("[{hashtag}](https://twitter.com/hashtag/{})", hashtag.trim_start_matches('#')))
-                    .collect::<Vec<String>>()
-                    .join(", ")
-            })
-            .unwrap_or_else(|| "N/A".into());
+        let hashtags = self.hashtag.as_ref().map(|hashtag| {
+            hashtag
+                .split(' ')
+                .map(|hashtag| format!("[{hashtag}](https://x.com/hashtag/{})", hashtag.trim_start_matches('#')))
+                .collect::<Vec<String>>()
+                .join(", ")
+        });
         let genres = self
             .genres
             .iter()
             .map(|genre| format!("[{genre}](https://anilist.co/search/anime?genres={})", genre.replace(' ', "+")))
             .collect::<Vec<String>>()
             .join(", ");
-        let source = self.source.as_ref().map(|source| source.to_string()).unwrap_or_else(|| "N/A".into());
+        let source = self.source.as_ref().map(|source| source.to_string());
         let scores = [
             self.average_score.map(|average_score| format!("Average {average_score}%")),
             self.mean_score.map(|mean_score| format!("Mean {mean_score}%")),
@@ -159,9 +154,9 @@ impl AniListAnime {
             .add_field("Aired", aired, false)
             .add_field("Studio", studios, true)
             .add_field("Episodes", episodes, true)
-            .add_field("Twitter Hashtag", hashtags, true)
+            .add_field("X Hashtag", hashtags.as_deref().unwrap_or("N/A"), true)
             .add_field("Genre", genres, true)
-            .add_field("Source", source, true)
+            .add_field("Source", source.as_deref().unwrap_or("N/A"), true)
             .add_field("Score", score, true)
             .set_footer("Last updated", None::<String>)
             .set_timestamp(timestamp)
@@ -174,15 +169,17 @@ impl AniListAnime {
     pub fn format_characters(&self) -> Embed {
         let characters = limit_strings(
             self.characters.edges.iter().map(|character| {
+                let voice_actor = character
+                    .voice_actors
+                    .first()
+                    .map(|voice_actor| format!("\nVoiced by [{}]({})", voice_actor.name.full, voice_actor.site_url));
+
                 format!(
                     "[{}]({}) ({}){}",
                     character.node.name.full,
                     character.node.site_url,
                     character.role,
-                    character.voice_actors.first().map_or_else(
-                        || "".into(),
-                        |voice_actor| format!("\nVoiced by [{}]({})", voice_actor.name.full, voice_actor.site_url)
-                    ),
+                    voice_actor.as_deref().unwrap_or(""),
                 )
             }),
             "\n\n",

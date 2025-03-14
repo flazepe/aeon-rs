@@ -124,40 +124,34 @@ impl VndbCharacter {
 
     pub fn format(&self) -> Embed {
         let aliases = self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n");
-        let sex = self
-            .sex
-            .as_ref()
-            .map(|(sex, spoiler_sex)| {
-                format!(
-                    "{}{}",
-                    sex.as_ref().map(|sex| format!("{sex:?}")).as_deref().unwrap_or("N/A"),
-                    spoiler_sex.as_ref().map(|spoiler_sex| format!(" (||actually {spoiler_sex:?}||)")).as_deref().unwrap_or(""),
-                )
-            })
-            .unwrap_or_else(|| "N/A".into());
-        let age = self.age.map(|age| age.commas()).unwrap_or_else(|| "N/A".into());
-        let birthday = self.birthday.map(|birthday| format!("{}/{}", birthday.0, birthday.1)).unwrap_or_else(|| "N/A".into());
-        let blood_type = self.blood_type.as_ref().map(|blood_type| format!("{blood_type:?}")).unwrap_or_else(|| "N/A".into());
-        let height = self.height.map(|height| format!("{} cm", height.commas())).unwrap_or_else(|| "N/A".into());
-        let weight = self.weight.map(|weight| format!("{} kg", weight.commas())).unwrap_or_else(|| "N/A".into());
-        let bust = self
-            .bust
-            .map(|bust| format!("{bust} cm{}", self.cup.as_ref().map(|cup| format!(" - Cup Size {cup}")).unwrap_or_else(|| "".into())))
-            .unwrap_or_else(|| "N/A".into());
-        let waist = self.waist.map(|waist| format!("{waist} cm")).unwrap_or_else(|| "N/A".into());
-        let hips = self.hips.map(|hips| format!("{hips} cm")).unwrap_or_else(|| "N/A".into());
+        let sex = self.sex.as_ref().map(|(sex, spoiler_sex)| {
+            format!(
+                "{}{}",
+                sex.as_ref().map(|sex| format!("{sex:?}")).as_deref().unwrap_or("N/A"),
+                spoiler_sex.as_ref().map(|spoiler_sex| format!(" (||actually {spoiler_sex:?}||)")).as_deref().unwrap_or(""),
+            )
+        });
+        let age = self.age.map(|age| age.commas());
+        let birthday = self.birthday.map(|birthday| format!("{}/{}", birthday.0, birthday.1));
+        let blood_type = self.blood_type.as_ref().map(|blood_type| format!("{blood_type:?}"));
+        let height = self.height.map(|height| format!("{} cm", height.commas()));
+        let weight = self.weight.map(|weight| format!("{} kg", weight.commas()));
+        let bust =
+            self.bust.map(|bust| format!("{bust} cm{}", self.cup.as_ref().map(|cup| format!(" - Cup Size {cup}")).unwrap_or_default()));
+        let waist = self.waist.map(|waist| format!("{waist} cm"));
+        let hips = self.hips.map(|hips| format!("{hips} cm"));
 
         self._format()
             .set_description(aliases)
-            .add_field("Sex", sex, true)
-            .add_field("Age", age, true)
-            .add_field("Birthday", birthday, true)
-            .add_field("Blood Type", blood_type, true)
-            .add_field("Height", height, true)
-            .add_field("Weight", weight, true)
-            .add_field("Bust", bust, true)
-            .add_field("Waist", waist, true)
-            .add_field("Hips", hips, true)
+            .add_field("Sex", sex.as_deref().unwrap_or("N/A"), true)
+            .add_field("Age", age.as_deref().unwrap_or("N/A"), true)
+            .add_field("Birthday", birthday.as_deref().unwrap_or("N/A"), true)
+            .add_field("Blood Type", blood_type.as_deref().unwrap_or("N/A"), true)
+            .add_field("Height", height.as_deref().unwrap_or("N/A"), true)
+            .add_field("Weight", weight.as_deref().unwrap_or("N/A"), true)
+            .add_field("Bust", bust.as_deref().unwrap_or("N/A"), true)
+            .add_field("Waist", waist.as_deref().unwrap_or("N/A"), true)
+            .add_field("Hips", hips.as_deref().unwrap_or("N/A"), true)
     }
 
     pub fn format_traits(&self) -> Embed {

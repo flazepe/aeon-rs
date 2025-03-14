@@ -9,7 +9,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     // Delete snoozed reminder
     if let Some(message) = ctx.input.message.as_ref() {
         if message.interaction_metadata.is_none() {
-            ctx.input.rest.delete::<()>(format!("channels/{}/messages/{}", message.channel_id, message.id)).await.ok();
+            let _ = ctx.input.rest.delete::<()>(format!("channels/{}/messages/{}", message.channel_id, message.id)).await;
         }
     }
 

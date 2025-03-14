@@ -11,11 +11,9 @@ use std::sync::LazyLock;
 
 static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
-        let Some(query) = ctx
-            .get_string_arg("song")
-            .ok()
-            .or_else(|| CACHE.spotify.read().unwrap().get(&ctx.input.user.id).map(|song| format!("{} - {}", song.artist, song.title)))
-        else {
+        let Some(query) = ctx.get_string_arg("song").ok().or_else(|| {
+            CACHE.song_activities.read().unwrap().get(&ctx.input.user.id).map(|song| format!("{} - {}", song.artist, song.title))
+        }) else {
             return ctx.respond_error("Please provide a song.", true).await;
         };
 

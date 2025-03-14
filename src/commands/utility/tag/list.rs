@@ -13,8 +13,8 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     match Tags::search(guild_id, author.map(|user| &user.id)).await {
         Ok(tags) => {
-            let thumbnail = author.map(|author| author.display_avatar_url("png", 512)).unwrap_or_else(|| "".into());
-            let title = author.map(|author| format!("{}'s tags", author.username)).unwrap_or_else(|| "All tags".into());
+            let thumbnail = author.map(|author| author.display_avatar_url("png", 512));
+            let title = author.map(|author| format!("{}'s tags", author.username));
             let tags = limit_strings(
                 tags.iter()
                     .filter(|tag| {
@@ -26,7 +26,11 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                 ", ",
                 4096,
             );
-            let embed = Embed::new().set_color(PRIMARY_COLOR)?.set_thumbnail(thumbnail).set_title(title).set_description(tags);
+            let embed = Embed::new()
+                .set_color(PRIMARY_COLOR)?
+                .set_thumbnail(thumbnail.as_deref().unwrap_or(""))
+                .set_title(title.as_deref().unwrap_or("All tags"))
+                .set_description(tags);
 
             ctx.respond(embed, true).await
         },

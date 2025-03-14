@@ -15,11 +15,9 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
             return ctx.respond(LyricFind::search(&ctx.input.values.as_ref().unwrap()[0]).await?[0].format(), false).await;
         }
 
-        let Some(query) = ctx
-            .get_string_arg("song")
-            .ok()
-            .or_else(|| CACHE.spotify.read().unwrap().get(&ctx.input.user.id).map(|song| format!("{} - {}", song.artist, song.title)))
-        else {
+        let Some(query) = ctx.get_string_arg("song").ok().or_else(|| {
+            CACHE.song_activities.read().unwrap().get(&ctx.input.user.id).map(|song| format!("{} - {}", song.artist, song.title))
+        }) else {
             return ctx.respond_error("Please provide a song.", true).await;
         };
 

@@ -551,7 +551,7 @@ impl VndbVisualNovel {
         );
         let languages = self.languages.iter().map(|language| language.to_string()).collect::<Vec<String>>().join(", ");
         let platforms = self.platforms.iter().map(|platform| platform.to_string()).collect::<Vec<String>>().join(", ");
-        let release_date = self.released.as_ref().map(|released| format!("Released {released}")).unwrap_or_else(|| "".into());
+        let release_date = self.released.as_ref().map(|released| format!("Released {released}"));
 
         self._format()
             .set_description(aliases)
@@ -560,7 +560,7 @@ impl VndbVisualNovel {
             .add_field("Length", length, true)
             .add_field("Languages", languages, false)
             .add_field("Platforms", platforms, false)
-            .set_footer(release_date, None::<String>)
+            .set_footer(release_date.as_deref().unwrap_or(""), None::<String>)
     }
 
     pub fn format_description(&self) -> Embed {

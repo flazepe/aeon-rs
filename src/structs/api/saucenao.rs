@@ -65,16 +65,18 @@ impl SauceNaoSearch {
                 .map(|result| {
                     let additional_info = [
                         result.data.year.as_deref().unwrap_or("").into(),
-                        result.data.part.as_ref().map_or_else(
-                            || "".into(),
-                            |part| {
+                        result
+                            .data
+                            .part
+                            .as_ref()
+                            .map(|part| {
                                 format!(
                                     "{} {}",
                                     if part.chars().all(|char| char.is_numeric()) { "Episode" } else { "" },
                                     part.replace('-', "").trim(),
                                 )
-                            },
-                        ),
+                            })
+                            .unwrap_or_default(),
                         result.data.est_time.as_deref().unwrap_or("").into(),
                     ]
                     .into_iter()

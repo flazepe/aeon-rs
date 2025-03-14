@@ -89,19 +89,14 @@ impl SpotifyFullTrack {
         let mut embed = self._format();
         let Some(audio_features) = self.audio_features.as_ref() else { return embed };
         let pitch_notation = if audio_features.key == -1 { None } else { Some(SPOTIFY_PITCH_NOTATIONS[audio_features.key as usize]) };
-        let key = pitch_notation
-            .map(|pitch_notation| format!("{pitch_notation} {}", ["Minor", "Major"][audio_features.mode as usize]))
-            .unwrap_or_else(|| "N/A".into());
-        let camelot = pitch_notation
-            .map(|pitch_notation| {
-                format!(
-                    "{}{}",
-                    SPOTIFY_CAMELOT.iter().enumerate().find(|(_, entry)| entry[audio_features.mode as usize] == pitch_notation).unwrap().0
-                        + 1,
-                    ["A", "b"][audio_features.mode as usize],
-                )
-            })
-            .unwrap_or_else(|| "N/A".into());
+        let key = pitch_notation.map(|pitch_notation| format!("{pitch_notation} {}", ["Minor", "Major"][audio_features.mode as usize]));
+        let camelot = pitch_notation.map(|pitch_notation| {
+            format!(
+                "{}{}",
+                SPOTIFY_CAMELOT.iter().enumerate().find(|(_, entry)| entry[audio_features.mode as usize] == pitch_notation).unwrap().0 + 1,
+                ["A", "b"][audio_features.mode as usize],
+            )
+        });
         let tempo = format!("{:.0} BPM", audio_features.tempo);
         let time_signature = format!("{} / 4", audio_features.time_signature);
         let loudness = format!("{:.1} dB", audio_features.loudness);
@@ -114,8 +109,8 @@ impl SpotifyFullTrack {
         let liveness = format!("{:.0}%", audio_features.liveness * 100.0);
 
         embed = embed
-            .add_field("Key", key, true)
-            .add_field("Camelot", camelot, true)
+            .add_field("Key", key.as_deref().unwrap_or("N/A"), true)
+            .add_field("Camelot", camelot.as_deref().unwrap_or("N/A"), true)
             .add_field("Tempo", tempo, true)
             .add_field("Time Signature", time_signature, true)
             .add_field("Loudness", loudness, true)

@@ -62,7 +62,7 @@ impl Distribution {
                 .map(|line| line.trim().to_string())
                 .filter(|line| !line.is_empty())
                 .nth(3)
-                .unwrap_or_else(|| "".into()),
+                .unwrap_or_default(),
             distribution_type: get_table_nth_child(1)?,
             architecture: get_table_nth_child(4)?,
             based_on: get_table_nth_child(2)?,
@@ -75,11 +75,11 @@ impl Distribution {
     }
 
     pub fn format(&self) -> Embed {
-        fn to_urls<T: Display>(names: T, url_type: &str) -> String {
+        fn to_hyperlink<T: Display>(names: T, query_param: &str) -> String {
             names
                 .to_string()
                 .split(", ")
-                .map(|name| format!("[{name}]({BASE_DOMAIN}/search.php?{url_type}={})", name.replace(' ', "+")))
+                .map(|name| format!("[{name}]({BASE_DOMAIN}/search.php?{query_param}={})", name.replace(' ', "+")))
                 .collect::<Vec<String>>()
                 .join(", ")
         }
@@ -88,12 +88,16 @@ impl Distribution {
         let title = format!("{} ({})", self.name, self.status);
         let url = &self.url;
         let description = &self.description;
-        let distribution_type = format!("{} ({})", to_urls(&self.distribution_type, "ostype"), to_urls(&self.architecture, "architecture"));
-        let based_on = to_urls(&self.based_on, "basedon");
-        let origin = to_urls(&self.origin, "origin");
-        let desktop = to_urls(&self.desktop, "desktop");
-        let category = to_urls(&self.category, "category");
-        let popularity = format!("[{}]({BASE_DOMAIN}/dwres.php?resource=popularity)", self.popularity);
+        let distribution_type = format!(
+            "{os_type} ({architecture})",
+            os_type = to_hyperlink(&self.distribution_type, "ostype"),
+            architecture = to_hyperlink(&self.architecture, "architecture"),
+        );
+        let based_on = to_hyperlink(&self.based_on, "basedon");
+        let origin = to_hyperlink(&self.origin, "origin");
+        let desktop = to_hyperlink(&self.desktop, "desktop");
+        let category = to_hyperlink(&self.category, "category");
+        let popularity = format!("[{popularity}]({BASE_DOMAIN}/dwres.php?resource=popularity)", popularity = self.popularity);
 
         Embed::new()
             .set_color(PRIMARY_COLOR)

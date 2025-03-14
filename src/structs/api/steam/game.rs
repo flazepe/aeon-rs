@@ -254,23 +254,19 @@ impl SteamGame {
     }
 
     pub fn format_developers(&self) -> Embed {
-        let developers = self.developers.as_ref().map(|developers| developers.join(", ")).unwrap_or_else(|| "N/A".into());
-        let publishers = self.publishers.as_ref().map(|publishers| publishers.join(", ")).unwrap_or_else(|| "N/A".into());
-        let website = self.website.as_deref().unwrap_or("N/A");
+        let developers = self.developers.as_ref().map(|developers| developers.join(", "));
+        let publishers = self.publishers.as_ref().map(|publishers| publishers.join(", "));
 
         self._format()
             .set_image(&self.background)
-            .add_field("Developer", developers, false)
-            .add_field("Publisher", publishers, false)
-            .add_field("Website", website, false)
+            .add_field("Developer", developers.as_deref().unwrap_or("N/A"), false)
+            .add_field("Publisher", publishers.as_deref().unwrap_or("N/A"), false)
+            .add_field("Website", self.website.as_deref().unwrap_or("N/A"), false)
     }
 
     pub fn format_details(&self) -> Embed {
-        let categories = self
-            .categories
-            .as_ref()
-            .map(|categories| {
-                limit_strings(
+        let categories = self.categories.as_ref().map(|categories| {
+            limit_strings(
                     categories.iter().map(|category| {
                         format!(
                             "[{}](https://store.steampowered.com/tags/en/{})",
@@ -281,21 +277,16 @@ impl SteamGame {
                     ", ",
                     1024,
                 )
-            })
-            .unwrap_or_else(|| "N/A".into());
-        let genres = self
-            .genres
-            .as_ref()
-            .map(|genres| {
-                limit_strings(
-                    genres.iter().map(|genre| {
-                        format!("[{}](https://store.steampowered.com/genre/{}/)", genre.description, genre.description.replace(' ', "+"),)
-                    }),
-                    ", ",
-                    1024,
-                )
-            })
-            .unwrap_or_else(|| "N/A".into());
+        });
+        let genres = self.genres.as_ref().map(|genres| {
+            limit_strings(
+                genres.iter().map(|genre| {
+                    format!("[{}](https://store.steampowered.com/genre/{}/)", genre.description, genre.description.replace(' ', "+"),)
+                }),
+                ", ",
+                1024,
+            )
+        });
         let platforms = {
             let mut platforms = vec![];
 
@@ -313,32 +304,25 @@ impl SteamGame {
 
             platforms.join(", ")
         };
-        let metacritic = self
-            .metacritic
-            .as_ref()
-            .map(|metacritic| format!("[{}]({})", metacritic.score, metacritic.url))
-            .unwrap_or_else(|| "N/A".into());
+        let metacritic = self.metacritic.as_ref().map(|metacritic| format!("[{}]({})", metacritic.score, metacritic.url));
 
         self._format()
-            .add_field("Category", categories, false)
-            .add_field("Genre", genres, false)
+            .add_field("Category", categories.as_deref().unwrap_or("N/A"), false)
+            .add_field("Genre", genres.as_deref().unwrap_or("N/A"), false)
             .add_field("Platforms", platforms, false)
-            .add_field("Metacritic", metacritic, false)
+            .add_field("Metacritic", metacritic.as_deref().unwrap_or("N/A"), false)
     }
 
     pub fn format_featured_achievements(&self) -> Embed {
-        let achievements = self
-            .achievements
-            .as_ref()
-            .map(|achievements| {
-                limit_strings(
-                    achievements.highlighted.iter().map(|achievement| format!("[{}]({})", achievement.name, achievement.path)),
-                    "\n",
-                    4096,
-                )
-            })
-            .unwrap_or_else(|| "N/A".into());
-        self._format().set_description(achievements)
+        let achievements = self.achievements.as_ref().map(|achievements| {
+            limit_strings(
+                achievements.highlighted.iter().map(|achievement| format!("[{}]({})", achievement.name, achievement.path)),
+                "\n",
+                4096,
+            )
+        });
+
+        self._format().set_description(achievements.as_deref().unwrap_or("N/A"))
     }
 }
 

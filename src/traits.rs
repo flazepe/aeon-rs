@@ -18,10 +18,9 @@ impl UserExt for SlashookUser {
 
         self.avatar.as_ref().map(|avatar| {
             format!(
-                "https://cdn.discordapp.com/avatars/{}/{}.{}?size={size}",
-                self.id,
-                avatar,
-                if format == "gif" && !avatar.starts_with("a_") { "png".into() } else { format },
+                "https://cdn.discordapp.com/avatars/{user_id}/{avatar}.{format}?size={size}",
+                user_id = self.id,
+                format = if format == "gif" && !avatar.starts_with("a_") { "png" } else { &format },
             )
         })
     }
@@ -44,10 +43,9 @@ impl UserExt for TwilightUser {
 
         self.avatar.as_ref().map(|avatar| {
             format!(
-                "https://cdn.discordapp.com/avatars/{}/{}.{}?size={size}",
-                self.id,
-                avatar,
-                if format == "gif" && !avatar.is_animated() { "png".into() } else { format },
+                "https://cdn.discordapp.com/avatars/{user_id}/{avatar}.{format}?size={size}",
+                user_id = self.id,
+                format = if format == "gif" && !avatar.is_animated() { "png" } else { &format },
             )
         })
     }
@@ -55,7 +53,7 @@ impl UserExt for TwilightUser {
     fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String {
         match UserExt::avatar_url(self, format, size) {
             Some(avatar_url) => avatar_url,
-            None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.to_string().parse::<u64>().unwrap() >> 22) % 5),
+            None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.get() >> 22) % 5),
         }
     }
 }
@@ -65,8 +63,8 @@ pub trait MessageExt {
 }
 
 macro_rules! format_reply_text {
-    ($user_label:expr, $guild_id:expr, $channel_id:expr, $id:expr $(,)?) => {
-        format!("[Replying to {}](https://discord.com/channels/{}/{}/{})", $user_label, $guild_id, $channel_id, $id)
+    ($user_label:expr, $guild_id:expr, $channel_id:expr, $message_id:expr $(,)?) => {
+        format!("[Replying to {}](https://discord.com/channels/{}/{}/{})", $user_label, $guild_id, $channel_id, $message_id)
     };
     () => {
         "Replying to a message".into()

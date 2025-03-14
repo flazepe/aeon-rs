@@ -3,7 +3,7 @@ use anyhow::Result;
 use slashook::{commands::MessageResponse, structs::interactions::OptionValue};
 
 pub async fn run(mut ctx: CommandContext) -> Result<()> {
-    // Scuffed but I have to append the mode after the user option for get_query_and_section()
+    // Scuffed but I have to append the mode after the user option before get_query_and_section()
     if ctx.input.is_command() {
         ctx.input.args.insert(
             "user".into(),

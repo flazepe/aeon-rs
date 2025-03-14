@@ -45,6 +45,6 @@ fn get_cache_list() -> [String; 6] {
         label_num(sum_cache_len(CACHE.snipes.read().unwrap().iter()), "snipe", "snipes"),
         label_num(sum_cache_len(CACHE.edit_snipes.read().unwrap().iter()), "edit snipe", "edit snipes"),
         label_num(sum_cache_len(CACHE.reaction_snipes.read().unwrap().iter()), "reaction snipe", "reaction snipes"),
-        label_num(CACHE.spotify.read().unwrap().len(), "Spotify activity", "Spotify activities"),
+        label_num(CACHE.song_activities.read().unwrap().len(), "Spotify activity", "Spotify activities"),
     ]
 }

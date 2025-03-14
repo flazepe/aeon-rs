@@ -20,9 +20,9 @@ mod snipe_reaction_context;
 mod tag;
 mod timeout;
 mod unicode;
+mod unicode_list_context;
 mod user;
 mod voice_message;
-mod voice_message_context;
 
 use slashook::commands::Command as SlashookCommand;
 
@@ -50,8 +50,8 @@ pub fn get_commands() -> Vec<SlashookCommand> {
         tag::get_command(),
         timeout::get_command(),
         unicode::get_command(),
+        unicode_list_context::get_command(),
         user::get_command(),
         voice_message::get_command(),
-        voice_message_context::get_command(),
     ]
 }

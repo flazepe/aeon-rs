@@ -15,7 +15,8 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
         let expression = ctx.get_string_arg("expression")?;
 
         if expression.chars().all(|char| char.is_numeric()) {
-            return ctx.respond(REQWEST.get(format!("http://numbersapi.com/{expression}")).send().await?.text().await?, false).await;
+            let fact = REQWEST.get(format!("http://numbersapi.com/{expression}")).send().await?.text().await?;
+            return ctx.respond(fact, false).await;
         }
 
         let body =

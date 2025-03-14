@@ -90,7 +90,7 @@ impl AniListManga {
             .map(|genre| format!("[{genre}](https://anilist.co/search/anime?genres={})", genre.replace(' ', "+")))
             .collect::<Vec<String>>()
             .join(", ");
-        let source = self.source.as_ref().map(|source| source.to_string()).unwrap_or_else(|| "N/A".into());
+        let source = self.source.as_ref().map(|source| source.to_string());
         let scores = [
             self.average_score.map(|average_score| format!("Average {average_score}%")),
             self.mean_score.map(|mean_score| format!("Mean {mean_score}%")),
@@ -112,7 +112,7 @@ impl AniListManga {
             .add_field("Volumes", volumes, true)
             .add_field("Licensed", licensed, true)
             .add_field("Genre", genres, true)
-            .add_field("Source", source, true)
+            .add_field("Source", source.as_deref().unwrap_or("N/A"), true)
             .add_field("Score", score, true)
             .set_footer("Last updated", None::<String>)
             .set_timestamp(timestamp)

@@ -49,11 +49,13 @@ pub fn escape_markdown<T: Display>(string: T) -> String {
                 format!("\\{}", &captures[0])
             }
         })
+        .trim()
         .to_string()
 }
 
+#[allow(dead_code)]
 pub enum TimestampFormat {
-    // Duration,
+    Duration,
     Simple,
     Full,
 }
@@ -64,7 +66,7 @@ pub fn format_timestamp<T: Display>(timestamp: T, format: TimestampFormat) -> St
     let full = format!("{simple} ({duration})");
 
     match format {
-        // TimestampFormat::Duration => duration,
+        TimestampFormat::Duration => duration,
         TimestampFormat::Simple => simple,
         TimestampFormat::Full => full,
     }
@@ -78,7 +80,7 @@ pub async fn hastebin<T: Display>(string: T) -> Result<String> {
 
 pub fn limit_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(iterable: T, delimiter: V, limit: usize) -> String {
     let delimiter = delimiter.to_string();
-    let mut strings = iterable.into_iter().map(|stringable| stringable.to_string()).collect::<Vec<String>>();
+    let mut strings = iterable.into_iter().map(|to_string| to_string.to_string()).collect::<Vec<String>>();
 
     while strings.join(&delimiter).len() > limit {
         strings.pop();
@@ -88,8 +90,8 @@ pub fn limit_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(iterable
 }
 
 pub fn label_num<T: Display, U: Display, V: Display>(amount: T, singular: U, plural: V) -> String {
-    let amount = amount.to_string();
-    format!("{} {}", amount.commas(), if amount == "1" { singular.to_string() } else { plural.to_string() })
+    let amount = amount.to_string().commas();
+    format!("{amount} {}", if amount == "1" { singular.to_string() } else { plural.to_string() })
 }
 
 pub fn now() -> u64 {
