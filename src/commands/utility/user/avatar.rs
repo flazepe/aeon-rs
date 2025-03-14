@@ -9,18 +9,16 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     ctx.defer(false).await?;
 
     let user = ctx.get_user_arg("user").unwrap_or(&ctx.input.user);
+    let user_id = &user.id;
 
     let guild_avatar = match ctx.input.guild_id.as_ref() {
-        Some(guild_id) => match ctx.input.rest.get::<GuildMember>(format!("guilds/{guild_id}/members/{}", user.id)).await {
-            Ok(member) => member
-                .avatar
-                .map(|avatar| format!("https://cdn.discordapp.com/guilds/{}/users/{}/avatars/{}?size=4096", guild_id, user.id, avatar)),
-            Err(_) => None,
-        },
+        Some(guild_id) => ctx.input.rest.get::<GuildMember>(format!("guilds/{guild_id}/members/{user_id}")).await.ok().and_then(|member| {
+            member.avatar.map(|avatar| format!("https://cdn.discordapp.com/guilds/{guild_id}/users/{user_id}/avatars/{avatar}?size=4096"))
+        }),
         None => None,
     };
 
-    let avatar = if ctx.get_bool_arg("force-user-avatar").unwrap_or(false) {
+    let avatar_url = if ctx.get_bool_arg("force-user-avatar").unwrap_or(false) {
         user.display_avatar_url("gif", 4096)
     } else {
         guild_avatar.unwrap_or_else(|| user.display_avatar_url("gif", 4096))
@@ -28,16 +26,16 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     ctx.respond(
         MessageResponse::from(format!(
-            "{}<{avatar}>",
-            if avatar.contains("guild") {
+            "{}<{avatar_url}>",
+            if avatar_url.contains("guild") {
                 "**Showing member's server avatar**. To view member's user avatar, set `force-user-avatar` to `true`.\n"
             } else {
                 ""
             },
         ))
         .add_file(File::new(
-            format!("image.{}", if avatar.starts_with("a_") { "gif" } else { "png" }),
-            REQWEST.get(avatar).send().await?.bytes().await?,
+            format!("image.{}", if avatar_url.contains("a_") { "gif" } else { "png" }),
+            REQWEST.get(avatar_url).send().await?.bytes().await?,
         )),
         false,
     )

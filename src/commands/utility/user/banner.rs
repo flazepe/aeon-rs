@@ -12,17 +12,23 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     ctx.defer(false).await?;
 
     let user = ctx.get_user_arg("user").unwrap_or(&ctx.input.user);
+    let user_id = &user.id;
 
-    let Some(banner_hash) = ctx.input.rest.get::<UserBanner>(format!("users/{}", user.id)).await?.banner else {
+    let Some(banner_url) = ctx
+        .input
+        .rest
+        .get::<UserBanner>(format!("users/{user_id}"))
+        .await?
+        .banner
+        .map(|banner| format!("https://cdn.discordapp.com/banners/{user_id}/{banner}?size=4096"))
+    else {
         return ctx.respond_error("User has no banner set.", true).await;
     };
 
-    let banner = format!("https://cdn.discordapp.com/banners/{}/{banner_hash}?size=4096", user.id);
-
     ctx.respond(
-        MessageResponse::from(format!("<{banner}>")).add_file(File::new(
-            format!("image.{}", if banner_hash.starts_with("a_") { "gif" } else { "png" }),
-            REQWEST.get(banner).send().await?.bytes().await?,
+        MessageResponse::from(format!("<{banner_url}>")).add_file(File::new(
+            format!("image.{}", if banner_url.contains("a_") { "gif" } else { "png" }),
+            REQWEST.get(banner_url).send().await?.bytes().await?,
         )),
         false,
     )
