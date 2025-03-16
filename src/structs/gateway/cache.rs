@@ -13,4 +13,5 @@ pub struct Cache {
     pub ordr_renders: RwLock<HashMap<u64, String>>,
     pub ordr_rendering_users: RwLock<HashMap<String, bool>>,
     pub localdown_novels: RwLock<Vec<LocalDownNovel>>,
+    pub spotify_access_token: RwLock<(String, u128)>,
 }

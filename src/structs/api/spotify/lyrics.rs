@@ -1,11 +1,26 @@
 use crate::{
     functions::limit_strings,
-    statics::{colors::PRIMARY_COLOR, CONFIG, REQWEST},
+    statics::{colors::PRIMARY_COLOR, CACHE, CONFIG, REQWEST},
     structs::api::spotify::{track::SpotifyFullTrack, Spotify},
 };
 use anyhow::{Context, Result};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
+use std::{
+    sync::LazyLock,
+    time::{SystemTime, UNIX_EPOCH},
+};
+use totp_rs::{Algorithm, Secret, TOTP};
+
+static SPOTIFY_TOTP: LazyLock<TOTP> = LazyLock::new(|| {
+    let secret = generate_access_token_secret([12, 56, 76, 33, 88, 44, 88, 33, 78, 78, 11, 66, 22, 22, 55, 69, 54]).unwrap();
+    TOTP::new(Algorithm::SHA1, 6, 1, 30, secret).unwrap()
+});
+
+fn generate_access_token_secret(secret: [usize; 17]) -> Result<Vec<u8>> {
+    let transformed = secret.iter().enumerate().fold(String::new(), |acc, (index, entry)| acc + &(entry ^ ((index % 33) + 9)).to_string());
+    Ok(Secret::Raw(transformed.as_bytes().to_vec()).to_bytes()?)
+}
 
 #[derive(Deserialize, Debug)]
 pub struct SpotifyLyricsWithTrack {
@@ -31,9 +46,9 @@ pub struct SpotifyRawLyricsLine {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 #[allow(dead_code)]
-pub struct SpotifyToken {
-    pub access_token: String,
-    pub access_token_expiration_timestamp_ms: i64,
+struct SpotifyAccessToken {
+    access_token: String,
+    access_token_expiration_timestamp_ms: u128,
 }
 
 impl SpotifyLyricsWithTrack {
@@ -57,28 +72,44 @@ impl SpotifyLyricsWithTrack {
 }
 
 impl Spotify {
-    pub async fn get_user_token() -> Result<SpotifyToken> {
+    pub async fn get_access_token() -> Result<String> {
+        {
+            let access_token = CACHE.spotify_access_token.read().unwrap();
+
+            if !access_token.0.is_empty() && access_token.1 > SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis() {
+                return Ok(access_token.0.clone());
+            }
+        }
+
         let cookie = format!("sp_dc={}", CONFIG.api.spotify_dc);
 
-        REQWEST
+        let res = REQWEST
             .get("https://open.spotify.com/get_access_token")
-            .query(&[("reason", "transport"), ("productType", "web_player")])
+            .query(&[("productType", "web-player"), ("totp", &SPOTIFY_TOTP.generate_current()?), ("totpVer", "5")])
             .header("user-agent", "yes")
             .header("cookie", cookie)
             .send()
             .await?
-            .json::<SpotifyToken>()
+            .json::<SpotifyAccessToken>()
             .await
-            .context("Could not get user token.")
+            .context("Could not get user access token.")?;
+
+        let mut access_token = CACHE.spotify_access_token.write().unwrap();
+
+        access_token.0 = res.access_token.clone();
+        access_token.1 = res.access_token_expiration_timestamp_ms;
+
+        Ok(res.access_token)
     }
 
     pub async fn get_lyrics(track: SpotifyFullTrack) -> Result<SpotifyLyricsWithTrack> {
         let url = format!("https://spclient.wg.spotify.com/color-lyrics/v2/track/{}?format=json", track.id);
-        let bearer_token = Self::get_user_token().await?.access_token;
+        let access_token = Self::get_access_token().await?;
 
         REQWEST
             .get(url)
-            .bearer_auth(bearer_token)
+            .bearer_auth(access_token)
+            .header("user-agent", "yes")
             .header("app-platform", "WebPlayer")
             .send()
             .await?

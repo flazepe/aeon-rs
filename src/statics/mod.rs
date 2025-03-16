@@ -28,6 +28,7 @@ pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
     ordr_renders: RwLock::new(HashMap::new()),
     ordr_rendering_users: RwLock::new(HashMap::new()),
     localdown_novels: RwLock::new(vec![]),
+    spotify_access_token: RwLock::new(Default::default()),
 });
 pub static COLLECTIONS: LazyLock<Collections> = LazyLock::new(|| Collections {
     oauth: MONGODB.get().unwrap().collection::<OauthToken>("oauth"),

@@ -28,6 +28,7 @@ sysinfo = "0.33"
 tokio = "1"
 toml = "0.8"
 tonic = { version = "0.12", features = ["tls"] }
+totp-rs = "5"
 twilight-gateway = "0.16"
 twilight-http = "0.16"
 twilight-model = "0.16"

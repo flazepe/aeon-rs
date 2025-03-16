@@ -6,8 +6,7 @@ mod track;
 
 use crate::{
     statics::{CONFIG, REQWEST},
-    structs::api::spotify::statics::SPOTIFY_EMBED_COLOR,
-    structs::database::oauth::Oauth,
+    structs::{api::spotify::statics::SPOTIFY_EMBED_COLOR, database::oauth::Oauth},
 };
 use anyhow::Result;
 use serde::de::DeserializeOwned;
