@@ -13,11 +13,11 @@ use std::{
 use totp_rs::{Algorithm, Secret, TOTP};
 
 static SPOTIFY_TOTP: LazyLock<TOTP> = LazyLock::new(|| {
-    let secret = generate_access_token_secret([12, 56, 76, 33, 88, 44, 88, 33, 78, 78, 11, 66, 22, 22, 55, 69, 54]).unwrap();
+    let secret = generate_totp_secret([12, 56, 76, 33, 88, 44, 88, 33, 78, 78, 11, 66, 22, 22, 55, 69, 54]).unwrap();
     TOTP::new(Algorithm::SHA1, 6, 1, 30, secret).unwrap()
 });
 
-fn generate_access_token_secret(secret: [usize; 17]) -> Result<Vec<u8>> {
+fn generate_totp_secret(secret: [usize; 17]) -> Result<Vec<u8>> {
     let transformed = secret.iter().enumerate().fold(String::new(), |acc, (index, entry)| acc + &(entry ^ ((index % 33) + 9)).to_string());
     Ok(Secret::Raw(transformed.as_bytes().to_vec()).to_bytes()?)
 }
