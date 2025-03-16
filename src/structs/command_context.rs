@@ -79,7 +79,7 @@ impl CommandContext {
 
     pub async fn respond_error<T: Debug>(&self, response: T, ephemeral: bool) -> Result<()> {
         self.respond(
-            MessageResponse::from(format!("{ERROR_EMOJI} {response:?}"))
+            MessageResponse::from(format!("{ERROR_EMOJI} {}", format!("{response:?}").trim_matches('"')))
                 .set_components(Components::empty())
                 .clear_embeds()
                 .clear_attachments(),
