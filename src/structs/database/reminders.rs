@@ -114,7 +114,13 @@ impl Reminders {
     }
 
     pub async fn get_many<T: Display>(user_id: T) -> Result<Vec<Reminder>> {
-        let reminders = COLLECTIONS.reminders.find(doc! { "user_id": user_id.to_string() }).await?.try_collect::<Vec<Reminder>>().await?;
+        let reminders = COLLECTIONS
+            .reminders
+            .find(doc! { "user_id": user_id.to_string() })
+            .sort(doc! { "timestamp": 1 })
+            .await?
+            .try_collect::<Vec<Reminder>>()
+            .await?;
 
         if reminders.is_empty() {
             bail!("No reminders found.");
@@ -131,8 +137,8 @@ impl Reminders {
         reminder: V,
         dm: bool,
     ) -> Result<String> {
-        if COLLECTIONS.reminders.count_documents(doc! { "user_id": user_id.to_string() }).await? >= 10 {
-            bail!("You can only have up to 10 reminders.");
+        if COLLECTIONS.reminders.count_documents(doc! { "user_id": user_id.to_string() }).await? >= 15 {
+            bail!("You can only have up to 15 reminders.");
         }
 
         if duration.total_secs < 30 || duration.total_secs > SECS_PER_MONTH * 12 {
