@@ -46,6 +46,13 @@ impl SelectMenu {
         self.options.push(option);
         self
     }
+
+    pub fn add_options<T: Iterator<Item = (U, V, Option<W>)>, U: Display, V: Display, W: Display>(mut self, options: T) -> Self {
+        for (label, value, description) in options {
+            self = self.add_option(label.to_string(), value.to_string(), description.map(|description| description.to_string()));
+        }
+        self
+    }
 }
 
 impl From<SelectMenu> for Components {
@@ -54,12 +61,18 @@ impl From<SelectMenu> for Components {
             .set_id(value.command.to_string(), value.id.to_string())
             .set_placeholder(value.placeholder);
 
-        for option in value.options.into_iter().take(25) {
+        for option in value.options {
+            if select_menu.options.as_ref().map_or(0, |options| options.len()) == 25 {
+                break;
+            }
+
             // Prevent duplicate values in the new select menu
-            if let Some(options) = &select_menu.options {
-                if options.iter().any(|select_option| select_option.value == option.value) {
-                    continue;
-                }
+            if select_menu
+                .options
+                .as_deref()
+                .map_or(false, |options| options.iter().any(|select_option| select_option.value == option.value))
+            {
+                continue;
             }
 
             select_menu = select_menu.add_option(option);

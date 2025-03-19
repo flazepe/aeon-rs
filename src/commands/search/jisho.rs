@@ -12,16 +12,13 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
             return ctx.respond(JishoSearch::get(&ctx.input.values.as_ref().unwrap()[0]).await?.format(), false).await;
         }
 
-        let mut select_menu = SelectMenu::new("jisho", "search", "View other results…", None::<String>);
-
         let results = match JishoSearch::search(ctx.get_string_arg("query")?).await {
             Ok(results) => results,
             Err(error) => return ctx.respond_error(error, true).await,
         };
 
-        for result in &results {
-            select_menu = select_menu.add_option(result.format_title(), result.slug.clone(), None::<String>);
-        }
+        let select_menu = SelectMenu::new("jisho", "search", "View other results…", Some(&results[0].slug))
+            .add_options(results.iter().map(|result| (result.format_title(), result.slug.clone(), None::<String>)));
 
         ctx.respond(MessageResponse::from(select_menu).add_embed(results[0].format()), false).await
     })

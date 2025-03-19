@@ -4,14 +4,13 @@ use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.get_bool_arg("search").unwrap_or(false) {
-        let mut select_menu = SelectMenu::new("steam", "game", "Select a game…", None::<String>);
-
-        for result in match Steam::search_game(ctx.get_string_arg("game")?).await {
+        let results = match Steam::search_game(ctx.get_string_arg("game")?).await {
             Ok(results) => results,
             Err(error) => return ctx.respond_error(error, true).await,
-        } {
-            select_menu = select_menu.add_option(result.name, result.id, None::<String>);
-        }
+        };
+
+        let select_menu = SelectMenu::new("steam", "game", "Select a game…", None::<String>)
+            .add_options(results.iter().map(|result| (&result.name, &result.id, None::<String>)));
 
         return ctx.respond(select_menu, false).await;
     }
@@ -28,7 +27,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     let id = game.id;
 
-    let select_menu = SelectMenu::new("steam", "game", "Select a section…", Some(&section))
+    let select_menu = SelectMenu::new("steam", "game", "View other sections…", Some(&section))
         .add_option("Overview", id, None::<String>)
         .add_option("Developers", format!("{id}/developers"), None::<String>)
         .add_option("Details", format!("{id}/details"), None::<String>)

@@ -15,7 +15,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     let name = &user.name;
 
-    let select_menu = SelectMenu::new("anilist", "user", "Select a section…", Some(&section))
+    let select_menu = SelectMenu::new("anilist", "user", "View other sections…", Some(&section))
         .add_option("Overview", name, None::<String>)
         .add_option("About", format!("{name}/about"), None::<String>)
         .add_option("Favorite Anime", format!("{name}/favorite-anime"), None::<String>)

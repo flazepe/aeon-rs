@@ -4,14 +4,13 @@ use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.get_bool_arg("search").unwrap_or(false) {
-        let mut select_menu = SelectMenu::new("vndb", "character", "Select a character…", None::<String>);
-
-        for character in match Vndb::search_character(ctx.get_string_arg("character")?).await {
+        let characters = match Vndb::search_character(ctx.get_string_arg("character")?).await {
             Ok(characters) => characters,
             Err(error) => return ctx.respond_error(error, true).await,
-        } {
-            select_menu = select_menu.add_option(character.name, character.id, Some(&character.vns[0].title));
-        }
+        };
+
+        let select_menu = SelectMenu::new("vndb", "character", "Select a character…", None::<String>)
+            .add_options(characters.iter().map(|character| (&character.name, &character.id, Some(&character.vns[0].title))));
 
         return ctx.respond(select_menu, false).await;
     }
@@ -25,7 +24,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     let id = &character.id;
 
-    let select_menu = SelectMenu::new("vndb", "character", "Select a section…", Some(&section))
+    let select_menu = SelectMenu::new("vndb", "character", "View other sections…", Some(&section))
         .add_option("Overview", id, None::<String>)
         .add_option("Traits", format!("{id}/traits"), None::<String>)
         .add_option("Visual Novels", format!("{id}/visual-novels"), None::<String>);

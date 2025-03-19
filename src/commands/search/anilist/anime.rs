@@ -4,18 +4,23 @@ use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.get_bool_arg("search").unwrap_or(false) {
-        let mut select_menu = SelectMenu::new("anilist", "anime", "Select an anime…", None::<String>);
-
-        for result in match AniList::search_anime(ctx.get_string_arg("anime")?).await {
+        let results = match AniList::search_anime(ctx.get_string_arg("anime")?).await {
             Ok(results) => results,
             Err(error) => return ctx.respond_error(error, true).await,
-        } {
-            select_menu = select_menu.add_option(
-                result.title.romaji,
-                result.id,
-                Some(format!("{} - {}", result.format.map(|format| format.to_string()).as_deref().unwrap_or("TBA"), result.status)),
-            );
-        }
+        };
+
+        let select_menu =
+            SelectMenu::new("anilist", "anime", "Select an anime…", None::<String>).add_options(results.iter().map(|result| {
+                (
+                    &result.title.romaji,
+                    &result.id,
+                    Some(format!(
+                        "{} - {}",
+                        result.format.as_ref().map(|format| format.to_string()).as_deref().unwrap_or("TBA"),
+                        result.status,
+                    )),
+                )
+            }));
 
         return ctx.respond(select_menu, false).await;
     }
@@ -36,7 +41,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     let id = anime.id;
 
-    let select_menu = SelectMenu::new("anilist", "anime", "Select a section…", Some(&section))
+    let select_menu = SelectMenu::new("anilist", "anime", "View other sections…", Some(&section))
         .add_option("Overview", id, None::<String>)
         .add_option("Description", format!("{id}/description"), None::<String>)
         .add_option("Characters", format!("{id}/characters"), None::<String>)

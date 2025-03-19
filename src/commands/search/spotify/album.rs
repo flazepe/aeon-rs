@@ -4,14 +4,13 @@ use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     if ctx.get_bool_arg("search").unwrap_or(false) {
-        let mut select_menu = SelectMenu::new("spotify", "album", "Select an album…", None::<String>);
-
-        for result in match Spotify::search_simple_album(ctx.get_string_arg("album")?).await {
+        let results = match Spotify::search_simple_album(ctx.get_string_arg("album")?).await {
             Ok(results) => results,
             Err(error) => return ctx.respond_error(error, true).await,
-        } {
-            select_menu = select_menu.add_option(result.name, result.id, Some(&result.artists[0].name))
-        }
+        };
+
+        let select_menu = SelectMenu::new("spotify", "album", "Select an album…", None::<String>)
+            .add_options(results.iter().map(|result| (&result.name, &result.id, Some(&result.artists[0].name))));
 
         return ctx.respond(select_menu, false).await;
     }
@@ -28,7 +27,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     let id = &album.id;
 
-    let select_menu = SelectMenu::new("spotify", "album", "Select a section…", Some(&section))
+    let select_menu = SelectMenu::new("spotify", "album", "View other sections…", Some(&section))
         .add_option("Overview", id, None::<String>)
         .add_option("Songs", format!("{id}/songs"), None::<String>)
         .add_option("Available Countries", format!("{id}/available-countries"), None::<String>);

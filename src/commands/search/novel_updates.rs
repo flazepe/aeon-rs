@@ -15,16 +15,13 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
             };
         }
 
-        let mut select_menu = SelectMenu::new("novel-updates", "novel-updates", "Select a novel…", None::<String>);
-
         let results = match LocalDownNovel::search(ctx.get_string_arg("novel")?).await {
             Ok(results) => results,
             Err(error) => return ctx.respond_error(error, true).await,
         };
 
-        for result in &results {
-            select_menu = select_menu.add_option(&result.title, result.id, None::<String>);
-        }
+        let select_menu = SelectMenu::new("novel-updates", "novel-updates", "View other novels…", Some(results[0].id))
+            .add_options(results.iter().map(|result| (&result.title, result.id, None::<String>)));
 
         let embed = match LocalDownNovel::get(results[0].id).await {
             Ok(novel) => novel.format(),

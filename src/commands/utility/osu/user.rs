@@ -1,18 +1,12 @@
 use crate::structs::{api::osu::Osu, command_context::CommandContext, select_menu::SelectMenu};
 use anyhow::Result;
-use slashook::{commands::MessageResponse, structs::interactions::OptionValue};
+use slashook::commands::MessageResponse;
 
-pub async fn run(mut ctx: CommandContext) -> Result<()> {
-    // Scuffed but I have to append the mode after the user option before get_query_and_section()
-    if ctx.input.is_command() {
-        ctx.input.args.insert(
-            "user".into(),
-            OptionValue::String(format!("{}|{}", ctx.get_string_arg("user")?, ctx.get_string_arg("mode").as_deref().unwrap_or("default"))),
-        );
-    }
+pub async fn run(ctx: CommandContext) -> Result<()> {
+    let mode = ctx.get_string_arg("mode");
 
     let (query, section) = ctx.get_query_and_section("user")?;
-    let (user, mode) = query.split_once('|').unwrap();
+    let (user, mode) = query.split_once('|').unwrap_or((&query, mode.as_deref().unwrap_or("default")));
 
     let user = match Osu::get_user(user, mode).await {
         Ok(user) => user,
@@ -21,7 +15,7 @@ pub async fn run(mut ctx: CommandContext) -> Result<()> {
 
     let id = user.id;
 
-    let select_menu = SelectMenu::new("osu", "user", "Select a section…", Some(&section))
+    let select_menu = SelectMenu::new("osu", "user", "View other sections…", Some(&section))
         .add_option("Overview", format!("{id}|{mode}"), None::<String>)
         .add_option("About", format!("{id}|{mode}/about"), None::<String>)
         .add_option("Statistics", format!("{id}|{mode}/statistics"), None::<String>)

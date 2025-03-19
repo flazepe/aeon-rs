@@ -12,11 +12,9 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
             let mut response = MessageResponse::from(File::new("image.png", google_assistant.card_image));
 
             if !google_assistant.suggestions.is_empty() {
-                let mut select_menu = SelectMenu::new("google", "assistant", "Try saying…", None::<String>);
-
-                for suggestion in google_assistant.suggestions {
-                    select_menu = select_menu.add_option(&suggestion, &suggestion, None::<String>);
-                }
+                let select_menu = SelectMenu::new("google", "assistant", "Try saying…", None::<String>).add_options(
+                    google_assistant.suggestions.iter().map(|suggestion| (suggestion.clone(), suggestion.clone(), None::<String>)),
+                );
 
                 response = response.set_components(select_menu.into());
             }

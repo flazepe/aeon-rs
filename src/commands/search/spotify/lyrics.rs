@@ -30,16 +30,13 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     ctx.defer(false).await?;
 
-    let mut select_menu = SelectMenu::new("spotify", "lyrics", "View other results…", None::<String>);
-
     let mut tracks = match Spotify::search_track(query).await {
         Ok(tracks) => tracks,
         Err(error) => return ctx.respond_error(error, true).await,
     };
 
-    for track in &tracks {
-        select_menu = select_menu.add_option(&track.name, &track.id, Some(&track.artists[0].name));
-    }
+    let select_menu = SelectMenu::new("spotify", "lyrics", "View other lyrics…", Some(&tracks[0].id))
+        .add_options(tracks.iter().map(|track| (&track.name, &track.id, Some(&track.artists[0].name))));
 
     match Spotify::get_lyrics(tracks.remove(0)).await {
         Ok(lyrics) => ctx.respond(MessageResponse::from(select_menu).add_embed(lyrics.format()), false).await,
