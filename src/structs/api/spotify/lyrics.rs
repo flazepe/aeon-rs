@@ -58,7 +58,7 @@ impl SpotifyLyricsWithTrack {
         let author_url = Some(&self.track.artists[0].external_urls.spotify);
         let title = self.track.name.chars().take(256).collect::<String>();
         let url = &self.track.external_urls.spotify;
-        let description = limit_strings(self.lyrics.lyrics.lines.iter().map(|line| line.words.clone().replace('♪', "")), "\n", 4096);
+        let description = limit_strings(self.lyrics.lyrics.lines.iter().map(|line| line.words.replace('♪', "")), "\n", 4096);
 
         Embed::new()
             .set_color(PRIMARY_COLOR)

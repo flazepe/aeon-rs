@@ -120,7 +120,7 @@ impl PetitLyrics {
 
         let title = format!("{} - {}", self.artist, self.title).chars().take(256).collect::<String>();
         let description = limit_strings(
-            lyrics.iter().map(|lyrics| String::from_utf8(BASE64_STANDARD.decode(&lyrics.lyrics).unwrap_or_default()).unwrap_or_default()), // .fold("".into(), |acc, cur| format!("{acc}\n{cur}")).trim().into();
+            lyrics.iter().map(|lyrics| String::from_utf8(BASE64_STANDARD.decode(&lyrics.lyrics).unwrap_or_default()).unwrap_or_default()),
             "\n",
             4096,
         );
