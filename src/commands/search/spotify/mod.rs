@@ -1,17 +1,23 @@
 mod album;
+mod lyrics;
 mod member;
 mod song;
 
 use crate::structs::command::Command;
-use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> =
-    LazyLock::new(|| Command::new().subcommand("album", album::run).subcommand("member", member::run).subcommand("song", song::run));
+static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new()
+        .subcommand("album", album::run)
+        .subcommand("lyrics", lyrics::run)
+        .subcommand("member", member::run)
+        .subcommand("song", song::run)
+});
 
 pub fn get_command() -> SlashookCommand {
     #[command(
@@ -34,6 +40,17 @@ pub fn get_command() -> SlashookCommand {
                         name = "search",
                         description = "Whether to search",
                         option_type = InteractionOptionType::BOOLEAN,
+                    },
+                ],
+            },
+            {
+                name = "lyrics",
+                description = "Fetches song lyrics based on query or user's Spotify status.",
+                options = [
+                    {
+                        name = "song",
+                        description = "The song",
+                        option_type = InteractionOptionType::STRING,
                     },
                 ],
             },

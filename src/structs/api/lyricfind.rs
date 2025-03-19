@@ -1,6 +1,5 @@
 use crate::statics::{colors::PRIMARY_COLOR, REQWEST};
 use anyhow::{bail, Result};
-
 use nipper::Document;
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;

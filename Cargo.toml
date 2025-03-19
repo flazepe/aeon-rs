@@ -10,6 +10,7 @@ chromiumoxide = { git = "https://github.com/caido/dependency-chromiumoxide.git",
 flate2 = "1"
 futures = "0.3"
 gouth = "0.2"
+http_req = "0.13"
 image = "0.24"
 mathjax = { version = "0.1", default-features = false, features = ["node", "image"] }
 mongodb = "3"
