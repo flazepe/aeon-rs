@@ -107,17 +107,16 @@ impl PetitLyrics {
         REQWEST.get(format!("https://petitlyrics.com/lyrics/{}", self.lyrics_id)).header("cookie", &cookie).send().await?.text().await?;
 
         // Fetch the ajax URL with a request client that preserves header cases (for X-CSRF-Token). I know, it's stupid.
-        let body = format!("lyrics_id={}", self.lyrics_id);
-        let mut writer = Vec::new();
+        let mut body = Vec::new();
         let _ = Request::new(&Uri::try_from("https://petitlyrics.com/com/get_lyrics.ajax")?)
             .method(Method::POST)
             .header("content-type", "application/x-www-form-urlencoded")
             .header("cookie", &cookie)
             .header("X-CSRF-Token", &csrf_token)
             .header("x-requested-with", "XMLHttpRequest")
-            .body(body.as_bytes())
-            .send(&mut writer)?;
-        let lyrics = from_str::<Vec<PetitLyricsRawLyricsLine>>(&String::from_utf8_lossy(&writer))?;
+            .body(format!("lyrics_id={}", self.lyrics_id).as_bytes())
+            .send(&mut body)?;
+        let lyrics = from_str::<Vec<PetitLyricsRawLyricsLine>>(&String::from_utf8_lossy(&body))?;
 
         let title = format!("{} - {}", self.artist, self.title).chars().take(256).collect::<String>();
         let description = limit_strings(
