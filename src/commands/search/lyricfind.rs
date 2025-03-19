@@ -21,12 +21,12 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
             return ctx.respond_error("Please provide a song.", true).await;
         };
 
+        let mut select_menu = SelectMenu::new("lyricfind", "search", "View other results…", None::<String>);
+
         let tracks = match LyricFind::search(&query).await {
             Ok(tracks) => tracks,
             Err(error) => return ctx.respond_error(error, true).await,
         };
-
-        let mut select_menu = SelectMenu::new("lyricfind", "search", "View other results…", None::<String>);
 
         for track in &tracks {
             select_menu = select_menu.add_option(&track.title, format!("{} {query}", &track.artist.name), Some(track.artist.name.clone()));

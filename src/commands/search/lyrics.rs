@@ -44,12 +44,12 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
 
         ctx.defer(false).await?;
 
+        let mut select_menu = SelectMenu::new("lyrics", "search", "View other results…", None::<String>);
+
         let results = match PetitLyrics::search_partial(artist, title, lyrics).await {
             Ok(results) => results,
             Err(error) => return ctx.respond_error(error, true).await,
         };
-
-        let mut select_menu = SelectMenu::new("lyrics", "search", "View other results…", None::<String>);
 
         for result in &results {
             select_menu = select_menu.add_option(&result.title, format!("{}|{}", result.artist, result.title), Some(&result.artist));
