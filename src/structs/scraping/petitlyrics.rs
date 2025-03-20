@@ -1,6 +1,7 @@
 use crate::{
     functions::limit_strings,
     statics::{colors::PRIMARY_COLOR, REQWEST},
+    structs::api::google::{statics::GOOGLE_TRANSLATE_LANGUAGES, Google},
 };
 use anyhow::{bail, Result};
 use base64::{prelude::BASE64_STANDARD, Engine};
@@ -98,7 +99,7 @@ impl PetitLyrics {
         .await
     }
 
-    pub async fn get_formatted_lyrics(&self) -> Result<Embed> {
+    pub async fn get_formatted_lyrics<T: Display>(&self, translate_language: Option<T>) -> Result<Embed> {
         let res = REQWEST.get("https://petitlyrics.com/lib/pl-lib.js").send().await?;
         let cookie = res.headers().get("set-cookie").map(|cookie| cookie.to_str().unwrap().to_string()).unwrap_or_default();
         let csrf_token = res.text().await?.split('\'').nth(3).map(|str| str.to_string()).unwrap_or_default();
@@ -129,6 +130,26 @@ impl PetitLyrics {
                 lyrics.last_mut().unwrap().push_str(&format!(" {line}"));
             } else {
                 lyrics.push(line);
+            }
+        }
+
+        // Translate lines
+        let translate_language = translate_language.map(|translate_language| translate_language.to_string()).unwrap_or_default();
+
+        if GOOGLE_TRANSLATE_LANGUAGES.contains_key(translate_language.as_str()) {
+            let translated = Google::translate(lyrics.join("\n"), "auto", &translate_language).await?.translation;
+            let mut translated_lines = translated.split('\n');
+
+            for line in lyrics.iter_mut() {
+                let Some(translated_line) = translated_lines.next() else { break };
+
+                if translated_line.is_empty() {
+                    continue;
+                }
+
+                let new_line = format!("{line}\n-# {translated_line}",);
+                line.clear();
+                line.push_str(&new_line);
             }
         }
 

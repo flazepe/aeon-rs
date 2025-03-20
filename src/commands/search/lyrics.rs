@@ -1,6 +1,9 @@
 use crate::{
     statics::CACHE,
-    structs::{command::Command, command_context::CommandContext, scraping::petitlyrics::PetitLyrics, select_menu::SelectMenu},
+    structs::{
+        api::google::statics::GOOGLE_TRANSLATE_LANGUAGES, command::Command, command_context::CommandContext,
+        scraping::petitlyrics::PetitLyrics, select_menu::SelectMenu,
+    },
 };
 use slashook::{
     command,
@@ -11,13 +14,17 @@ use std::sync::LazyLock;
 
 static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
+        if ctx.input.is_autocomplete() {
+            return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
+        }
+
         if ctx.input.is_string_select() {
             let (artist, title) = ctx.input.values.as_ref().unwrap()[0].split_once('|').unwrap_or(("", ""));
 
             ctx.defer(false).await?;
 
             let embed = match PetitLyrics::search_perfect(Some(artist), Some(title), None::<String>).await {
-                Ok(results) => results[0].get_formatted_lyrics().await,
+                Ok(results) => results[0].get_formatted_lyrics(None::<String>).await,
                 Err(error) => return ctx.respond_error(error, true).await,
             };
 
@@ -55,7 +62,9 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
                     results.iter().map(|result| (&result.title, format!("{}|{}", result.artist, result.title), Some(&result.artist))),
                 );
 
-        ctx.respond(MessageResponse::from(select_menu).add_embed(results[0].get_formatted_lyrics().await?), false).await
+        let embed = results[0].get_formatted_lyrics(ctx.get_string_arg("translate").ok()).await?;
+
+        ctx.respond(MessageResponse::from(select_menu).add_embed(embed), false).await
     })
 });
 
@@ -81,6 +90,12 @@ pub fn get_command() -> SlashookCommand {
 				description = "The song lyrics",
 				option_type = InteractionOptionType::STRING,
 			},
+            {
+                name = "translate",
+                description = "Translate the lyrics to a language",
+                option_type = InteractionOptionType::STRING,
+                autocomplete = true,
+            },
 		],
 	)]
     async fn lyrics(input: CommandInput, res: CommandResponder) {

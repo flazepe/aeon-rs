@@ -52,6 +52,12 @@ pub fn get_command() -> SlashookCommand {
                         description = "The song",
                         option_type = InteractionOptionType::STRING,
                     },
+                    {
+                        name = "translate",
+                        description = "Translate the lyrics to a language",
+                        option_type = InteractionOptionType::STRING,
+                        autocomplete = true,
+                    },
                 ],
             },
             {

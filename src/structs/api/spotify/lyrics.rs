@@ -1,12 +1,16 @@
 use crate::{
     functions::limit_strings,
     statics::{colors::PRIMARY_COLOR, CACHE, CONFIG, REQWEST},
-    structs::api::spotify::{track::SpotifyFullTrack, Spotify},
+    structs::api::{
+        google::{statics::GOOGLE_TRANSLATE_LANGUAGES, Google},
+        spotify::{track::SpotifyFullTrack, Spotify},
+    },
 };
 use anyhow::{Context, Result};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::{
+    fmt::Display,
     sync::LazyLock,
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -25,7 +29,7 @@ fn generate_totp_secret(secret: [usize; 17]) -> Result<Vec<u8>> {
 #[derive(Deserialize, Debug)]
 pub struct SpotifyLyricsWithTrack {
     pub track: SpotifyFullTrack,
-    pub lyrics: SpotifyLyrics,
+    pub lyrics: Vec<String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -58,7 +62,7 @@ impl SpotifyLyricsWithTrack {
         let author_url = Some(&self.track.artists[0].external_urls.spotify);
         let title = self.track.name.chars().take(256).collect::<String>();
         let url = &self.track.external_urls.spotify;
-        let description = limit_strings(self.lyrics.lyrics.lines.iter().map(|line| line.words.replace('♪', "")), "\n", 4096);
+        let description = limit_strings(&self.lyrics, "\n", 4096);
 
         Embed::new()
             .set_color(PRIMARY_COLOR)
@@ -102,11 +106,10 @@ impl Spotify {
         Ok(res.access_token)
     }
 
-    pub async fn get_lyrics(track: SpotifyFullTrack) -> Result<SpotifyLyricsWithTrack> {
+    pub async fn get_lyrics<T: Display>(track: SpotifyFullTrack, translate_language: Option<T>) -> Result<SpotifyLyricsWithTrack> {
         let url = format!("https://spclient.wg.spotify.com/color-lyrics/v2/track/{}?format=json", track.id);
         let access_token = Self::get_access_token().await?;
-
-        REQWEST
+        let mut lyrics = REQWEST
             .get(url)
             .bearer_auth(access_token)
             .header("user-agent", "yes")
@@ -115,7 +118,33 @@ impl Spotify {
             .await?
             .json::<SpotifyLyrics>()
             .await
-            .map(|lyrics| SpotifyLyricsWithTrack { track, lyrics })
-            .context("Could not get song lyrics.")
+            .context("Could not get song lyrics.")?
+            .lyrics
+            .lines
+            .iter()
+            .map(|line| line.words.replace('♪', ""))
+            .collect::<Vec<String>>();
+
+        // Translate lines
+        let translate_language = translate_language.map(|translate_language| translate_language.to_string()).unwrap_or_default();
+
+        if GOOGLE_TRANSLATE_LANGUAGES.contains_key(translate_language.as_str()) {
+            let translated = Google::translate(lyrics.join("\n"), "auto", &translate_language).await?.translation;
+            let mut translated_lines = translated.split('\n');
+
+            for line in lyrics.iter_mut() {
+                let Some(translated_line) = translated_lines.next() else { break };
+
+                if translated_line.is_empty() {
+                    continue;
+                }
+
+                let new_line = format!("{line}\n-# {translated_line}");
+                line.clear();
+                line.push_str(&new_line);
+            }
+        }
+
+        Ok(SpotifyLyricsWithTrack { track, lyrics })
     }
 }

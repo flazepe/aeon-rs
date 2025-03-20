@@ -1,16 +1,24 @@
 use crate::{
     statics::CACHE,
-    structs::{api::spotify::Spotify, command_context::CommandContext, select_menu::SelectMenu},
+    structs::{
+        api::{google::statics::GOOGLE_TRANSLATE_LANGUAGES, spotify::Spotify},
+        command_context::CommandContext,
+        select_menu::SelectMenu,
+    },
 };
 use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
+    if ctx.input.is_autocomplete() {
+        return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
+    }
+
     if ctx.input.is_string_select() {
         ctx.defer(false).await?;
 
         let lyrics = match Spotify::get_track(&ctx.input.values.as_ref().unwrap()[0]).await {
-            Ok(track) => Spotify::get_lyrics(track).await,
+            Ok(track) => Spotify::get_lyrics(track, None::<String>).await,
             Err(error) => return ctx.respond_error(error, true).await,
         };
 
@@ -38,7 +46,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     let select_menu = SelectMenu::new("spotify", "lyrics", "View other lyrics…", Some(&tracks[0].id))
         .add_options(tracks.iter().map(|track| (&track.name, &track.id, Some(&track.artists[0].name))));
 
-    match Spotify::get_lyrics(tracks.remove(0)).await {
+    match Spotify::get_lyrics(tracks.remove(0), ctx.get_string_arg("translate").ok()).await {
         Ok(lyrics) => ctx.respond(MessageResponse::from(select_menu).add_embed(lyrics.format()), false).await,
         Err(error) => ctx.respond_error(error, true).await,
     }
