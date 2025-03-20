@@ -116,14 +116,24 @@ impl PetitLyrics {
             .header("x-requested-with", "XMLHttpRequest")
             .body(format!("lyrics_id={}", self.lyrics_id).as_bytes())
             .send(&mut body)?;
-        let lyrics = from_str::<Vec<PetitLyricsRawLyricsLine>>(&String::from_utf8_lossy(&body))?;
+
+        // Parse lyrics from the body
+        let mut lyrics = vec![];
+
+        for entry in from_str::<Vec<PetitLyricsRawLyricsLine>>(&String::from_utf8_lossy(&body))? {
+            let line = String::from_utf8(BASE64_STANDARD.decode(&entry.lyrics)?)?.replace("<♪>", "");
+
+            if lyrics.is_empty() {
+                lyrics.push(line);
+            } else if line.chars().next().map_or(false, |char| char.is_lowercase()) {
+                lyrics.last_mut().unwrap().push_str(&format!(" {line}"));
+            } else {
+                lyrics.push(line);
+            }
+        }
 
         let title = format!("{} - {}", self.artist, self.title).chars().take(256).collect::<String>();
-        let description = limit_strings(
-            lyrics.iter().map(|lyrics| String::from_utf8(BASE64_STANDARD.decode(&lyrics.lyrics).unwrap_or_default()).unwrap_or_default()),
-            "\n",
-            4096,
-        );
+        let description = limit_strings(lyrics, "\n", 4096);
 
         Ok(Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_title(title).set_description(description))
     }
