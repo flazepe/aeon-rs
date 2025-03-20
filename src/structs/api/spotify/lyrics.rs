@@ -135,13 +135,9 @@ impl Spotify {
             for line in lyrics.iter_mut() {
                 let Some(translated_line) = translated_lines.next() else { break };
 
-                if translated_line.is_empty() {
-                    continue;
+                if !translated_line.is_empty() {
+                    line.push_str(&format!("\n-# {translated_line}"));
                 }
-
-                let new_line = format!("{line}\n-# {translated_line}");
-                line.clear();
-                line.push_str(&new_line);
             }
         }
 
