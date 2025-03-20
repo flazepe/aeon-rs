@@ -147,7 +147,7 @@ impl PetitLyrics {
                     continue;
                 }
 
-                let new_line = format!("{line}\n-# {translated_line}",);
+                let new_line = format!("{line}\n-# {translated_line}");
                 line.clear();
                 line.push_str(&new_line);
             }
