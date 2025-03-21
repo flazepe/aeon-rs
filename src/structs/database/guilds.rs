@@ -7,6 +7,8 @@ use std::fmt::Display;
 #[derive(Deserialize, Serialize, Clone, Default, Debug)]
 pub struct Guild {
     pub _id: String,
+    pub logs_channel_id: Option<String>,
+    pub prefixes: Vec<String>,
     pub fix_embeds: bool,
 }
 
