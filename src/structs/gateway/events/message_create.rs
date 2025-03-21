@@ -61,7 +61,8 @@ impl EventHandler {
                 "instagram.com" => "ddinstagram.com",
                 "pixiv.net" => "phixiv.net",
                 "reddit.com" | "old.reddit.com" => "rxddit.com",
-                "tiktok.com" | "vt.tiktok.com" => "vxtiktok.com",
+                "tiktok.com" => "vxtiktok.com",
+                "vt.tiktok.com" => "vt.vxtiktok.com",
                 "twitter.com" | "x.com" => "fixupx.com",
                 _ => domain,
             };
