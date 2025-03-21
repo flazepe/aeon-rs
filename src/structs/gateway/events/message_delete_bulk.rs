@@ -1,8 +1,9 @@
 use crate::{statics::CACHE, structs::gateway::events::handler::EventHandler};
+use anyhow::Result;
 use twilight_model::gateway::payload::incoming::MessageDeleteBulk;
 
 impl EventHandler {
-    pub async fn on_message_delete_bulk(data: MessageDeleteBulk) {
+    pub async fn on_message_delete_bulk(data: MessageDeleteBulk) -> Result<()> {
         let channel_id = data.channel_id.to_string();
 
         if let Some(messages) = CACHE.channels.write().unwrap().get_mut(&channel_id) {
@@ -22,5 +23,7 @@ impl EventHandler {
 
             channels.get_mut(&channel_id).unwrap().append(&mut deleted_messages);
         }
+
+        Ok(())
     }
 }

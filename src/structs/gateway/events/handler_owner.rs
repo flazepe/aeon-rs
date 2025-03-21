@@ -2,6 +2,7 @@ use crate::{
     statics::{FLAZEPE_ID, REST},
     structs::gateway::events::handler::EventHandler,
 };
+use anyhow::Result;
 use serde_json::{json, to_string};
 use slashook::{
     commands::MessageResponse,
@@ -9,14 +10,17 @@ use slashook::{
 };
 use std::{fmt::Display, process::Command};
 use twilight_gateway::MessageSender;
-use twilight_model::gateway::{payload::incoming::MessageCreate, presence::ActivityType, OpCode};
+use twilight_model::{
+    channel::Message as TwilightMessage,
+    gateway::{presence::ActivityType, OpCode},
+};
 
 impl EventHandler {
-    pub async fn handle_owner(message: Box<MessageCreate>, sender: MessageSender) {
+    pub async fn handle_owner(message: TwilightMessage, sender: MessageSender) -> Result<()> {
         let prefix = "";
 
         if message.author.id.to_string() != FLAZEPE_ID || !message.content.to_lowercase().starts_with(prefix) {
-            return;
+            return Ok(());
         }
 
         let prefixless = message.content.chars().skip(prefix.len()).collect::<String>();
@@ -28,25 +32,26 @@ impl EventHandler {
             "delete" => owner_commands.delete().await,
             "eval" | "evak" => owner_commands.eval().await,
             "status" => owner_commands.status().await,
-            _ => {},
+            _ => Ok(()),
         }
     }
 }
 
 pub struct OwnerCommands {
-    message: Box<MessageCreate>,
+    message: TwilightMessage,
     sender: MessageSender,
     args: String,
 }
 
 impl OwnerCommands {
-    pub async fn delete(&self) {
+    pub async fn delete(&self) -> Result<()> {
         let url = self.args.split('/').skip(5).map(|id| id.to_string()).collect::<Vec<String>>().join("/");
         let (channel_id, message_id) = url.split_once('/').unwrap_or(("", ""));
-        REST.delete::<()>(format!("channels/{channel_id}/messages/{message_id}")).await.ok();
+        REST.delete::<()>(format!("channels/{channel_id}/messages/{message_id}")).await?;
+        Ok(())
     }
 
-    pub async fn eval(&self) {
+    pub async fn eval(&self) -> Result<()> {
         let mut code = self.args.clone();
         let mut flags = code.split(' ').last().unwrap_or("").to_string();
 
@@ -92,13 +97,14 @@ impl OwnerCommands {
                 self.message.channel_id,
                 if text.len() > 2000 { MessageResponse::from(File::new("result.txt", text)) } else { MessageResponse::from(text) },
             )
-            .await
-            .ok();
+            .await?;
         }
+
+        Ok(())
     }
 
-    pub async fn status(&mut self) {
-        let _ = self.sender.send(
+    pub async fn status(&mut self) -> Result<()> {
+        self.sender.send(
             json!({
                 "op": OpCode::PresenceUpdate,
                 "d": {
@@ -113,7 +119,9 @@ impl OwnerCommands {
                 },
             })
             .to_string(),
-        );
+        )?;
+
+        Ok(())
     }
 }
 

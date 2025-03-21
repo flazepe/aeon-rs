@@ -5,15 +5,16 @@ use crate::{
         song_activity::{SongActivity, SongActivityService, SongActivityStyle},
     },
 };
+use anyhow::Result;
 use twilight_model::gateway::payload::incoming::PresenceUpdate;
 
 impl EventHandler {
-    pub async fn on_presence_update(presence: Box<PresenceUpdate>) {
+    pub async fn on_presence_update(presence: Box<PresenceUpdate>) -> Result<()> {
         let mut song_activities = CACHE.song_activities.write().unwrap();
         let user_id: String = presence.user.id().to_string();
         let Some(activity) = presence.activities.iter().find(|activity| activity.name == "Spotify") else {
             song_activities.remove(&user_id);
-            return;
+            return Ok(());
         };
         let song_activity = SongActivity {
             service: SongActivityService::Spotify,
@@ -35,5 +36,7 @@ impl EventHandler {
         };
 
         song_activities.insert(user_id.clone(), song_activity);
+
+        Ok(())
     }
 }

@@ -6,10 +6,11 @@ use crate::{
 use anyhow::Result;
 use serde_json::json;
 use slashook::structs::messages::MessageFlags;
+use twilight_gateway::MessageSender;
 use twilight_model::{channel::Message, gateway::payload::incoming::MessageCreate};
 
 impl EventHandler {
-    pub async fn on_message_create(message: Box<MessageCreate>) -> Result<()> {
+    pub async fn on_message_create(message: Box<MessageCreate>, sender: MessageSender) -> Result<()> {
         let message = message.0;
 
         {
@@ -24,13 +25,16 @@ impl EventHandler {
         }
 
         // Fix embeds
-        if let Some(guild_id) = message.guild_id {
+        if let Some(guild_id) = &message.guild_id {
             let guild = Guilds::get(guild_id).await?;
 
             if guild.fix_embeds {
-                Self::fix_embed(message).await?;
+                Self::fix_embed(message.clone()).await?;
             }
         }
+
+        // Handle owner commands
+        Self::handle_owner(message, sender).await?;
 
         Ok(())
     }

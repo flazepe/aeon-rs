@@ -3,10 +3,11 @@ use crate::{
     statics::CACHE,
     structs::gateway::events::handler::EventHandler,
 };
+use anyhow::Result;
 use twilight_model::{channel::message::EmojiReactionType, gateway::payload::incoming::ReactionRemove};
 
 impl EventHandler {
-    pub async fn on_reaction_remove(reaction: Box<ReactionRemove>) {
+    pub async fn on_reaction_remove(reaction: Box<ReactionRemove>) -> Result<()> {
         let reaction = reaction.0;
 
         let mut messages = CACHE.reaction_snipes.write().unwrap();
@@ -34,5 +35,7 @@ impl EventHandler {
             reactions.rotate_left(1);
             reactions.pop();
         }
+
+        Ok(())
     }
 }

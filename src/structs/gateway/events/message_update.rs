@@ -1,8 +1,9 @@
 use crate::{statics::CACHE, structs::gateway::events::handler::EventHandler, traits::LimitedVec};
+use anyhow::Result;
 use twilight_model::gateway::payload::incoming::MessageUpdate;
 
 impl EventHandler {
-    pub async fn on_message_update(message: Box<MessageUpdate>) {
+    pub async fn on_message_update(message: Box<MessageUpdate>) -> Result<()> {
         let message = message.0;
 
         let mut channels = CACHE.channels.write().unwrap();
@@ -33,5 +34,7 @@ impl EventHandler {
 
             channels.get_mut(&channel_id).unwrap().push_limited(cloned_old_message, 50);
         }
+
+        Ok(())
     }
 }
