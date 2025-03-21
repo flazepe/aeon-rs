@@ -7,7 +7,10 @@ impl EventHandler {
         match event {
             Event::MessageCreate(message) => {
                 Self::handle_owner(message.clone(), sender).await;
-                Self::on_message_create(message).await;
+
+                if let Err(error) = Self::on_message_create(message).await {
+                    println!("[MESSAGE_CREATE] {error:?}");
+                };
             },
             Event::MessageDelete(message) => Self::on_message_delete(message).await,
             Event::MessageDeleteBulk(data) => Self::on_message_delete_bulk(data).await,
