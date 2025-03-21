@@ -38,8 +38,9 @@ fn sum_cache_len<T: Iterator<Item = (U, V)>, U: Display, V: IntoIterator<Item = 
     iterable.map(|(_, vec)| vec.into_iter().count()).reduce(|acc, cur| acc + cur).unwrap_or(0)
 }
 
-fn get_cache_list() -> [String; 6] {
+fn get_cache_list() -> [String; 7] {
     [
+        label_num(CACHE.guilds.read().unwrap().len(), "server", "servers"),
         label_num(CACHE.channels.read().unwrap().len(), "channel", "channels"),
         label_num(sum_cache_len(CACHE.channels.read().unwrap().iter()), "message", "messages"),
         label_num(sum_cache_len(CACHE.snipes.read().unwrap().iter()), "snipe", "snipes"),

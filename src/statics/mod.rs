@@ -4,7 +4,7 @@ pub mod regex;
 
 use crate::structs::{
     config::Config,
-    database::{oauth::OauthToken, reminders::Reminder, tags::Tag, Collections},
+    database::{guilds::Guild, oauth::OauthToken, reminders::Reminder, tags::Tag, Collections},
     gateway::cache::Cache,
 };
 use mongodb::Database;
@@ -18,6 +18,7 @@ use std::{
 use toml::from_str;
 
 pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
+    guilds: RwLock::new(HashMap::new()),
     channels: RwLock::new(HashMap::new()),
     snipes: RwLock::new(HashMap::new()),
     edit_snipes: RwLock::new(HashMap::new()),
@@ -31,6 +32,7 @@ pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
     spotify_access_token: RwLock::new(Default::default()),
 });
 pub static COLLECTIONS: LazyLock<Collections> = LazyLock::new(|| Collections {
+    guilds: MONGODB.get().unwrap().collection::<Guild>("guilds"),
     oauth: MONGODB.get().unwrap().collection::<OauthToken>("oauth"),
     reminders: MONGODB.get().unwrap().collection::<Reminder>("reminders"),
     tags: MONGODB.get().unwrap().collection::<Tag>("tags"),
