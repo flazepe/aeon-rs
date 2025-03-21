@@ -28,7 +28,7 @@ impl EventHandler {
         if let Some(guild_id) = &message.guild_id {
             let guild = Guilds::get(guild_id).await?;
 
-            if guild.fix_embeds {
+            if !message.author.bot && guild.fix_embeds {
                 Self::fix_embed(message.clone()).await?;
             }
         }
@@ -58,9 +58,11 @@ impl EventHandler {
             let Some(domain) = url.split('/').nth(2) else { continue };
             let new_domain = match domain.trim_start_matches("www.") {
                 "instagram.com" => "ddinstagram.com",
-                "twitter.com" | "x.com" => "fixupx.com",
                 "pixiv.net" => "phixiv.net",
                 "reddit.com" | "old.reddit.com" => "rxddit.com",
+                "tiktok.com" => "vxtiktok.com",
+                "vt.tiktok.com" => "vt.vxtiktok.com",
+                "twitter.com" | "x.com" => "fixupx.com",
                 _ => domain,
             };
             let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
