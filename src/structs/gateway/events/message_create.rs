@@ -57,11 +57,11 @@ impl EventHandler {
         for url in urls {
             let Some(domain) = url.split('/').nth(2) else { continue };
             let new_domain = match domain.trim_start_matches("www.") {
+                "bsky.app" => "fxbsky.app",
                 "instagram.com" => "ddinstagram.com",
                 "pixiv.net" => "phixiv.net",
                 "reddit.com" | "old.reddit.com" => "rxddit.com",
-                "tiktok.com" => "vxtiktok.com",
-                "vt.tiktok.com" => "vt.vxtiktok.com",
+                "tiktok.com" | "vt.tiktok.com" => "vxtiktok.com",
                 "twitter.com" | "x.com" => "fixupx.com",
                 _ => domain,
             };
