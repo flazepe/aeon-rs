@@ -40,18 +40,30 @@ impl EventHandler {
     }
 
     async fn fix_embed(message: Message) -> Result<()> {
+        let urls = URL_REGEX.find_iter(&message.content).map(|entry| entry.as_str()).collect::<Vec<&str>>();
+        let valid_embeds = message.embeds.iter().filter(|embed| {
+            let has_image = embed.image.as_ref().and_then(|image| image.width).map_or(false, |width| width > 0);
+            let has_video = embed.video.as_ref().and_then(|video| video.width).map_or(false, |width| width > 0);
+            let is_pixiv = embed.author.as_ref().map_or(false, |author| author.name == "pixiv");
+            (has_image || has_video) && !is_pixiv
+        });
+
+        if urls.len() == valid_embeds.count() {
+            return Ok(());
+        }
+
         let mut new_urls = vec![];
 
-        for url in URL_REGEX.find_iter(&message.content) {
-            let Some(domain) = url.as_str().split('/').nth(2) else { continue };
+        for url in urls {
+            let Some(domain) = url.split('/').nth(2) else { continue };
             let new_domain = match domain.trim_start_matches("www.") {
                 "instagram.com" => "ddinstagram.com",
                 "twitter.com" | "x.com" => "fixupx.com",
                 "pixiv.net" => "phixiv.net",
                 "reddit.com" | "old.reddit.com" => "rxddit.com",
-                _ => continue,
+                _ => domain,
             };
-            let path = url.as_str().split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
+            let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
 
             if !path.is_empty() {
                 new_urls.push(format!("https://{new_domain}/{path}"));
