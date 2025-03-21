@@ -1,9 +1,13 @@
 use crate::{
-    statics::{regex::URL_REGEX, CACHE, REST},
+    statics::{
+        regex::{OG_IMAGE_TAG_REGEX, URL_REGEX},
+        CACHE, REQWEST, REST,
+    },
     structs::{database::guilds::Guilds, gateway::events::handler::EventHandler},
     traits::LimitedVec,
 };
 use anyhow::Result;
+use reqwest::StatusCode;
 use serde_json::json;
 use slashook::structs::messages::MessageFlags;
 use twilight_gateway::MessageSender;
@@ -41,21 +45,37 @@ impl EventHandler {
 
     async fn fix_embed(message: Message) -> Result<()> {
         let urls = URL_REGEX.find_iter(&message.content).map(|entry| entry.as_str()).collect::<Vec<&str>>();
-        let valid_embeds = message.embeds.iter().filter(|embed| {
-            let is_x_or_bluesky = embed.footer.as_ref().map_or(false, |footer| footer.text == "X" || footer.text == "Bluesky");
-            let has_image = embed.image.as_ref().and_then(|image| image.width).map_or(false, |width| width > 0);
-            is_x_or_bluesky && has_image
-        });
-
-        if urls.len() == valid_embeds.count() {
-            return Ok(());
-        }
-
         let mut new_urls = vec![];
 
         for url in urls {
-            let Some(domain) = url.split('/').nth(2) else { continue };
-            let new_domain = match domain.trim_start_matches("www.") {
+            // Skip suppressed embeds
+            if message.content.contains(&format!("<{url}>")) {
+                continue;
+            }
+
+            let Some(domain) = url.split('/').nth(2).map(|domain| domain.trim_start_matches("www.")) else { continue };
+
+            // Skip valid Bluesky/X embeds
+            if ["bsky.app", "x.com", "twitter.com"].contains(&domain) {
+                let body = REQWEST
+                    .get(url)
+                    .header("user-agent", "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)")
+                    .send()
+                    .await?
+                    .text()
+                    .await?;
+
+                let image_url = OG_IMAGE_TAG_REGEX
+                    .find(&body)
+                    .and_then(|og_image_tag| og_image_tag.as_str().split('"').find(|entry| entry.contains("https")))
+                    .unwrap_or_default();
+
+                if REQWEST.get(image_url).send().await.map_or(false, |res| res.status() == StatusCode::OK) {
+                    continue;
+                }
+            }
+
+            let new_domain = match domain {
                 "bsky.app" => "fxbsky.app",
                 "instagram.com" => "ddinstagram.com",
                 "pixiv.net" => "phixiv.net",
@@ -68,7 +88,18 @@ impl EventHandler {
             let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
 
             if !path.is_empty() {
-                new_urls.push(format!("https://{new_domain}/{path}"));
+                let new_url = format!("https://{new_domain}/{path}");
+                let body = REQWEST
+                    .get(&new_url)
+                    .header("user-agent", "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)")
+                    .send()
+                    .await?
+                    .text()
+                    .await?;
+
+                if body.contains("og:image") || body.contains("twitter:image") || body.contains("twitter:video") {
+                    new_urls.push(new_url);
+                }
             }
         }
 
