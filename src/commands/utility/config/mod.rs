@@ -5,7 +5,10 @@ use crate::structs::command::Command;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
-    structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
+    structs::{
+        interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
+        Permissions,
+    },
 };
 use std::sync::LazyLock;
 
@@ -15,8 +18,9 @@ pub fn get_command() -> SlashookCommand {
     #[command(
         name = "config",
         description = "Server config commands.",
-		integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
-        contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
+        default_member_permissions = Permissions::MANAGE_GUILD,
+		integration_types = [IntegrationType::GUILD_INSTALL],
+        contexts = [InteractionContextType::GUILD],
         subcommands = [
 			{
                 name = "view",
