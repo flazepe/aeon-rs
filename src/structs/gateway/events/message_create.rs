@@ -64,7 +64,7 @@ impl EventHandler {
                 "tiktok.com" => "vxtiktok.com",
                 "vt.tiktok.com" => "vt.vxtiktok.com",
                 "twitter.com" | "x.com" => "fixupx.com",
-                _ => domain,
+                _ => continue,
             };
             let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
 
