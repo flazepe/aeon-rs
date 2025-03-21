@@ -5,6 +5,7 @@ pub struct EventHandler;
 impl EventHandler {
     pub async fn handle(event: Event, sender: MessageSender) {
         match event {
+            Event::GuildDelete(guild) => Self::on_guild_delete(guild).await,
             Event::MessageCreate(message) => {
                 Self::handle_owner(message.clone(), sender).await;
 

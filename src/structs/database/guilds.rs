@@ -38,4 +38,11 @@ impl Guilds {
         COLLECTIONS.guilds.replace_one(doc! { "_id": &guild._id }, guild).await?;
         Ok(())
     }
+
+    pub async fn delete<T: Display>(guild_id: T) -> Result<()> {
+        let guild_id = guild_id.to_string();
+        CACHE.guilds.write().unwrap().remove(&guild_id);
+        COLLECTIONS.guilds.delete_one(doc! { "_id": guild_id }).await?;
+        Ok(())
+    }
 }

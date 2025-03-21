@@ -35,7 +35,7 @@ impl EventHandler {
         Ok(())
     }
 
-    pub async fn fix_embed(message: Message) -> Result<()> {
+    async fn fix_embed(message: Message) -> Result<()> {
         let mut new_urls = vec![];
 
         for url in URL_REGEX.find_iter(&message.content) {

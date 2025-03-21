@@ -1,9 +1,10 @@
+mod guild_leave;
 pub mod handler;
-pub mod handler_owner;
-pub mod message_create;
-pub mod message_delete;
-pub mod message_delete_bulk;
-pub mod message_update;
-pub mod presence_update;
-pub mod reaction_add;
-pub mod reaction_remove;
+mod handler_owner;
+mod message_create;
+mod message_delete;
+mod message_delete_bulk;
+mod message_update;
+mod presence_update;
+mod reaction_add;
+mod reaction_remove;
