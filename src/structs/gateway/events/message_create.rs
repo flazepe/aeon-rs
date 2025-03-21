@@ -41,13 +41,13 @@ impl EventHandler {
 
     async fn fix_embed(message: Message) -> Result<()> {
         let urls = URL_REGEX.find_iter(&message.content).map(|entry| entry.as_str()).collect::<Vec<&str>>();
-        let valid_x_embeds = message.embeds.iter().filter(|embed| {
-            let is_x = embed.footer.as_ref().map_or(false, |footer| footer.text == "X");
+        let valid_embeds = message.embeds.iter().filter(|embed| {
+            let is_x_or_bluesky = embed.footer.as_ref().map_or(false, |footer| footer.text == "X" || footer.text == "Bluesky");
             let has_image = embed.image.as_ref().and_then(|image| image.width).map_or(false, |width| width > 0);
-            is_x && has_image
+            is_x_or_bluesky && has_image
         });
 
-        if urls.len() == valid_x_embeds.count() {
+        if urls.len() == valid_embeds.count() {
             return Ok(());
         }
 
