@@ -32,7 +32,7 @@ impl EventHandler {
         if let Some(guild_id) = &message.guild_id {
             let guild = Guilds::get(guild_id).await?;
 
-            if !message.author.bot && guild.fix_embeds {
+            if guild.fix_embeds && !message.author.bot {
                 Self::fix_embed(message.clone()).await?;
             }
         }
@@ -55,7 +55,7 @@ impl EventHandler {
 
             let Some(domain) = url.split('/').nth(2).map(|domain| domain.trim_start_matches("www.")) else { continue };
 
-            // Skip valid Bluesky/X embeds
+            // Skip Bluesky/X posts that have a valid image
             if ["bsky.app", "x.com", "twitter.com"].contains(&domain) {
                 let body = REQWEST
                     .get(url)
@@ -86,21 +86,21 @@ impl EventHandler {
                 _ => continue,
             };
             let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
+            let new_url = format!("https://{new_domain}/{path}");
+            let body = REQWEST
+                .get(&new_url)
+                .header("user-agent", "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)")
+                .send()
+                .await?
+                .text()
+                .await?;
 
-            if !path.is_empty() {
-                let new_url = format!("https://{new_domain}/{path}");
-                let body = REQWEST
-                    .get(&new_url)
-                    .header("user-agent", "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)")
-                    .send()
-                    .await?
-                    .text()
-                    .await?;
-
-                if body.contains("og:image") || body.contains("twitter:image") || body.contains("twitter:video") {
-                    new_urls.push(new_url);
-                }
+            // Only fix posts that were supposed to have an image or video
+            if !["og:image", "og:video", "twitter:image", "twitter:video"].iter().any(|entry| body.contains(entry)) {
+                continue;
             }
+
+            new_urls.push(new_url);
         }
 
         if !new_urls.is_empty() {
