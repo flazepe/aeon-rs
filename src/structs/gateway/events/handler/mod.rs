@@ -1,4 +1,5 @@
 mod fix_embeds;
+mod logs;
 mod owner_commands;
 
 use twilight_gateway::{Event, MessageSender};
@@ -8,6 +9,10 @@ pub struct EventHandler;
 impl EventHandler {
     pub async fn handle(event: Event, sender: MessageSender) {
         let event_name = format!("{:?}", event.kind());
+
+        if let Err(error) = Self::handle_logs(&event).await {
+            println!("[GATEWAY] An error occurred while handling logs for event {event_name}: {error:?}");
+        }
 
         if let Event::MessageCreate(message) = &event {
             if let Err(error) = Self::handle_owner_commands(message, sender).await {
