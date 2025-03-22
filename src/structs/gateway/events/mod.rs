@@ -1,6 +1,5 @@
 mod guild_leave;
 pub mod handler;
-mod handler_owner;
 mod message_create;
 mod message_delete;
 mod message_delete_bulk;

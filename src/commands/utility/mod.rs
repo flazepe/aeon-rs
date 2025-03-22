@@ -1,6 +1,5 @@
 mod calculate;
 mod code;
-mod config;
 mod convert_currency;
 mod define;
 mod google;
@@ -15,6 +14,7 @@ mod purge;
 mod reminder;
 mod reminder_set_context;
 mod sauce;
+mod server_config;
 mod shorten_url;
 mod snipe;
 mod snipe_reaction_context;
@@ -32,7 +32,6 @@ pub fn get_commands() -> Vec<SlashookCommand> {
         calculate::get_command(),
         convert_currency::get_command(),
         code::get_command(),
-        config::get_command(),
         define::get_command(),
         google::get_command(),
         google_translate_context::get_command(),
@@ -46,6 +45,7 @@ pub fn get_commands() -> Vec<SlashookCommand> {
         reminder::get_command(),
         reminder_set_context::get_command(),
         sauce::get_command(),
+        server_config::get_command(),
         shorten_url::get_command(),
         snipe::get_command(),
         snipe_reaction_context::get_command(),

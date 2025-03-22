@@ -16,24 +16,8 @@ use twilight_model::{
 };
 
 impl EventHandler {
-    pub async fn handle_owner(message: TwilightMessage, sender: MessageSender) -> Result<()> {
-        let prefix = "";
-
-        if message.author.id.to_string() != FLAZEPE_ID || !message.content.to_lowercase().starts_with(prefix) {
-            return Ok(());
-        }
-
-        let prefixless = message.content.chars().skip(prefix.len()).collect::<String>();
-        let (command, args) = prefixless.split_once(' ').unwrap_or(("", ""));
-
-        let mut owner_commands = OwnerCommands { message, sender, args: args.to_string() };
-
-        match command {
-            "delete" => owner_commands.delete().await,
-            "eval" | "evak" => owner_commands.eval().await,
-            "status" => owner_commands.status().await,
-            _ => Ok(()),
-        }
+    pub async fn handle_owner_commands(message: &TwilightMessage, sender: MessageSender) -> Result<()> {
+        OwnerCommands::run(message, sender).await
     }
 }
 
@@ -44,14 +28,34 @@ pub struct OwnerCommands {
 }
 
 impl OwnerCommands {
-    pub async fn delete(&self) -> Result<()> {
+    pub async fn run(message: &TwilightMessage, sender: MessageSender) -> Result<()> {
+        let prefix = "";
+
+        if message.author.id.to_string() != FLAZEPE_ID || !message.content.to_lowercase().starts_with(prefix) {
+            return Ok(());
+        }
+
+        let prefixless = message.content.chars().skip(prefix.len()).collect::<String>();
+        let (command, args) = prefixless.split_once(' ').unwrap_or(("", ""));
+
+        let mut owner_commands = OwnerCommands { message: message.clone(), sender, args: args.to_string() };
+
+        match command {
+            "delete" => owner_commands.delete().await,
+            "eval" | "evak" => owner_commands.eval().await,
+            "status" => owner_commands.status().await,
+            _ => Ok(()),
+        }
+    }
+
+    async fn delete(&self) -> Result<()> {
         let url = self.args.split('/').skip(5).map(|id| id.to_string()).collect::<Vec<String>>().join("/");
         let (channel_id, message_id) = url.split_once('/').unwrap_or(("", ""));
         REST.delete::<()>(format!("channels/{channel_id}/messages/{message_id}")).await?;
         Ok(())
     }
 
-    pub async fn eval(&self) -> Result<()> {
+    async fn eval(&self) -> Result<()> {
         let mut code = self.args.clone();
         let mut flags = code.split(' ').last().unwrap_or("").to_string();
 
@@ -103,7 +107,7 @@ impl OwnerCommands {
         Ok(())
     }
 
-    pub async fn status(&mut self) -> Result<()> {
+    async fn status(&mut self) -> Result<()> {
         self.sender.send(
             json!({
                 "op": OpCode::PresenceUpdate,
