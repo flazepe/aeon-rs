@@ -6,7 +6,7 @@ use twilight_model::{
     id::{marker::GuildMarker, Id},
 };
 
-pub async fn log(event: &BanRemove) -> Result<(Option<Id<GuildMarker>>, Embed)> {
+pub async fn log(event: &BanRemove) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
     let embed = Embed::new()
         .set_color(SUCCESS_COLOR)
         .unwrap_or_default()
@@ -14,5 +14,5 @@ pub async fn log(event: &BanRemove) -> Result<(Option<Id<GuildMarker>>, Embed)> 
         .set_description(format!("<@{}>", event.user.id))
         .add_field("Username", format!("{} ({})", event.user.name, event.user.id), false);
 
-    Ok((event.guild_id.into(), embed))
+    Ok((event.guild_id.into(), embed.into()))
 }

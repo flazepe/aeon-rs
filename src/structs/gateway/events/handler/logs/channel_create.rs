@@ -6,7 +6,7 @@ use twilight_model::{
     id::{marker::GuildMarker, Id},
 };
 
-pub async fn log(event: &ChannelCreate) -> Result<(Option<Id<GuildMarker>>, Embed)> {
+pub async fn log(event: &ChannelCreate) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
     let embed = Embed::new()
         .set_color(SUCCESS_COLOR)
         .unwrap_or_default()
@@ -14,5 +14,5 @@ pub async fn log(event: &ChannelCreate) -> Result<(Option<Id<GuildMarker>>, Embe
         .set_description(format!("<#{channel_id}> ({channel_id})", channel_id = event.id))
         .add_field("Name", format!("#{}", event.name.as_deref().unwrap_or("unknown")), false);
 
-    Ok((event.guild_id, embed))
+    Ok((event.guild_id, embed.into()))
 }

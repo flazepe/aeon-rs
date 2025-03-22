@@ -10,7 +10,7 @@ use twilight_model::{
     id::{marker::GuildMarker, Id},
 };
 
-pub async fn log(event: &MessageDelete) -> Result<(Option<Id<GuildMarker>>, Embed)> {
+pub async fn log(event: &MessageDelete) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
     let mut embed = Embed::new().set_color(ERROR_COLOR).unwrap_or_default().set_title("Message Deleted").add_field(
         "Channel",
         format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id),
@@ -27,5 +27,5 @@ pub async fn log(event: &MessageDelete) -> Result<(Option<Id<GuildMarker>>, Embe
             .set_footer(old_message.author.label(), Some(old_message.author.display_avatar_url("gif", 4096)));
     }
 
-    Ok((event.guild_id, embed))
+    Ok((event.guild_id, embed.into()))
 }

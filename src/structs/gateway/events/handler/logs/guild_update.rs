@@ -6,8 +6,8 @@ use twilight_model::{
     id::{marker::GuildMarker, Id},
 };
 
-pub async fn log(event: &GuildUpdate) -> Result<(Option<Id<GuildMarker>>, Embed)> {
+pub async fn log(event: &GuildUpdate) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
     let embed = Embed::new().set_color(NOTICE_COLOR).unwrap_or_default().set_title("Server Updated");
 
-    Ok((event.id.into(), embed))
+    Ok((event.id.into(), embed.into()))
 }

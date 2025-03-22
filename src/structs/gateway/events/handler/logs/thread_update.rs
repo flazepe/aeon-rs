@@ -6,7 +6,7 @@ use twilight_model::{
     id::{marker::GuildMarker, Id},
 };
 
-pub async fn log(event: &ThreadUpdate) -> Result<(Option<Id<GuildMarker>>, Embed)> {
+pub async fn log(event: &ThreadUpdate) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
     let mut embed = Embed::new()
         .set_color(NOTICE_COLOR)
         .unwrap_or_default()
@@ -19,5 +19,5 @@ pub async fn log(event: &ThreadUpdate) -> Result<(Option<Id<GuildMarker>>, Embed
         embed = embed.add_field("Parent", format!("<#{parent_id}> ({parent_id})"), false);
     }
 
-    Ok((event.guild_id, embed))
+    Ok((event.guild_id, embed.into()))
 }

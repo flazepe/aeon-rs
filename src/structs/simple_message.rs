@@ -57,7 +57,10 @@ impl Display for SimpleMessage {
             }
 
             if let Some(title) = embed.title.as_ref() {
-                text += &format!("\n**[{title}](<{}>)**", embed.url.as_deref().unwrap_or(""));
+                text += &match &embed.url {
+                    Some(url) => format!("\n**[{title}](<{url}>)**"),
+                    None => format!("\n**{title}**"),
+                };
             }
 
             if let Some(description) = embed.description.as_ref() {

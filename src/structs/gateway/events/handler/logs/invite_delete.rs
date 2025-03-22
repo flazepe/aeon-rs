@@ -6,7 +6,7 @@ use twilight_model::{
     id::{marker::GuildMarker, Id},
 };
 
-pub async fn log(event: &InviteDelete) -> Result<(Option<Id<GuildMarker>>, Embed)> {
+pub async fn log(event: &InviteDelete) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
     let embed = Embed::new()
         .set_color(ERROR_COLOR)
         .unwrap_or_default()
@@ -14,5 +14,5 @@ pub async fn log(event: &InviteDelete) -> Result<(Option<Id<GuildMarker>>, Embed
         .set_description(format!("https://discord.gg/{}", event.code))
         .add_field("Channel", format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id), false);
 
-    Ok((event.guild_id.into(), embed))
+    Ok((event.guild_id.into(), embed.into()))
 }

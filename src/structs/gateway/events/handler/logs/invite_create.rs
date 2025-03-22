@@ -12,7 +12,7 @@ use twilight_model::{
     id::{marker::GuildMarker, Id},
 };
 
-pub async fn log(event: &InviteCreate) -> Result<(Option<Id<GuildMarker>>, Embed)> {
+pub async fn log(event: &InviteCreate) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
     let mut embed = Embed::new()
         .set_color(SUCCESS_COLOR)
         .unwrap_or_default()
@@ -42,5 +42,5 @@ pub async fn log(event: &InviteCreate) -> Result<(Option<Id<GuildMarker>>, Embed
         embed = embed.set_footer(inviter.label(), Some(inviter.display_avatar_url("gif", "4096")));
     }
 
-    Ok((event.guild_id.into(), embed))
+    Ok((event.guild_id.into(), embed.into()))
 }

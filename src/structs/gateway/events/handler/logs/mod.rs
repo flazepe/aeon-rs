@@ -63,7 +63,7 @@ impl EventHandler {
             _ => return Ok(()),
         };
 
-        let Some(guild_id) = guild_id else { return Ok(()) };
+        let (Some(guild_id), Some(embed)) = (guild_id, embed) else { return Ok(()) };
         let guild = Guilds::get(guild_id).await?;
         let Some(logs_channel_id) = guild.logs_channel_id else { return Ok(()) };
 

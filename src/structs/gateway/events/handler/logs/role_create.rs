@@ -6,7 +6,7 @@ use twilight_model::{
     id::{marker::GuildMarker, Id},
 };
 
-pub async fn log(event: &RoleCreate) -> Result<(Option<Id<GuildMarker>>, Embed)> {
+pub async fn log(event: &RoleCreate) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
     let embed = Embed::new()
         .set_color(SUCCESS_COLOR)
         .unwrap_or_default()
@@ -14,5 +14,5 @@ pub async fn log(event: &RoleCreate) -> Result<(Option<Id<GuildMarker>>, Embed)>
         .set_description(format!("<@&{role_id}> ({role_id})", role_id = event.role.id))
         .add_field("Name", format!("@{}", event.role.name), false);
 
-    Ok((event.guild_id.into(), embed))
+    Ok((event.guild_id.into(), embed.into()))
 }
