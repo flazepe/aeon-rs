@@ -32,39 +32,6 @@ use anyhow::Result;
 use slashook::structs::messages::Message;
 use twilight_gateway::Event;
 
-/*
-static GUILD_EVENTS: [&str; 29] = [
-    "AutoModerationActionExecution",
-    "AutoModerationRuleCreate",
-    "AutoModerationRuleDelete",
-    "AutoModerationRuleUpdate",
-    "GuildAuditLogEntryCreate",
-    "GuildIntegrationsUpdate",
-    "GuildScheduledEventCreate",
-    "GuildScheduledEventDelete",
-    "GuildScheduledEventUpdate",
-    "GuildScheduledEventUserAdd",
-    "GuildScheduledEventUserRemove",
-    "IntegrationCreate",
-    "IntegrationDelete",
-    "IntegrationUpdate",
-    "InviteCreate",
-    "InviteDelete",
-    "MessagePollVoteAdd",
-    "MessagePollVoteRemove",
-    "ReactionAdd",
-    "ReactionRemove",
-    "StageInstanceCreate",
-    "StageInstanceDelete",
-    "StageInstanceUpdate",
-    "ThreadMemberUpdate",
-    "ThreadMembersUpdate",
-    "VoiceServerUpdate",
-    "VoiceStateUpdate",
-    "WebhooksUpdate",
-];
-*/
-
 impl EventHandler {
     pub async fn handle_logs(event: &Event) -> Result<()> {
         let (guild_id, embed) = match event {
@@ -93,30 +60,7 @@ impl EventHandler {
             Event::ThreadCreate(event) => thread_create::log(event).await?,
             Event::ThreadDelete(event) => thread_delete::log(event).await?,
             Event::ThreadUpdate(event) => thread_update::log(event).await?,
-
             _ => return Ok(()),
-            /*
-
-
-
-            Event::InviteCreate(event) => {
-                guild_id = event.guild_id.into();
-                embed = embed.set_color(NOTICE_COLOR).unwrap_or_default().set_description(format!("```rs\n{event:#?}```")).add_field(
-                    "Channel",
-                    format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id),
-                    false,
-                );
-            },
-            Event::InviteDelete(event) => {
-                guild_id = event.guild_id.into();
-                embed = embed.set_color(ERROR_COLOR).unwrap_or_default().set_description(format!("```rs\n{event:#?}```")).add_field(
-                    "Channel",
-                    format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id),
-                    false,
-                );
-            },
-            _ => {},
-            */
         };
 
         let Some(guild_id) = guild_id else { return Ok(()) };
