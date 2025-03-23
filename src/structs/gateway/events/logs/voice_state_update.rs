@@ -21,11 +21,7 @@ pub async fn handle(event: &VoiceStateUpdate) -> Result<()> {
         embed = embed.add_field("Requested to speak", format_timestamp(request_to_speak_timestamp.as_secs(), TimestampFormat::Full), false);
     }
 
-    embed = embed.add_field("Streaming", format!("Self? {}", yes_no!(event.self_stream)), true).add_field(
-        "Camera On",
-        format!("Self? {}", yes_no!(event.self_video)),
-        true,
-    );
+    embed = embed.add_field("Streaming", yes_no!(event.self_stream), true).add_field("Camera On", yes_no!(event.self_video), true);
 
     if let Some(channel_id) = event.channel_id {
         embed = embed
