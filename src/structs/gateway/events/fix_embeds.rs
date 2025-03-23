@@ -14,7 +14,6 @@ use twilight_model::gateway::payload::incoming::MessageCreate;
 impl EventHandler {
     pub async fn handle_fix_embeds(event: &MessageCreate) -> Result<()> {
         let message = &event.0;
-
         let Some(guild_id) = &message.guild_id else { return Ok(()) };
         let guild = Guilds::get(guild_id).await?;
 
@@ -42,7 +41,6 @@ impl EventHandler {
                     .await?
                     .text()
                     .await?;
-
                 let image_url = OG_IMAGE_TAG_REGEX
                     .find(&body)
                     .and_then(|og_image_tag| og_image_tag.as_str().split('"').find(|entry| entry.contains("https")))
@@ -88,7 +86,6 @@ impl EventHandler {
                     json!({ "flags": MessageFlags::SUPPRESS_EMBEDS }),
                 )
                 .await;
-
             let _ = REST
                 .post::<Message, _>(
                     format!("channels/{}/messages", message.channel_id),
