@@ -1,8 +1,8 @@
-use crate::{statics::CONFIG, structs::gateway::events::handler::EventHandler};
+use crate::{statics::CONFIG, structs::gateway::events::EventHandler};
 use anyhow::Result;
 use std::sync::atomic::{AtomicBool, Ordering};
 use tokio::{signal::ctrl_c, spawn};
-use twilight_gateway::{create_recommended, CloseFrame, Config as TwilightConfig, Event, EventTypeFlags, Intents, Shard, StreamExt};
+use twilight_gateway::{CloseFrame, Config as TwilightConfig, Event, EventTypeFlags, Intents, Shard, StreamExt, create_recommended};
 use twilight_http::Client as TwilightClient;
 use twilight_model::gateway::payload::outgoing::identify::IdentifyProperties;
 
