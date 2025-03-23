@@ -1,4 +1,5 @@
 use crate::{
+    functions::{TimestampFormat, format_timestamp},
     macros::yes_no,
     statics::colors::{ERROR_COLOR, NOTICE_COLOR},
     structs::database::guilds::Guilds,
@@ -14,9 +15,17 @@ pub async fn handle(event: &VoiceStateUpdate) -> Result<()> {
     let mut embed = Embed::new()
         .add_field("Muted", format!("Self? {}\nServer? {}", yes_no!(event.self_mute), yes_no!(event.mute)), true)
         .add_field("Deafened", format!("Self? {}\nServer? {}", yes_no!(event.self_deaf), yes_no!(event.deaf)), true)
-        .add_field("Suppressed", yes_no!(event.suppress), false)
-        .add_field("Streaming", format!("Self? {}", yes_no!(event.self_stream)), true)
-        .add_field("Camera On", format!("Self? {}", yes_no!(event.self_video)), true);
+        .add_field("Suppressed (for stage channels)", yes_no!(event.suppress), false);
+
+    if let Some(request_to_speak_timestamp) = event.request_to_speak_timestamp {
+        embed = embed.add_field("Requested to speak", format_timestamp(request_to_speak_timestamp.as_secs(), TimestampFormat::Full), false);
+    }
+
+    embed = embed.add_field("Streaming", format!("Self? {}", yes_no!(event.self_stream)), true).add_field(
+        "Camera On",
+        format!("Self? {}", yes_no!(event.self_video)),
+        true,
+    );
 
     if let Some(channel_id) = event.channel_id {
         embed = embed
