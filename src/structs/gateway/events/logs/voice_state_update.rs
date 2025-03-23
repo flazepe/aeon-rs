@@ -12,8 +12,8 @@ pub async fn handle(event: &VoiceStateUpdate) -> Result<()> {
     let Some(guild_id) = event.guild_id else { return Ok(()) };
 
     let mut embed = Embed::new()
-        .add_field("Deafened", format!("Self? {}\nServer? {}", yes_no!(event.self_deaf), yes_no!(event.deaf)), true)
         .add_field("Muted", format!("Self? {}\nServer? {}", yes_no!(event.self_mute), yes_no!(event.mute)), true)
+        .add_field("Deafened", format!("Self? {}\nServer? {}", yes_no!(event.self_deaf), yes_no!(event.deaf)), true)
         .add_field("Suppressed", yes_no!(event.suppress), false)
         .add_field("Streaming", format!("Self? {}", yes_no!(event.self_stream)), true)
         .add_field("Camera On", format!("Self? {}", yes_no!(event.self_video)), true);
