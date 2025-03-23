@@ -42,7 +42,7 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
     let embed = Embed::new()
         .set_color(NOTICE_COLOR)
         .unwrap_or_default()
-        .set_title("Message Updated")
+        .set_title("Message Edited")
         .set_description(format!(
             "https://discord.com/channels/{}/{}/{}",
             event.guild_id.map(|guild_id| guild_id.to_string()).as_deref().unwrap_or(""),
