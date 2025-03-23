@@ -1,7 +1,8 @@
-use crate::statics::{CACHE, COLLECTIONS};
+use crate::statics::{CACHE, COLLECTIONS, REST};
 use anyhow::Result;
 use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
+use slashook::structs::{embeds::Embed, messages::Message};
 use std::fmt::Display;
 
 #[derive(Deserialize, Serialize, Clone, Default, Debug)]
@@ -45,6 +46,13 @@ impl Guilds {
         let guild_id = guild_id.to_string();
         CACHE.guilds.write().unwrap().remove(&guild_id);
         COLLECTIONS.guilds.delete_one(doc! { "_id": guild_id }).await?;
+        Ok(())
+    }
+
+    pub async fn send_log<T: Display>(guild_id: T, embed: Embed) -> Result<()> {
+        let guild = Self::get(guild_id).await?;
+        let Some(logs_channel_id) = &guild.logs_channel_id else { return Ok(()) };
+        let _ = Message::create(&REST, logs_channel_id, embed).await;
         Ok(())
     }
 }

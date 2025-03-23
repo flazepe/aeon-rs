@@ -1,13 +1,10 @@
-use crate::statics::colors::NOTICE_COLOR;
+use crate::{statics::colors::NOTICE_COLOR, structs::database::guilds::Guilds};
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
-use twilight_model::{
-    gateway::payload::incoming::GuildUpdate,
-    id::{marker::GuildMarker, Id},
-};
+use twilight_model::gateway::payload::incoming::GuildUpdate;
 
-pub async fn log(event: &GuildUpdate) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
+pub async fn log(event: &GuildUpdate) -> Result<()> {
     let embed = Embed::new().set_color(NOTICE_COLOR).unwrap_or_default().set_title("Server Updated");
 
-    Ok((event.id.into(), embed.into()))
+    Guilds::send_log(event.id, embed).await
 }

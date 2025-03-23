@@ -1,12 +1,9 @@
-use crate::statics::colors::ERROR_COLOR;
+use crate::{statics::colors::ERROR_COLOR, structs::database::guilds::Guilds};
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
-use twilight_model::{
-    gateway::payload::incoming::ThreadDelete,
-    id::{marker::GuildMarker, Id},
-};
+use twilight_model::gateway::payload::incoming::ThreadDelete;
 
-pub async fn log(event: &ThreadDelete) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
+pub async fn log(event: &ThreadDelete) -> Result<()> {
     let embed = Embed::new()
         .set_color(ERROR_COLOR)
         .unwrap_or_default()
@@ -15,5 +12,5 @@ pub async fn log(event: &ThreadDelete) -> Result<(Option<Id<GuildMarker>>, Optio
         .add_field("Type", format!("{:?}", event.kind), false)
         .add_field("Parent", format!("<#{parent_id}> ({parent_id})", parent_id = event.parent_id), false);
 
-    Ok((event.guild_id.into(), embed.into()))
+    Guilds::send_log(event.guild_id, embed).await
 }

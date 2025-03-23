@@ -1,12 +1,11 @@
-use crate::statics::colors::ERROR_COLOR;
+use crate::{statics::colors::ERROR_COLOR, structs::database::guilds::Guilds};
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
-use twilight_model::{
-    gateway::payload::incoming::ChannelDelete,
-    id::{marker::GuildMarker, Id},
-};
+use twilight_model::gateway::payload::incoming::ChannelDelete;
 
-pub async fn log(event: &ChannelDelete) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
+pub async fn log(event: &ChannelDelete) -> Result<()> {
+    let Some(guild_id) = event.guild_id else { return Ok(()) };
+
     let embed = Embed::new()
         .set_color(ERROR_COLOR)
         .unwrap_or_default()
@@ -14,5 +13,5 @@ pub async fn log(event: &ChannelDelete) -> Result<(Option<Id<GuildMarker>>, Opti
         .set_description(format!("<#{channel_id}> ({channel_id})", channel_id = event.id))
         .add_field("Name", format!("#{}", event.name.as_deref().unwrap_or("unknown")), false);
 
-    Ok((event.guild_id, embed.into()))
+    Guilds::send_log(guild_id, embed).await
 }

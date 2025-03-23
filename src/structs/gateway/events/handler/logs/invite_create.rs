@@ -1,18 +1,16 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::{
-    functions::{format_timestamp, TimestampFormat},
+    functions::{TimestampFormat, format_timestamp},
     statics::colors::SUCCESS_COLOR,
+    structs::database::guilds::Guilds,
     traits::UserExt,
 };
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
-use twilight_model::{
-    gateway::payload::incoming::InviteCreate,
-    id::{marker::GuildMarker, Id},
-};
+use twilight_model::gateway::payload::incoming::InviteCreate;
 
-pub async fn log(event: &InviteCreate) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
+pub async fn log(event: &InviteCreate) -> Result<()> {
     let mut embed = Embed::new()
         .set_color(SUCCESS_COLOR)
         .unwrap_or_default()
@@ -42,5 +40,5 @@ pub async fn log(event: &InviteCreate) -> Result<(Option<Id<GuildMarker>>, Optio
         embed = embed.set_footer(inviter.label(), Some(inviter.display_avatar_url("gif", "4096")));
     }
 
-    Ok((event.guild_id.into(), embed.into()))
+    Guilds::send_log(event.guild_id, embed).await
 }

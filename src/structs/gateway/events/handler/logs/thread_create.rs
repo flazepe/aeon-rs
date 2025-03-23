@@ -1,12 +1,11 @@
-use crate::statics::colors::SUCCESS_COLOR;
+use crate::{statics::colors::SUCCESS_COLOR, structs::database::guilds::Guilds};
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
-use twilight_model::{
-    gateway::payload::incoming::ThreadCreate,
-    id::{marker::GuildMarker, Id},
-};
+use twilight_model::gateway::payload::incoming::ThreadCreate;
 
-pub async fn log(event: &ThreadCreate) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
+pub async fn log(event: &ThreadCreate) -> Result<()> {
+    let Some(guild_id) = event.guild_id else { return Ok(()) };
+
     let mut embed = Embed::new()
         .set_color(SUCCESS_COLOR)
         .unwrap_or_default()
@@ -19,5 +18,5 @@ pub async fn log(event: &ThreadCreate) -> Result<(Option<Id<GuildMarker>>, Optio
         embed = embed.add_field("Parent", format!("<#{parent_id}> ({parent_id})"), false);
     }
 
-    Ok((event.guild_id, embed.into()))
+    Guilds::send_log(guild_id, embed).await
 }

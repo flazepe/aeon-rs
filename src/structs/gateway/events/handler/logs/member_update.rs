@@ -1,12 +1,9 @@
-use crate::statics::colors::NOTICE_COLOR;
+use crate::{statics::colors::NOTICE_COLOR, structs::database::guilds::Guilds};
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
-use twilight_model::{
-    gateway::payload::incoming::MemberUpdate,
-    id::{marker::GuildMarker, Id},
-};
+use twilight_model::gateway::payload::incoming::MemberUpdate;
 
-pub async fn log(event: &MemberUpdate) -> Result<(Option<Id<GuildMarker>>, Option<Embed>)> {
+pub async fn log(event: &MemberUpdate) -> Result<()> {
     let embed = Embed::new()
         .set_color(NOTICE_COLOR)
         .unwrap_or_default()
@@ -14,5 +11,5 @@ pub async fn log(event: &MemberUpdate) -> Result<(Option<Id<GuildMarker>>, Optio
         .set_description(format!("<@{}>", event.user.id))
         .add_field("Username", format!("{} ({})", event.user.name, event.user.id), false);
 
-    Ok((event.guild_id.into(), embed.into()))
+    Guilds::send_log(event.guild_id, embed).await
 }
