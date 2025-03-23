@@ -1,0 +1,38 @@
+use crate::{
+    macros::yes_no,
+    statics::colors::{ERROR_COLOR, NOTICE_COLOR},
+    structs::database::guilds::Guilds,
+    traits::UserExt,
+};
+use anyhow::Result;
+use slashook::structs::embeds::Embed;
+use twilight_model::gateway::payload::incoming::VoiceStateUpdate;
+
+pub async fn handle(event: &VoiceStateUpdate) -> Result<()> {
+    let Some(guild_id) = event.guild_id else { return Ok(()) };
+
+    let mut embed = Embed::new()
+        .add_field("Deafened", format!("Self? {}\nServer? {}", yes_no!(event.self_deaf), yes_no!(event.deaf)), true)
+        .add_field("Muted", format!("Self? {}\nServer? {}", yes_no!(event.self_mute), yes_no!(event.mute)), true)
+        .add_field("Suppressed", yes_no!(event.suppress), false)
+        .add_field("Streaming", format!("Self? {}", yes_no!(event.self_stream)), true)
+        .add_field("Camera On", format!("Self? {}", yes_no!(event.self_video)), true);
+
+    if let Some(channel_id) = event.channel_id {
+        embed = embed
+            .set_color(NOTICE_COLOR)
+            .unwrap_or_default()
+            .set_title("Voice State Updated")
+            .set_description(format!("<#{channel_id}> ({channel_id})"));
+    } else {
+        embed = embed.set_color(ERROR_COLOR).unwrap_or_default().set_title("Left Voice Channel");
+    }
+
+    if let Some(member) = &event.member {
+        embed = embed.set_footer(member.user.label(), Some(member.user.display_avatar_url("gif", 4096)));
+    } else {
+        embed = embed.set_footer(format!("User ID: {}", event.user_id), None::<String>);
+    }
+
+    Guilds::send_log(guild_id, embed).await
+}

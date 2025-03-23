@@ -21,10 +21,11 @@ impl GatewayClient {
             TwilightConfig::new(
                 CONFIG.bot.token.clone(),
                 Intents::GUILDS
+                    | Intents::GUILD_INVITES
                     | Intents::GUILD_MESSAGES
                     | Intents::GUILD_MESSAGE_REACTIONS
                     | Intents::GUILD_PRESENCES
-                    | Intents::GUILD_INVITES
+                    | Intents::GUILD_VOICE_STATES
                     | Intents::MESSAGE_CONTENT,
             ),
             |_, builder| {

@@ -23,6 +23,7 @@ mod role_update;
 mod thread_create;
 mod thread_delete;
 mod thread_update;
+mod voice_state_update;
 
 use crate::structs::gateway::events::EventHandler;
 use anyhow::Result;
@@ -56,6 +57,7 @@ impl EventHandler {
             Event::ThreadCreate(event) => thread_create::handle(event).await,
             Event::ThreadDelete(event) => thread_delete::handle(event).await,
             Event::ThreadUpdate(event) => thread_update::handle(event).await,
+            Event::VoiceStateUpdate(event) => voice_state_update::handle(event).await,
             _ => Ok(()),
         }
     }
