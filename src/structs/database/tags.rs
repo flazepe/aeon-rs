@@ -2,11 +2,11 @@ use crate::{
     functions::now,
     statics::{COLLECTIONS, FLAZEPE_ID},
 };
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use futures::stream::TryStreamExt;
 use mongodb::bson::{doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};
-use slashook::structs::{guilds::GuildMember, Permissions};
+use slashook::structs::{Permissions, guilds::GuildMember};
 use std::fmt::Display;
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -233,10 +233,12 @@ impl Tags {
 
     pub fn validate_tag_modifier(tag: Tag, member: &GuildMember) -> Result<Tag> {
         let has_permission = member.permissions.unwrap_or_else(Permissions::empty).contains(Permissions::MANAGE_MESSAGES);
-        let is_author = member.user.as_ref().map_or(false, |user| tag.author_id == user.id.as_str());
+        let is_author = member.user.as_ref().is_some_and(|user| tag.author_id == user.id.as_str());
 
         if !has_permission && !is_author {
-            bail!("You're not the author of that tag. Only tag authors and members with the Manage Messages permission can update or delete tags.");
+            bail!(
+                "You're not the author of that tag. Only tag authors and members with the Manage Messages permission can update or delete tags.",
+            );
         }
 
         Ok(tag)

@@ -13,7 +13,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         Ok(tag) => {
             let nsfw_channel = Channel::fetch(&ctx.input.rest, ctx.input.channel_id.as_ref().unwrap())
                 .await
-                .map_or(false, |channel| channel.nsfw.unwrap_or(false));
+                .is_ok_and(|channel| channel.nsfw.unwrap_or(false));
 
             if tag.nsfw && !nsfw_channel {
                 return ctx.respond_error("NSFW channels only.", true).await;

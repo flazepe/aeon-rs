@@ -1,7 +1,7 @@
 use crate::{
     statics::{
-        regex::{OG_IMAGE_TAG_REGEX, URL_REGEX},
         REQWEST, REST,
+        regex::{OG_IMAGE_TAG_REGEX, URL_REGEX},
     },
     structs::{database::guilds::Guilds, gateway::events::handler::EventHandler},
 };
@@ -46,7 +46,7 @@ impl EventHandler {
                     .and_then(|og_image_tag| og_image_tag.as_str().split('"').find(|entry| entry.contains("https")))
                     .unwrap_or_default();
 
-                if REQWEST.get(image_url).send().await.map_or(false, |res| res.status() == StatusCode::OK) {
+                if REQWEST.get(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK) {
                     continue;
                 }
             }

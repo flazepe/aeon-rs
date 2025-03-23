@@ -9,9 +9,9 @@ use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::{
+        Permissions,
         interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
         messages::MessageFetchOptions,
-        Permissions,
     },
 };
 use std::sync::LazyLock;
@@ -19,7 +19,7 @@ use std::sync::LazyLock;
 static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new().main(|ctx: CommandContext| async move {
         let has_permission = ctx.input.app_permissions.contains(Permissions::MANAGE_MESSAGES);
-        let is_self_purge = ctx.get_user_arg("user").map_or(false, |user| user.id == CONFIG.bot.client_id);
+        let is_self_purge = ctx.get_user_arg("user").is_ok_and( |user| user.id == CONFIG.bot.client_id);
 
         if !has_permission && !is_self_purge {
             return ctx.respond_error("I do not have the Manage Messages permission to purge messages.", true).await;
@@ -29,7 +29,7 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
             .input
             .member
             .as_ref()
-            .map_or(false, |member| member.permissions.map_or(false, |permissions| permissions.contains(Permissions::MANAGE_MESSAGES)));
+            .is_some_and(|member| member.permissions.is_some_and(|permissions| permissions.contains(Permissions::MANAGE_MESSAGES)));
         let is_flazepe = ctx.input.user.id == FLAZEPE_ID;
 
         if !has_permission && !is_flazepe {

@@ -35,7 +35,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     };
     let dm = ctx.get_bool_arg("dm").unwrap_or(false)
         || ctx.input.guild_id.is_none()
-        || ctx.input.message.as_ref().map_or(false, |message| message.interaction_metadata.is_some()) // DM if select menu's message was from an interaction
+        || ctx.input.message.as_ref().is_some_and(|message| message.interaction_metadata.is_some()) // DM if select menu's message was from an interaction
         || !ctx.input.app_permissions.contains(Permissions::VIEW_CHANNEL | Permissions::SEND_MESSAGES);
 
     match Reminders::set(user_id, url, time, interval, reminder, dm).await {

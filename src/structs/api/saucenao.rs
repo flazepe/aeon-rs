@@ -1,5 +1,5 @@
-use crate::statics::{colors::PRIMARY_COLOR, CONFIG, REQWEST};
-use anyhow::{bail, Result};
+use crate::statics::{CONFIG, REQWEST, colors::PRIMARY_COLOR};
+use anyhow::{Result, bail};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
@@ -50,7 +50,7 @@ impl SauceNaoSearch {
             .json::<Self>()
             .await?;
 
-        if search.results.as_ref().map_or(true, |results| results.is_empty()) {
+        if search.results.as_ref().is_some_and(|results| results.is_empty()) {
             bail!("Sauce not found.");
         }
 

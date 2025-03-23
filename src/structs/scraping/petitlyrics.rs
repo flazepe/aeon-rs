@@ -1,10 +1,10 @@
 use crate::{
     functions::limit_strings,
-    statics::{colors::PRIMARY_COLOR, REQWEST},
-    structs::api::google::{statics::GOOGLE_TRANSLATE_LANGUAGES, Google},
+    statics::{REQWEST, colors::PRIMARY_COLOR},
+    structs::api::google::{Google, statics::GOOGLE_TRANSLATE_LANGUAGES},
 };
-use anyhow::{bail, Result};
-use base64::{prelude::BASE64_STANDARD, Engine};
+use anyhow::{Result, bail};
+use base64::{Engine, prelude::BASE64_STANDARD};
 use http_req::{
     request::{Method, Request},
     uri::Uri,
@@ -126,7 +126,7 @@ impl PetitLyrics {
 
             if lyrics.is_empty() {
                 lyrics.push(line);
-            } else if line.chars().next().map_or(false, |char| char.is_lowercase()) {
+            } else if line.chars().next().is_some_and(|char| char.is_lowercase()) {
                 lyrics.last_mut().unwrap().push_str(&format!(" {line}"));
             } else {
                 lyrics.push(line);

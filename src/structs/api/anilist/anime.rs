@@ -1,16 +1,16 @@
 use crate::{
     functions::{limit_strings, now},
     structs::api::anilist::{
+        AniList,
         components::{
             AniListAiringSchedule, AniListAnimeCharacter, AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat,
             AniListFuzzyDate, AniListMediaPageResponse, AniListMediaResponse, AniListNodes, AniListRanking, AniListRelation,
             AniListResponse, AniListSeason, AniListSource, AniListStatus, AniListStudio, AniListTitle, AniListTrailer,
         },
         statics::{ANILIST_ANIME_FIELDS, ANILIST_EMBED_COLOR},
-        AniList,
     },
 };
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::{
@@ -106,7 +106,7 @@ impl AniListAnime {
             .airing_schedule
             .nodes
             .iter()
-            .find(|node| node.time_until_airing.map_or(false, |time| time > 0))
+            .find(|node| node.time_until_airing.is_some_and(|time| time > 0))
             .map(|node| format!("\nNext episode airs <t:{}:R>", now() + node.time_until_airing.unwrap() as u64));
         let aired = format!(
             "{season}{airing_date} ({status}){airing_in}",

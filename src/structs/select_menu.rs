@@ -67,10 +67,7 @@ impl From<SelectMenu> for Components {
             }
 
             // Prevent duplicate values in the new select menu
-            if select_menu
-                .options
-                .as_deref()
-                .map_or(false, |options| options.iter().any(|select_option| select_option.value == option.value))
+            if select_menu.options.as_deref().is_some_and(|options| options.iter().any(|select_option| select_option.value == option.value))
             {
                 continue;
             }
