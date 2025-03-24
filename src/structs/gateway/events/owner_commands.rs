@@ -27,7 +27,7 @@ impl EventHandler {
         let prefixless = message.content.chars().skip(prefix.len()).collect::<String>();
         let (command, args) = prefixless.split_once(' ').unwrap_or(("", ""));
 
-        let mut owner_commands = OwnerCommands { message, sender, args: args.to_string() };
+        let owner_commands = OwnerCommands { message, sender, args: args.to_string() };
 
         match command {
             "delete" => owner_commands.delete().await,
@@ -104,7 +104,7 @@ impl OwnerCommands<'_> {
         Ok(())
     }
 
-    async fn status(&mut self) -> Result<()> {
+    async fn status(&self) -> Result<()> {
         self.sender.send(
             json!({
                 "op": OpCode::PresenceUpdate,
