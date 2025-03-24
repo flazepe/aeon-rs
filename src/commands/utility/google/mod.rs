@@ -2,7 +2,7 @@ mod assistant;
 mod dns;
 mod translate;
 
-use crate::structs::{api::google::statics::GOOGLE_DNS_RECORD_TYPES, command::Command, command_context::Input};
+use crate::structs::{api::google::statics::GOOGLE_DNS_RECORD_TYPES, command::AeonCommand, command_context::AeonCommandInput};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -10,8 +10,8 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("google", &["g", "goog"]).subcommand("assistant", &["ass"], assistant::run).subcommand("dns", &[], dns::run).subcommand(
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("google", &["g", "goog"]).subcommand("assistant", &["ass"], assistant::run).subcommand("dns", &[], dns::run).subcommand(
         "translate",
         &["tl", "tr", "trans"],
         translate::run,
@@ -86,7 +86,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         ],
     )]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
     }
 
     func

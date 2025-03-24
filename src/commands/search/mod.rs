@@ -10,11 +10,11 @@ mod time;
 mod vndb;
 mod youtube;
 
-use crate::structs::command::Command;
+use crate::structs::command::AeonCommand;
 use slashook::commands::Command as SlashookCommand;
 use std::sync::LazyLock;
 
-pub fn get_commands() -> Vec<&'static LazyLock<Command>> {
+pub fn get_aeon_commands() -> Vec<&'static LazyLock<AeonCommand>> {
     vec![
         &anilist::COMMAND,
         &distrowatch::COMMAND,

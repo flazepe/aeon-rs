@@ -1,12 +1,12 @@
 use crate::{
     statics::REQWEST,
-    structs::command_context::{CommandContext, CommandInputExt, Input},
+    structs::command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
 };
 use anyhow::Result;
 use nipper::Document;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
     let user = input.get_string_arg("user")?;
     let response = REQWEST.get("https://heliohost.org/status/").query(&[("u", &user)]).send().await?;
     let url = response.url().to_string();

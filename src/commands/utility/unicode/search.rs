@@ -1,16 +1,16 @@
 use crate::{
     functions::{hastebin, limit_strings},
     structs::{
-        command_context::{CommandContext, CommandInputExt, Input},
+        command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
         unicode::Unicode,
     },
 };
 use anyhow::Result;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let character = match &ctx.input {
-        Input::ApplicationCommand(input,  _) => input.get_string_arg("text")?,
-        Input::MessageCommand(_, _, args)   => args.into(),
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let character = match &ctx.command_input {
+        AeonCommandInput::ApplicationCommand(input,  _) => input.get_string_arg("text")?,
+        AeonCommandInput::MessageCommand(_, args, _)   => args.into(),
     };
 
     if character.is_empty() {

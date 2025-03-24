@@ -1,13 +1,13 @@
 use crate::structs::{
     api::google::Google,
-    command_context::{CommandContext, CommandInputExt, Input},
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
 };
 use anyhow::Result;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let (record_type, domain) = match &ctx.input {
-        Input::ApplicationCommand(input,  _) => (input.get_string_arg("type")?, input.get_string_arg("domain")?),
-        Input::MessageCommand(_, _, args)   => {
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let (record_type, domain) = match &ctx.command_input {
+        AeonCommandInput::ApplicationCommand(input, _) => (input.get_string_arg("type")?, input.get_string_arg("domain")?),
+        AeonCommandInput::MessageCommand(_, args, _) => {
             let mut args = args.split(' ').filter(|entry| !entry.is_empty());
 
             let Some(record_type) = args.next().map(|arg| arg.to_uppercase()) else {

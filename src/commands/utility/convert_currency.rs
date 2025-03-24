@@ -1,7 +1,7 @@
 use crate::structs::{
     api::xe::{Xe, statics::XE_CURRENCIES},
-    command::Command,
-    command_context::{CommandContext, CommandInputExt, Input},
+    command::AeonCommand,
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
 };
 use slashook::{
     command,
@@ -10,19 +10,19 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("convert-currency", &["cc"]).main(|ctx: CommandContext| async move {
-        if let Input::ApplicationCommand(input,  _) = &ctx.input {
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("convert-currency", &["cc"]).main(|ctx: AeonCommandContext| async move {
+        if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
             if input.is_autocomplete() {
                 return ctx.autocomplete(XE_CURRENCIES.iter()).await;
             }
         }
 
-        let (amount, origin_currency, target_currency) = match &ctx.input {
-            Input::ApplicationCommand(input,  _) => {
+        let (amount, origin_currency, target_currency) = match &ctx.command_input {
+            AeonCommandInput::ApplicationCommand(input, _) => {
                 (input.get_f64_arg("amount")?, input.get_string_arg("origin-currency")?, input.get_string_arg("target-currency")?)
             },
-            Input::MessageCommand(_, _, args)   => {
+            AeonCommandInput::MessageCommand(_, args, _) => {
                 let mut args = args.split(' ').filter(|entry| !entry.is_empty());
 
                 let Some(amount) = args.next().and_then(|arg| arg.parse::<f64>().ok()) else {
@@ -78,7 +78,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         ],
     )]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
     }
 
     func

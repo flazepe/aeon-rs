@@ -1,14 +1,14 @@
 use crate::{
     functions::eien,
     statics::CACHE,
-    structs::command_context::{CommandContext, CommandInputExt, Input},
+    structs::command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     traits::UserExt,
 };
 use anyhow::Result;
 use serde_json::to_string;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
     let mut user = input.get_user_arg("member").unwrap_or(&input.user);
 
     // Set to author if there's no resolved member

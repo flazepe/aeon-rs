@@ -21,26 +21,26 @@ use std::fmt::{Debug, Display};
 use twilight_gateway::MessageSender;
 use twilight_model::channel::Message as TwilightMessage;
 
-pub struct CommandContext {
-    pub input: Input,
+pub struct AeonCommandContext {
+    pub command_input: AeonCommandInput,
     verified: bool,
 }
 
-pub enum Input {
+pub enum AeonCommandInput {
     ApplicationCommand(CommandInput, CommandResponder),
-    MessageCommand(TwilightMessage, MessageSender, String),
+    MessageCommand(TwilightMessage, String, MessageSender),
 }
 
-impl CommandContext {
-    pub fn new(input: Input) -> Self {
-        Self { input, verified: false }
+impl AeonCommandContext {
+    pub fn new(command_input: AeonCommandInput) -> Self {
+        Self { command_input, verified: false }
     }
 
     pub async fn verify(mut self) -> Result<Self> {
         self.verified = true;
 
-        let user_id = match &self.input {
-            Input::ApplicationCommand(input, _) => {
+        let user_id = match &self.command_input {
+            AeonCommandInput::ApplicationCommand(input, _) => {
                 // Ignore verification for autocomplete
                 if input.is_autocomplete() {
                     return Ok(self);
@@ -55,7 +55,7 @@ impl CommandContext {
 
                 input.user.id.clone()
             },
-            Input::MessageCommand(message, _, _) => message.author.id.to_string(),
+            AeonCommandInput::MessageCommand(message, _, _) => message.author.id.to_string(),
         };
 
         if CACHE.cooldowns.read().unwrap().get(&user_id).unwrap_or(&0) > &now() {
@@ -67,7 +67,7 @@ impl CommandContext {
     }
 
     pub async fn defer(&self, ephemeral: bool) -> Result<()> {
-        let Input::ApplicationCommand(input, res) = &self.input else { return Ok(()) };
+        let AeonCommandInput::ApplicationCommand(input, res) = &self.command_input else { return Ok(()) };
 
         if input.message.is_some() {
             res.defer_update().await?
@@ -83,14 +83,14 @@ impl CommandContext {
             bail!("Interaction isn't verified.");
         }
 
-        match &self.input {
-            Input::ApplicationCommand(input, _) => {
+        match &self.command_input {
+            AeonCommandInput::ApplicationCommand(input, _) => {
                 // Only add cooldown to non-search commands
                 if !input.get_bool_arg("search").unwrap_or(false) {
                     CACHE.cooldowns.write().unwrap().insert(input.user.id.clone(), now() + 3);
                 }
             },
-            Input::MessageCommand(message, _, _) => {
+            AeonCommandInput::MessageCommand(message, _, _) => {
                 CACHE.cooldowns.write().unwrap().insert(message.author.id.to_string(), now() + 3);
             },
         }
@@ -103,15 +103,15 @@ impl CommandContext {
             response = response.set_content("");
         }
 
-        match &self.input {
-            Input::ApplicationCommand(input, res) => {
+        match &self.command_input {
+            AeonCommandInput::ApplicationCommand(input, res) => {
                 if input.message.is_some() && !ephemeral {
                     res.update_message(response).await?;
                 } else {
                     res.send_message(response).await?;
                 }
             },
-            Input::MessageCommand(message, _, _) => {
+            AeonCommandInput::MessageCommand(message, _, _) => {
                 let command_response = CACHE.command_responses.read().unwrap().get(message.id.to_string().as_str()).cloned();
 
                 if let Some(command_response) = command_response {
@@ -151,7 +151,7 @@ impl CommandContext {
     }
 
     pub async fn autocomplete<T: Iterator<Item = (K, V)>, K: Display, V: Display>(&self, iter: T) -> Result<()> {
-        let Input::ApplicationCommand(input, res) = &self.input else { return Ok(()) };
+        let AeonCommandInput::ApplicationCommand(input, res) = &self.command_input else { return Ok(()) };
 
         let value = input
             .args
@@ -172,8 +172,8 @@ impl CommandContext {
     }
 
     pub fn get_query_and_section<T: Display>(&self, option_name: T) -> Result<(String, String)> {
-        match &self.input {
-            Input::ApplicationCommand(input, _) => {
+        match &self.command_input {
+            AeonCommandInput::ApplicationCommand(input, _) => {
                 if input.is_string_select() {
                     let mut split = input.values.as_ref().unwrap()[0].split('/');
                     Ok((split.next().unwrap().into(), split.next().unwrap_or("").into()))
@@ -181,12 +181,12 @@ impl CommandContext {
                     Ok((input.get_string_arg(option_name)?, "".into()))
                 }
             },
-            Input::MessageCommand(_, _, args) => Ok((args.into(), "".into())),
+            AeonCommandInput::MessageCommand(_, args, _) => Ok((args.into(), "".into())),
         }
     }
 
     pub fn is_string_select(&self) -> bool {
-        if let Input::ApplicationCommand(input, _) = &self.input { input.is_string_select() } else { false }
+        if let AeonCommandInput::ApplicationCommand(input, _) = &self.command_input { input.is_string_select() } else { false }
     }
 }
 

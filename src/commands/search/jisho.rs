@@ -1,7 +1,7 @@
 use crate::structs::{
     api::jisho::JishoSearch,
-    command::Command,
-    command_context::{CommandContext, CommandInputExt, Input},
+    command::AeonCommand,
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     select_menu::SelectMenu,
 };
 use slashook::{
@@ -11,17 +11,17 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("jisho", &[]).main(|ctx: CommandContext| async move {
-        if let Input::ApplicationCommand(input, _) = &ctx.input {
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("jisho", &[]).main(|ctx: AeonCommandContext| async move {
+        if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
             if input.is_string_select() {
                 return ctx.respond(JishoSearch::get(&input.values.as_ref().unwrap()[0]).await?.format(), false).await;
             }
         }
 
-        let query = match &ctx.input {
-            Input::ApplicationCommand(input, _) => input.get_string_arg("query")?,
-            Input::MessageCommand(_, _, args) => args.into(),
+        let query = match &ctx.command_input {
+            AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("query")?,
+            AeonCommandInput::MessageCommand(_, args, _) => args.into(),
         };
 
         let results = match JishoSearch::search(query).await {
@@ -52,7 +52,7 @@ pub fn get_slashook_command() -> SlashookCommand {
 		],
 	)]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
     }
 
     func

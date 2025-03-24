@@ -5,7 +5,7 @@ mod request;
 mod set_status;
 mod status;
 
-use crate::structs::{command::Command, command_context::Input};
+use crate::structs::{command::AeonCommand, command_context::AeonCommandInput};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -13,8 +13,8 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("owner", &["o"])
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("owner", &["o"])
         .owner_only()
         .subcommand("delete", &["del"], delete::run)
         .subcommand("eien", &[], eien::run)
@@ -89,7 +89,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         ],
     )]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
     }
 
     func

@@ -1,6 +1,6 @@
 use crate::structs::{
-    command::Command,
-    command_context::{CommandContext, Input},
+    command::AeonCommand,
+    command_context::{AeonCommandContext, AeonCommandInput},
 };
 use serde_json::{Value, to_string_pretty};
 use slashook::{
@@ -14,9 +14,9 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("Inspect Message", &[]).main(|ctx: CommandContext| async move {
-        let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("Inspect Message", &[]).main(|ctx: AeonCommandContext| async move {
+        let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let mut response = MessageResponse::from(File::new("message.rs", format!("{:#?}", input.target_message.as_ref().unwrap())));
 
         if input.app_permissions.contains(Permissions::VIEW_CHANNEL | Permissions::READ_MESSAGE_HISTORY) {
@@ -45,7 +45,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
 	)]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
     }
 
     func

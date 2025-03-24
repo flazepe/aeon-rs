@@ -2,8 +2,8 @@ use crate::{
     statics::CACHE,
     structs::{
         api::tio::{Tio, statics::TIO_PROGRAMMING_LANGUAGES},
-        command::Command,
-        command_context::{CommandContext, CommandInputExt, Input},
+        command::AeonCommand,
+        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     },
 };
 use slashook::{
@@ -16,10 +16,10 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("code", &["execute", "run"]).main(|ctx: CommandContext| {
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("code", &["execute", "run"]).main(|ctx: AeonCommandContext| {
         async move {
-            let Input::ApplicationCommand(input, res) = &ctx.input else { return Ok(()) };
+            let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
             if input.is_autocomplete() {
                 return ctx.autocomplete(TIO_PROGRAMMING_LANGUAGES.iter()).await;
@@ -76,7 +76,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         ],
     )]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
     }
 
     func

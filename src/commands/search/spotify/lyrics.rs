@@ -2,15 +2,15 @@ use crate::{
     statics::CACHE,
     structs::{
         api::{google::statics::GOOGLE_TRANSLATE_LANGUAGES, spotify::Spotify},
-        command_context::{CommandContext, CommandInputExt, Input},
+        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
         select_menu::SelectMenu,
     },
 };
 use anyhow::Result;
 use slashook::commands::MessageResponse;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    if let Input::ApplicationCommand(input, _) = &ctx.input {
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
         if input.is_autocomplete() {
             return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
         }
@@ -30,11 +30,11 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         }
     }
 
-    let (query, user_id, translate_language) = match &ctx.input {
-        Input::ApplicationCommand(input, _) => {
+    let (query, user_id, translate_language) = match &ctx.command_input {
+        AeonCommandInput::ApplicationCommand(input, _) => {
             (input.get_string_arg("song").ok(), input.user.id.clone(), input.get_string_arg("translate").ok())
         },
-        Input::MessageCommand(message, _, args) => (args.clone().into(), message.author.id.to_string(), None::<String>),
+        AeonCommandInput::MessageCommand(message, args, _) => (args.clone().into(), message.author.id.to_string(), None::<String>),
     };
 
     let Some(query) =

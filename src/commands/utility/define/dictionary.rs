@@ -1,13 +1,13 @@
 use crate::structs::{
     api::dictionary::Dictionary,
-    command_context::{CommandContext, CommandInputExt, Input},
+    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
 };
 use anyhow::Result;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let (word, ephemeral) = match &ctx.input {
-        Input::ApplicationCommand(input,  _) => (input.get_string_arg("word")?, !input.get_bool_arg("show").unwrap_or(false)),
-        Input::MessageCommand(_, _, args)   => (args.into(), true),
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let (word, ephemeral) = match &ctx.command_input {
+        AeonCommandInput::ApplicationCommand(input,  _) => (input.get_string_arg("word")?, !input.get_bool_arg("show").unwrap_or(false)),
+        AeonCommandInput::MessageCommand(_, args, _)   => (args.into(), true),
     };
 
     if word.is_empty() {

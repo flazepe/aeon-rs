@@ -2,7 +2,7 @@ use crate::{
     functions::{TimestampFormat, format_timestamp},
     statics::colors::PRIMARY_COLOR,
     structs::{
-        command_context::{CommandContext, Input},
+        command_context::{AeonCommandContext, AeonCommandInput},
         database::reminders::Reminders,
         duration::Duration,
     },
@@ -10,8 +10,8 @@ use crate::{
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
 
     match Reminders::get_many(&input.user.id).await {
         Ok(reminders) => {

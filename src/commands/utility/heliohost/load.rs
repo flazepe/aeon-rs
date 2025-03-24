@@ -1,11 +1,11 @@
 use crate::{
     statics::REQWEST,
-    structs::command_context::{CommandContext, CommandInputExt, Input},
+    structs::command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
 };
 use anyhow::Result;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
     let server = input.get_string_arg("server")?;
 
     ctx.respond(

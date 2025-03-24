@@ -1,6 +1,6 @@
 use crate::structs::{
-    command::Command,
-    command_context::{CommandContext, CommandInputExt, Input},
+    command::AeonCommand,
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
 };
 use image::ImageOutputFormat;
 use mathjax::MathJax;
@@ -14,13 +14,13 @@ use slashook::{
 };
 use std::{io::Cursor, sync::LazyLock};
 
-pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("latex", &[]).main(|ctx: CommandContext| async move {
-        let (expression, color) = match &ctx.input {
-            Input::ApplicationCommand(input,  _) => {
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("latex", &[]).main(|ctx: AeonCommandContext| async move {
+        let (expression, color) = match &ctx.command_input {
+            AeonCommandInput::ApplicationCommand(input, _) => {
                 (input.get_string_arg("expression")?, input.get_string_arg("color").unwrap_or("#fff".into()))
             },
-            Input::MessageCommand(_, _, args)   => (args.into(), "#fff".into()),
+            AeonCommandInput::MessageCommand(_, args, _) => (args.into(), "#fff".into()),
         };
 
         if expression.is_empty() {
@@ -71,7 +71,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         ],
     )]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
     }
 
     func

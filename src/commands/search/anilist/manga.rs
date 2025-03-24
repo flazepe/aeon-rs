@@ -1,13 +1,13 @@
 use crate::structs::{
     api::anilist::AniList,
-    command_context::{CommandContext, CommandInputExt, Input},
+    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
     select_menu::SelectMenu,
 };
 use anyhow::Result;
 use slashook::commands::MessageResponse;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 
     if input.get_bool_arg("search").unwrap_or(false) {
         let results = match AniList::search_manga(input.get_string_arg("manga")?).await {

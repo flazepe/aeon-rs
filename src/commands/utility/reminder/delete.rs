@@ -1,11 +1,11 @@
 use crate::structs::{
-    command_context::{CommandContext, CommandInputExt, Input},
+    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
     database::reminders::Reminders,
 };
 use anyhow::Result;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
     let reminders = Reminders::get_many(&input.user.id).await.unwrap_or_else(|_| vec![]);
 
     if input.is_autocomplete() {

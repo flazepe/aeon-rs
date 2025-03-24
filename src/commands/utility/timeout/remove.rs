@@ -1,10 +1,10 @@
-use crate::structs::command_context::{CommandContext, CommandInputExt, Input};
+use crate::structs::command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt};
 use anyhow::Result;
 use serde_json::json;
 use slashook::structs::guilds::GuildMember;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
     let user = input.get_user_arg("member")?;
 
     match input

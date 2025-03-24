@@ -1,24 +1,24 @@
 use crate::structs::{
     api::google::{Google, statics::GOOGLE_TRANSLATE_LANGUAGES},
-    command_context::{CommandContext, CommandInputExt, Input},
+    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
     simple_message::SimpleMessage,
 };
 use anyhow::Result;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    if let Input::ApplicationCommand(input, _) = &ctx.input {
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
         if input.is_autocomplete() {
             return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
         }
     }
 
-    let (text, origin_language, target_language) = match &ctx.input {
-        Input::ApplicationCommand(input, _) => (
+    let (text, origin_language, target_language) = match &ctx.command_input {
+        AeonCommandInput::ApplicationCommand(input, _) => (
             input.get_string_arg("text")?,
             input.get_string_arg("origin-language").as_deref().unwrap_or("auto").to_string(),
             input.get_string_arg("target-language").as_deref().unwrap_or("en").to_string(),
         ),
-        Input::MessageCommand(message, _, args) => {
+        AeonCommandInput::MessageCommand(message, args, _) => {
             let mut args = args.split(' ').filter(|entry| !entry.is_empty());
 
             let Some(target_language) = args.next().or(Some("en")).map(|arg| arg.to_string()) else {

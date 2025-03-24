@@ -1,5 +1,5 @@
 use crate::structs::{
-    command_context::{CommandContext, CommandInputExt, Input},
+    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
     database::tags::Tags,
 };
 use anyhow::Result;
@@ -8,8 +8,8 @@ use slashook::{
     structs::{channels::Channel, messages::AllowedMentions},
 };
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
     let name = input.get_string_arg("tag")?;
     let guild_id = input.guild_id.as_ref().unwrap();
 

@@ -7,7 +7,7 @@ mod toggle_alias;
 mod toggle_nsfw;
 mod view;
 
-use crate::structs::{command::Command, command_context::Input, database::tags::Tags};
+use crate::structs::{command::AeonCommand, command_context::AeonCommandInput, database::tags::Tags};
 use anyhow::Context;
 use slashook::{
     command,
@@ -16,8 +16,8 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("tag", &["t"])
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("tag", &["t"])
         .subcommand("create", &[], create::run)
         .subcommand("delete", &[], delete::run)
         .subcommand("edit", &[], edit::run)
@@ -171,7 +171,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                 .await?;
         }
 
-        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
     }
 
     func

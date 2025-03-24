@@ -1,11 +1,11 @@
 use crate::structs::{
     api::steam::Steam,
-    command_context::{CommandContext, CommandInputExt, Input},
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
 };
 use anyhow::Result;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 
     match Steam::get_user(input.get_string_arg("user")?).await {
         Ok(user) => ctx.respond(user.format(), false).await,

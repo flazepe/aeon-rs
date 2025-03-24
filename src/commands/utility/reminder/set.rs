@@ -1,13 +1,13 @@
 use crate::structs::{
-    command_context::{CommandContext, CommandInputExt, Input},
+    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
     database::reminders::Reminders,
     duration::Duration,
 };
 use anyhow::Result;
 use slashook::structs::Permissions;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand(input, res) = &ctx.input else { return Ok(()) };
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
     // Must defer to not update original message
     res.defer(input.is_string_select()).await?;

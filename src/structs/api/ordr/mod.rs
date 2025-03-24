@@ -5,7 +5,7 @@ use crate::{
     statics::{CACHE, CONFIG, REQWEST},
     structs::{
         api::ordr::statics::ORDR_SKINS,
-        command_context::{CommandContext, Input},
+        command_context::{AeonCommandContext, AeonCommandInput},
     },
 };
 use anyhow::{Result, bail};
@@ -101,8 +101,8 @@ impl OrdrRender {
         Ok(render)
     }
 
-    pub async fn poll_progress(&self, ctx: &CommandContext) -> Result<()> {
-        let Input::ApplicationCommand(input, res) = &ctx.input else { return Ok(()) };
+    pub async fn poll_progress(&self, ctx: &AeonCommandContext) -> Result<()> {
+        let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
         CACHE.ordr_renders.write().unwrap().insert(self.render_id.unwrap(), "Rendering... (0%)".into());
         CACHE.ordr_rendering_users.write().unwrap().insert(input.user.id.clone(), true);

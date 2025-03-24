@@ -1,13 +1,13 @@
 use crate::structs::{
     api::vndb::Vndb,
-    command_context::{CommandContext, CommandInputExt, Input},
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     select_menu::SelectMenu,
 };
 use anyhow::Result;
 use slashook::commands::MessageResponse;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    if let Input::ApplicationCommand(input,  _) = &ctx.input {
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
         if input.get_bool_arg("search").unwrap_or(false) {
             let characters = match Vndb::search_character(input.get_string_arg("character")?).await {
                 Ok(characters) => characters,

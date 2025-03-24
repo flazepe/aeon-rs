@@ -1,14 +1,14 @@
 use crate::{
     functions::{TimestampFormat, format_timestamp, label_num},
     statics::{CACHE, colors::PRIMARY_COLOR},
-    structs::command_context::CommandContext,
+    structs::command_context::AeonCommandContext,
 };
 use anyhow::{Context, Result};
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 use sysinfo::{System, get_current_pid};
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
     match get_current_pid() {
         Ok(pid) => {
             let system = System::new_all();

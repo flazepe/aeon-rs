@@ -1,11 +1,11 @@
-use crate::structs::command_context::{CommandContext, Input};
+use crate::structs::command_context::{AeonCommandContext, AeonCommandInput};
 use anyhow::Result;
 use serde_json::to_string;
 use slashook::{commands::MessageResponse, structs::utils::File};
 use std::{fmt::Display, process::Command};
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::MessageCommand(message, _, args) = &ctx.input else { return Ok(()) };
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let AeonCommandInput::MessageCommand(message, args, _) = &ctx.command_input else { return Ok(()) };
 
     let mut code = args.to_string();
     let mut flags = code.split(' ').last().unwrap_or("").to_string();

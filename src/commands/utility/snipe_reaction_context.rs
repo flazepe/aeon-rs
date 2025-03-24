@@ -1,6 +1,6 @@
 use crate::structs::{
-    command::Command,
-    command_context::{CommandContext, Input},
+    command::AeonCommand,
+    command_context::{AeonCommandContext, AeonCommandInput},
     snipes::ReactionSnipes,
 };
 use slashook::{
@@ -10,9 +10,9 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("Snipe Reactions", &[]).main(|ctx: CommandContext| async move {
-        let Input::ApplicationCommand(input, _) = &ctx.input else { return Ok(()) };
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("Snipe Reactions", &[]).main(|ctx: AeonCommandContext| async move {
+        let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 
         match ReactionSnipes::new(
             input.guild_id.as_ref().unwrap(),
@@ -36,7 +36,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         contexts = [InteractionContextType::GUILD],
     )]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
     }
 
     func

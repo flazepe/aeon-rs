@@ -3,7 +3,7 @@ mod list;
 mod select_menu;
 mod set;
 
-use crate::structs::{command::Command, command_context::Input};
+use crate::structs::{command::AeonCommand, command_context::AeonCommandInput};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -11,8 +11,8 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("reminder", &[])
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("reminder", &[])
         .subcommand("delete", &[], delete::run)
         .subcommand("list", &[], list::run)
         .subcommand("set", &[], set::run)
@@ -78,7 +78,7 @@ pub fn get_slashook_command() -> SlashookCommand {
             input.subcommand = Some("select-menu".into());
         }
 
-        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
     }
 
     func

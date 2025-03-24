@@ -1,5 +1,5 @@
 use crate::structs::{
-    command_context::{CommandContext, CommandInputExt, Input},
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     database::tags::Tags,
 };
 use anyhow::Result;
@@ -8,8 +8,8 @@ use slashook::{
     structs::components::{Components, TextInput, TextInputStyle},
 };
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand(input, res) = &ctx.input else { return Ok(()) };
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
     if input.is_modal_submit() {
         let name = input.get_string_arg("tag")?;

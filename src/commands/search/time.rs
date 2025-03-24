@@ -1,7 +1,7 @@
 use crate::structs::{
     api::virtualearth::TimeZoneLocation,
-    command::Command,
-    command_context::{CommandContext, CommandInputExt, Input},
+    command::AeonCommand,
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
 };
 use slashook::{
     command,
@@ -10,11 +10,11 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("time", &[]).main(|ctx: CommandContext| async move {
-        let location = match &ctx.input {
-            Input::ApplicationCommand(input, _) => input.get_string_arg("location")?,
-            Input::MessageCommand(_, _, args) => args.into(),
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("time", &[]).main(|ctx: AeonCommandContext| async move {
+        let location = match &ctx.command_input {
+            AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("location")?,
+            AeonCommandInput::MessageCommand(_, args, _) => args.into(),
         };
 
         if location.is_empty() {
@@ -44,7 +44,7 @@ pub fn get_slashook_command() -> SlashookCommand {
 		],
 	)]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
     }
 
     func

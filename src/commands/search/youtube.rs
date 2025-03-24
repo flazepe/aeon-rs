@@ -1,8 +1,8 @@
 use crate::{
     statics::REQWEST,
     structs::{
-        command::Command,
-        command_context::{CommandContext, CommandInputExt, Input},
+        command::AeonCommand,
+        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     },
 };
 use slashook::{
@@ -12,9 +12,9 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("youtube", &["yt"]).main(|ctx: CommandContext| async move {
-        let Input::ApplicationCommand(input, _) = &ctx.input else { return Ok(()) };
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("youtube", &["yt"]).main(|ctx: AeonCommandContext| async move {
+        let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let text = REQWEST
             .get("https://www.youtube.com/results")
             .query(&[("search_query", input.get_string_arg("video")?)])
@@ -52,7 +52,7 @@ pub fn get_slashook_command() -> SlashookCommand {
 		],
 	)]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
     }
 
     func

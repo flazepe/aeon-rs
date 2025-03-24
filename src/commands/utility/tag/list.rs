@@ -2,7 +2,7 @@ use crate::{
     functions::limit_strings,
     statics::colors::PRIMARY_COLOR,
     structs::{
-        command_context::{CommandContext, CommandInputExt, Input},
+        command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
         database::tags::Tags,
     },
     traits::UserExt,
@@ -10,8 +10,8 @@ use crate::{
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
 
-pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
+pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
     let guild_id = input.guild_id.as_ref().unwrap();
     let author = input.get_user_arg("author").ok();
 

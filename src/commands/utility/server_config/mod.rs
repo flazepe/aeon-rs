@@ -3,7 +3,7 @@ mod logs;
 mod prefix;
 mod view;
 
-use crate::structs::{command::Command, command_context::Input};
+use crate::structs::{command::AeonCommand, command_context::AeonCommandInput};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -15,8 +15,8 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("server-config", &[])
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("server-config", &[])
         .subcommand("fix-embeds", &[], fix_embeds::run)
         .subcommand("logs", &[], logs::run)
         .subcommand("prefix", &[], prefix::run)
@@ -76,7 +76,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         ],
     )]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
     }
 
     func
