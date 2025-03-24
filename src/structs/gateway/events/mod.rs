@@ -1,7 +1,7 @@
+mod commands;
 mod core;
 mod fix_embeds;
 mod logs;
-mod owner_commands;
 
 use twilight_gateway::{Event, MessageSender};
 
@@ -16,8 +16,8 @@ impl EventHandler {
         }
 
         if let Event::MessageCreate(event) = &event {
-            if let Err(error) = Self::handle_owner_commands(event, sender).await {
-                println!("[GATEWAY] An error occurred while handling owner commands: {error:?}");
+            if let Err(error) = Self::handle_commands(event, &sender).await {
+                println!("[GATEWAY] An error occurred while handling commands: {error:?}");
             }
 
             if let Err(error) = Self::handle_fix_embeds(event).await {
