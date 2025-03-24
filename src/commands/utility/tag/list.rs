@@ -2,7 +2,7 @@ use crate::{
     functions::limit_strings,
     statics::colors::PRIMARY_COLOR,
     structs::{
-        command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
         database::tags::Tags,
     },
     traits::UserExt,
@@ -11,9 +11,16 @@ use anyhow::Result;
 use slashook::structs::embeds::Embed;
 
 pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
-    let guild_id = input.guild_id.as_ref().unwrap();
-    let author = input.get_user_arg("author").ok();
+    let (query, author, guild_id) = match &ctx.command_input {
+        AeonCommandInput::ApplicationCommand(input, _) => (
+            input.get_string_arg("query").as_deref().unwrap_or("").to_lowercase(),
+            input.get_user_arg("author").ok(),
+            input.guild_id.clone(),
+        ),
+        AeonCommandInput::MessageCommand(message, args, _) => (args.into(), None, message.guild_id.map(|guild_id| guild_id.to_string())),
+    };
+
+    let Some(guild_id) = guild_id else { return Ok(()) };
 
     match Tags::search(guild_id, author.map(|user| &user.id)).await {
         Ok(tags) => {
@@ -21,11 +28,7 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
             let title = author.map(|author| format!("{}'s tags", author.username));
             let tags = limit_strings(
                 tags.iter()
-                    .filter(|tag| {
-                        format!("{}{}", tag.name, tag.content)
-                            .to_lowercase()
-                            .contains(&input.get_string_arg("query").as_deref().unwrap_or("").to_lowercase())
-                    })
+                    .filter(|tag| format!("{}{}", tag.name, tag.content).to_lowercase().contains(&query))
                     .map(|tag| format!("`{}`", tag.name)),
                 ", ",
                 4096,
