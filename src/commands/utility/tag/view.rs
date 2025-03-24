@@ -1,6 +1,9 @@
-use crate::structs::{
-    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
-    database::tags::Tags,
+use crate::{
+    statics::REST,
+    structs::{
+        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+        database::tags::Tags,
+    },
 };
 use anyhow::Result;
 use slashook::{
@@ -9,14 +12,24 @@ use slashook::{
 };
 
 pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
-    let name = input.get_string_arg("tag")?;
-    let guild_id = input.guild_id.as_ref().unwrap();
+    let (name, guild_id, channel_id) = match &ctx.command_input {
+        AeonCommandInput::ApplicationCommand(input, _) => {
+            (input.get_string_arg("tag")?, input.guild_id.clone(), input.channel_id.as_ref().unwrap().clone())
+        },
+        AeonCommandInput::MessageCommand(message, args, _) => {
+            (args.into(), message.guild_id.map(|guild_id| guild_id.to_string()), message.channel_id.to_string())
+        },
+    };
+
+    let Some(guild_id) = guild_id else { return Ok(()) };
+
+    if name.is_empty() {
+        return ctx.respond_error("Please provide a name.", true).await;
+    }
 
     match Tags::get(name, guild_id).await {
         Ok(tag) => {
-            let nsfw_channel =
-                Channel::fetch(&input.rest, input.channel_id.as_ref().unwrap()).await.is_ok_and(|channel| channel.nsfw.unwrap_or(false));
+            let nsfw_channel = Channel::fetch(&REST, channel_id).await.is_ok_and(|channel| channel.nsfw.unwrap_or(false));
 
             if tag.nsfw && !nsfw_channel {
                 return ctx.respond_error("NSFW channels only.", true).await;
