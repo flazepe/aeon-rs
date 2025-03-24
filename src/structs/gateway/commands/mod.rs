@@ -10,7 +10,7 @@ pub async fn run<T: Display, U: Display>(event: &MessageCreate, sender: &Message
     match command.to_string().as_str() {
         // Owner
         "delete" => owner::delete::run(event, sender, args).await,
-        "eval" => owner::eval::run(event, sender, args).await,
+        "eval" | "evak" => owner::eval::run(event, sender, args).await,
         "status" => owner::status::run(event, sender, args).await,
 
         // Utility
