@@ -8,12 +8,16 @@ pub async fn run<T: Display>(message: &Message, _sender: &MessageSender, args: T
     let args = args.to_string();
     let mut split = args.split(' ');
 
-    let (Some(amount), Some(origin_currency), Some(target_currency)) = (split.next(), split.next(), split.next()) else {
-        return message.send_error("Invalid arguments.").await;
+    let Some(amount) = split.next().and_then(|arg| arg.parse::<f64>().ok()) else {
+        return message.send_error("Plese provide a valid amount.").await;
     };
 
-    let Ok(amount) = amount.parse::<f64>() else {
-        return message.send_error("Invalid amount.").await;
+    let Some(origin_currency) = split.next() else {
+        return message.send_error("Please provide the origin currency.").await;
+    };
+
+    let Some(target_currency) = split.next() else {
+        return message.send_error("Please provide the target currency.").await;
     };
 
     match Xe::convert(amount, origin_currency, target_currency).await {
