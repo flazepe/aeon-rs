@@ -1,16 +1,13 @@
-use crate::statics::{FLAZEPE_ID, REST};
+use crate::{statics::FLAZEPE_ID, traits::CommandsExt};
 use anyhow::Result;
 use serde_json::to_string;
-use slashook::{
-    commands::MessageResponse,
-    structs::{messages::Message, utils::File},
-};
+use slashook::{commands::MessageResponse, structs::utils::File};
 use std::{fmt::Display, process::Command};
 use twilight_gateway::MessageSender;
-use twilight_model::gateway::payload::incoming::MessageCreate;
+use twilight_model::channel::Message;
 
-pub async fn run<T: Display>(event: &MessageCreate, _sender: &MessageSender, args: T) -> Result<()> {
-    if event.author.id.to_string() != FLAZEPE_ID {
+pub async fn run<T: Display>(message: &Message, _sender: &MessageSender, args: T) -> Result<()> {
+    if message.author.id.to_string() != FLAZEPE_ID {
         return Ok(());
     }
 
@@ -33,7 +30,7 @@ pub async fn run<T: Display>(event: &MessageCreate, _sender: &MessageSender, arg
     if let Ok(output) = Command::new("node")
         .args([
             if flags.contains('m') { "-e" } else { "-p" },
-            &generate_eval_context(to_string(&event).unwrap_or_else(|_| "{}".into()), code),
+            &generate_eval_context(to_string(&message).unwrap_or_else(|_| "{}".into()), code),
             "--input-type",
             if flags.contains('m') { "module" } else { "commonjs" },
         ])
@@ -54,12 +51,11 @@ pub async fn run<T: Display>(event: &MessageCreate, _sender: &MessageSender, arg
     }
 
     if !flags.contains('s') {
-        let _ = Message::create(
-            &REST,
-            event.channel_id,
-            if text.len() > 2000 { MessageResponse::from(File::new("result.txt", text)) } else { MessageResponse::from(text) },
-        )
-        .await;
+        let _ = message
+            .send(if text.len() > 2000 { MessageResponse::from(File::new("result.txt", text)) } else { MessageResponse::from(text) })
+            .await;
+
+        return Ok(());
     }
 
     Ok(())

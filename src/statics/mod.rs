@@ -4,7 +4,7 @@ pub mod regex;
 
 use crate::structs::{
     config::Config,
-    database::{guilds::Guild, oauth::OauthToken, reminders::Reminder, tags::Tag, Collections},
+    database::{Collections, guilds::Guild, oauth::OauthToken, reminders::Reminder, tags::Tag},
     gateway::cache::Cache,
 };
 use mongodb::Database;
@@ -25,6 +25,7 @@ pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
     reaction_snipes: RwLock::new(HashMap::new()),
     song_activities: RwLock::new(HashMap::new()),
     cooldowns: RwLock::new(HashMap::new()),
+    command_responses: RwLock::new(HashMap::new()),
     last_tio_programming_languages: RwLock::new(HashMap::new()),
     ordr_renders: RwLock::new(HashMap::new()),
     ordr_rendering_users: RwLock::new(HashMap::new()),

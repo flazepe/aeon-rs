@@ -3,10 +3,13 @@ use anyhow::Result;
 use serde_json::json;
 use std::fmt::Display;
 use twilight_gateway::MessageSender;
-use twilight_model::gateway::{OpCode, payload::incoming::MessageCreate, presence::ActivityType};
+use twilight_model::{
+    channel::Message,
+    gateway::{OpCode, presence::ActivityType},
+};
 
-pub async fn run<T: Display>(event: &MessageCreate, sender: &MessageSender, args: T) -> Result<()> {
-    if event.author.id.to_string() != FLAZEPE_ID {
+pub async fn run<T: Display>(message: &Message, sender: &MessageSender, args: T) -> Result<()> {
+    if message.author.id.to_string() != FLAZEPE_ID {
         return Ok(());
     }
 

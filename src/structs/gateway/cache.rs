@@ -1,4 +1,5 @@
 use crate::structs::{api::localdown::LocalDownNovel, database::guilds::Guild, gateway::song_activity::SongActivity};
+use slashook::structs::messages::Message as SlashookMessage;
 use std::{collections::HashMap, sync::RwLock};
 use twilight_model::channel::Message;
 
@@ -10,6 +11,7 @@ pub struct Cache {
     pub reaction_snipes: RwLock<HashMap<String, Vec<String>>>,
     pub song_activities: RwLock<HashMap<String, SongActivity>>,
     pub cooldowns: RwLock<HashMap<String, u64>>,
+    pub command_responses: RwLock<HashMap<String, SlashookMessage>>,
     pub last_tio_programming_languages: RwLock<HashMap<String, String>>,
     pub ordr_renders: RwLock<HashMap<u64, String>>,
     pub ordr_rendering_users: RwLock<HashMap<String, bool>>,

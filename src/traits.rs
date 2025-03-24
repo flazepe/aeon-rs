@@ -1,4 +1,9 @@
-use slashook::structs::{messages::Message as SlashookMessage, users::User as SlashookUser};
+use crate::statics::{CACHE, REST};
+use anyhow::Result;
+use slashook::{
+    commands::MessageResponse,
+    structs::{messages::Message as SlashookMessage, users::User as SlashookUser},
+};
 use std::fmt::Display;
 use twilight_model::{channel::Message as TwilightMessage, user::User as TwilightUser};
 
@@ -99,6 +104,27 @@ impl MessageExt for TwilightMessage {
     }
 }
 
+pub trait CommandsExt {
+    async fn send<T: Into<MessageResponse>>(&self, response: T) -> Result<()>;
+}
+
+impl CommandsExt for TwilightMessage {
+    async fn send<T: Into<MessageResponse>>(&self, response: T) -> Result<()> {
+        let command_response = CACHE.command_responses.read().unwrap().get(self.id.to_string().as_str()).cloned();
+
+        if let Some(command_response) = command_response {
+            let _ = command_response.edit(&REST, response).await;
+            return Ok(());
+        }
+
+        if let Ok(command_response) = SlashookMessage::create(&REST, self.channel_id.to_string(), response).await {
+            CACHE.command_responses.write().unwrap().insert(self.id.to_string(), command_response);
+        }
+
+        Ok(())
+    }
+}
+
 pub trait LimitedVec<T> {
     fn push_limited(&mut self, value: T, limit: usize);
 }
@@ -133,10 +159,6 @@ impl<T: Display> Commas for T {
             formatted_integer += &char.to_string();
         }
 
-        if fraction.is_empty() {
-            formatted_integer
-        } else {
-            format!("{formatted_integer}.{fraction}")
-        }
+        if fraction.is_empty() { formatted_integer } else { format!("{formatted_integer}.{fraction}") }
     }
 }

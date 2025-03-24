@@ -2,10 +2,10 @@ use crate::statics::{FLAZEPE_ID, REST};
 use anyhow::Result;
 use std::fmt::Display;
 use twilight_gateway::MessageSender;
-use twilight_model::gateway::payload::incoming::MessageCreate;
+use twilight_model::channel::Message;
 
-pub async fn run<T: Display>(event: &MessageCreate, _sender: &MessageSender, args: T) -> Result<()> {
-    if event.author.id.to_string() != FLAZEPE_ID {
+pub async fn run<T: Display>(message: &Message, _sender: &MessageSender, args: T) -> Result<()> {
+    if message.author.id.to_string() != FLAZEPE_ID {
         return Ok(());
     }
 

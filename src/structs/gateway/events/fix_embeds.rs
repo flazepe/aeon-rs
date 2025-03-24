@@ -8,24 +8,24 @@ use crate::{
 use anyhow::Result;
 use reqwest::StatusCode;
 use serde_json::json;
-use slashook::structs::messages::{Message, MessageFlags};
-use twilight_model::gateway::payload::incoming::MessageCreate;
+use slashook::structs::messages::MessageFlags;
+use twilight_model::channel::Message;
 
 impl EventHandler {
-    pub async fn handle_fix_embeds(event: &MessageCreate) -> Result<()> {
-        let Some(guild_id) = &event.guild_id else { return Ok(()) };
+    pub async fn handle_fix_embeds(message: &Message) -> Result<()> {
+        let Some(guild_id) = &message.guild_id else { return Ok(()) };
         let guild = Guilds::get(guild_id).await?;
 
-        if !guild.fix_embeds || event.author.bot {
+        if !guild.fix_embeds || message.author.bot {
             return Ok(());
         }
 
-        let urls = URL_REGEX.find_iter(&event.content).map(|entry| entry.as_str()).collect::<Vec<&str>>();
+        let urls = URL_REGEX.find_iter(&message.content).map(|entry| entry.as_str()).collect::<Vec<&str>>();
         let mut new_urls = vec![];
 
         for url in urls {
             // Skip suppressed embeds
-            if event.content.contains(&format!("<{url}>")) {
+            if message.content.contains(&format!("<{url}>")) {
                 continue;
             }
 
@@ -80,17 +80,17 @@ impl EventHandler {
 
         if !new_urls.is_empty() {
             let _ = REST
-                .patch::<Message, _>(
-                    format!("channels/{}/messages/{}", event.channel_id, event.id),
+                .patch::<(), _>(
+                    format!("channels/{}/messages/{}", message.channel_id, message.id),
                     json!({ "flags": MessageFlags::SUPPRESS_EMBEDS }),
                 )
                 .await;
             let _ = REST
-                .post::<Message, _>(
-                    format!("channels/{}/messages", event.channel_id),
+                .post::<(), _>(
+                    format!("channels/{}/messages", message.channel_id),
                     json!({
-                        "content": format!("<@{}> {}", event.author.id, new_urls.join("\n")),
-                        "message_reference": { "message_id": event.id.to_string() },
+                        "content": format!("<@{}> {}", message.author.id, new_urls.join("\n")),
+                        "message_reference": { "message_id": message.id.to_string() },
                         "allowed_mentions": { "replied_user": false },
                     }),
                 )
