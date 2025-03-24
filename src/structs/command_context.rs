@@ -73,7 +73,7 @@ impl CommandContext {
             res.defer_update().await?
         } else {
             res.defer(ephemeral).await?
-        };
+        }
 
         Ok(())
     }
@@ -93,7 +93,7 @@ impl CommandContext {
             Input::MessageCommand { message, sender: _, args: _ } => {
                 CACHE.cooldowns.write().unwrap().insert(message.author.id.to_string(), now() + 3);
             },
-        };
+        }
 
         let mut response = response.into().set_ephemeral(ephemeral);
 

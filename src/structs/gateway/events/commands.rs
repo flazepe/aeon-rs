@@ -26,6 +26,6 @@ impl EventHandler {
         let prefixless = message.content.chars().skip(prefix.len()).collect::<String>().trim().to_string();
         let (command, args) = prefixless.split_once(' ').unwrap_or((&prefixless, ""));
 
-        commands::run(message, sender, command, args.trim()).await
+        commands::run(message, sender, command.to_lowercase(), args.trim()).await
     }
 }
