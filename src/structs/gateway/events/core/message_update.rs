@@ -3,26 +3,25 @@ use anyhow::Result;
 use twilight_model::gateway::payload::incoming::MessageUpdate;
 
 pub async fn handle(event: &MessageUpdate) -> Result<()> {
-    let message = event.0.clone();
-
     let mut channels = CACHE.channels.write().unwrap();
-    let channel_id = message.channel_id.to_string();
+    let channel_id = event.channel_id.to_string();
 
     if !channels.contains_key(&channel_id) {
         channels.insert(channel_id.clone(), vec![]);
     }
 
-    let old_message = channels.get_mut(&channel_id).unwrap().iter_mut().find(|_message| _message.id == message.id);
+    let new_message = event.0.clone();
+    let old_message = channels.get_mut(&channel_id).unwrap().iter_mut().find(|message| message.id == new_message.id);
 
     if let Some(old_message) = old_message {
         let cloned_old_message = old_message.clone();
 
         // Update message
-        old_message.attachments = message.attachments;
-        old_message.content = message.content;
-        old_message.edited_timestamp = message.edited_timestamp;
-        old_message.embeds = message.embeds;
-        old_message.pinned = message.pinned;
+        old_message.attachments = new_message.attachments;
+        old_message.content = new_message.content;
+        old_message.edited_timestamp = new_message.edited_timestamp;
+        old_message.embeds = new_message.embeds;
+        old_message.pinned = new_message.pinned;
 
         // Edit snipes
         let mut channels = CACHE.edit_snipes.write().unwrap();
