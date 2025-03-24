@@ -1,10 +1,13 @@
-use crate::statics::{CACHE, REST};
+use crate::statics::{
+    CACHE, REST,
+    emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
+};
 use anyhow::Result;
 use slashook::{
     commands::MessageResponse,
     structs::{messages::Message as SlashookMessage, users::User as SlashookUser},
 };
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 use twilight_model::{channel::Message as TwilightMessage, user::User as TwilightUser};
 
 pub trait UserExt {
@@ -106,6 +109,8 @@ impl MessageExt for TwilightMessage {
 
 pub trait CommandsExt {
     async fn send<T: Into<MessageResponse>>(&self, response: T) -> Result<()>;
+    async fn send_error<T: Debug>(&self, response: T) -> Result<()>;
+    async fn send_success<T: Display>(&self, response: T) -> Result<()>;
 }
 
 impl CommandsExt for TwilightMessage {
@@ -122,6 +127,14 @@ impl CommandsExt for TwilightMessage {
         }
 
         Ok(())
+    }
+
+    async fn send_error<T: Debug>(&self, response: T) -> Result<()> {
+        Self::send(&self, format!("{ERROR_EMOJI} {}", format!("{response:?}").trim_matches('"'))).await
+    }
+
+    async fn send_success<T: Display>(&self, response: T) -> Result<()> {
+        Self::send(&self, format!("{SUCCESS_EMOJI} {response}")).await
     }
 }
 
