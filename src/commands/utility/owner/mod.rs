@@ -18,7 +18,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         .owner_only()
         .subcommand("delete", &["del"], delete::run)
         .subcommand("eien", &[], eien::run)
-        .subcommand("eval", &["e", "evak"], eval::run)
+        .subcommand("eval", &["e", "ev", "evak"], eval::run)
         .subcommand("request", &["req"], request::run)
         .subcommand("set-status", &["ss"], set_status::run)
         .subcommand("status", &[], status::run)

@@ -10,7 +10,7 @@ use slashook::{
 use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> =
-    LazyLock::new(|| AeonCommand::new("unicode", &[]).subcommand("ls", &[], list::run).subcommand("search", &[], search::run));
+    LazyLock::new(|| AeonCommand::new("unicode", &[]).subcommand("list", &[], list::run).subcommand("search", &[], search::run));
 
 pub fn get_slashook_command() -> SlashookCommand {
     #[command(
