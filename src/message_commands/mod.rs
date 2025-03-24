@@ -14,7 +14,7 @@ pub async fn run<T: Display, U: Display>(message: &Message, sender: &MessageSend
         "status" => owner::status::run(message, sender, args).await,
 
         // Utility
-        "convert" | "cc" => utility::convert_currency::run(message, sender, args).await,
+        "convert-currency" | "convert" | "cc" => utility::convert_currency::run(message, sender, args).await,
         "ping" => utility::ping::run(message, sender, args).await,
 
         _ => Ok(()),
