@@ -130,11 +130,11 @@ impl CommandsExt for TwilightMessage {
     }
 
     async fn send_error<T: Debug>(&self, response: T) -> Result<()> {
-        Self::send(&self, format!("{ERROR_EMOJI} {}", format!("{response:?}").trim_matches('"'))).await
+        Self::send(self, format!("{ERROR_EMOJI} {}", format!("{response:?}").trim_matches('"'))).await
     }
 
     async fn send_success<T: Display>(&self, response: T) -> Result<()> {
-        Self::send(&self, format!("{SUCCESS_EMOJI} {response}")).await
+        Self::send(self, format!("{SUCCESS_EMOJI} {response}")).await
     }
 }
 
