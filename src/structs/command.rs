@@ -20,14 +20,14 @@ pub struct AeonCommand {
     pub name: String,
     pub aliases: Vec<String>,
     pub owner_only: bool,
-    func: Option<Box<dyn AeonCommandFn>>,
-    subcommands: Vec<AeonSubcommand>,
+    pub func: Option<Box<dyn AeonCommandFn>>,
+    pub subcommands: Vec<AeonSubcommand>,
 }
 
 pub struct AeonSubcommand {
     pub name: String,
     pub aliases: Vec<String>,
-    func: Box<dyn AeonCommandFn>,
+    pub func: Box<dyn AeonCommandFn>,
 }
 
 impl AeonCommand {
