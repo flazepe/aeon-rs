@@ -76,7 +76,7 @@ impl AeonCommand {
 
         if let Some(main) = &self.func {
             if let Err(error) = main.call(ctx).await {
-                println!("{error}");
+                println!("{error:?}");
             }
 
             return Ok(());
@@ -94,7 +94,7 @@ impl AeonCommand {
                     *args = new_args.to_string();
 
                     if let Err(error) = subcommand.func.call(ctx).await {
-                        println!("{error}");
+                        println!("{error:?}");
                     }
                 }
             },
@@ -106,7 +106,7 @@ impl AeonCommand {
 
                 if let Some(subcommand) = subcommand {
                     if let Err(error) = subcommand.func.call(ctx).await {
-                        println!("{error}");
+                        println!("{error:?}");
                     }
                 }
             },
