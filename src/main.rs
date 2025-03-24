@@ -1,6 +1,7 @@
 mod commands;
 mod functions;
 mod macros;
+pub mod message_commands;
 pub mod statics;
 mod structs;
 mod traits;

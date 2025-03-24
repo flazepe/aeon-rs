@@ -1,9 +1,7 @@
 use crate::{
+    message_commands,
     statics::CONFIG,
-    structs::{
-        database::guilds::Guilds,
-        gateway::{commands, events::EventHandler},
-    },
+    structs::{database::guilds::Guilds, gateway::events::EventHandler},
 };
 use anyhow::Result;
 use twilight_gateway::MessageSender;
@@ -28,6 +26,6 @@ impl EventHandler {
         let prefixless = message.content.chars().skip(prefix.len()).collect::<String>().trim().to_string();
         let (command, args) = prefixless.split_once(' ').unwrap_or((&prefixless, ""));
 
-        commands::run(message, sender, command, args.trim()).await
+        message_commands::run(message, sender, command, args.trim()).await
     }
 }
