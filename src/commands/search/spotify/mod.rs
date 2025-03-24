@@ -12,7 +12,7 @@ use slashook::{
 use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("spotify", &[])
+    Command::new("spotify", &["sp"])
         .subcommand("album", &[], album::run)
         .subcommand("lyrics", &[], lyrics::run)
         .subcommand("member", &[], member::run)
