@@ -1,4 +1,9 @@
-use crate::structs::{api::jisho::JishoSearch, command::Command, command_context::CommandContext, select_menu::SelectMenu};
+use crate::structs::{
+    api::jisho::JishoSearch,
+    command::Command,
+    command_context::{CommandContext, CommandInputExt, Input},
+    select_menu::SelectMenu,
+};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, MessageResponse},
@@ -6,13 +11,20 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new().main(|ctx: CommandContext| async move {
-        if ctx.input.is_string_select() {
-            return ctx.respond(JishoSearch::get(&ctx.input.values.as_ref().unwrap()[0]).await?.format(), false).await;
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("jisho", &[]).main(|ctx: CommandContext| async move {
+        if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+            if input.is_string_select() {
+                return ctx.respond(JishoSearch::get(&input.values.as_ref().unwrap()[0]).await?.format(), false).await;
+            }
         }
 
-        let results = match JishoSearch::search(ctx.get_string_arg("query")?).await {
+        let query = match &ctx.input {
+            Input::ApplicationCommand { input, res: _ } => input.get_string_arg("query")?,
+            Input::MessageCommand { message: _, sender: _, args } => args.into(),
+        };
+
+        let results = match JishoSearch::search(query).await {
             Ok(results) => results,
             Err(error) => return ctx.respond_error(error, true).await,
         };
@@ -24,9 +36,9 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     })
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-		name = "jisho",
+        name = COMMAND.name.clone(),
 		description = "Searches Jisho.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -39,9 +51,9 @@ pub fn get_command() -> SlashookCommand {
 			},
 		],
 	)]
-    async fn jisho(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    jisho
+    func
 }

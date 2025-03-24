@@ -1,6 +1,6 @@
 use crate::{
     functions::now,
-    statics::{colors::PRIMARY_COLOR, REQWEST},
+    statics::{REQWEST, colors::PRIMARY_COLOR},
     structs::{command_context::CommandContext, duration::Duration},
 };
 use anyhow::Result;

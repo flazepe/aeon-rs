@@ -7,7 +7,7 @@ mod toggle_alias;
 mod toggle_nsfw;
 mod view;
 
-use crate::structs::{command::Command, database::tags::Tags};
+use crate::structs::{command::Command, command_context::Input, database::tags::Tags};
 use anyhow::Context;
 use slashook::{
     command,
@@ -16,21 +16,21 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new()
-        .subcommand("create", create::run)
-        .subcommand("delete", delete::run)
-        .subcommand("edit", edit::run)
-        .subcommand("list", list::run)
-        .subcommand("meta", meta::run)
-        .subcommand("toggle-alias", toggle_alias::run)
-        .subcommand("toggle-nsfw", toggle_nsfw::run)
-        .subcommand("view", view::run)
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("tag", &["t"])
+        .subcommand("create", &[], create::run)
+        .subcommand("delete", &[], delete::run)
+        .subcommand("edit", &[], edit::run)
+        .subcommand("list", &[], list::run)
+        .subcommand("meta", &[], meta::run)
+        .subcommand("toggle-alias", &[], toggle_alias::run)
+        .subcommand("toggle-nsfw", &[], toggle_nsfw::run)
+        .subcommand("view", &[], view::run)
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "tag",
+        name = COMMAND.name.clone(),
         description = "Sends or manages server tags.",
         integration_types = [IntegrationType::GUILD_INSTALL],
         contexts = [InteractionContextType::GUILD],
@@ -147,7 +147,7 @@ pub fn get_command() -> SlashookCommand {
             },
         ],
     )]
-    async fn tag(input: CommandInput, res: CommandResponder) {
+    async fn func(input: CommandInput, res: CommandResponder) {
         if input.is_autocomplete() {
             let value = input
                 .args
@@ -171,8 +171,8 @@ pub fn get_command() -> SlashookCommand {
                 .await?;
         }
 
-        COMMAND.run(input, res).await?;
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    tag
+    func
 }

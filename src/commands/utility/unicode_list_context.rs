@@ -1,6 +1,11 @@
 use crate::{
     functions::{hastebin, limit_strings},
-    structs::{command::Command, command_context::CommandContext, simple_message::SimpleMessage, unicode::Unicode},
+    structs::{
+        command::Command,
+        command_context::{CommandContext, Input},
+        simple_message::SimpleMessage,
+        unicode::Unicode,
+    },
 };
 use slashook::{
     command,
@@ -9,9 +14,10 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new().main(|ctx: CommandContext| async move {
-        let message = SimpleMessage::from(ctx.input.target_message.as_ref().unwrap().clone());
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("List Unicode", &[]).main(|ctx: CommandContext| async move {
+        let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+        let message = SimpleMessage::from(input.target_message.as_ref().unwrap().clone());
         let mut formatted = Unicode::list(message).format();
 
         if formatted.len() > 2000 {
@@ -23,16 +29,16 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     })
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-		name = "List Unicode",
+        name = COMMAND.name.clone(),
 		command_type = ApplicationCommandType::MESSAGE,
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
 	)]
-    async fn unicode_list_context(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    unicode_list_context
+    func
 }

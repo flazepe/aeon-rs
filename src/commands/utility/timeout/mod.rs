@@ -1,22 +1,23 @@
 mod remove;
 mod set;
 
-use crate::structs::command::Command;
-use std::sync::LazyLock;
+use crate::structs::{command::Command, command_context::Input};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::{
-        interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
         Permissions,
+        interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
     },
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| Command::new().subcommand("remove", remove::run).subcommand("set", set::run));
+pub static COMMAND: LazyLock<Command> =
+    LazyLock::new(|| Command::new("timeout", &["mute"]).subcommand("remove", &[], remove::run).subcommand("set", &[], set::run));
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-		name = "timeout",
+        name = COMMAND.name.clone(),
 		description = "Manages members' timeout.",
 		default_member_permissions = Permissions::MODERATE_MEMBERS,
 		integration_types = [IntegrationType::GUILD_INSTALL],
@@ -54,9 +55,9 @@ pub fn get_command() -> SlashookCommand {
 			},
 		],
 	)]
-    async fn timeout(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    timeout
+    func
 }

@@ -1,4 +1,7 @@
-use crate::structs::{command_context::CommandContext, database::tags::Tags};
+use crate::structs::{
+    command_context::{CommandContext, CommandInputExt, Input},
+    database::tags::Tags,
+};
 use anyhow::Result;
 use slashook::{
     commands::Modal,
@@ -6,21 +9,23 @@ use slashook::{
 };
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    if ctx.input.is_modal_submit() {
-        let name = ctx.get_string_arg("tag")?;
-        let guild_id = ctx.input.guild_id.as_ref().unwrap();
-        let new_name = ctx.get_string_arg("name")?;
-        let content = ctx.get_string_arg("content")?;
-        let modifier = ctx.input.member.as_ref().unwrap();
+    let Input::ApplicationCommand { input, res } = &ctx.input else { return Ok(()) };
+
+    if input.is_modal_submit() {
+        let name = input.get_string_arg("tag")?;
+        let guild_id = input.guild_id.as_ref().unwrap();
+        let new_name = input.get_string_arg("name")?;
+        let content = input.get_string_arg("content")?;
+        let modifier = input.member.as_ref().unwrap();
 
         match Tags::edit(name, guild_id, new_name, content, modifier).await {
             Ok(response) => ctx.respond_success(response, true).await,
             Err(error) => ctx.respond_error(error, true).await,
         }
     } else {
-        let name = ctx.get_string_arg("tag")?;
-        let guild_id = ctx.input.guild_id.as_ref().unwrap();
-        let member = ctx.input.member.as_ref().unwrap();
+        let name = input.get_string_arg("tag")?;
+        let guild_id = input.guild_id.as_ref().unwrap();
+        let member = input.member.as_ref().unwrap();
 
         match Tags::get(name, guild_id).await.and_then(|tag| Tags::validate_tag_modifier(tag, member)) {
             Ok(tag) => {
@@ -45,7 +50,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                     .add_text_input(content_input);
                 let modal = Modal::new("tag", "edit", "Edit Tag").set_components(components);
 
-                Ok(ctx.res.open_modal(modal).await?)
+                Ok(res.open_modal(modal).await?)
             },
             Err(error) => ctx.respond_error(error, true).await,
         }

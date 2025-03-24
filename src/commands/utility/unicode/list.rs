@@ -1,11 +1,23 @@
 use crate::{
     functions::{hastebin, limit_strings},
-    structs::{command_context::CommandContext, unicode::Unicode},
+    structs::{
+        command_context::{CommandContext, CommandInputExt, Input},
+        unicode::Unicode,
+    },
 };
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let mut formatted = Unicode::list(ctx.get_string_arg("text")?).format();
+    let text = match &ctx.input {
+        Input::ApplicationCommand { input, res: _ } => input.get_string_arg("text")?,
+        Input::MessageCommand { message: _, sender: _, args } => args.into(),
+    };
+
+    if text.is_empty() {
+        return ctx.respond_error("Please provide a text.", true).await;
+    }
+
+    let mut formatted = Unicode::list(text).format();
 
     if formatted.len() > 2000 {
         let extra = format!("\n\nFull list: {}", hastebin(&formatted).await?);

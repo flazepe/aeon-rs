@@ -1,7 +1,7 @@
-use crate::{commands::get_commands, statics::CONFIG};
+use crate::{commands::get_slashook_commands, statics::CONFIG};
 use anyhow::Result;
 use mongodb::{Client as MongoDBClient, Database};
-use slashook::{structs::interactions::ApplicationCommand, Client as SlashookClient, Config as SlashookConfig};
+use slashook::{Client as SlashookClient, Config as SlashookConfig, structs::interactions::ApplicationCommand};
 
 pub struct AeonClient {
     slashook: SlashookClient,
@@ -25,7 +25,7 @@ impl AeonClient {
     }
 
     pub async fn register_commands(&mut self) -> Result<Vec<ApplicationCommand>> {
-        self.slashook.register_commands(get_commands());
+        self.slashook.register_commands(get_slashook_commands());
 
         Ok(match CONFIG.bot.guild_id.as_ref() {
             Some(guild_id) => self.slashook.sync_guild_commands(guild_id).await?,

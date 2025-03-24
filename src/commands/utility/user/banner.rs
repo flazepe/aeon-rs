@@ -1,4 +1,7 @@
-use crate::{statics::REQWEST, structs::command_context::CommandContext};
+use crate::{
+    statics::REQWEST,
+    structs::command_context::{CommandContext, CommandInputExt, Input},
+};
 use anyhow::Result;
 use serde::Deserialize;
 use slashook::{commands::MessageResponse, structs::utils::File};
@@ -9,13 +12,14 @@ struct UserBanner {
 }
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+
     ctx.defer(false).await?;
 
-    let user = ctx.get_user_arg("user").unwrap_or(&ctx.input.user);
+    let user = input.get_user_arg("user").unwrap_or(&input.user);
     let user_id = &user.id;
 
-    let Some(banner_url) = ctx
-        .input
+    let Some(banner_url) = input
         .rest
         .get::<UserBanner>(format!("users/{user_id}"))
         .await?

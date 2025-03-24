@@ -1,10 +1,16 @@
-use crate::structs::{api::anilist::AniList, command_context::CommandContext, select_menu::SelectMenu};
+use crate::structs::{
+    api::anilist::AniList,
+    command_context::{CommandContext, CommandInputExt, Input},
+    select_menu::SelectMenu,
+};
 use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    if ctx.get_bool_arg("search").unwrap_or(false) {
-        let results = match AniList::search_manga(ctx.get_string_arg("manga")?).await {
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+
+    if input.get_bool_arg("search").unwrap_or(false) {
+        let results = match AniList::search_manga(input.get_string_arg("manga")?).await {
             Ok(results) => results,
             Err(error) => return ctx.respond_error(error, true).await,
         };
@@ -27,7 +33,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
 
     let (query, section) = ctx.get_query_and_section("manga")?;
 
-    let manga = match ctx.input.is_string_select() {
+    let manga = match input.is_string_select() {
         true => AniList::get_manga(query.parse::<u64>()?).await?,
         false => match AniList::search_manga(query).await {
             Ok(mut results) => results.remove(0),
@@ -35,7 +41,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         },
     };
 
-    if manga.is_adult && !ctx.input.channel.as_ref().and_then(|channel| channel.nsfw).unwrap_or(false) {
+    if manga.is_adult && !input.channel.as_ref().and_then(|channel| channel.nsfw).unwrap_or(false) {
         return ctx.respond_error("NSFW channels only.", true).await;
     }
 

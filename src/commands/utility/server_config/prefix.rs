@@ -1,16 +1,20 @@
 use std::cmp::Reverse;
 
-use crate::structs::{command_context::CommandContext, database::guilds::Guilds};
+use crate::structs::{
+    command_context::{CommandContext, CommandInputExt, Input},
+    database::guilds::Guilds,
+};
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let mut guild = Guilds::get(ctx.input.guild_id.as_ref().unwrap()).await?;
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let mut guild = Guilds::get(input.guild_id.as_ref().unwrap()).await?;
 
-    if ctx.input.is_autocomplete() {
+    if input.is_autocomplete() {
         return ctx.autocomplete(guild.prefixes.iter().map(|prefix| (prefix, prefix))).await;
     }
 
-    let prefix = ctx.get_string_arg("prefix")?.to_lowercase();
+    let prefix = input.get_string_arg("prefix")?.to_lowercase();
     let remove_prefix = guild.prefixes.contains(&prefix);
 
     if !remove_prefix && guild.prefixes.len() >= 10 {

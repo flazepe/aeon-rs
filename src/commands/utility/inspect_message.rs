@@ -1,28 +1,31 @@
-use crate::structs::{command::Command, command_context::CommandContext};
-use std::sync::LazyLock;
-use serde_json::{to_string_pretty, Value};
+use crate::structs::{
+    command::Command,
+    command_context::{CommandContext, Input},
+};
+use serde_json::{Value, to_string_pretty};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, MessageResponse},
     structs::{
+        Permissions,
         interactions::{ApplicationCommandType, IntegrationType, InteractionContextType},
         utils::File,
-        Permissions,
     },
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new().main(|ctx: CommandContext| async move {
-        let mut response = MessageResponse::from(File::new("message.rs", format!("{:#?}", ctx.input.target_message.as_ref().unwrap())));
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("Inspect Message", &[]).main(|ctx: CommandContext| async move {
+        let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+        let mut response = MessageResponse::from(File::new("message.rs", format!("{:#?}", input.target_message.as_ref().unwrap())));
 
-        if ctx.input.app_permissions.contains(Permissions::VIEW_CHANNEL | Permissions::READ_MESSAGE_HISTORY) {
-            if let Ok(value) = ctx
-                .input
+        if input.app_permissions.contains(Permissions::VIEW_CHANNEL | Permissions::READ_MESSAGE_HISTORY) {
+            if let Ok(value) = input
                 .rest
                 .get::<Value>(format!(
                     "channels/{}/messages/{}",
-                    ctx.input.channel_id.as_ref().unwrap(),
-                    ctx.input.target_message.as_ref().unwrap().id,
+                    input.channel_id.as_ref().unwrap(),
+                    input.target_message.as_ref().unwrap().id,
                 ))
                 .await
             {
@@ -34,16 +37,16 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     })
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-		name = "Inspect Message",
+        name = COMMAND.name.clone(),
 		command_type = ApplicationCommandType::MESSAGE,
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
 	)]
-    async fn inspect_message(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    inspect_message
+    func
 }

@@ -1,8 +1,13 @@
-use crate::{structs::api::saucenao::SauceNaoSearch, structs::command_context::CommandContext};
+use crate::structs::{
+    api::saucenao::SauceNaoSearch,
+    command_context::{CommandContext, CommandInputExt, Input},
+};
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Ok(url) = ctx.get_string_arg("image-url").or(ctx.get_attachment_arg("image-file").map(|attachment| attachment.url.clone())) else {
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Ok(url) = input.get_string_arg("image-url").or(input.get_attachment_arg("image-file").map(|attachment| attachment.url.clone()))
+    else {
         return ctx.respond_error("Please provide an image URL or file.", true).await;
     };
 

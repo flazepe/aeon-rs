@@ -1,6 +1,6 @@
 use crate::structs::{
-    command_context::CommandContext,
-    duration::{statics::SECS_PER_DAY, Duration},
+    command_context::{CommandContext, CommandInputExt, Input},
+    duration::{Duration, statics::SECS_PER_DAY},
 };
 use anyhow::Result;
 use serde_json::json;
@@ -10,19 +10,20 @@ use slashook::{
 };
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    match Duration::new().parse(ctx.get_string_arg("duration")?) {
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+
+    match Duration::new().parse(input.get_string_arg("duration")?) {
         Ok(duration) => {
             if duration.total_secs < 30 || duration.total_secs > SECS_PER_DAY * 28 {
                 return ctx.respond_error("Duration cannot be under 30 seconds or over 28 days.", true).await;
             }
 
-            let user = ctx.get_user_arg("member")?;
+            let user = input.get_user_arg("member")?;
 
-            match ctx
-                .input
+            match input
                 .rest
                 .patch::<GuildMember, _>(
-                    format!("guilds/{}/members/{}", ctx.input.guild_id.as_ref().unwrap(), user.id),
+                    format!("guilds/{}/members/{}", input.guild_id.as_ref().unwrap(), user.id),
                     json!({ "communication_disabled_until": (Utc::now() + ChronoDuration::try_seconds(duration.total_secs as i64).unwrap()).to_rfc3339() }),
                 )
                 .await

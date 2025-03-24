@@ -1,8 +1,10 @@
 use crate::{
     functions::add_reminder_select_options,
-    structs::{command::Command, command_context::CommandContext},
+    structs::{
+        command::Command,
+        command_context::{CommandContext, Input},
+    },
 };
-use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -11,18 +13,21 @@ use slashook::{
         interactions::{ApplicationCommandType, IntegrationType, InteractionContextType},
     },
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new().main({
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("Remind me", &[]).main({
         |ctx: CommandContext| async move {
+            let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+
             let mut select_menu = SelectMenu::new(SelectMenuType::STRING)
                 .set_id(
                     "reminder",
                     format!(
                         "{}/{}/{}",
-                        ctx.input.guild_id.as_deref().unwrap_or("@me"),
-                        ctx.input.channel_id.as_ref().unwrap(),
-                        ctx.input.target_message.as_ref().unwrap().id,
+                        input.guild_id.as_deref().unwrap_or("@me"),
+                        input.channel_id.as_ref().unwrap(),
+                        input.target_message.as_ref().unwrap().id,
                     ),
                 )
                 .set_placeholder("Select time to remind about message");
@@ -34,16 +39,16 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     })
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "Remind me",
+        name = COMMAND.name.clone(),
         command_type = ApplicationCommandType::MESSAGE,
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
 	)]
-    async fn reminder_set_context(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    reminder_set_context
+    func
 }

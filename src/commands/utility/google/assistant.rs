@@ -1,11 +1,16 @@
-use crate::structs::{api::google::Google, command_context::CommandContext, select_menu::SelectMenu};
+use crate::structs::{
+    api::google::Google,
+    command_context::{CommandContext, CommandInputExt, Input},
+    select_menu::SelectMenu,
+};
 use anyhow::Result;
 use slashook::{commands::MessageResponse, structs::utils::File};
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    ctx.defer(false).await?;
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let query = input.get_string_arg("query").unwrap_or_else(|_| input.values.as_ref().unwrap()[0].clone());
 
-    let query = ctx.get_string_arg("query").unwrap_or_else(|_| ctx.input.values.as_ref().unwrap()[0].clone());
+    ctx.defer(false).await?;
 
     match Google::assistant(query).await {
         Ok(google_assistant) => {

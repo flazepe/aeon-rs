@@ -1,4 +1,9 @@
-use crate::structs::{api::localdown::LocalDownNovel, command::Command, command_context::CommandContext, select_menu::SelectMenu};
+use crate::structs::{
+    api::localdown::LocalDownNovel,
+    command::Command,
+    command_context::{CommandContext, CommandInputExt, Input},
+    select_menu::SelectMenu,
+};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, MessageResponse},
@@ -6,16 +11,18 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new().main(|ctx: CommandContext| async move {
-        if ctx.input.is_string_select() {
-            return match LocalDownNovel::get(ctx.input.values.as_ref().unwrap()[0].parse::<u64>()?).await {
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("novel-updates", &["nu"]).main(|ctx: CommandContext| async move {
+        let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+
+        if input.is_string_select() {
+            return match LocalDownNovel::get(input.values.as_ref().unwrap()[0].parse::<u64>()?).await {
                 Ok(result) => ctx.respond(result.format(), false).await,
                 Err(error) => ctx.respond_error(error, true).await,
             };
         }
 
-        let results = match LocalDownNovel::search(ctx.get_string_arg("novel")?).await {
+        let results = match LocalDownNovel::search(input.get_string_arg("novel")?).await {
             Ok(results) => results,
             Err(error) => return ctx.respond_error(error, true).await,
         };
@@ -32,9 +39,9 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     })
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-		name = "novel-updates",
+        name = COMMAND.name.clone(),
 		description = "Fetches a novel from Novel Updates.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -47,9 +54,9 @@ pub fn get_command() -> SlashookCommand {
 			},
 		],
 	)]
-    async fn localdown(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    localdown
+    func
 }

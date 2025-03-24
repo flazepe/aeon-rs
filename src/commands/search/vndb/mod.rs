@@ -3,25 +3,25 @@ mod character_trait;
 mod tag;
 mod visual_novel;
 
-use crate::structs::command::Command;
-use std::sync::LazyLock;
+use crate::structs::{command::Command, command_context::Input};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new()
-        .subcommand("character", character::run)
-        .subcommand("tag", tag::run)
-        .subcommand("trait", character_trait::run)
-        .subcommand("visual-novel", visual_novel::run)
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("vndb", &[])
+        .subcommand("character", &[], character::run)
+        .subcommand("tag", &[], tag::run)
+        .subcommand("trait", &[], character_trait::run)
+        .subcommand("visual-novel", &["vn"], visual_novel::run)
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "vndb",
+        name = COMMAND.name.clone(),
         description = "Searches for various resources from Visual Novel Database.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -86,9 +86,9 @@ pub fn get_command() -> SlashookCommand {
             },
         ],
     )]
-    async fn vndb(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    vndb
+    func
 }

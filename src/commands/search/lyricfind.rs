@@ -1,6 +1,11 @@
 use crate::{
     statics::CACHE,
-    structs::{api::lyricfind::LyricFind, command::Command, command_context::CommandContext, select_menu::SelectMenu},
+    structs::{
+        api::lyricfind::LyricFind,
+        command::Command,
+        command_context::{CommandContext, CommandInputExt, Input},
+        select_menu::SelectMenu,
+    },
 };
 use slashook::{
     command,
@@ -9,15 +14,19 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new().main(|ctx: CommandContext| async move {
-        if ctx.input.is_string_select() {
-            return ctx.respond(LyricFind::search(&ctx.input.values.as_ref().unwrap()[0]).await?[0].format(), false).await;
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("kmslol", &[]).main(|ctx: CommandContext| async move {
+        let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+
+        if input.is_string_select() {
+            return ctx.respond(LyricFind::search(&input.values.as_ref().unwrap()[0]).await?[0].format(), false).await;
         }
 
-        let Some(query) = ctx.get_string_arg("song").ok().or_else(|| {
-            CACHE.song_activities.read().unwrap().get(&ctx.input.user.id).map(|song| format!("{} - {}", song.artist, song.title))
-        }) else {
+        let Some(query) = input
+            .get_string_arg("song")
+            .ok()
+            .or_else(|| CACHE.song_activities.read().unwrap().get(&input.user.id).map(|song| format!("{} - {}", song.artist, song.title)))
+        else {
             return ctx.respond_error("Please provide a song.", true).await;
         };
 
@@ -35,9 +44,9 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     })
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-		name = "lyricfind",
+        name = COMMAND.name.clone(),
 		description = "Fetches a song from LyricFind based on query or user's Spotify status.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -49,9 +58,9 @@ pub fn get_command() -> SlashookCommand {
 			},
 		],
 	)]
-    async fn lyrics(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    lyrics
+    func
 }

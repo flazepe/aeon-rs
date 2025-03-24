@@ -1,5 +1,5 @@
 use crate::{
-    message_commands,
+    commands,
     statics::CONFIG,
     structs::{database::guilds::Guilds, gateway::events::EventHandler},
 };
@@ -26,6 +26,6 @@ impl EventHandler {
         let prefixless = message.content.chars().skip(prefix.len()).collect::<String>().trim().to_string();
         let (command, args) = prefixless.split_once(' ').unwrap_or((&prefixless, ""));
 
-        message_commands::run(message, sender, command, args.trim()).await
+        commands::run(message, sender, command, args.trim()).await
     }
 }

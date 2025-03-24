@@ -1,21 +1,31 @@
-use crate::structs::{api::vndb::Vndb, command_context::CommandContext, select_menu::SelectMenu};
+use crate::structs::{
+    api::vndb::Vndb,
+    command_context::{CommandContext, CommandInputExt, Input},
+    select_menu::SelectMenu,
+};
 use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    if ctx.get_bool_arg("search").unwrap_or(false) {
-        let characters = match Vndb::search_character(ctx.get_string_arg("character")?).await {
-            Ok(characters) => characters,
-            Err(error) => return ctx.respond_error(error, true).await,
-        };
+    if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+        if input.get_bool_arg("search").unwrap_or(false) {
+            let characters = match Vndb::search_character(input.get_string_arg("character")?).await {
+                Ok(characters) => characters,
+                Err(error) => return ctx.respond_error(error, true).await,
+            };
 
-        let select_menu = SelectMenu::new("vndb", "character", "Select a character…", None::<String>)
-            .add_options(characters.iter().map(|character| (&character.name, &character.id, Some(&character.vns[0].title))));
+            let select_menu = SelectMenu::new("vndb", "character", "Select a character…", None::<String>)
+                .add_options(characters.iter().map(|character| (&character.name, &character.id, Some(&character.vns[0].title))));
 
-        return ctx.respond(select_menu, false).await;
+            return ctx.respond(select_menu, false).await;
+        }
     }
 
     let (query, section) = ctx.get_query_and_section("character")?;
+
+    if query.is_empty() {
+        return ctx.respond_error("Please provide a query.", true).await;
+    }
 
     let character = match Vndb::search_character(query).await {
         Ok(mut characters) => characters.remove(0),

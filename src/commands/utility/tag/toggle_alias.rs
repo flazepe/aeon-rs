@@ -1,11 +1,15 @@
-use crate::structs::{command_context::CommandContext, database::tags::Tags};
+use crate::structs::{
+    command_context::{CommandContext, CommandInputExt, Input},
+    database::tags::Tags,
+};
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let name = ctx.get_string_arg("tag")?;
-    let guild_id = ctx.input.guild_id.as_ref().unwrap();
-    let alias = ctx.get_string_arg("alias")?;
-    let modifier = ctx.input.member.as_ref().unwrap();
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let name = input.get_string_arg("tag")?;
+    let guild_id = input.guild_id.as_ref().unwrap();
+    let alias = input.get_string_arg("alias")?;
+    let modifier = input.member.as_ref().unwrap();
 
     match Tags::toggle_alias(name, guild_id, alias, modifier).await {
         Ok(response) => ctx.respond_success(response, true).await,

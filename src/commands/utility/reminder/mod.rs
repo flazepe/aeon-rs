@@ -3,25 +3,25 @@ mod list;
 mod select_menu;
 mod set;
 
-use crate::structs::command::Command;
-use std::sync::LazyLock;
+use crate::structs::{command::Command, command_context::Input};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new()
-        .subcommand("delete", delete::run)
-        .subcommand("list", list::run)
-        .subcommand("set", set::run)
-        .subcommand("select-menu", select_menu::run)
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("reminder", &[])
+        .subcommand("delete", &[], delete::run)
+        .subcommand("list", &[], list::run)
+        .subcommand("set", &[], set::run)
+        .subcommand("select-menu", &[], select_menu::run)
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "reminder",
+        name = COMMAND.name.clone(),
         description = "Manages your reminders.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -73,13 +73,13 @@ pub fn get_command() -> SlashookCommand {
             },
         ],
     )]
-    async fn reminder(mut input: CommandInput, res: CommandResponder) {
+    async fn func(mut input: CommandInput, res: CommandResponder) {
         if input.is_string_select() {
             input.subcommand = Some("select-menu".into());
         }
 
-        COMMAND.run(input, res).await?;
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    reminder
+    func
 }

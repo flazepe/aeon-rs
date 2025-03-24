@@ -1,9 +1,13 @@
-use crate::{statics::REQWEST, structs::command_context::CommandContext};
+use crate::{
+    statics::REQWEST,
+    structs::command_context::{CommandContext, CommandInputExt, Input},
+};
 use anyhow::Result;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let mut url = ctx.get_string_arg("url")?;
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let mut url = input.get_string_arg("url")?;
 
     if !url.starts_with("http") {
         url = format!("http://{url}");

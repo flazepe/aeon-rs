@@ -3,25 +3,25 @@ mod signups;
 mod status;
 mod uptime;
 
-use crate::structs::command::Command;
-use std::sync::LazyLock;
+use crate::structs::{command::Command, command_context::Input};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new()
-        .subcommand("load", load::run)
-        .subcommand("signups", signups::run)
-        .subcommand("status", status::run)
-        .subcommand("uptime", uptime::run)
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("heliohost", &["hh"])
+        .subcommand("load", &[], load::run)
+        .subcommand("signups", &[], signups::run)
+        .subcommand("status", &[], status::run)
+        .subcommand("uptime", &[], uptime::run)
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "heliohost",
+        name = COMMAND.name.clone(),
         description = "A command for HelioHost.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -80,9 +80,9 @@ pub fn get_command() -> SlashookCommand {
             },
         ],
     )]
-    async fn heliohost(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    heliohost
+    func
 }

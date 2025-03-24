@@ -1,18 +1,19 @@
 use crate::{
-    statics::{colors::PRIMARY_COLOR, CONFIG, REQWEST},
-    structs::command_context::CommandContext,
+    statics::{CONFIG, REQWEST, colors::PRIMARY_COLOR},
+    structs::command_context::{CommandContext, CommandInputExt, Input},
 };
 use anyhow::Result;
 use reqwest::Method;
-use serde_json::{from_str, Value};
+use serde_json::{Value, from_str};
 use slashook::structs::embeds::Embed;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let method = Method::from_bytes(ctx.get_string_arg("method").as_deref().unwrap_or("GET").as_bytes()).unwrap_or(Method::GET);
-    let url: String = format!("https://discord.com/api/{}", ctx.get_string_arg("endpoint")?);
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let method = Method::from_bytes(input.get_string_arg("method").as_deref().unwrap_or("GET").as_bytes()).unwrap_or(Method::GET);
+    let url: String = format!("https://discord.com/api/{}", input.get_string_arg("endpoint")?);
     let mut request = REQWEST.request(method, url).header("authorization", format!("Bot {}", CONFIG.bot.token));
 
-    if let Ok(body) = ctx.get_string_arg("body") {
+    if let Ok(body) = input.get_string_arg("body") {
         let content_type = from_str::<Value>(&body).map_or("application/x-www-form-urlencoded", |_| "application/json");
         request = request.header("content-type", content_type).body(body);
     }

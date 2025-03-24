@@ -1,19 +1,20 @@
 mod image;
 mod song;
 
-use crate::structs::command::Command;
-use std::sync::LazyLock;
+use crate::structs::{command::Command, command_context::Input};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| Command::new().subcommand("image", image::run).subcommand("song", song::run));
+pub static COMMAND: LazyLock<Command> =
+    LazyLock::new(|| Command::new("sauce", &[]).subcommand("image", &[], image::run).subcommand("song", &[], song::run));
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-		name = "sauce",
+        name = COMMAND.name.clone(),
 		description = "Fetches sauce from an image or song.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -48,9 +49,9 @@ pub fn get_command() -> SlashookCommand {
             },
         ]
 	)]
-    async fn sauce(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    sauce
+    func
 }

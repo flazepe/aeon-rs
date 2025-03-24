@@ -1,20 +1,21 @@
 mod render_replay;
 mod user;
 
-use crate::structs::command::Command;
-use std::sync::LazyLock;
+use crate::structs::{command::Command, command_context::Input};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> =
-    LazyLock::new(|| Command::new().subcommand("render-replay", render_replay::run).subcommand("user", user::run));
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("osu", &[]).subcommand("render-replay", &["render", "replay"], render_replay::run).subcommand("user", &[], user::run)
+});
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "osu",
+        name = COMMAND.name.clone(),
         description = "Fetches various resources from osu!.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -66,9 +67,9 @@ pub fn get_command() -> SlashookCommand {
             },
         ],
     )]
-    async fn osu(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    osu
+    func
 }

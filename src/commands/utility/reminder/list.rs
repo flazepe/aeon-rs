@@ -1,13 +1,19 @@
 use crate::{
-    functions::{format_timestamp, TimestampFormat},
+    functions::{TimestampFormat, format_timestamp},
     statics::colors::PRIMARY_COLOR,
-    structs::{command_context::CommandContext, database::reminders::Reminders, duration::Duration},
+    structs::{
+        command_context::{CommandContext, Input},
+        database::reminders::Reminders,
+        duration::Duration,
+    },
 };
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    match Reminders::get_many(&ctx.input.user.id).await {
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+
+    match Reminders::get_many(&input.user.id).await {
         Ok(reminders) => {
             let description = reminders
                 .iter()

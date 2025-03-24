@@ -1,15 +1,11 @@
-use crate::{statics::FLAZEPE_ID, traits::CommandsExt};
+use crate::structs::command_context::{CommandContext, Input};
 use anyhow::Result;
 use serde_json::to_string;
 use slashook::{commands::MessageResponse, structs::utils::File};
 use std::{fmt::Display, process::Command};
-use twilight_gateway::MessageSender;
-use twilight_model::channel::Message;
 
-pub async fn run<T: Display>(message: &Message, _sender: &MessageSender, args: T) -> Result<()> {
-    if message.author.id.to_string() != FLAZEPE_ID {
-        return Ok(());
-    }
+pub async fn run(ctx: CommandContext) -> Result<()> {
+    let Input::MessageCommand { message, sender: _, args } = &ctx.input else { return Ok(()) };
 
     let mut code = args.to_string();
     let mut flags = code.split(' ').last().unwrap_or("").to_string();
@@ -51,11 +47,12 @@ pub async fn run<T: Display>(message: &Message, _sender: &MessageSender, args: T
     }
 
     if !flags.contains('s') {
-        let _ = message
-            .send(if text.len() > 2000 { MessageResponse::from(File::new("result.txt", text)) } else { MessageResponse::from(text) })
+        return ctx
+            .respond(
+                if text.len() > 2000 { MessageResponse::from(File::new("result.txt", text)) } else { MessageResponse::from(text) },
+                false,
+            )
             .await;
-
-        return Ok(());
     }
 
     Ok(())

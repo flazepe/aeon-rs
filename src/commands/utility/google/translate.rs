@@ -1,21 +1,41 @@
 use crate::structs::{
-    api::google::{statics::GOOGLE_TRANSLATE_LANGUAGES, Google},
-    command_context::CommandContext,
+    api::google::{Google, statics::GOOGLE_TRANSLATE_LANGUAGES},
+    command_context::{CommandContext, CommandInputExt, Input},
+    simple_message::SimpleMessage,
 };
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    if ctx.input.is_autocomplete() {
-        return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
+    if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+        if input.is_autocomplete() {
+            return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
+        }
     }
 
-    match Google::translate(
-        ctx.get_string_arg("text")?,
-        ctx.get_string_arg("origin-language").as_deref().unwrap_or("auto"),
-        ctx.get_string_arg("target-language").as_deref().unwrap_or("en"),
-    )
-    .await
-    {
+    let (text, origin_language, target_language) = match &ctx.input {
+        Input::ApplicationCommand { input, res: _ } => (
+            input.get_string_arg("text")?,
+            input.get_string_arg("origin-language").as_deref().unwrap_or("auto").to_string(),
+            input.get_string_arg("target-language").as_deref().unwrap_or("en").to_string(),
+        ),
+        Input::MessageCommand { message, sender: _, args } => {
+            let mut args = args.split(' ').filter(|entry| !entry.is_empty());
+
+            let Some(target_language) = args.next().or(Some("en")).map(|arg| arg.to_string()) else {
+                return ctx.respond_error("Please provide the target language.", true).await;
+            };
+
+            let reference_text = message.referenced_message.as_ref().map(|reply| SimpleMessage::from(*reply.clone()).to_string());
+
+            let Some(text) = args.next().map(|arg| arg.to_string()).or(reference_text) else {
+                return ctx.respond_error("Please provide a text.", true).await;
+            };
+
+            (text, "auto".into(), target_language)
+        },
+    };
+
+    match Google::translate(text, origin_language, target_language).await {
         Ok(translation) => ctx.respond(translation.format(), false).await,
         Err(error) => ctx.respond_error(error, true).await,
     }

@@ -1,12 +1,12 @@
 use crate::{
-    functions::{format_timestamp, label_num, TimestampFormat},
-    statics::{colors::PRIMARY_COLOR, CACHE},
+    functions::{TimestampFormat, format_timestamp, label_num},
+    statics::{CACHE, colors::PRIMARY_COLOR},
     structs::command_context::CommandContext,
 };
 use anyhow::{Context, Result};
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
-use sysinfo::{get_current_pid, System};
+use sysinfo::{System, get_current_pid};
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     match get_current_pid() {

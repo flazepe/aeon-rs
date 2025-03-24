@@ -1,13 +1,19 @@
-use crate::{functions::eien, statics::CACHE, structs::command_context::CommandContext, traits::UserExt};
+use crate::{
+    functions::eien,
+    statics::CACHE,
+    structs::command_context::{CommandContext, CommandInputExt, Input},
+    traits::UserExt,
+};
 use anyhow::Result;
 use serde_json::to_string;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let mut user = ctx.get_user_arg("member").unwrap_or(&ctx.input.user);
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let mut user = input.get_user_arg("member").unwrap_or(&input.user);
 
     // Set to author if there's no resolved member
-    if ctx.input.resolved.as_ref().and_then(|resolved| resolved.members.as_ref().and_then(|members| members.values().next())).is_none() {
-        user = &ctx.input.user;
+    if input.resolved.as_ref().and_then(|resolved| resolved.members.as_ref().and_then(|members| members.values().next())).is_none() {
+        user = &input.user;
     }
 
     let Some(mut activity) = CACHE.song_activities.read().unwrap().get(&user.id).cloned() else {
@@ -17,7 +23,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     ctx.defer(false).await?;
 
     // Set to proper style
-    if let Ok(style) = ctx.get_string_arg("card").as_deref() {
+    if let Ok(style) = input.get_string_arg("card").as_deref() {
         activity.style = style.into();
     }
 
@@ -27,7 +33,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     }
 
     // Collapse if requested
-    if ctx.get_bool_arg("collapse").unwrap_or(false) {
+    if input.get_bool_arg("collapse").unwrap_or(false) {
         activity.timestamps = None;
     }
 

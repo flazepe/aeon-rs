@@ -3,7 +3,7 @@ mod lyrics;
 mod member;
 mod song;
 
-use crate::structs::command::Command;
+use crate::structs::{command::Command, command_context::Input};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -11,17 +11,17 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new()
-        .subcommand("album", album::run)
-        .subcommand("lyrics", lyrics::run)
-        .subcommand("member", member::run)
-        .subcommand("song", song::run)
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("spotify", &[])
+        .subcommand("album", &[], album::run)
+        .subcommand("lyrics", &[], lyrics::run)
+        .subcommand("member", &[], member::run)
+        .subcommand("song", &[], song::run)
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "spotify",
+        name = COMMAND.name.clone(),
         description = "Fetches various resources from Spotify.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -119,9 +119,9 @@ pub fn get_command() -> SlashookCommand {
             },
         ],
     )]
-    async fn spotify(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    spotify
+    func
 }

@@ -1,21 +1,32 @@
-use crate::structs::{api::vndb::Vndb, command_context::CommandContext, select_menu::SelectMenu};
+use crate::structs::{
+    api::vndb::Vndb,
+    command_context::{CommandContext, CommandInputExt, Input},
+    select_menu::SelectMenu,
+};
 use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    if ctx.get_bool_arg("search").unwrap_or(false) {
-        let visual_novels = match Vndb::search_visual_novel(ctx.get_string_arg("visual-novel")?).await {
-            Ok(visual_novels) => visual_novels,
-            Err(error) => return ctx.respond_error(error, true).await,
-        };
+    if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+        if input.get_bool_arg("search").unwrap_or(false) {
+            let visual_novels = match Vndb::search_visual_novel(input.get_string_arg("visual-novel")?).await {
+                Ok(visual_novels) => visual_novels,
+                Err(error) => return ctx.respond_error(error, true).await,
+            };
 
-        let select_menu = SelectMenu::new("vndb", "visual-novel", "Select a visual novel…", None::<String>)
-            .add_options(visual_novels.iter().map(|visual_novel| (&visual_novel.title, &visual_novel.id, Some(&visual_novel.dev_status))));
+            let select_menu = SelectMenu::new("vndb", "visual-novel", "Select a visual novel…", None::<String>).add_options(
+                visual_novels.iter().map(|visual_novel| (&visual_novel.title, &visual_novel.id, Some(&visual_novel.dev_status))),
+            );
 
-        return ctx.respond(select_menu, false).await;
+            return ctx.respond(select_menu, false).await;
+        }
     }
 
     let (query, section) = ctx.get_query_and_section("visual-novel")?;
+
+    if query.is_empty() {
+        return ctx.respond_error("Please provide a query.", true).await;
+    }
 
     let visual_novel = match Vndb::search_visual_novel(query).await {
         Ok(mut visual_novels) => visual_novels.remove(0),

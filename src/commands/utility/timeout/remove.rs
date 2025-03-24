@@ -1,16 +1,16 @@
-use crate::structs::command_context::CommandContext;
+use crate::structs::command_context::{CommandContext, CommandInputExt, Input};
 use anyhow::Result;
 use serde_json::json;
 use slashook::structs::guilds::GuildMember;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let user = ctx.get_user_arg("member")?;
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let user = input.get_user_arg("member")?;
 
-    match ctx
-        .input
+    match input
         .rest
         .patch::<GuildMember, _>(
-            format!("guilds/{}/members/{}", ctx.input.guild_id.as_ref().unwrap(), user.id),
+            format!("guilds/{}/members/{}", input.guild_id.as_ref().unwrap(), user.id),
             json!({ "communication_disabled_until": null }),
         )
         .await

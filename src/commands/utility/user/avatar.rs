@@ -1,4 +1,8 @@
-use crate::{statics::REQWEST, structs::command_context::CommandContext, traits::UserExt};
+use crate::{
+    statics::REQWEST,
+    structs::command_context::{CommandContext, CommandInputExt, Input},
+    traits::UserExt,
+};
 use anyhow::Result;
 use slashook::{
     commands::MessageResponse,
@@ -6,19 +10,21 @@ use slashook::{
 };
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+
     ctx.defer(false).await?;
 
-    let user = ctx.get_user_arg("user").unwrap_or(&ctx.input.user);
+    let user = input.get_user_arg("user").unwrap_or(&input.user);
     let user_id = &user.id;
 
-    let guild_avatar = match ctx.input.guild_id.as_ref() {
-        Some(guild_id) => ctx.input.rest.get::<GuildMember>(format!("guilds/{guild_id}/members/{user_id}")).await.ok().and_then(|member| {
+    let guild_avatar = match input.guild_id.as_ref() {
+        Some(guild_id) => input.rest.get::<GuildMember>(format!("guilds/{guild_id}/members/{user_id}")).await.ok().and_then(|member| {
             member.avatar.map(|avatar| format!("https://cdn.discordapp.com/guilds/{guild_id}/users/{user_id}/avatars/{avatar}?size=4096"))
         }),
         None => None,
     };
 
-    let avatar_url = if ctx.get_bool_arg("force-user-avatar").unwrap_or(false) {
+    let avatar_url = if input.get_bool_arg("force-user-avatar").unwrap_or(false) {
         user.display_avatar_url("gif", 4096)
     } else {
         guild_avatar.unwrap_or_else(|| user.display_avatar_url("gif", 4096))

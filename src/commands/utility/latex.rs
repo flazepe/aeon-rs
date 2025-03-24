@@ -1,4 +1,7 @@
-use crate::structs::{command::Command, command_context::CommandContext};
+use crate::structs::{
+    command::Command,
+    command_context::{CommandContext, CommandInputExt, Input},
+};
 use image::ImageOutputFormat;
 use mathjax::MathJax;
 use slashook::{
@@ -11,19 +14,30 @@ use slashook::{
 };
 use std::{io::Cursor, sync::LazyLock};
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new().main(|ctx: CommandContext| async move {
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("latex", &[]).main(|ctx: CommandContext| async move {
+        let (expression, color) = match &ctx.input {
+            Input::ApplicationCommand { input, res: _ } => {
+                (input.get_string_arg("expression")?, input.get_string_arg("color").unwrap_or("#fff".into()))
+            },
+            Input::MessageCommand { message: _, sender: _, args } => (args.into(), "#fff".into()),
+        };
+
+        if expression.is_empty() {
+            return ctx.respond_error("Please provide an expression.", true).await;
+        }
+
         ctx.defer(false).await?;
 
         let Ok(mathjax) = MathJax::new() else {
             return ctx.respond_error("Could not instantiate renderer.", false).await;
         };
 
-        let Ok(mut render) = mathjax.render(ctx.get_string_arg("expression")?) else {
+        let Ok(mut render) = mathjax.render(expression) else {
             return ctx.respond_error("Could not render expression.", false).await;
         };
 
-        render.set_color(ctx.get_string_arg("color").as_deref().unwrap_or("#fff"));
+        render.set_color(&color);
 
         let Ok(image) = render.into_image(10.) else {
             return ctx.respond_error("Could not convert render into image.", false).await;
@@ -36,9 +50,9 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     })
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "latex",
+        name = COMMAND.name.clone(),
         description = "Renders a LaTeX expression.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -56,9 +70,9 @@ pub fn get_command() -> SlashookCommand {
             },
         ],
     )]
-    async fn latex(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    latex
+    func
 }

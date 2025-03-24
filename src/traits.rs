@@ -1,13 +1,5 @@
-use crate::statics::{
-    CACHE, REST,
-    emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
-};
-use anyhow::Result;
-use slashook::{
-    commands::MessageResponse,
-    structs::{messages::Message as SlashookMessage, users::User as SlashookUser},
-};
-use std::fmt::{Debug, Display};
+use slashook::structs::{messages::Message as SlashookMessage, users::User as SlashookUser};
+use std::fmt::Display;
 use twilight_model::{channel::Message as TwilightMessage, user::User as TwilightUser};
 
 pub trait UserExt {
@@ -104,37 +96,6 @@ impl MessageExt for TwilightMessage {
             ),
             None => format_reply_text!(),
         })
-    }
-}
-
-pub trait CommandsExt {
-    async fn send<T: Into<MessageResponse>>(&self, response: T) -> Result<()>;
-    async fn send_error<T: Debug>(&self, response: T) -> Result<()>;
-    async fn send_success<T: Display>(&self, response: T) -> Result<()>;
-}
-
-impl CommandsExt for TwilightMessage {
-    async fn send<T: Into<MessageResponse>>(&self, response: T) -> Result<()> {
-        let command_response = CACHE.command_responses.read().unwrap().get(self.id.to_string().as_str()).cloned();
-
-        if let Some(command_response) = command_response {
-            let _ = command_response.edit(&REST, response).await;
-            return Ok(());
-        }
-
-        if let Ok(command_response) = SlashookMessage::create(&REST, self.channel_id.to_string(), response).await {
-            CACHE.command_responses.write().unwrap().insert(self.id.to_string(), command_response);
-        }
-
-        Ok(())
-    }
-
-    async fn send_error<T: Debug>(&self, response: T) -> Result<()> {
-        Self::send(self, format!("{ERROR_EMOJI} {}", format!("{response:?}").trim_matches('"'))).await
-    }
-
-    async fn send_success<T: Display>(&self, response: T) -> Result<()> {
-        Self::send(self, format!("{SUCCESS_EMOJI} {response}")).await
     }
 }
 

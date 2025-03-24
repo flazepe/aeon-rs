@@ -1,8 +1,7 @@
 mod message;
 mod reaction;
 
-use crate::structs::command::Command;
-use std::sync::LazyLock;
+use crate::structs::{command::Command, command_context::Input};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -11,12 +10,14 @@ use slashook::{
         interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
     },
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| Command::new().subcommand("message", message::run).subcommand("reaction", reaction::run));
+pub static COMMAND: LazyLock<Command> =
+    LazyLock::new(|| Command::new("snipe", &[]).subcommand("message", &[], message::run).subcommand("reaction", &[], reaction::run));
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "snipe",
+        name = COMMAND.name.clone(),
         description = "Snipes messages and reactions.",
         integration_types = [IntegrationType::GUILD_INSTALL],
         contexts = [InteractionContextType::GUILD],
@@ -65,9 +66,9 @@ pub fn get_command() -> SlashookCommand {
             },
         ],
     )]
-    async fn snipe(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    snipe
+    func
 }

@@ -1,22 +1,32 @@
+mod delete;
 mod eien;
+mod eval;
 mod request;
+mod set_status;
 mod status;
 
-use crate::structs::command::Command;
-use std::sync::LazyLock;
+use crate::structs::{command::Command, command_context::Input};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new().owner_only().subcommand("eien", eien::run).subcommand("request", request::run).subcommand("status", status::run)
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("owner", &["o"])
+        .owner_only()
+        .subcommand("delete", &["del"], delete::run)
+        .subcommand("eien", &[], eien::run)
+        .subcommand("eval", &["e", "evak"], eval::run)
+        .subcommand("request", &["req"], request::run)
+        .subcommand("set-status", &["ss"], set_status::run)
+        .subcommand("status", &[], status::run)
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "owner",
+        name = COMMAND.name.clone(),
         description = "Owner commands.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -78,9 +88,9 @@ pub fn get_command() -> SlashookCommand {
             },
         ],
     )]
-    async fn owner(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    owner
+    func
 }

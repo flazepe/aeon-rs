@@ -1,15 +1,19 @@
 use crate::{
     functions::limit_strings,
     statics::colors::PRIMARY_COLOR,
-    structs::{command_context::CommandContext, database::tags::Tags},
+    structs::{
+        command_context::{CommandContext, CommandInputExt, Input},
+        database::tags::Tags,
+    },
     traits::UserExt,
 };
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let guild_id = ctx.input.guild_id.as_ref().unwrap();
-    let author = ctx.get_user_arg("author").ok();
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let guild_id = input.guild_id.as_ref().unwrap();
+    let author = input.get_user_arg("author").ok();
 
     match Tags::search(guild_id, author.map(|user| &user.id)).await {
         Ok(tags) => {
@@ -20,7 +24,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
                     .filter(|tag| {
                         format!("{}{}", tag.name, tag.content)
                             .to_lowercase()
-                            .contains(&ctx.get_string_arg("query").as_deref().unwrap_or("").to_lowercase())
+                            .contains(&input.get_string_arg("query").as_deref().unwrap_or("").to_lowercase())
                     })
                     .map(|tag| format!("`{}`", tag.name)),
                 ", ",

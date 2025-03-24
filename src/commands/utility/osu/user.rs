@@ -1,9 +1,14 @@
-use crate::structs::{api::osu::Osu, command_context::CommandContext, select_menu::SelectMenu};
+use crate::structs::{
+    api::osu::Osu,
+    command_context::{CommandContext, CommandInputExt, Input},
+    select_menu::SelectMenu,
+};
 use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let mode = ctx.get_string_arg("mode");
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let mode = input.get_string_arg("mode");
 
     let (query, section) = ctx.get_query_and_section("user")?;
     let (user, mode) = query.split_once('|').unwrap_or((&query, mode.as_deref().unwrap_or("default")));

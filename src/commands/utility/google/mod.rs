@@ -2,21 +2,25 @@ mod assistant;
 mod dns;
 mod translate;
 
-use crate::structs::{api::google::statics::GOOGLE_DNS_RECORD_TYPES, command::Command};
-use std::sync::LazyLock;
+use crate::structs::{api::google::statics::GOOGLE_DNS_RECORD_TYPES, command::Command, command_context::Input};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandOptionChoice, IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new().subcommand("assistant", assistant::run).subcommand("dns", dns::run).subcommand("translate", translate::run)
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("google", &["g", "goog"]).subcommand("assistant", &["ass"], assistant::run).subcommand("dns", &[], dns::run).subcommand(
+        "translate",
+        &["tl", "tr", "trans"],
+        translate::run,
+    )
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "google",
+        name = COMMAND.name.clone(),
         description = "Google commands.",
 		integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -81,9 +85,9 @@ pub fn get_command() -> SlashookCommand {
 			}
         ],
     )]
-    async fn google(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    google
+    func
 }

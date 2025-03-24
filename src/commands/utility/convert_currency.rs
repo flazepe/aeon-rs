@@ -1,24 +1,45 @@
 use crate::structs::{
-    api::xe::{statics::XE_CURRENCIES, Xe},
+    api::xe::{Xe, statics::XE_CURRENCIES},
     command::Command,
-    command_context::CommandContext,
+    command_context::{CommandContext, CommandInputExt, Input},
 };
-use std::sync::LazyLock;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new().main(|ctx: CommandContext| async move {
-        if ctx.input.is_autocomplete() {
-            return ctx.autocomplete(XE_CURRENCIES.iter()).await;
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("convert-currency", &["cc"]).main(|ctx: CommandContext| async move {
+        if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+            if input.is_autocomplete() {
+                return ctx.autocomplete(XE_CURRENCIES.iter()).await;
+            }
         }
 
-        let amount = ctx.get_f64_arg("amount")?;
-        let origin_currency = ctx.get_string_arg("origin-currency")?;
-        let target_currency = ctx.get_string_arg("target-currency")?;
+        let (amount, origin_currency, target_currency) = match &ctx.input {
+            Input::ApplicationCommand { input, res: _ } => {
+                (input.get_f64_arg("amount")?, input.get_string_arg("origin-currency")?, input.get_string_arg("target-currency")?)
+            },
+            Input::MessageCommand { message: _, sender: _, args } => {
+                let mut args = args.split(' ').filter(|entry| !entry.is_empty());
+
+                let Some(amount) = args.next().and_then(|arg| arg.parse::<f64>().ok()) else {
+                    return ctx.respond_error("Please provide an amount.", true).await;
+                };
+
+                let Some(origin_currency) = args.next().map(|arg| arg.to_string()) else {
+                    return ctx.respond_error("Please provide the origin currency.", true).await;
+                };
+
+                let Some(target_currency) = args.next().map(|arg| arg.to_string()) else {
+                    return ctx.respond_error("Please provide the target currency.", true).await;
+                };
+
+                (amount, origin_currency, target_currency)
+            },
+        };
 
         match Xe::convert(amount, origin_currency, target_currency).await {
             Ok(xe_conversion) => ctx.respond_success(xe_conversion.format(), false).await,
@@ -27,9 +48,9 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     })
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "convert-currency",
+        name = COMMAND.name.clone(),
         description = "Converts a currency to another currency.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -56,9 +77,9 @@ pub fn get_command() -> SlashookCommand {
             },
         ],
     )]
-    async fn convert_currency(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    convert_currency
+    func
 }

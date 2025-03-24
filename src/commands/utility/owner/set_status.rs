@@ -1,17 +1,10 @@
-use crate::statics::FLAZEPE_ID;
+use crate::structs::command_context::{CommandContext, Input};
 use anyhow::Result;
 use serde_json::json;
-use std::fmt::Display;
-use twilight_gateway::MessageSender;
-use twilight_model::{
-    channel::Message,
-    gateway::{OpCode, presence::ActivityType},
-};
+use twilight_model::gateway::{OpCode, presence::ActivityType};
 
-pub async fn run<T: Display>(message: &Message, sender: &MessageSender, args: T) -> Result<()> {
-    if message.author.id.to_string() != FLAZEPE_ID {
-        return Ok(());
-    }
+pub async fn run(ctx: CommandContext) -> Result<()> {
+    let Input::MessageCommand { message: _, sender, args } = &ctx.input else { return Ok(()) };
 
     sender.send(
         json!({

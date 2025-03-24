@@ -1,18 +1,24 @@
-use crate::structs::{command::Command, command_context::CommandContext, snipes::ReactionSnipes};
-use std::sync::LazyLock;
+use crate::structs::{
+    command::Command,
+    command_context::{CommandContext, Input},
+    snipes::ReactionSnipes,
+};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandType, IntegrationType, InteractionContextType},
 };
+use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new().main(|ctx: CommandContext| async move {
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("Snipe Reactions", &[]).main(|ctx: CommandContext| async move {
+        let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+
         match ReactionSnipes::new(
-            ctx.input.guild_id.as_ref().unwrap(),
-            ctx.input.channel_id.as_ref().unwrap(),
-            &ctx.input.target_message.as_ref().unwrap().id,
-            ctx.input.app_permissions,
+            input.guild_id.as_ref().unwrap(),
+            input.channel_id.as_ref().unwrap(),
+            &input.target_message.as_ref().unwrap().id,
+            input.app_permissions,
         )
         .to_response()
         {
@@ -22,16 +28,16 @@ static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     })
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "Snipe Reactions",
+        name = COMMAND.name.clone(),
         command_type = ApplicationCommandType::MESSAGE,
         integration_types = [IntegrationType::GUILD_INSTALL],
         contexts = [InteractionContextType::GUILD],
     )]
-    async fn snipe_reaction_context(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    snipe_reaction_context
+    func
 }

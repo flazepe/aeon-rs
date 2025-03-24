@@ -1,12 +1,13 @@
 use crate::{
     statics::{CONFIG, REQWEST},
-    structs::command_context::CommandContext,
+    structs::command_context::{CommandContext, CommandInputExt, Input},
 };
 use anyhow::Result;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let mut url = ctx.get_string_arg("url")?;
+    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let mut url = input.get_string_arg("url")?;
 
     if !url.starts_with("http") {
         url = format!("http://{url}");
@@ -17,8 +18,8 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         .header("authorization", format!("API-Key {}", CONFIG.api.waaai_key))
         .json(&json!({
             "url": url,
-            "custom_code": ctx.get_string_arg("custom-id").as_deref().unwrap_or(""),
-            "private": ctx.get_bool_arg("hash").unwrap_or(false),
+            "custom_code": input.get_string_arg("custom-id").as_deref().unwrap_or(""),
+            "private": input.get_bool_arg("hash").unwrap_or(false),
         }))
         .send()
         .await?

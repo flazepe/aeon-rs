@@ -1,7 +1,7 @@
 use crate::structs::{
     command::Command,
-    command_context::CommandContext,
-    scraping::distrowatch::{statics::DISTRIBUTIONS, Distribution},
+    command_context::{CommandContext, CommandInputExt, Input},
+    scraping::distrowatch::{Distribution, statics::DISTRIBUTIONS},
 };
 use slashook::{
     command,
@@ -10,22 +10,33 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new().main(|ctx: CommandContext| async move {
-        if ctx.input.is_autocomplete() {
-            return ctx.autocomplete(DISTRIBUTIONS.iter()).await;
+pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
+    Command::new("distrowatch", &["distro"]).main(|ctx: CommandContext| async move {
+        if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+            if input.is_autocomplete() {
+                return ctx.autocomplete(DISTRIBUTIONS.iter()).await;
+            }
         }
 
-        match Distribution::get(ctx.get_string_arg("distribution")?).await {
+        let distribution = match &ctx.input {
+            Input::ApplicationCommand { input, res: _ } => input.get_string_arg("distribution")?,
+            Input::MessageCommand { message: _, sender: _, args } => args.into(),
+        };
+
+        if distribution.is_empty() {
+            return ctx.respond_error("Please provide a distribution.", true).await;
+        }
+
+        match Distribution::get(distribution).await {
             Ok(distribution) => ctx.respond(distribution.format(), false).await,
             Err(error) => ctx.respond_error(error, true).await,
         }
     })
 });
 
-pub fn get_command() -> SlashookCommand {
+pub fn get_slashook_command() -> SlashookCommand {
     #[command(
-        name = "distrowatch",
+        name = COMMAND.name.clone(),
         description = "Fetches a distribution from distrowatch.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
@@ -39,9 +50,9 @@ pub fn get_command() -> SlashookCommand {
             },
         ],
     )]
-    async fn distrowatch(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(input, res).await?;
+    async fn func(input: CommandInput, res: CommandResponder) {
+        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
     }
 
-    distrowatch
+    func
 }

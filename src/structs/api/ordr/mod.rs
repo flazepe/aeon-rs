@@ -3,11 +3,14 @@ pub mod statics;
 use crate::{
     functions::now,
     statics::{CACHE, CONFIG, REQWEST},
-    structs::{api::ordr::statics::ORDR_SKINS, command_context::CommandContext},
+    structs::{
+        api::ordr::statics::ORDR_SKINS,
+        command_context::{CommandContext, Input},
+    },
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use futures::FutureExt;
-use rust_socketio::{asynchronous::ClientBuilder, Payload};
+use rust_socketio::{Payload, asynchronous::ClientBuilder};
 use serde::Deserialize;
 use serde_json::{from_str, from_value, json};
 use std::{fmt::Display, time::Duration};
@@ -99,8 +102,10 @@ impl OrdrRender {
     }
 
     pub async fn poll_progress(&self, ctx: &CommandContext) -> Result<()> {
+        let Input::ApplicationCommand { input, res } = &ctx.input else { return Ok(()) };
+
         CACHE.ordr_renders.write().unwrap().insert(self.render_id.unwrap(), "Rendering... (0%)".into());
-        CACHE.ordr_rendering_users.write().unwrap().insert(ctx.input.user.id.clone(), true);
+        CACHE.ordr_rendering_users.write().unwrap().insert(input.user.id.clone(), true);
 
         let start_time = now();
 
@@ -116,14 +121,14 @@ impl OrdrRender {
             renders = CACHE.ordr_renders.read().unwrap().clone();
             state = renders.get(&self.render_id.unwrap()).unwrap();
 
-            ctx.res.edit_original_message(state.clone()).await?;
+            res.edit_original_message(state.clone()).await?;
 
             // To prevent rate limits
             sleep(Duration::from_secs(3)).await;
         }
 
         CACHE.ordr_renders.write().unwrap().remove(&self.render_id.unwrap());
-        CACHE.ordr_rendering_users.write().unwrap().remove(&ctx.input.user.id);
+        CACHE.ordr_rendering_users.write().unwrap().remove(&input.user.id);
 
         Ok(())
     }
