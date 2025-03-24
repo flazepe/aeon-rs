@@ -5,7 +5,7 @@ use crate::structs::{
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
 
     match Steam::get_user(input.get_string_arg("user")?).await {
         Ok(user) => ctx.respond(user.format(), false).await,

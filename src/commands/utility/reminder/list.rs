@@ -11,7 +11,7 @@ use anyhow::Result;
 use slashook::structs::embeds::Embed;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
 
     match Reminders::get_many(&input.user.id).await {
         Ok(reminders) => {

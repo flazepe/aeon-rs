@@ -4,7 +4,7 @@ use serde_json::json;
 use twilight_model::gateway::{OpCode, presence::ActivityType};
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::MessageCommand { message: _, sender, args } = &ctx.input else { return Ok(()) };
+    let Input::MessageCommand(_, sender, args) = &ctx.input else { return Ok(()) };
 
     sender.send(
         json!({

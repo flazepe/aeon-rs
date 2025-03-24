@@ -8,7 +8,7 @@ use anyhow::Result;
 use serde_json::to_string;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
     let mut user = input.get_user_arg("member").unwrap_or(&input.user);
 
     // Set to author if there's no resolved member

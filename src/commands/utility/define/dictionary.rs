@@ -6,8 +6,8 @@ use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let (word, ephemeral) = match &ctx.input {
-        Input::ApplicationCommand { input, res: _ } => (input.get_string_arg("word")?, !input.get_bool_arg("show").unwrap_or(false)),
-        Input::MessageCommand { message: _, sender: _, args } => (args.into(), true),
+        Input::ApplicationCommand(input,  _) => (input.get_string_arg("word")?, !input.get_bool_arg("show").unwrap_or(false)),
+        Input::MessageCommand(_, _, args)   => (args.into(), true),
     };
 
     if word.is_empty() {

@@ -12,7 +12,7 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new("voice-message", &[]).main(|ctx: CommandContext| async move {
-        let Input::ApplicationCommand { input, res } = &ctx.input else { return Ok(()) };
+        let Input::ApplicationCommand(input, res) = &ctx.input else { return Ok(()) };
 
         let audio_url =
             match input.get_string_arg("media-url").or(input.get_attachment_arg("media-file").map(|attachment| attachment.url.clone())) {
@@ -44,7 +44,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         ]
 	)]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
+        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
     }
 
     func

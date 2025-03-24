@@ -12,7 +12,7 @@ struct UserBanner {
 }
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
 
     ctx.defer(false).await?;
 

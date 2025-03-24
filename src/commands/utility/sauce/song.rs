@@ -5,7 +5,7 @@ use crate::structs::{
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
 
     match AnimeSongLyrics::query(input.get_string_arg("song")?).await {
         Ok(anime_song_lyrics) => ctx.respond(anime_song_lyrics.format(), false).await,

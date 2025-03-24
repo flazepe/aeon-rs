@@ -61,7 +61,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         ],
     )]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
+        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
     }
 
     func

@@ -16,7 +16,7 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new("Inspect Message", &[]).main(|ctx: CommandContext| async move {
-        let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+        let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
         let mut response = MessageResponse::from(File::new("message.rs", format!("{:#?}", input.target_message.as_ref().unwrap())));
 
         if input.app_permissions.contains(Permissions::VIEW_CHANNEL | Permissions::READ_MESSAGE_HISTORY) {
@@ -45,7 +45,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
 	)]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
+        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
     }
 
     func

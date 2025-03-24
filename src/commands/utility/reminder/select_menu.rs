@@ -5,7 +5,7 @@ use crate::{
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
     let message = input.message.as_ref().unwrap();
     let is_reminder_message = message.interaction_metadata.is_none();
     let is_authorized = if is_reminder_message {

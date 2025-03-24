@@ -19,7 +19,7 @@ use std::sync::LazyLock;
 pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new("code", &["execute", "run"]).main(|ctx: CommandContext| {
         async move {
-            let Input::ApplicationCommand { input, res } = &ctx.input else { return Ok(()) };
+            let Input::ApplicationCommand(input, res) = &ctx.input else { return Ok(()) };
 
             if input.is_autocomplete() {
                 return ctx.autocomplete(TIO_PROGRAMMING_LANGUAGES.iter()).await;
@@ -76,7 +76,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         ],
     )]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
+        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
     }
 
     func

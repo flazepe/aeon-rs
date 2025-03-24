@@ -7,7 +7,7 @@ use anyhow::Result;
 use slashook::structs::Permissions;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input, res) = &ctx.input else { return Ok(()) };
 
     // Must defer to not update original message
     res.defer(input.is_string_select()).await?;

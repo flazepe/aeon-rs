@@ -7,7 +7,7 @@ use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
     let mode = input.get_string_arg("mode");
 
     let (query, section) = ctx.get_query_and_section("user")?;

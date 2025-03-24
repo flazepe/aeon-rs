@@ -102,7 +102,7 @@ impl OrdrRender {
     }
 
     pub async fn poll_progress(&self, ctx: &CommandContext) -> Result<()> {
-        let Input::ApplicationCommand { input, res } = &ctx.input else { return Ok(()) };
+        let Input::ApplicationCommand(input, res) = &ctx.input else { return Ok(()) };
 
         CACHE.ordr_renders.write().unwrap().insert(self.render_id.unwrap(), "Rendering... (0%)".into());
         CACHE.ordr_rendering_users.write().unwrap().insert(input.user.id.clone(), true);

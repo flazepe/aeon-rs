@@ -5,7 +5,7 @@ use crate::structs::{
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
     let Ok(url) = input.get_string_arg("image-url").or(input.get_attachment_arg("image-file").map(|attachment| attachment.url.clone()))
     else {
         return ctx.respond_error("Please provide an image URL or file.", true).await;

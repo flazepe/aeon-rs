@@ -5,7 +5,7 @@ use crate::structs::{
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
     let name = input.get_string_arg("tag")?;
     let guild_id = input.guild_id.as_ref().unwrap();
     let alias = input.get_string_arg("alias")?;

@@ -6,19 +6,19 @@ use crate::structs::{
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+    if let Input::ApplicationCommand(input, _) = &ctx.input {
         if input.is_autocomplete() {
             return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
         }
     }
 
     let (text, origin_language, target_language) = match &ctx.input {
-        Input::ApplicationCommand { input, res: _ } => (
+        Input::ApplicationCommand(input, _) => (
             input.get_string_arg("text")?,
             input.get_string_arg("origin-language").as_deref().unwrap_or("auto").to_string(),
             input.get_string_arg("target-language").as_deref().unwrap_or("en").to_string(),
         ),
-        Input::MessageCommand { message, sender: _, args } => {
+        Input::MessageCommand(message, _, args) => {
             let mut args = args.split(' ').filter(|entry| !entry.is_empty());
 
             let Some(target_language) = args.next().or(Some("en")).map(|arg| arg.to_string()) else {

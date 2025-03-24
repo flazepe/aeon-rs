@@ -13,15 +13,15 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new("jisho", &[]).main(|ctx: CommandContext| async move {
-        if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+        if let Input::ApplicationCommand(input, _) = &ctx.input {
             if input.is_string_select() {
                 return ctx.respond(JishoSearch::get(&input.values.as_ref().unwrap()[0]).await?.format(), false).await;
             }
         }
 
         let query = match &ctx.input {
-            Input::ApplicationCommand { input, res: _ } => input.get_string_arg("query")?,
-            Input::MessageCommand { message: _, sender: _, args } => args.into(),
+            Input::ApplicationCommand(input, _) => input.get_string_arg("query")?,
+            Input::MessageCommand(_, _, args) => args.into(),
         };
 
         let results = match JishoSearch::search(query).await {
@@ -52,7 +52,7 @@ pub fn get_slashook_command() -> SlashookCommand {
 		],
 	)]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
+        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
     }
 
     func

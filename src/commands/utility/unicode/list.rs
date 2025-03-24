@@ -9,8 +9,8 @@ use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let text = match &ctx.input {
-        Input::ApplicationCommand { input, res: _ } => input.get_string_arg("text")?,
-        Input::MessageCommand { message: _, sender: _, args } => args.into(),
+        Input::ApplicationCommand(input,  _) => input.get_string_arg("text")?,
+        Input::MessageCommand(_, _, args)   => args.into(),
     };
 
     if text.is_empty() {

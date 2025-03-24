@@ -8,7 +8,7 @@ use crate::{
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
 
     if input.is_autocomplete() {
         return ctx.autocomplete(ORDR_SKINS.iter()).await;

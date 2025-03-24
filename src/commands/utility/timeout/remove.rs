@@ -4,7 +4,7 @@ use serde_json::json;
 use slashook::structs::guilds::GuildMember;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
     let user = input.get_user_arg("member")?;
 
     match input

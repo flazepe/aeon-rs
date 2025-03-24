@@ -27,8 +27,8 @@ pub struct CommandContext {
 }
 
 pub enum Input {
-    ApplicationCommand { input: CommandInput, res: CommandResponder },
-    MessageCommand { message: TwilightMessage, sender: MessageSender, args: String },
+    ApplicationCommand(CommandInput, CommandResponder),
+    MessageCommand(TwilightMessage, MessageSender, String),
 }
 
 impl CommandContext {
@@ -40,7 +40,7 @@ impl CommandContext {
         self.verified = true;
 
         let user_id = match &self.input {
-            Input::ApplicationCommand { input, res: _ } => {
+            Input::ApplicationCommand(input, _) => {
                 // Ignore verification for autocomplete
                 if input.is_autocomplete() {
                     return Ok(self);
@@ -55,7 +55,7 @@ impl CommandContext {
 
                 input.user.id.clone()
             },
-            Input::MessageCommand { message, sender: _, args: _ } => message.author.id.to_string(),
+            Input::MessageCommand(message, _, _) => message.author.id.to_string(),
         };
 
         if CACHE.cooldowns.read().unwrap().get(&user_id).unwrap_or(&0) > &now() {
@@ -67,7 +67,7 @@ impl CommandContext {
     }
 
     pub async fn defer(&self, ephemeral: bool) -> Result<()> {
-        let Input::ApplicationCommand { input, res } = &self.input else { return Ok(()) };
+        let Input::ApplicationCommand(input, res) = &self.input else { return Ok(()) };
 
         if input.message.is_some() {
             res.defer_update().await?
@@ -84,13 +84,13 @@ impl CommandContext {
         }
 
         match &self.input {
-            Input::ApplicationCommand { input, res: _ } => {
+            Input::ApplicationCommand(input, _) => {
                 // Only add cooldown to non-search commands
                 if !input.get_bool_arg("search").unwrap_or(false) {
                     CACHE.cooldowns.write().unwrap().insert(input.user.id.clone(), now() + 3);
                 }
             },
-            Input::MessageCommand { message, sender: _, args: _ } => {
+            Input::MessageCommand(message, _, _) => {
                 CACHE.cooldowns.write().unwrap().insert(message.author.id.to_string(), now() + 3);
             },
         }
@@ -104,14 +104,14 @@ impl CommandContext {
         }
 
         match &self.input {
-            Input::ApplicationCommand { input, res } => {
+            Input::ApplicationCommand(input, res) => {
                 if input.message.is_some() && !ephemeral {
                     res.update_message(response).await?;
                 } else {
                     res.send_message(response).await?;
                 }
             },
-            Input::MessageCommand { message, sender: _, args: _ } => {
+            Input::MessageCommand(message, _, _) => {
                 let command_response = CACHE.command_responses.read().unwrap().get(message.id.to_string().as_str()).cloned();
 
                 if let Some(command_response) = command_response {
@@ -151,7 +151,7 @@ impl CommandContext {
     }
 
     pub async fn autocomplete<T: Iterator<Item = (K, V)>, K: Display, V: Display>(&self, iter: T) -> Result<()> {
-        let Input::ApplicationCommand { input, res } = &self.input else { return Ok(()) };
+        let Input::ApplicationCommand(input, res) = &self.input else { return Ok(()) };
 
         let value = input
             .args
@@ -173,7 +173,7 @@ impl CommandContext {
 
     pub fn get_query_and_section<T: Display>(&self, option_name: T) -> Result<(String, String)> {
         match &self.input {
-            Input::ApplicationCommand { input, res: _ } => {
+            Input::ApplicationCommand(input, _) => {
                 if input.is_string_select() {
                     let mut split = input.values.as_ref().unwrap()[0].split('/');
                     Ok((split.next().unwrap().into(), split.next().unwrap_or("").into()))
@@ -181,12 +181,12 @@ impl CommandContext {
                     Ok((input.get_string_arg(option_name)?, "".into()))
                 }
             },
-            Input::MessageCommand { message: _, sender: _, args } => Ok((args.into(), "".into())),
+            Input::MessageCommand(_, _, args) => Ok((args.into(), "".into())),
         }
     }
 
     pub fn is_string_select(&self) -> bool {
-        if let Input::ApplicationCommand { input, res: _ } = &self.input { input.is_string_select() } else { false }
+        if let Input::ApplicationCommand(input, _) = &self.input { input.is_string_select() } else { false }
     }
 }
 

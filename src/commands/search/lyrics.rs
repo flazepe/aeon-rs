@@ -17,13 +17,13 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new("lyrics", &[]).main(|ctx: CommandContext| async move {
-        let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+        let Input::ApplicationCommand(input, _) = &ctx.input else { return Ok(()) };
 
         if input.is_autocomplete() {
             return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
         }
 
-        if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+        if let Input::ApplicationCommand(input, _) = &ctx.input {
             if input.is_string_select() {
                 let (artist, title) = input.values.as_ref().unwrap()[0].split_once('|').unwrap_or(("", ""));
 
@@ -106,7 +106,7 @@ pub fn get_slashook_command() -> SlashookCommand {
 		],
 	)]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
+        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
     }
 
     func

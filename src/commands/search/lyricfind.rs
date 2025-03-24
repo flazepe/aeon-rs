@@ -15,8 +15,8 @@ use slashook::{
 use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
-    Command::new("kmslol", &[]).main(|ctx: CommandContext| async move {
-        let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    Command::new("lyricfind", &[]).main(|ctx: CommandContext| async move {
+        let Input::ApplicationCommand(input, _) = &ctx.input else { return Ok(()) };
 
         if input.is_string_select() {
             return ctx.respond(LyricFind::search(&input.values.as_ref().unwrap()[0]).await?[0].format(), false).await;
@@ -59,7 +59,7 @@ pub fn get_slashook_command() -> SlashookCommand {
 		],
 	)]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
+        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
     }
 
     func

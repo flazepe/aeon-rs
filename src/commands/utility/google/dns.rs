@@ -6,8 +6,8 @@ use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
     let (record_type, domain) = match &ctx.input {
-        Input::ApplicationCommand { input, res: _ } => (input.get_string_arg("type")?, input.get_string_arg("domain")?),
-        Input::MessageCommand { message: _, sender: _, args } => {
+        Input::ApplicationCommand(input,  _) => (input.get_string_arg("type")?, input.get_string_arg("domain")?),
+        Input::MessageCommand(_, _, args)   => {
             let mut args = args.split(' ').filter(|entry| !entry.is_empty());
 
             let Some(record_type) = args.next().map(|arg| arg.to_uppercase()) else {

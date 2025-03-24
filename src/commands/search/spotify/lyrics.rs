@@ -10,7 +10,7 @@ use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+    if let Input::ApplicationCommand(input, _) = &ctx.input {
         if input.is_autocomplete() {
             return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
         }
@@ -31,10 +31,10 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
     }
 
     let (query, user_id, translate_language) = match &ctx.input {
-        Input::ApplicationCommand { input, res: _ } => {
+        Input::ApplicationCommand(input, _) => {
             (input.get_string_arg("song").ok(), input.user.id.clone(), input.get_string_arg("translate").ok())
         },
-        Input::MessageCommand { message, sender: _, args } => (args.clone().into(), message.author.id.to_string(), None::<String>),
+        Input::MessageCommand(message, _, args) => (args.clone().into(), message.author.id.to_string(), None::<String>),
     };
 
     let Some(query) =

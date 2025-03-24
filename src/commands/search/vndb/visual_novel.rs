@@ -7,7 +7,7 @@ use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+    if let Input::ApplicationCommand(input,  _) = &ctx.input {
         if input.get_bool_arg("search").unwrap_or(false) {
             let visual_novels = match Vndb::search_visual_novel(input.get_string_arg("visual-novel")?).await {
                 Ok(visual_novels) => visual_novels,

@@ -171,7 +171,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                 .await?;
         }
 
-        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
+        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
     }
 
     func

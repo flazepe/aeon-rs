@@ -8,7 +8,7 @@ use serde_json::{Value, from_str};
 use slashook::structs::embeds::Embed;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
     let method = Method::from_bytes(input.get_string_arg("method").as_deref().unwrap_or("GET").as_bytes()).unwrap_or(Method::GET);
     let url: String = format!("https://discord.com/api/{}", input.get_string_arg("endpoint")?);
     let mut request = REQWEST.request(method, url).header("authorization", format!("Bot {}", CONFIG.bot.token));

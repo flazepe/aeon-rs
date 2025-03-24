@@ -13,8 +13,8 @@ use std::sync::LazyLock;
 pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new("ip", &[]).main(|ctx: CommandContext| async move {
         let ip = match &ctx.input {
-            Input::ApplicationCommand { input, res: _ } => input.get_string_arg("ip")?,
-            Input::MessageCommand { message: _, sender: _, args } => args.into(),
+            Input::ApplicationCommand(input,  _) => input.get_string_arg("ip")?,
+            Input::MessageCommand(_, _, args)   => args.into(),
         };
 
         if ip.is_empty() {
@@ -44,7 +44,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         ],
     )]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
+        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
     }
 
     func

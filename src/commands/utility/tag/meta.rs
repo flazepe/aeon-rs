@@ -10,7 +10,7 @@ use anyhow::Result;
 use slashook::structs::users::User;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
 
     match Tags::get(input.get_string_arg("tag")?, input.guild_id.as_ref().unwrap()).await {
         Ok(tag) => {

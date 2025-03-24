@@ -61,14 +61,12 @@ impl Command {
     }
 
     pub async fn run(&self, input: Input) -> Result<()> {
-        let Ok(mut ctx) = CommandContext::new(input).verify().await else {
-            return Ok(());
-        };
+        let Ok(mut ctx) = CommandContext::new(input).verify().await else { return Ok(()) };
 
         if self.owner_only {
             let is_owner = match &ctx.input {
-                Input::ApplicationCommand { input, res: _ } => input.user.id == FLAZEPE_ID,
-                Input::MessageCommand { message, sender: _, args: _ } => message.author.id.to_string() == FLAZEPE_ID,
+                Input::ApplicationCommand(input, _) => input.user.id == FLAZEPE_ID,
+                Input::MessageCommand(message, _, _) => message.author.id.to_string() == FLAZEPE_ID,
             };
 
             if !is_owner {
@@ -85,7 +83,7 @@ impl Command {
         }
 
         match &mut ctx.input {
-            Input::MessageCommand { message: _, sender: _, args } => {
+            Input::MessageCommand(_, _, args) => {
                 let (subcommand, new_args) = args.split_once(' ').unwrap_or((args, ""));
                 let subcommand = self
                     .subcommands
@@ -100,7 +98,7 @@ impl Command {
                     }
                 }
             },
-            Input::ApplicationCommand { input, res: _ } => {
+            Input::ApplicationCommand(input, _) => {
                 let subcommand = self
                     .subcommands
                     .iter()

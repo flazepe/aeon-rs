@@ -5,7 +5,7 @@ use crate::{
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::MessageCommand { message: _, sender: _, args } = &ctx.input else { return Ok(()) };
+    let Input::MessageCommand(_, _, args) = &ctx.input else { return Ok(()) };
 
     let url = args.split('/').skip(5).map(|id| id.to_string()).collect::<Vec<String>>().join("/");
     let (channel_id, message_id) = url.split_once('/').unwrap_or(("", ""));

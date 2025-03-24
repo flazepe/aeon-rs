@@ -17,10 +17,10 @@ use std::{io::Cursor, sync::LazyLock};
 pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new("latex", &[]).main(|ctx: CommandContext| async move {
         let (expression, color) = match &ctx.input {
-            Input::ApplicationCommand { input, res: _ } => {
+            Input::ApplicationCommand(input,  _) => {
                 (input.get_string_arg("expression")?, input.get_string_arg("color").unwrap_or("#fff".into()))
             },
-            Input::MessageCommand { message: _, sender: _, args } => (args.into(), "#fff".into()),
+            Input::MessageCommand(_, _, args)   => (args.into(), "#fff".into()),
         };
 
         if expression.is_empty() {
@@ -71,7 +71,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         ],
     )]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
+        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
     }
 
     func

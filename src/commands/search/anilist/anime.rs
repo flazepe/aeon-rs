@@ -7,7 +7,7 @@ use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
 
     if input.get_bool_arg("search").unwrap_or(false) {
         let results = match AniList::search_anime(input.get_string_arg("anime")?).await {

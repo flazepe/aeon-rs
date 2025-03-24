@@ -7,7 +7,7 @@ use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+    if let Input::ApplicationCommand(input,  _) = &ctx.input {
         if input.get_bool_arg("search").unwrap_or(false) {
             let results = match Spotify::search_simple_album(input.get_string_arg("album")?).await {
                 Ok(results) => results,

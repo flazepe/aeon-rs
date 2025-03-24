@@ -7,15 +7,15 @@ use anyhow::Result;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+    if let Input::ApplicationCommand(input,  _) = &ctx.input {
         if input.is_string_select() {
             return ctx.respond(Vndb::search_trait(&input.values.as_ref().unwrap()[0]).await?[0].format(), false).await;
         }
     }
 
     let trait_query = match &ctx.input {
-        Input::ApplicationCommand { input, res: _ } => input.get_string_arg("trait")?,
-        Input::MessageCommand { message: _, sender: _, args } => args.into(),
+        Input::ApplicationCommand(input,  _) => input.get_string_arg("trait")?,
+        Input::MessageCommand(_, _, args)   => args.into(),
     };
 
     if trait_query.is_empty() {

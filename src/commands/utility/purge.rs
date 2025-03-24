@@ -21,7 +21,7 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<Command> = LazyLock::new(|| {
     Command::new("purge", &[]).main(|ctx: CommandContext| async move {
-        let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+        let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
         let has_permission = input.app_permissions.contains(Permissions::MANAGE_MESSAGES);
         let is_self_purge = input.get_user_arg("user").is_ok_and( |user| user.id == CONFIG.bot.client_id);
 
@@ -113,7 +113,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         ],
     )]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
+        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
     }
 
     func

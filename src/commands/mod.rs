@@ -32,7 +32,7 @@ pub async fn run<T: Display, U: Display>(message: &Message, sender: &MessageSend
     let command = COMMANDS.iter().find(|command| command.name == command_name || command.aliases.contains(&command_name));
 
     if let Some(command) = command {
-        return command.run(Input::MessageCommand { message: message.clone(), sender: sender.clone(), args: args.to_string() }).await;
+        return command.run(Input::MessageCommand(message.clone(), sender.clone(), args.to_string())).await;
     }
 
     Ok(())

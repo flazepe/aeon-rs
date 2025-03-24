@@ -9,7 +9,7 @@ use slashook::{
 };
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input, res) = &ctx.input else { return Ok(()) };
 
     if input.is_modal_submit() {
         let name = input.get_string_arg("tag")?;

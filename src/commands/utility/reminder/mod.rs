@@ -78,7 +78,7 @@ pub fn get_slashook_command() -> SlashookCommand {
             input.subcommand = Some("select-menu".into());
         }
 
-        COMMAND.run(Input::ApplicationCommand { input, res }).await?;
+        COMMAND.run(Input::ApplicationCommand(input, res)).await?;
     }
 
     func

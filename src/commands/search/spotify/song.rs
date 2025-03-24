@@ -13,7 +13,7 @@ use serde_json::to_string;
 use slashook::commands::MessageResponse;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+    if let Input::ApplicationCommand(input,  _) = &ctx.input {
         if input.get_bool_arg("search").unwrap_or(false) {
             let results = match Spotify::search_track(input.get_string_arg("song")?).await {
                 Ok(results) => results,
@@ -41,7 +41,7 @@ pub async fn run(ctx: CommandContext) -> Result<()> {
         },
     };
 
-    if let Input::ApplicationCommand { input, res: _ } = &ctx.input {
+    if let Input::ApplicationCommand(input,  _) = &ctx.input {
         if let Ok(style) = input.get_string_arg("card").as_deref() {
             let activity = SongActivity {
                 service: SongActivityService::Spotify,

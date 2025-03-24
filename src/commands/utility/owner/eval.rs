@@ -5,7 +5,7 @@ use slashook::{commands::MessageResponse, structs::utils::File};
 use std::{fmt::Display, process::Command};
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::MessageCommand { message, sender: _, args } = &ctx.input else { return Ok(()) };
+    let Input::MessageCommand(message, _, args) = &ctx.input else { return Ok(()) };
 
     let mut code = args.to_string();
     let mut flags = code.split(' ').last().unwrap_or("").to_string();

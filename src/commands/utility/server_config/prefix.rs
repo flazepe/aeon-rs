@@ -7,7 +7,7 @@ use crate::structs::{
 use anyhow::Result;
 
 pub async fn run(ctx: CommandContext) -> Result<()> {
-    let Input::ApplicationCommand { input, res: _ } = &ctx.input else { return Ok(()) };
+    let Input::ApplicationCommand(input,  _) = &ctx.input else { return Ok(()) };
     let mut guild = Guilds::get(input.guild_id.as_ref().unwrap()).await?;
 
     if input.is_autocomplete() {
