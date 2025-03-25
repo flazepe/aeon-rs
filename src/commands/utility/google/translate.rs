@@ -1,6 +1,6 @@
 use crate::structs::{
     api::google::{Google, statics::GOOGLE_TRANSLATE_LANGUAGES},
-    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     simple_message::SimpleMessage,
 };
 use anyhow::Result;
@@ -19,14 +19,9 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
             input.get_string_arg("target-language").as_deref().unwrap_or("en").to_string(),
         ),
         AeonCommandInput::MessageCommand(message, args, _) => {
-            let mut args = args.split(' ').filter(|entry| !entry.is_empty());
-
-            let Some(target_language) = args.next().or(Some("en")).map(|arg| arg.to_string()) else {
-                return ctx.respond_error("Please provide the target language.", true).await;
-            };
-
+            let mut args = args.split_whitespace();
+            let target_language = args.next().map(|arg| arg.to_string()).unwrap_or("en".into());
             let reference_text = message.referenced_message.as_ref().map(|reply| SimpleMessage::from(*reply.clone()).to_string());
-
             let Some(text) = args.next().map(|arg| arg.to_string()).or(reference_text) else {
                 return ctx.respond_error("Please provide a text.", true).await;
             };

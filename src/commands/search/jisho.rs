@@ -24,6 +24,10 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             AeonCommandInput::MessageCommand(_, args, _) => args.into(),
         };
 
+        if query.is_empty() {
+            return ctx.respond_error("Please provide a query.", true).await;
+        }
+
         let results = match JishoSearch::search(query).await {
             Ok(results) => results,
             Err(error) => return ctx.respond_error(error, true).await,
