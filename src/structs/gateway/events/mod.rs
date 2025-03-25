@@ -35,9 +35,7 @@ impl EventHandler {
         }
 
         if let Event::MessageDelete(message) = &event {
-            let message_id = message.id.to_string();
-            let command_response = CACHE.command_responses.read().unwrap().get(&message_id).cloned();
-            CACHE.command_responses.write().unwrap().remove(&message_id);
+            let command_response = CACHE.command_responses.write().unwrap().remove(&message.id.to_string());
 
             if let Some(command_response) = command_response {
                 let _ = command_response.delete(&REST).await;
