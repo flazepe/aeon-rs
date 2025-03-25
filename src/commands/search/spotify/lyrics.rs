@@ -30,11 +30,11 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
         }
     }
 
-    let (query, user_id, translate_language) = match &ctx.command_input {
+    let (user_id, query, translate_language) = match &ctx.command_input {
         AeonCommandInput::ApplicationCommand(input, _) => {
-            (input.get_string_arg("song").ok(), input.user.id.clone(), input.get_string_arg("translate").ok())
+            (input.user.id.clone(), input.get_string_arg("song").ok(), input.get_string_arg("translate").ok())
         },
-        AeonCommandInput::MessageCommand(message, args, _) => (args.clone().into(), message.author.id.to_string(), None::<String>),
+        AeonCommandInput::MessageCommand(message, args, _) => (message.author.id.to_string(), args.clone().into(), None::<String>),
     };
 
     let Some(query) =

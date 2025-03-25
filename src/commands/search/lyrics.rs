@@ -17,13 +17,11 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("lyrics", &["l", "ly", "lyr", "lyric"]).main(|ctx: AeonCommandContext| async move {
-        let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
-
-        if input.is_autocomplete() {
-            return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
-        }
-
         if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
+            if input.is_autocomplete() {
+                return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
+            }
+
             if input.is_string_select() {
                 let (artist, title) = input.values.as_ref().unwrap()[0].split_once('|').unwrap_or(("", ""));
 
@@ -41,12 +39,32 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             }
         }
 
-        let mut artist = input.get_string_arg("artist").ok();
-        let mut title = input.get_string_arg("title").ok();
-        let lyrics = input.get_string_arg("lyrics").ok();
+        let (user_id, mut artist, mut title, lyrics, translate_language) = match &ctx.command_input {
+            AeonCommandInput::ApplicationCommand(input, _) => {
+                let query = input.get_string_arg("song").unwrap_or_default();
+                let (artist, title) = query.split_once('-').unwrap_or(("", &query));
+                (
+                    input.user.id.clone(),
+                    if artist.trim().is_empty() { None } else { Some(artist.into()) },
+                    if title.trim().is_empty() { None } else { Some(title.into()) },
+                    input.get_string_arg("lyrics").ok(),
+                    input.get_string_arg("translate").ok(),
+                )
+            },
+            AeonCommandInput::MessageCommand(message, args, _) => {
+                let (artist, title) = args.split_once('-').unwrap_or(("", args));
+                (
+                    message.author.id.to_string(),
+                    if artist.trim().is_empty() { None } else { Some(artist.into()) },
+                    if title.trim().is_empty() { None } else { Some(title.into()) },
+                    None,
+                    None,
+                )
+            },
+        };
 
         if let (None, None, None) = (&artist, &title, &lyrics) {
-            if let Some(song) = CACHE.song_activities.read().unwrap().get(&input.user.id) {
+            if let Some(song) = CACHE.song_activities.read().unwrap().get(&user_id) {
                 artist = Some(song.artist.clone());
                 title = Some(song.title.clone());
             }
@@ -69,7 +87,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     results.iter().map(|result| (&result.title, format!("{}|{}", result.artist, result.title), Some(&result.artist))),
                 );
 
-        let embed = results[0].get_formatted_lyrics(input.get_string_arg("translate").ok()).await?;
+        let embed = results[0].get_formatted_lyrics(translate_language).await?;
 
         ctx.respond(MessageResponse::from(select_menu).add_embed(embed), false).await
     })
@@ -82,14 +100,9 @@ pub fn get_slashook_command() -> SlashookCommand {
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
 		options = [
-			{
-				name = "artist",
-				description = "The song artist",
-				option_type = InteractionOptionType::STRING,
-			},
             {
-				name = "title",
-				description = "The song title",
+				name = "song",
+				description = r#"The song. Artist can be specified by using the "Artist - Title" format"#,
 				option_type = InteractionOptionType::STRING,
 			},
             {
