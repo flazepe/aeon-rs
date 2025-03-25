@@ -9,7 +9,7 @@ pub async fn handle(event: &MessageDeleteBulk) -> Result<()> {
     let embed = Embed::new()
         .set_color(ERROR_COLOR)
         .unwrap_or_default()
-        .set_title(format!("{} {} Deleted", event.ids.len(), label_num(event.ids.len(), "Message", "Messages")))
+        .set_title(format!("{} Deleted", label_num(event.ids.len(), "Message", "Messages")))
         .add_field("Channel", format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id), false);
 
     Guilds::send_log(guild_id, embed).await
