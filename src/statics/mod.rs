@@ -39,6 +39,7 @@ pub static COLLECTIONS: LazyLock<Collections> = LazyLock::new(|| Collections {
     tags: MONGODB.get().unwrap().collection::<Tag>("tags"),
 });
 pub static CONFIG: LazyLock<Config> = LazyLock::new(|| from_str(&read_to_string("config.toml").unwrap()).unwrap());
+pub static DEFAULT_PREFIXES: LazyLock<[String; 2]> = LazyLock::new(|| [format!("<@{}>", CONFIG.bot.client_id), "aeon".into()]);
 pub static FLAZEPE_ID: &str = "590455379931037697";
 pub static MONGODB: OnceLock<Database> = OnceLock::new();
 pub static REQWEST: LazyLock<Client> = LazyLock::new(Client::new);

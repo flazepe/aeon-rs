@@ -20,7 +20,8 @@ impl GatewayClient {
             &self.0,
             TwilightConfig::new(
                 CONFIG.bot.token.clone(),
-                Intents::GUILDS
+                Intents::DIRECT_MESSAGES
+                    | Intents::GUILDS
                     | Intents::GUILD_INVITES
                     | Intents::GUILD_MESSAGES
                     | Intents::GUILD_MESSAGE_REACTIONS

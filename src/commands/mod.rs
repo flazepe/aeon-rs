@@ -28,7 +28,6 @@ pub fn get_slashook_commands() -> Vec<SlashookCommand> {
 
 pub async fn run<T: Display, U: Display>(message: &Message, sender: &MessageSender, command_name: T, args: U) -> Result<()> {
     let command_name = command_name.to_string();
-
     let command = COMMANDS.iter().find(|command| command.name == command_name || command.aliases.contains(&command_name));
 
     if let Some(command) = command {
