@@ -12,7 +12,7 @@ use slashook::{
 use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("jisho", &[]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("jisho", &["j"]).main(|ctx: AeonCommandContext| async move {
         if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
             if input.is_string_select() {
                 return ctx.respond(JishoSearch::get(&input.values.as_ref().unwrap()[0]).await?.format(), false).await;

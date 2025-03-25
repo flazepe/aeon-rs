@@ -15,7 +15,7 @@ use slashook::{
 use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("lyricfind", &[]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("lyricfind", &["lf"]).main(|ctx: AeonCommandContext| async move {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 
         if input.is_string_select() {

@@ -84,11 +84,15 @@ impl AeonCommand {
 
         match &mut ctx.command_input {
             AeonCommandInput::MessageCommand(_, args, _) => {
-                let (subcommand, new_args) = args.split_once(' ').unwrap_or((args, ""));
+                let (subcommand_name, new_args) = args.split_once(' ').unwrap_or((args, ""));
+                let subcommand_name = subcommand_name.to_lowercase();
                 let subcommand = self
                     .subcommands
                     .iter()
-                    .find(|entry| entry.name == subcommand.to_lowercase() || entry.aliases.contains(&subcommand.to_lowercase()));
+                    .find(|entry| entry.name == subcommand_name || entry.aliases.contains(&subcommand_name))
+                    .or(self.subcommands.iter().find(|entry| {
+                        entry.name.starts_with(&subcommand_name) || entry.aliases.iter().any(|alias| alias.starts_with(&subcommand_name))
+                    }));
 
                 if let Some(subcommand) = subcommand {
                     *args = new_args.to_string();

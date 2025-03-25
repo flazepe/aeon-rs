@@ -14,7 +14,7 @@ use std::sync::LazyLock;
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("reminder", &[])
         .subcommand("delete", &[], delete::run)
-        .subcommand("list", &[], list::run)
+        .subcommand("list", &["ls"], list::run)
         .subcommand("set", &[], set::run)
         .subcommand("select-menu", &[], select_menu::run)
 });

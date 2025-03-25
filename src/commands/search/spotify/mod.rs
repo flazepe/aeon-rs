@@ -15,8 +15,8 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("spotify", &["sp"])
         .subcommand("album", &[], album::run)
         .subcommand("lyrics", &[], lyrics::run)
-        .subcommand("member", &[], member::run)
-        .subcommand("song", &[], song::run)
+        .subcommand("member", &["user"], member::run)
+        .subcommand("song", &["track"], song::run)
 });
 
 pub fn get_slashook_command() -> SlashookCommand {

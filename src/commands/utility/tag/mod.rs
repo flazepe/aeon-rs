@@ -21,7 +21,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         .subcommand("create", &[], create::run)
         .subcommand("delete", &[], delete::run)
         .subcommand("edit", &[], edit::run)
-        .subcommand("list", &[], list::run)
+        .subcommand("list", &["ls"], list::run)
         .subcommand("meta", &[], meta::run)
         .subcommand("toggle-alias", &[], toggle_alias::run)
         .subcommand("toggle-nsfw", &[], toggle_nsfw::run)
