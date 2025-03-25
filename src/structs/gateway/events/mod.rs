@@ -27,8 +27,10 @@ impl EventHandler {
         }
 
         if let Event::MessageUpdate(message) = &event {
-            if let Err(error) = Self::handle_commands(message, &sender).await {
-                println!("[GATEWAY] An error occurred while handling commands: {error:?}");
+            if CACHE.command_responses.read().unwrap().contains_key(&message.id.to_string()) {
+                if let Err(error) = Self::handle_commands(message, &sender).await {
+                    println!("[GATEWAY] An error occurred while handling commands: {error:?}");
+                }
             }
         }
 
