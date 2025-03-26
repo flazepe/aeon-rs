@@ -36,29 +36,20 @@ impl AeonCommandContext {
         Self { command_input, verified: false }
     }
 
-    pub async fn verify(&mut self) -> Result<()> {
+    pub fn verify(&mut self) -> Result<()> {
         self.verified = true;
 
-        let user_id = match &self.command_input {
-            AeonCommandInput::ApplicationCommand(input, _) => {
-                // Ignore verification for autocomplete
-                if input.is_autocomplete() {
-                    return Ok(());
+        if let AeonCommandInput::ApplicationCommand(input, _) = &self.command_input {
+            // Ignore verification for autocomplete
+            if input.is_autocomplete() {
+                return Ok(());
+            }
+
+            if let Some(interaction_metadata) = input.message.as_ref().and_then(|message| message.interaction_metadata.as_ref()) {
+                if input.user.id != interaction_metadata.user.id {
+                    bail!("This isn't your interaction.");
                 }
-
-                if let Some(interaction_metadata) = input.message.as_ref().and_then(|message| message.interaction_metadata.as_ref()) {
-                    if input.user.id != interaction_metadata.user.id {
-                        bail!("This isn't your interaction.");
-                    }
-                }
-
-                input.user.id.clone()
-            },
-            AeonCommandInput::MessageCommand(message, _, _) => message.author.id.to_string(),
-        };
-
-        if CACHE.cooldowns.read().unwrap().get(&user_id).unwrap_or(&0) > &now() {
-            bail!("You are under a cooldown. Try again later.");
+            }
         }
 
         Ok(())
@@ -79,18 +70,6 @@ impl AeonCommandContext {
     pub async fn respond<T: Into<MessageResponse>>(&self, response: T, ephemeral: bool) -> Result<()> {
         if !self.verified {
             bail!("Interaction isn't verified.");
-        }
-
-        match &self.command_input {
-            AeonCommandInput::ApplicationCommand(input, _) => {
-                // Only add cooldown to non-search commands
-                if !input.get_bool_arg("search").unwrap_or(false) {
-                    CACHE.cooldowns.write().unwrap().insert(input.user.id.clone(), now() + 3);
-                }
-            },
-            AeonCommandInput::MessageCommand(message, _, _) => {
-                CACHE.cooldowns.write().unwrap().insert(message.author.id.to_string(), now() + 3);
-            },
         }
 
         let mut response = response.into().set_ephemeral(ephemeral);
