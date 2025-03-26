@@ -8,18 +8,15 @@ use crate::{
     },
     traits::UserExt,
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
 use serde_json::to_string;
 use slashook::commands::MessageResponse;
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
         if input.get_bool_arg("search").unwrap_or(false) {
-            let results = match Spotify::search_track(input.get_string_arg("song")?).await {
-                Ok(results) => results,
-                Err(error) => return ctx.respond_error(error, true).await,
-            };
-
+            let results = Spotify::search_track(input.get_string_arg("song")?).await?;
             let select_menu = SelectMenu::new("spotify", "song", "Select a song…", None::<String>)
                 .add_options(results.iter().map(|result| (&result.name, &result.id, Some(&result.artists[0].name))));
 
@@ -30,16 +27,10 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
     let (query, section) = ctx.get_query_and_section("song")?;
 
     if query.is_empty() {
-        return ctx.respond_error("Please provide a song.", true).await;
+        bail!("Please provide a song.");
     }
 
-    let mut track = match ctx.is_string_select() {
-        true => Spotify::get_track(query).await?,
-        false => match Spotify::search_track(query).await {
-            Ok(mut result) => result.remove(0),
-            Err(error) => return ctx.respond_error(error, true).await,
-        },
-    };
+    let mut track = if ctx.is_string_select() { Spotify::get_track(query).await? } else { Spotify::search_track(query).await?.remove(0) };
 
     if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
         if let Ok(style) = input.get_string_arg("card").as_deref() {

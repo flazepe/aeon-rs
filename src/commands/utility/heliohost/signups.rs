@@ -8,8 +8,9 @@ use slashook::{
     chrono::{Datelike, Duration as ChronoDuration, TimeZone, Utc},
     structs::embeds::Embed,
 };
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let utc = Utc::now();
     let midnight = Utc.with_ymd_and_hms(utc.year(), utc.month(), utc.day(), 0, 0, 0).unwrap();
     let midnight_tomorrow = midnight + ChronoDuration::days(1);

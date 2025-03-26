@@ -5,19 +5,13 @@ use crate::structs::{
 };
 use anyhow::Result;
 use slashook::commands::MessageResponse;
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input else { return Ok(()) };
+
     let (query, section) = ctx.get_query_and_section("user")?;
-
-    let user = match input.is_string_select() {
-        true => AniList::get_user(query).await?,
-        false => match AniList::get_user(query).await {
-            Ok(result) => result,
-            Err(error) => return ctx.respond_error(error, true).await,
-        },
-    };
-
+    let user = AniList::get_user(query).await?;
     let name = &user.name;
 
     let select_menu = SelectMenu::new("anilist", "user", "View other sections…", Some(&section))

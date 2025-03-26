@@ -9,17 +9,15 @@ use slashook::{
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandType, IntegrationType, InteractionContextType},
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("Translate to English", &[]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("Translate to English", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let message = SimpleMessage::from(input.target_message.as_ref().unwrap().clone());
+        let translation = Google::translate(message, "auto", "en").await?;
 
-        match Google::translate(message, "auto", "en").await {
-            Ok(translation) => ctx.respond(translation.format(), true).await,
-            Err(error) => ctx.respond_error(error, true).await,
-        }
+        ctx.respond(translation.format(), true).await
     })
 });
 

@@ -1,5 +1,4 @@
-use std::sync::LazyLock;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::LazyLock};
 
 // [...document.querySelector("select").options].map(x => [x.attributes[0].value, x.label])
 

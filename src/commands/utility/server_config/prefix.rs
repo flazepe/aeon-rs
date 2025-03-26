@@ -1,13 +1,14 @@
 use std::cmp::Reverse;
 
 use crate::structs::{
-    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     database::guilds::Guilds,
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
     let mut guild = Guilds::get(input.guild_id.as_ref().unwrap()).await?;
 
     if input.is_autocomplete() {
@@ -18,7 +19,7 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
     let remove_prefix = guild.prefixes.contains(&prefix);
 
     if !remove_prefix && guild.prefixes.len() >= 10 {
-        return ctx.respond_error("A server can only have up to 10 prefixes.", true).await;
+        bail!("A server can only have up to 10 prefixes.");
     }
 
     let message = if remove_prefix {
@@ -39,9 +40,6 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
         guild.prefixes.sort_by_key(|entry| Reverse(entry.len()));
     }
 
-    if let Err(error) = Guilds::update(guild).await {
-        ctx.respond_error(error, true).await
-    } else {
-        ctx.respond_success(message, true).await
-    }
+    Guilds::update(guild).await?;
+    ctx.respond_success(message, true).await
 }

@@ -11,11 +11,10 @@ use slashook::{
 use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("google", &["g", "goog"]).subcommand("assistant", &["ass"], assistant::run).subcommand("dns", &[], dns::run).subcommand(
-        "translate",
-        &["tl", "tr", "trans"],
-        translate::run,
-    )
+    AeonCommand::new("google", &["g", "goog"])
+        .subcommand("assistant", &["ass"], assistant::run)
+        .subcommand("dns", &[], dns::run)
+        .subcommand("translate", &["tl", "tr", "trans"], translate::run)
 });
 
 pub fn get_slashook_command() -> SlashookCommand {

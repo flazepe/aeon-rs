@@ -1,28 +1,26 @@
 use crate::{
     functions::{hastebin, limit_strings},
     structs::{
-        command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
         unicode::Unicode,
     },
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let character = match &ctx.command_input {
-        AeonCommandInput::ApplicationCommand(input,  _) => input.get_string_arg("text")?,
-        AeonCommandInput::MessageCommand(_, args, _)   => args.into(),
+        AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("text")?,
+        AeonCommandInput::MessageCommand(_, args, _) => args.into(),
     };
 
     if character.is_empty() {
-        return ctx.respond_error("Please provide a character.", true).await;
+        bail!("Please provide a character.");
     }
 
     ctx.defer(false).await?;
 
-    let mut formatted = match Unicode::search(character).await {
-        Ok(unicode) => unicode.format(),
-        Err(error) => return ctx.respond_error(error, true).await,
-    };
+    let mut formatted = Unicode::search(character).await?.format();
 
     if formatted.len() > 2000 {
         let extra = format!("\n\nFull list: {}", hastebin(&formatted).await?);

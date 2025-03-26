@@ -7,8 +7,9 @@ use slashook::{
     commands::Modal,
     structs::components::{Components, TextInput, TextInputStyle},
 };
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
     if input.is_modal_submit() {
@@ -17,11 +18,9 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
         let author_id = &input.user.id;
         let content = input.get_string_arg("content")?;
         let modifier = input.member.as_ref().unwrap();
+        let response = Tags::create(name, guild_id, author_id, content, modifier).await?;
 
-        match Tags::create(name, guild_id, author_id, content, modifier).await {
-            Ok(response) => ctx.respond_success(response, true).await,
-            Err(error) => ctx.respond_error(error, true).await,
-        }
+        ctx.respond_success(response, true).await
     } else {
         let tag_input = TextInput::new().set_id("tag").set_max_length(32).set_label("Tag");
         let content_input =

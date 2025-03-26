@@ -12,10 +12,10 @@ use slashook::{
         utils::File,
     },
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("Inspect Message", &[]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("Inspect Message", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let mut response = MessageResponse::from(File::new("message.rs", format!("{:#?}", input.target_message.as_ref().unwrap())));
 

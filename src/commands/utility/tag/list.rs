@@ -9,8 +9,9 @@ use crate::{
 };
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let (query, author, guild_id) = match &ctx.command_input {
         AeonCommandInput::ApplicationCommand(input, _) => (
             input.get_string_arg("query").as_deref().unwrap_or("").to_lowercase(),
@@ -21,26 +22,22 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
     };
 
     let Some(guild_id) = guild_id else { return Ok(()) };
+    let tags = Tags::search(guild_id, author.map(|user| &user.id)).await?;
 
-    match Tags::search(guild_id, author.map(|user| &user.id)).await {
-        Ok(tags) => {
-            let thumbnail = author.map(|author| author.display_avatar_url("png", 512));
-            let title = author.map(|author| format!("{}'s tags", author.username));
-            let tags = limit_strings(
-                tags.iter()
-                    .filter(|tag| format!("{}{}", tag.name, tag.content).to_lowercase().contains(&query))
-                    .map(|tag| format!("`{}`", tag.name)),
-                ", ",
-                4096,
-            );
-            let embed = Embed::new()
-                .set_color(PRIMARY_COLOR)?
-                .set_thumbnail(thumbnail.as_deref().unwrap_or(""))
-                .set_title(title.as_deref().unwrap_or("All tags"))
-                .set_description(tags);
+    let thumbnail = author.map(|author| author.display_avatar_url("png", 512));
+    let title = author.map(|author| format!("{}'s tags", author.username));
+    let description = limit_strings(
+        tags.iter()
+            .filter(|tag| format!("{}{}", tag.name, tag.content).to_lowercase().contains(&query))
+            .map(|tag| format!("`{}`", tag.name)),
+        ", ",
+        4096,
+    );
+    let embed = Embed::new()
+        .set_color(PRIMARY_COLOR)?
+        .set_thumbnail(thumbnail.as_deref().unwrap_or(""))
+        .set_title(title.as_deref().unwrap_or("All tags"))
+        .set_description(description);
 
-            ctx.respond(embed, true).await
-        },
-        Err(error) => ctx.respond_error(error, true).await,
-    }
+    ctx.respond(embed, true).await
 }

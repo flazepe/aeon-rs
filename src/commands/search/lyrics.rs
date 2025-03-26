@@ -8,15 +8,16 @@ use crate::{
         select_menu::SelectMenu,
     },
 };
+use anyhow::bail;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, MessageResponse},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("lyrics", &["l", "ly", "lyr", "lyric"]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("lyrics", &["l", "ly", "lyr", "lyric"]).main(|ctx: Arc<AeonCommandContext>| async move {
         if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
             if input.is_autocomplete() {
                 return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
@@ -27,15 +28,11 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 
                 ctx.defer(false).await?;
 
-                let embed = match PetitLyrics::search_perfect(Some(artist), Some(title), None::<String>).await {
-                    Ok(results) => results[0].get_formatted_lyrics(None::<String>).await,
-                    Err(error) => return ctx.respond_error(error, true).await,
-                };
+                let embed = PetitLyrics::search_perfect(Some(artist), Some(title), None::<String>).await?[0]
+                    .get_formatted_lyrics(None::<String>)
+                    .await?;
 
-                return match embed {
-                    Ok(embed) => ctx.respond(embed, false).await,
-                    Err(error) => return ctx.respond_error(error, true).await,
-                };
+                return ctx.respond(embed, false).await;
             }
         }
 
@@ -71,15 +68,12 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         }
 
         if let (None, None, None) = (&artist, &title, &lyrics) {
-            return ctx.respond_error("Please provide a song artist, title, or lyrics.", true).await;
+            bail!("Please provide a song artist, title, or lyrics.");
         };
 
         ctx.defer(false).await?;
 
-        let results = match PetitLyrics::search_partial(artist, title, lyrics).await {
-            Ok(results) => results,
-            Err(error) => return ctx.respond_error(error, true).await,
-        };
+        let results = PetitLyrics::search_partial(artist, title, lyrics).await?;
 
         let select_menu =
             SelectMenu::new("lyrics", "search", "View other lyrics…", Some(format!("{}|{}", results[0].artist, results[0].title)))

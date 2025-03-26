@@ -3,15 +3,16 @@ use crate::structs::{
     command::AeonCommand,
     command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
 };
+use anyhow::Context;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("convert-currency", &["cc"]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("convert-currency", &["cc"]).main(|ctx: Arc<AeonCommandContext>| async move {
         if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
             if input.is_autocomplete() {
                 return ctx.autocomplete(XE_CURRENCIES.iter()).await;
@@ -25,26 +26,16 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             AeonCommandInput::MessageCommand(_, args, _) => {
                 let mut args = args.split_whitespace();
 
-                let Some(amount) = args.next().and_then(|arg| arg.to_lowercase().parse::<f64>().ok()) else {
-                    return ctx.respond_error("Please provide a valid amount.", true).await;
-                };
-
-                let Some(origin_currency) = args.next().map(|arg| arg.to_string()) else {
-                    return ctx.respond_error("Please provide the origin currency.", true).await;
-                };
-
-                let Some(target_currency) = args.next().map(|arg| arg.to_string()) else {
-                    return ctx.respond_error("Please provide the target currency.", true).await;
-                };
-
-                (amount, origin_currency, target_currency)
+                (
+                    args.next().and_then(|arg| arg.to_lowercase().parse::<f64>().ok()).context("Please provide a valid amount.")?,
+                    args.next().map(|arg| arg.to_string()).context("Please provide the origin currency.")?,
+                    args.next().map(|arg| arg.to_string()).context("Please provide the target currency.")?,
+                )
             },
         };
 
-        match Xe::convert(amount, origin_currency, target_currency).await {
-            Ok(xe_conversion) => ctx.respond_success(xe_conversion.format(), false).await,
-            Err(error) => ctx.respond_error(error, true).await,
-        }
+        let xe = Xe::convert(amount, origin_currency, target_currency).await?;
+        ctx.respond_success(xe.format(), false).await
     })
 });
 

@@ -3,9 +3,10 @@ use crate::structs::{
     command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     simple_message::SimpleMessage,
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
         if input.is_autocomplete() {
             return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
@@ -22,16 +23,12 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
             let mut args = args.split_whitespace();
             let target_language = args.next().map(|arg| arg.to_string()).unwrap_or("en".into());
             let reference_text = message.referenced_message.as_ref().map(|reply| SimpleMessage::from(*reply.clone()).to_string());
-            let Some(text) = args.next().map(|arg| arg.to_string()).or(reference_text) else {
-                return ctx.respond_error("Please provide a text.", true).await;
-            };
+            let Some(text) = args.next().map(|arg| arg.to_string()).or(reference_text) else { bail!("Please provide a text.") };
 
             (text, "auto".into(), target_language)
         },
     };
 
-    match Google::translate(text, origin_language, target_language).await {
-        Ok(translation) => ctx.respond(translation.format(), false).await,
-        Err(error) => ctx.respond_error(error, true).await,
-    }
+    let translation = Google::translate(text, origin_language, target_language).await?;
+    ctx.respond(translation.format(), false).await
 }

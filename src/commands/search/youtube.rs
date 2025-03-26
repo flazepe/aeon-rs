@@ -5,15 +5,16 @@ use crate::{
         command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     },
 };
+use anyhow::bail;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("youtube", &["yt"]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("youtube", &["yt"]).main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let text = REQWEST
             .get("https://www.youtube.com/results")
@@ -25,14 +26,14 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         let id = text.split(r#"videoId":""#).nth(1).unwrap_or("").split('"').next().unwrap();
 
         if id.is_empty() {
-            return ctx.respond_error("Video not found.", true).await;
+            bail!("Video not found.");
         }
 
-        if input.channel.as_ref().and_then(|channel| channel.nsfw).unwrap_or(false) {
-            ctx.respond(format!("https://www.youtube.com/watch?v={id}"), false).await
-        } else {
-            ctx.respond_error("NSFW channels only.", true).await
+        if !input.channel.as_ref().and_then(|channel| channel.nsfw).unwrap_or(false) {
+            bail!("NSFW channels only.")
         }
+
+        ctx.respond(format!("https://www.youtube.com/watch?v={id}"), false).await
     })
 });
 

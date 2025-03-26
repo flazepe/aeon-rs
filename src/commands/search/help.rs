@@ -10,10 +10,10 @@ use slashook::{
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType},
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("help", &["h"]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("help", &["h"]).main(|ctx: Arc<AeonCommandContext>| async move {
         let format_names = |name: &String, aliases: &Vec<String>| {
             let mut names = vec![name.clone()];
             names.append(&mut aliases.clone());

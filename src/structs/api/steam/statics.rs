@@ -1,6 +1,5 @@
 use crate::structs::api::steam::country::SteamCountry;
-use std::sync::LazyLock;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::LazyLock};
 
 pub static STEAM_EMBED_COLOR: &str = "#377096";
 

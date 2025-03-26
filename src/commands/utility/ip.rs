@@ -3,28 +3,27 @@ use crate::structs::{
     command::AeonCommand,
     command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
 };
+use anyhow::bail;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("ip", &[]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("ip", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
         let ip = match &ctx.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("ip")?,
             AeonCommandInput::MessageCommand(_, args, _) => args.into(),
         };
 
         if ip.is_empty() {
-            return ctx.respond_error("Please provide an IP address.", true).await;
+            bail!("Please provide an IP address.");
         }
 
-        match IpInfo::get(ip).await {
-            Ok(ip_info) => ctx.respond(ip_info.format(), false).await,
-            Err(error) => ctx.respond_error(error, true).await,
-        }
+        let ip_info = IpInfo::get(ip).await?;
+        ctx.respond(ip_info.format(), false).await
     })
 });
 

@@ -5,16 +5,13 @@ use crate::structs::{
 };
 use anyhow::Result;
 use slashook::commands::MessageResponse;
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 
     if input.get_bool_arg("search").unwrap_or(false) {
-        let results = match Steam::search_game(input.get_string_arg("game")?).await {
-            Ok(results) => results,
-            Err(error) => return ctx.respond_error(error, true).await,
-        };
-
+        let results = Steam::search_game(input.get_string_arg("game")?).await?;
         let select_menu = SelectMenu::new("steam", "game", "Select a game…", None::<String>)
             .add_options(results.iter().map(|result| (&result.name, &result.id, None::<String>)));
 
@@ -23,12 +20,11 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
 
     let (query, section) = ctx.get_query_and_section("game")?;
 
-    let game = match input.is_string_select() {
-        true => Steam::get_game(query).await?,
-        false => match Steam::search_game(query).await {
-            Ok(results) => Steam::get_game(&results[0].id).await?,
-            Err(error) => return ctx.respond_error(error, true).await,
-        },
+    let game = if input.is_string_select() {
+        Steam::get_game(query).await?
+    } else {
+        let results = Steam::search_game(query).await?;
+        Steam::get_game(&results[0].id).await?
     };
 
     let id = game.id;

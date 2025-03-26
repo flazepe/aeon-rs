@@ -13,7 +13,7 @@ use futures::FutureExt;
 use rust_socketio::{Payload, asynchronous::ClientBuilder};
 use serde::Deserialize;
 use serde_json::{from_str, from_value, json};
-use std::{fmt::Display, time::Duration};
+use std::{fmt::Display, sync::Arc, time::Duration};
 use tokio::time::sleep;
 
 #[derive(Deserialize, Debug)]
@@ -101,7 +101,7 @@ impl OrdrRender {
         Ok(render)
     }
 
-    pub async fn poll_progress(&self, ctx: &AeonCommandContext) -> Result<()> {
+    pub async fn poll_progress(&self, ctx: Arc<AeonCommandContext>) -> Result<()> {
         let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
         CACHE.ordr_renders.write().unwrap().insert(self.render_id.unwrap(), "Rendering... (0%)".into());

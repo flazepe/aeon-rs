@@ -9,33 +9,23 @@ use slashook::{
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, MessageResponse},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("novel-updates", &["nu"]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("novel-updates", &["nu"]).main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 
         if input.is_string_select() {
-            return match LocalDownNovel::get(input.values.as_ref().unwrap()[0].parse::<u64>()?).await {
-                Ok(result) => ctx.respond(result.format(), false).await,
-                Err(error) => ctx.respond_error(error, true).await,
-            };
+            let novel = LocalDownNovel::get(input.values.as_ref().unwrap()[0].parse::<u64>()?).await?;
+            return ctx.respond(novel.format(), false).await;
         }
 
-        let results = match LocalDownNovel::search(input.get_string_arg("novel")?).await {
-            Ok(results) => results,
-            Err(error) => return ctx.respond_error(error, true).await,
-        };
-
+        let results = LocalDownNovel::search(input.get_string_arg("novel")?).await?;
         let select_menu = SelectMenu::new("novel-updates", "novel-updates", "View other novels…", Some(results[0].id))
             .add_options(results.iter().map(|result| (&result.title, result.id, None::<String>)));
+        let novel = LocalDownNovel::get(results[0].id).await?;
 
-        let embed = match LocalDownNovel::get(results[0].id).await {
-            Ok(novel) => novel.format(),
-            Err(error) => return ctx.respond_error(error, true).await,
-        };
-
-        ctx.respond(MessageResponse::from(select_menu).add_embed(embed), false).await
+        ctx.respond(MessageResponse::from(select_menu).add_embed(novel.format()), false).await
     })
 });
 

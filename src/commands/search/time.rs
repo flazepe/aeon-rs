@@ -3,28 +3,27 @@ use crate::structs::{
     command::AeonCommand,
     command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
 };
+use anyhow::bail;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("time", &[]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("time", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
         let location = match &ctx.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("location")?,
             AeonCommandInput::MessageCommand(_, args, _) => args.into(),
         };
 
         if location.is_empty() {
-            return ctx.respond_error("Please provide a location.", true).await;
+            bail!("Please provide a location.");
         }
 
-        match TimeZoneLocation::get(location).await {
-            Ok(timezone) => ctx.respond(timezone.format(), false).await,
-            Err(error) => ctx.respond_error(error, true).await,
-        }
+        let location = TimeZoneLocation::get(location).await?;
+        ctx.respond(location.format(), false).await
     })
 });
 

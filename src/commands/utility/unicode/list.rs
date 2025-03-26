@@ -1,20 +1,21 @@
 use crate::{
     functions::{hastebin, limit_strings},
     structs::{
-        command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
         unicode::Unicode,
     },
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let text = match &ctx.command_input {
-        AeonCommandInput::ApplicationCommand(input,  _) => input.get_string_arg("text")?,
-        AeonCommandInput::MessageCommand(_, args, _)   => args.into(),
+        AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("text")?,
+        AeonCommandInput::MessageCommand(_, args, _) => args.into(),
     };
 
     if text.is_empty() {
-        return ctx.respond_error("Please provide a text.", true).await;
+        bail!("Please provide a text.");
     }
 
     let mut formatted = Unicode::list(text).format();

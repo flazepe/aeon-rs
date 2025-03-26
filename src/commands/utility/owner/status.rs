@@ -3,31 +3,27 @@ use crate::{
     statics::{CACHE, colors::PRIMARY_COLOR},
     structs::command_context::AeonCommandContext,
 };
-use anyhow::{Context, Result};
+use anyhow::{Context, Error, Result};
 use slashook::structs::embeds::Embed;
-use std::fmt::Display;
+use std::{fmt::Display, sync::Arc};
 use sysinfo::{System, get_current_pid};
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    match get_current_pid() {
-        Ok(pid) => {
-            let system = System::new_all();
-            let process = system.process(pid).context("Could not get process.")?;
-            let process_started = format_timestamp(process.start_time(), TimestampFormat::Full);
-            let memory = bytes_to_mb(process.memory());
-            let virtual_memory = bytes_to_mb(process.virtual_memory());
-            let cache = get_cache_list().join("\n");
-            let embed = Embed::new()
-                .set_color(PRIMARY_COLOR)?
-                .add_field("Process Started", process_started, false)
-                .add_field("Memory", memory, false)
-                .add_field("Virtual Memory", virtual_memory, false)
-                .add_field("Cache", cache, false);
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    let system = System::new_all();
+    let pid = get_current_pid().map_err(Error::msg)?;
+    let process = system.process(pid).context("Could not get process.")?;
+    let process_started = format_timestamp(process.start_time(), TimestampFormat::Full);
+    let memory = bytes_to_mb(process.memory());
+    let virtual_memory = bytes_to_mb(process.virtual_memory());
+    let cache = get_cache_list().join("\n");
+    let embed = Embed::new()
+        .set_color(PRIMARY_COLOR)?
+        .add_field("Process Started", process_started, false)
+        .add_field("Memory", memory, false)
+        .add_field("Virtual Memory", virtual_memory, false)
+        .add_field("Cache", cache, false);
 
-            ctx.respond(embed, false).await
-        },
-        Err(error) => ctx.respond_error(error, true).await,
-    }
+    ctx.respond(embed, false).await
 }
 
 fn bytes_to_mb(bytes: u64) -> String {

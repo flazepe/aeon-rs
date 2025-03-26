@@ -4,18 +4,20 @@ use crate::structs::{
     command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     select_menu::SelectMenu,
 };
+use anyhow::bail;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, MessageResponse},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("jisho", &["j"]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("jisho", &["j"]).main(|ctx: Arc<AeonCommandContext>| async move {
         if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
             if input.is_string_select() {
-                return ctx.respond(JishoSearch::get(&input.values.as_ref().unwrap()[0]).await?.format(), false).await;
+                let jisho = JishoSearch::get(&input.values.as_ref().unwrap()[0]).await?;
+                return ctx.respond(jisho.format(), false).await;
             }
         }
 
@@ -25,13 +27,10 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         };
 
         if query.is_empty() {
-            return ctx.respond_error("Please provide a query.", true).await;
+            bail!("Please provide a query.");
         }
 
-        let results = match JishoSearch::search(query).await {
-            Ok(results) => results,
-            Err(error) => return ctx.respond_error(error, true).await,
-        };
+        let results = JishoSearch::search(query).await?;
 
         let select_menu = SelectMenu::new("jisho", "search", "View other results…", Some(&results[0].slug))
             .add_options(results.iter().map(|result| (result.format_title(), result.slug.clone(), None::<String>)));

@@ -3,8 +3,9 @@ use crate::{
     structs::command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
 };
 use anyhow::Result;
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
     let server = input.get_string_arg("server")?;
 

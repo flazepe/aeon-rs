@@ -2,13 +2,19 @@ use crate::structs::{
     api::steam::Steam,
     command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    let id = match &ctx.command_input {
+        AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("user")?,
+        AeonCommandInput::MessageCommand(_, args, _) => args.into(),
+    };
 
-    match Steam::get_user(input.get_string_arg("user")?).await {
-        Ok(user) => ctx.respond(user.format(), false).await,
-        Err(error) => ctx.respond_error(error, true).await,
+    if id.is_empty() {
+        bail!("Please provide a user.");
     }
+
+    let user = Steam::get_user(id).await?;
+    ctx.respond(user.format(), false).await
 }

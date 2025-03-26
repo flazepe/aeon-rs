@@ -13,11 +13,11 @@ use slashook::{
         interactions::{ApplicationCommandType, IntegrationType, InteractionContextType},
     },
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("Remind me", &[]).main({
-        |ctx: AeonCommandContext| async move {
+        |ctx: Arc<AeonCommandContext>| async move {
             let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 
             let mut select_menu = SelectMenu::new(SelectMenuType::STRING)

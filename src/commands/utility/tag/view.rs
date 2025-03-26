@@ -5,13 +5,14 @@ use crate::{
         database::tags::Tags,
     },
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
 use slashook::{
     commands::MessageResponse,
     structs::{channels::Channel, messages::AllowedMentions},
 };
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let (name, guild_id, channel_id) = match &ctx.command_input {
         AeonCommandInput::ApplicationCommand(input, _) => {
             (input.get_string_arg("tag")?, input.guild_id.clone(), input.channel_id.as_ref().unwrap().clone())
@@ -24,19 +25,15 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
     let Some(guild_id) = guild_id else { return Ok(()) };
 
     if name.is_empty() {
-        return ctx.respond_error("Please provide a name.", true).await;
+        bail!("Please provide a name.");
     }
 
-    match Tags::get(name, guild_id).await {
-        Ok(tag) => {
-            let nsfw_channel = Channel::fetch(&REST, channel_id).await.is_ok_and(|channel| channel.nsfw.unwrap_or(false));
+    let tag = Tags::get(name, guild_id).await?;
+    let nsfw_channel = Channel::fetch(&REST, channel_id).await.is_ok_and(|channel| channel.nsfw.unwrap_or(false));
 
-            if tag.nsfw && !nsfw_channel {
-                return ctx.respond_error("NSFW channels only.", true).await;
-            }
-
-            ctx.respond(MessageResponse::from(tag.content).set_allowed_mentions(AllowedMentions::new()), false).await
-        },
-        Err(error) => ctx.respond_error(error, true).await,
+    if tag.nsfw && !nsfw_channel {
+        bail!("NSFW channels only.");
     }
+
+    ctx.respond(MessageResponse::from(tag.content).set_allowed_mentions(AllowedMentions::new()), false).await
 }

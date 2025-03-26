@@ -1,14 +1,20 @@
 use crate::structs::{
-    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     scraping::anime_song_lyrics::AnimeSongLyrics,
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    let song = match &ctx.command_input {
+        AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("song")?,
+        AeonCommandInput::MessageCommand(_, args, _) => args.into(),
+    };
 
-    match AnimeSongLyrics::query(input.get_string_arg("song")?).await {
-        Ok(anime_song_lyrics) => ctx.respond(anime_song_lyrics.format(), false).await,
-        Err(error) => ctx.respond_error(error, true).await,
+    if song.is_empty() {
+        bail!("Please provide a song.");
     }
+
+    let anime_song_lyrics = AnimeSongLyrics::query(song).await?;
+    ctx.respond(anime_song_lyrics.format(), false).await
 }

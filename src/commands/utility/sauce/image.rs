@@ -1,18 +1,24 @@
 use crate::structs::{
     api::saucenao::SauceNaoSearch,
-    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
-    let Ok(url) = input.get_string_arg("image-url").or(input.get_attachment_arg("image-file").map(|attachment| attachment.url.clone()))
-    else {
-        return ctx.respond_error("Please provide an image URL or file.", true).await;
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    let url = match &ctx.command_input {
+        AeonCommandInput::ApplicationCommand(input, _) => input
+            .get_string_arg("image-url")
+            .or(input.get_attachment_arg("image-file").map(|attachment| attachment.url.clone()))
+            .unwrap_or_default(),
+        AeonCommandInput::MessageCommand(_, args, _) => args.into(),
     };
 
-    match SauceNaoSearch::query(url).await {
-        Ok(saucenao_search) => ctx.respond(saucenao_search.format(), false).await,
-        Err(error) => ctx.respond_error(error, true).await,
+    if url.is_empty() {
+        bail!("Please provide an image URL or file.");
     }
+
+    let saucenao_search = SauceNaoSearch::query(url).await?;
+
+    ctx.respond(saucenao_search.format(), false).await
 }

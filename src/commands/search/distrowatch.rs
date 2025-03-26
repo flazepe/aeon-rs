@@ -3,34 +3,33 @@ use crate::structs::{
     command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     scraping::distrowatch::{Distribution, statics::DISTRIBUTIONS},
 };
+use anyhow::bail;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("distrowatch", &["distro"]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("distrowatch", &["distro"]).main(|ctx: Arc<AeonCommandContext>| async move {
         if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
             if input.is_autocomplete() {
                 return ctx.autocomplete(DISTRIBUTIONS.iter()).await;
             }
         }
 
-        let distribution = match &ctx.command_input {
+        let name = match &ctx.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("distribution")?,
             AeonCommandInput::MessageCommand(_, args, _) => args.into(),
         };
 
-        if distribution.is_empty() {
-            return ctx.respond_error("Please provide a distribution.", true).await;
+        if name.is_empty() {
+            bail!("Please provide a distribution.");
         }
 
-        match Distribution::get(distribution).await {
-            Ok(distribution) => ctx.respond(distribution.format(), false).await,
-            Err(error) => ctx.respond_error(error, true).await,
-        }
+        let distribution = Distribution::get(name).await?;
+        ctx.respond(distribution.format(), false).await
     })
 });
 

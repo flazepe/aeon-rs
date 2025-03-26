@@ -8,23 +8,20 @@ use slashook::{
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandType, IntegrationType, InteractionContextType},
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("Snipe Reactions", &[]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("Snipe Reactions", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
-
-        match ReactionSnipes::new(
+        let response = ReactionSnipes::new(
             input.guild_id.as_ref().unwrap(),
             input.channel_id.as_ref().unwrap(),
             &input.target_message.as_ref().unwrap().id,
             input.app_permissions,
         )
-        .to_response()
-        {
-            Ok(response) => ctx.respond(response, false).await,
-            Err(error) => ctx.respond_error(error, true).await,
-        }
+        .to_response()?;
+
+        ctx.respond(response, false).await
     })
 });
 

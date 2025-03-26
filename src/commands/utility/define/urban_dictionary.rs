@@ -1,21 +1,20 @@
 use crate::structs::{
     api::urban_dictionary::UrbanDictionary,
-    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let (word, ephemeral) = match &ctx.command_input {
-        AeonCommandInput::ApplicationCommand(input,  _) => (input.get_string_arg("word")?, !input.get_bool_arg("show").unwrap_or(false)),
-        AeonCommandInput::MessageCommand(_, args, _)   => (args.into(), true),
+        AeonCommandInput::ApplicationCommand(input, _) => (input.get_string_arg("word")?, !input.get_bool_arg("show").unwrap_or(false)),
+        AeonCommandInput::MessageCommand(_, args, _) => (args.into(), true),
     };
 
     if word.is_empty() {
-        return ctx.respond_error("Please provide a word.", true).await;
+        bail!("Please provide a word.");
     }
 
-    match UrbanDictionary::search(word).await {
-        Ok(urban_dictionary) => ctx.respond(urban_dictionary.format(), ephemeral).await,
-        Err(error) => ctx.respond_error(error, true).await,
-    }
+    let urban_dictionary = UrbanDictionary::search(word).await?;
+    ctx.respond(urban_dictionary.format(), ephemeral).await
 }

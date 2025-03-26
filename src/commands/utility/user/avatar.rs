@@ -8,8 +8,9 @@ use slashook::{
     commands::MessageResponse,
     structs::{guilds::GuildMember, utils::File},
 };
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 
     ctx.defer(false).await?;

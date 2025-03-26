@@ -1,5 +1,4 @@
-use std::sync::LazyLock;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::LazyLock};
 
 pub static ORDR_SKINS: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
     HashMap::from([

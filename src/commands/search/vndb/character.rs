@@ -3,17 +3,14 @@ use crate::structs::{
     command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     select_menu::SelectMenu,
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
 use slashook::commands::MessageResponse;
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
         if input.get_bool_arg("search").unwrap_or(false) {
-            let characters = match Vndb::search_character(input.get_string_arg("character")?).await {
-                Ok(characters) => characters,
-                Err(error) => return ctx.respond_error(error, true).await,
-            };
-
+            let characters = Vndb::search_character(input.get_string_arg("character")?).await?;
             let select_menu = SelectMenu::new("vndb", "character", "Select a character…", None::<String>)
                 .add_options(characters.iter().map(|character| (&character.name, &character.id, Some(&character.vns[0].title))));
 
@@ -24,21 +21,15 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
     let (query, section) = ctx.get_query_and_section("character")?;
 
     if query.is_empty() {
-        return ctx.respond_error("Please provide a query.", true).await;
+        bail!("Please provide a query.");
     }
 
-    let character = match Vndb::search_character(query).await {
-        Ok(mut characters) => characters.remove(0),
-        Err(error) => return ctx.respond_error(error, true).await,
-    };
-
+    let character = Vndb::search_character(query).await?.remove(0);
     let id = &character.id;
-
     let select_menu = SelectMenu::new("vndb", "character", "View other sections…", Some(&section))
         .add_option("Overview", id, None::<String>)
         .add_option("Traits", format!("{id}/traits"), None::<String>)
         .add_option("Visual Novels", format!("{id}/visual-novels"), None::<String>);
-
     let embed = match section.as_str() {
         "traits" => character.format_traits(),
         "visual-novels" => character.format_visual_novels(),

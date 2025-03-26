@@ -1,23 +1,21 @@
 use crate::structs::{
     api::osu::Osu,
-    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     select_menu::SelectMenu,
 };
 use anyhow::Result;
 use slashook::commands::MessageResponse;
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
+
     let mode = input.get_string_arg("mode");
 
     let (query, section) = ctx.get_query_and_section("user")?;
     let (user, mode) = query.split_once('|').unwrap_or((&query, mode.as_deref().unwrap_or("default")));
 
-    let user = match Osu::get_user(user, mode).await {
-        Ok(user) => user,
-        Err(error) => return ctx.respond_error(error, true).await,
-    };
-
+    let user = Osu::get_user(user, mode).await?;
     let id = user.id;
 
     let select_menu = SelectMenu::new("osu", "user", "View other sections…", Some(&section))

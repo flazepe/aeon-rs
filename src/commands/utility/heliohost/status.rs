@@ -1,12 +1,13 @@
 use crate::{
     statics::REQWEST,
-    structs::command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+    structs::command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
 use nipper::Document;
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
     let user = input.get_string_arg("user")?;
     let response = REQWEST.get("https://heliohost.org/status/").query(&[("u", &user)]).send().await?;
     let url = response.url().to_string();
@@ -17,8 +18,8 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
     };
 
     if status.is_empty() || status.contains("no account") {
-        ctx.respond_error("Account not found.", true).await
-    } else {
-        ctx.respond(format!("[{user}]({url})\n{status}"), true).await
+        bail!("Account not found.")
     }
+
+    ctx.respond(format!("[{user}]({url})\n{status}"), true).await
 }

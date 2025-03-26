@@ -2,6 +2,7 @@ use crate::structs::{
     command::AeonCommand,
     command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
 };
+use anyhow::bail;
 use image::ImageOutputFormat;
 use mathjax::MathJax;
 use slashook::{
@@ -12,10 +13,13 @@ use slashook::{
         utils::File,
     },
 };
-use std::{io::Cursor, sync::LazyLock};
+use std::{
+    io::Cursor,
+    sync::{Arc, LazyLock},
+};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("latex", &[]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("latex", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
         let (expression, color) = match &ctx.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => {
                 (input.get_string_arg("expression")?, input.get_string_arg("color").unwrap_or("#fff".into()))
@@ -24,25 +28,17 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         };
 
         if expression.is_empty() {
-            return ctx.respond_error("Please provide an expression.", true).await;
+            bail!("Please provide an expression.");
         }
 
         ctx.defer(false).await?;
 
-        let Ok(mathjax) = MathJax::new() else {
-            return ctx.respond_error("Could not instantiate renderer.", false).await;
-        };
-
-        let Ok(mut render) = mathjax.render(expression) else {
-            return ctx.respond_error("Could not render expression.", false).await;
-        };
+        let Ok(mathjax) = MathJax::new() else { bail!("Could not instantiate renderer.") };
+        let Ok(mut render) = mathjax.render(expression) else { bail!("Could not render expression.") };
 
         render.set_color(&color);
 
-        let Ok(image) = render.into_image(10.) else {
-            return ctx.respond_error("Could not convert render into image.", false).await;
-        };
-
+        let Ok(image) = render.into_image(10.) else { bail!("Could not convert render into image.") };
         let mut bytes = Vec::new();
         image.write_to(&mut Cursor::new(&mut bytes), ImageOutputFormat::Png)?;
 

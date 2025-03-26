@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-use std::sync::LazyLock;
+use std::{collections::HashMap, sync::LazyLock};
 
 pub static CONTROL_CHARACTERS: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
     HashMap::from([

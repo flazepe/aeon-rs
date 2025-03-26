@@ -6,10 +6,11 @@ use crate::{
         select_menu::SelectMenu,
     },
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
 use slashook::commands::MessageResponse;
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
         if input.is_autocomplete() {
             return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
@@ -18,15 +19,10 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
         if input.is_string_select() {
             ctx.defer(false).await?;
 
-            let lyrics = match Spotify::get_track(&input.values.as_ref().unwrap()[0]).await {
-                Ok(track) => Spotify::get_lyrics(track, None::<String>).await,
-                Err(error) => return ctx.respond_error(error, true).await,
-            };
+            let track = Spotify::get_track(&input.values.as_ref().unwrap()[0]).await?;
+            let lyrics = Spotify::get_lyrics(track, None::<String>).await?;
 
-            return match lyrics {
-                Ok(lyrics) => ctx.respond(lyrics.format(), false).await,
-                Err(error) => ctx.respond_error(error, true).await,
-            };
+            return ctx.respond(lyrics.format(), false).await;
         }
     }
 
@@ -44,21 +40,15 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
         .unwrap_or_default();
 
     if query.is_empty() {
-        return ctx.respond_error("Please provide a song.", true).await;
+        bail!("Please provide a song.");
     }
 
     ctx.defer(false).await?;
 
-    let mut tracks = match Spotify::search_track(query).await {
-        Ok(tracks) => tracks,
-        Err(error) => return ctx.respond_error(error, true).await,
-    };
-
+    let mut tracks = Spotify::search_track(query).await?;
     let select_menu = SelectMenu::new("spotify", "lyrics", "View other lyrics…", Some(&tracks[0].id))
         .add_options(tracks.iter().map(|track| (&track.name, &track.id, Some(&track.artists[0].name))));
+    let lyrics = Spotify::get_lyrics(tracks.remove(0), translate_language).await?;
 
-    match Spotify::get_lyrics(tracks.remove(0), translate_language).await {
-        Ok(lyrics) => ctx.respond(MessageResponse::from(select_menu).add_embed(lyrics.format()), false).await,
-        Err(error) => ctx.respond_error(error, true).await,
-    }
+    ctx.respond(MessageResponse::from(select_menu).add_embed(lyrics.format()), false).await
 }

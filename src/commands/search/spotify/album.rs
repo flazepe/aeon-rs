@@ -1,18 +1,16 @@
 use crate::structs::{
     api::spotify::Spotify,
-    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     select_menu::SelectMenu,
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
 use slashook::commands::MessageResponse;
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    if let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
         if input.get_bool_arg("search").unwrap_or(false) {
-            let results = match Spotify::search_simple_album(input.get_string_arg("album")?).await {
-                Ok(results) => results,
-                Err(error) => return ctx.respond_error(error, true).await,
-            };
+            let results = Spotify::search_simple_album(input.get_string_arg("album")?).await?;
 
             let select_menu = SelectMenu::new("spotify", "album", "Select an album…", None::<String>)
                 .add_options(results.iter().map(|result| (&result.name, &result.id, Some(&result.artists[0].name))));
@@ -24,15 +22,14 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
     let (query, section) = ctx.get_query_and_section("album")?;
 
     if query.is_empty() {
-        return ctx.respond_error("Please provide an album.", true).await;
+        bail!("Please provide an album.");
     }
 
-    let album = match ctx.is_string_select() {
-        true => Spotify::get_album(query).await?,
-        false => match Spotify::search_simple_album(query).await {
-            Ok(result) => Spotify::get_album(&result[0].id).await?, // Get full album
-            Err(error) => return ctx.respond_error(error, true).await,
-        },
+    let album = if ctx.is_string_select() {
+        Spotify::get_album(query).await?
+    } else {
+        let id = Spotify::search_simple_album(query).await?.remove(0).id;
+        Spotify::get_album(id).await?
     };
 
     let id = &album.id;

@@ -1,12 +1,13 @@
 use crate::structs::{
-    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     database::reminders::Reminders,
     duration::Duration,
 };
 use anyhow::Result;
 use slashook::structs::Permissions;
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
     // Must defer to not update original message
@@ -43,9 +44,7 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
         || input.guild_id.is_none()
         || input.message.as_ref().is_some_and(|message| message.interaction_metadata.is_some()) // DM if select menu's message was from an interaction
         || !input.app_permissions.contains(Permissions::VIEW_CHANNEL | Permissions::SEND_MESSAGES);
+    let response = Reminders::set(user_id, url, time, interval, reminder, dm).await?;
 
-    match Reminders::set(user_id, url, time, interval, reminder, dm).await {
-        Ok(response) => ctx.respond_success(response, false).await,
-        Err(error) => ctx.respond_error(error, true).await,
-    }
+    ctx.respond_success(response, false).await
 }

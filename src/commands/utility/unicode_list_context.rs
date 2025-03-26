@@ -12,10 +12,10 @@ use slashook::{
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{ApplicationCommandType, IntegrationType, InteractionContextType},
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("List Unicode", &[]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("List Unicode", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let message = SimpleMessage::from(input.target_message.as_ref().unwrap().clone());
         let mut formatted = Unicode::list(message).format();

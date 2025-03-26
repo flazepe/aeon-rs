@@ -1,5 +1,4 @@
-use std::sync::LazyLock;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::LazyLock};
 
 pub static GOOGLE_DNS_RECORD_TYPES: [&str; 19] = [
     "A", "AAAA", /* "ALIAS", */ "CAA", "CNAME", "DNSKEY", "DS", "HTTPS", "IPSECKEY", "MX", "NAPTR", "NS", "PTR", "SOA", "SPF", "SRV",

@@ -7,6 +7,7 @@ use crate::{
     },
     traits::UserExt,
 };
+use anyhow::bail;
 use slashook::{
     chrono::{Duration, Utc},
     command,
@@ -17,16 +18,16 @@ use slashook::{
         messages::MessageFetchOptions,
     },
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("purge", &[]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("purge", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
         let has_permission = input.app_permissions.contains(Permissions::MANAGE_MESSAGES);
         let is_self_purge = input.get_user_arg("user").is_ok_and( |user| user.id == CONFIG.bot.client_id);
 
         if !has_permission && !is_self_purge {
-            return ctx.respond_error("I do not have the Manage Messages permission to purge messages.", true).await;
+            bail!("I do not have the Manage Messages permission to purge messages.");
         }
 
         let has_permission =  input
@@ -36,13 +37,13 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         let is_flazepe = input.user.id == FLAZEPE_ID;
 
         if !has_permission && !is_flazepe {
-            return ctx.respond_error("You do not have the Manage Messages permission to purge messages.", true).await;
+            bail!("You do not have the Manage Messages permission to purge messages.");
         }
 
         let channel = input.get_channel_arg("channel").unwrap_or(input.channel.as_ref().unwrap());
 
         let Ok(mut messages) = channel.fetch_messages(&input.rest, MessageFetchOptions::new().set_limit(100)).await else {
-            return ctx.respond_error("An error occurred while trying to fetch messages. Please make sure I have the permission to view the channel and its messages.", true).await;
+            bail!("An error occurred while trying to fetch messages. Please make sure I have the permission to view the channel and its messages.");
         };
 
         messages.retain(|message| {
@@ -53,7 +54,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         messages.drain((input.get_i64_arg("amount").unwrap_or(1) as usize).min(messages.len())..);
 
         if messages.is_empty() {
-            return ctx.respond_error("No messages found.", true).await;
+            bail!("No messages found.");
         }
 
         match messages.len() {

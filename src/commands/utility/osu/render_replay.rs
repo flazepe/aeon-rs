@@ -2,20 +2,21 @@ use crate::{
     statics::CACHE,
     structs::{
         api::ordr::{OrdrRender, statics::ORDR_SKINS},
-        command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     },
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 
     if input.is_autocomplete() {
         return ctx.autocomplete(ORDR_SKINS.iter()).await;
     }
 
     if CACHE.ordr_rendering_users.read().unwrap().contains_key(&input.user.id) {
-        return ctx.respond_error("You already have an ongoing replay rendering.", true).await;
+        bail!("You already have an ongoing replay rendering.");
     }
 
     ctx.defer(false).await?;
@@ -23,13 +24,11 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
     let Ok(replay_url) =
         input.get_string_arg("replay-url").or(input.get_attachment_arg("replay-file").map(|attachment| attachment.url.clone()))
     else {
-        return ctx.respond_error("Please provide an image URL or file.", true).await;
+        bail!("Please provide an image URL or file.");
     };
 
     let skin = input.get_string_arg("skin").ok();
+    let render = OrdrRender::new(replay_url, skin).await?;
 
-    match OrdrRender::new(replay_url, skin).await {
-        Ok(render) => render.poll_progress(&ctx).await,
-        Err(error) => ctx.respond_error(error, false).await,
-    }
+    render.poll_progress(ctx).await
 }

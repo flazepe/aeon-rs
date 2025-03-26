@@ -1,11 +1,12 @@
 use crate::structs::{
-    command_context::{AeonCommandContext, CommandInputExt, AeonCommandInput},
+    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     database::reminders::Reminders,
 };
-use anyhow::Result;
+use anyhow::{Context, Result};
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
     let reminders = Reminders::get_many(&input.user.id).await.unwrap_or_else(|_| vec![]);
 
     if input.is_autocomplete() {
@@ -16,16 +17,9 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
         return ctx.autocomplete(options).await;
     }
 
-    let index = match input.get_string_arg("reminder")?.parse::<usize>() {
-        Ok(index) => index - 1,
-        Err(_) => return ctx.respond_error("Please enter a valid number.", true).await,
-    };
+    let index = input.get_string_arg("reminder")?.parse::<usize>().context("Please enter a valid number.")? - 1;
+    let reminder = reminders.get(index).context("Invalid reminder.")?;
 
-    match reminders.get(index) {
-        Some(reminder) => {
-            Reminders::delete(reminder._id).await?;
-            ctx.respond_success("Gone.", true).await
-        },
-        None => ctx.respond_error("Invalid reminder.", true).await,
-    }
+    Reminders::delete(reminder._id).await?;
+    ctx.respond_success("Gone.", true).await
 }

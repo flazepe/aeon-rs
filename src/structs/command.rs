@@ -4,14 +4,14 @@ use crate::{
 };
 use anyhow::Result;
 use futures::{Future, future::BoxFuture};
-use std::fmt::Display;
+use std::{fmt::Display, sync::Arc};
 
 pub trait AeonCommandFn: Send + Sync {
-    fn call(&self, ctx: AeonCommandContext) -> BoxFuture<'static, Result<()>>;
+    fn call(&self, ctx: Arc<AeonCommandContext>) -> BoxFuture<'static, Result<()>>;
 }
 
-impl<T: Fn(AeonCommandContext) -> U + Send + Sync, U: Future<Output = Result<()>> + Send + 'static> AeonCommandFn for T {
-    fn call(&self, ctx: AeonCommandContext) -> BoxFuture<'static, Result<()>> {
+impl<T: Fn(Arc<AeonCommandContext>) -> U + Send + Sync, U: Future<Output = Result<()>> + Send + 'static> AeonCommandFn for T {
+    fn call(&self, ctx: Arc<AeonCommandContext>) -> BoxFuture<'static, Result<()>> {
         Box::pin(self(ctx))
     }
 }
@@ -61,7 +61,11 @@ impl AeonCommand {
     }
 
     pub async fn run(&self, command_input: AeonCommandInput) -> Result<()> {
-        let Ok(mut ctx) = AeonCommandContext::new(command_input).verify().await else { return Ok(()) };
+        let mut ctx = AeonCommandContext::new(command_input);
+
+        if let Err(error) = ctx.verify().await {
+            return ctx.respond_error(error, true).await;
+        }
 
         if self.owner_only {
             let is_owner = match &ctx.command_input {
@@ -74,13 +78,7 @@ impl AeonCommand {
             }
         }
 
-        if let Some(main) = &self.func {
-            if let Err(error) = main.call(ctx).await {
-                println!("{error:?}");
-            }
-
-            return Ok(());
-        }
+        let mut func = self.func.as_ref();
 
         match &mut ctx.command_input {
             AeonCommandInput::MessageCommand(_, args, _) => {
@@ -96,10 +94,7 @@ impl AeonCommand {
 
                 if let Some(subcommand) = subcommand {
                     *args = new_args.to_string();
-
-                    if let Err(error) = subcommand.func.call(ctx).await {
-                        println!("{error:?}");
-                    }
+                    func = Some(&subcommand.func);
                 }
             },
             AeonCommandInput::ApplicationCommand(input, _) => {
@@ -109,11 +104,16 @@ impl AeonCommand {
                     .find(|entry| entry.name == input.subcommand.as_ref().or(input.custom_id.as_ref()).cloned().unwrap_or_default());
 
                 if let Some(subcommand) = subcommand {
-                    if let Err(error) = subcommand.func.call(ctx).await {
-                        println!("{error:?}");
-                    }
+                    func = Some(&subcommand.func);
                 }
             },
+        }
+
+        let Some(func) = func else { return Ok(()) };
+        let ctx_arc = Arc::new(ctx);
+
+        if let Err(error) = func.call(ctx_arc.clone()).await {
+            return ctx_arc.respond_error(error, true).await;
         }
 
         Ok(())

@@ -5,22 +5,23 @@ use crate::{
         command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     },
 };
+use anyhow::{Context, bail};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
     structs::interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
 };
-use std::{sync::LazyLock, time::Duration};
+use std::{sync::Arc, sync::LazyLock, time::Duration};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("calculate", &["calc"]).main(|ctx: AeonCommandContext| async move {
+    AeonCommand::new("calculate", &["calc"]).main(|ctx: Arc<AeonCommandContext>| async move {
         let expression = match &ctx.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("expression")?,
             AeonCommandInput::MessageCommand(_, args, _) => args.into(),
         };
 
         if expression.is_empty() {
-            return ctx.respond_error("Please provide an expression", true).await;
+            bail!("Please provide an expression");
         }
 
         if expression.chars().all(|char| char.is_numeric()) {
@@ -28,17 +29,21 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             return ctx.respond(fact, false).await;
         }
 
-        let body =
-            match REQWEST.get("https://api.mathjs.org/v4/").query(&[("expr", expression)]).timeout(Duration::from_secs(2)).send().await {
-                Ok(response) => response.text().await?,
-                Err(_) => return ctx.respond_error("Calculation took too long.", true).await,
-            };
+        let body = REQWEST
+            .get("https://api.mathjs.org/v4/")
+            .query(&[("expr", expression)])
+            .timeout(Duration::from_secs(2))
+            .send()
+            .await
+            .context("Calculation took too long.")?
+            .text()
+            .await?;
 
         if body.is_empty() || body.contains("Error") {
-            ctx.respond_error("Invalid expression.", true).await
-        } else {
-            ctx.respond_success(format!("`{}`", body.chars().take(1000).collect::<String>().replace('`', "｀")), false).await
+            bail!("Invalid expression.");
         }
+
+        ctx.respond_success(format!("`{}`", body.chars().take(1000).collect::<String>().replace('`', "｀")), false).await
     })
 });
 

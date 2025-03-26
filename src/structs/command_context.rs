@@ -36,20 +36,19 @@ impl AeonCommandContext {
         Self { command_input, verified: false }
     }
 
-    pub async fn verify(mut self) -> Result<Self> {
+    pub async fn verify(&mut self) -> Result<()> {
         self.verified = true;
 
         let user_id = match &self.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => {
                 // Ignore verification for autocomplete
                 if input.is_autocomplete() {
-                    return Ok(self);
+                    return Ok(());
                 }
 
                 if let Some(interaction_metadata) = input.message.as_ref().and_then(|message| message.interaction_metadata.as_ref()) {
                     if input.user.id != interaction_metadata.user.id {
-                        self.respond_error("This isn't your interaction.", true).await?;
-                        bail!("User is not the interaction initiator.");
+                        bail!("This isn't your interaction.");
                     }
                 }
 
@@ -59,11 +58,10 @@ impl AeonCommandContext {
         };
 
         if CACHE.cooldowns.read().unwrap().get(&user_id).unwrap_or(&0) > &now() {
-            self.respond_error("You are under a cooldown. Try again later.", true).await?;
-            bail!("User is under a cooldown.");
+            bail!("You are under a cooldown. Try again later.");
         }
 
-        Ok(self)
+        Ok(())
     }
 
     pub async fn defer(&self, ephemeral: bool) -> Result<()> {

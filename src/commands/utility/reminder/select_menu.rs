@@ -2,10 +2,11 @@ use crate::{
     commands::utility::reminder::set,
     structs::command_context::{AeonCommandContext, AeonCommandInput},
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
+use std::sync::Arc;
 
-pub async fn run(ctx: AeonCommandContext) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
+pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
     let message = input.message.as_ref().unwrap();
     let is_reminder_message = message.interaction_metadata.is_none();
     let is_authorized = if is_reminder_message {
@@ -18,5 +19,9 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
         true
     };
 
-    if is_authorized { set::run(ctx).await } else { ctx.respond_error("This isn't your reminder.", true).await }
+    if !is_authorized {
+        bail!("This isn't your reminder.");
+    }
+
+    set::run(ctx).await
 }

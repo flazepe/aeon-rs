@@ -6,6 +6,7 @@ use crate::{
         command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
     },
 };
+use anyhow::Context;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, Modal},
@@ -14,10 +15,10 @@ use slashook::{
         interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
     },
 };
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("code", &["execute", "run"]).main(|ctx: AeonCommandContext| {
+    AeonCommand::new("code", &["execute", "run"]).main(|ctx: Arc<AeonCommandContext>| {
         async move {
             let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
@@ -33,22 +34,18 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                 .get(&input.user.id)
                 .cloned());
 
-            let programming_language = match programming_language {
-                Some(programming_language) => {
+            let programming_language = programming_language
+                .inspect(|programming_language| {
                     // Cache user's last programming language
                     CACHE.last_tio_programming_languages.write().unwrap().insert(input.user.id.clone(), programming_language.clone());
-                    programming_language
-                },
-                None => return ctx.respond_error("Please provide a programming language.", true).await,
-            };
+                })
+                .context("Please provide a programming language.")?;
 
             if input.is_modal_submit() {
                 ctx.defer(false).await?;
 
-                match Tio::new(programming_language, input.get_string_arg("code")?).run().await {
-                    Ok(tio) => ctx.respond(tio.format(), false).await,
-                    Err(error) => ctx.respond_error(error, true).await,
-                }
+                let tio = Tio::new(programming_language, input.get_string_arg("code")?).run().await?;
+                ctx.respond(tio.format(), false).await
             } else {
                 let code_input = TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code").set_label("Code");
                 let components = Components::new().add_text_input(code_input);
