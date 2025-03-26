@@ -25,8 +25,8 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             AeonCommandInput::MessageCommand(_, args, _) => {
                 let mut args = args.split_whitespace();
 
-                let Some(amount) = args.next().and_then(|arg| arg.parse::<f64>().ok()) else {
-                    return ctx.respond_error("Please provide an amount.", true).await;
+                let Some(amount) = args.next().and_then(|arg| arg.to_lowercase().parse::<f64>().ok()) else {
+                    return ctx.respond_error("Please provide a valid amount.", true).await;
                 };
 
                 let Some(origin_currency) = args.next().map(|arg| arg.to_string()) else {
