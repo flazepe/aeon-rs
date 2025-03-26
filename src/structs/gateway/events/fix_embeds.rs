@@ -51,13 +51,13 @@ impl EventHandler {
             }
 
             let new_domain = match domain {
-                "bsky.app" => "fxbsky.app",
+                "bsky.app" => "vxbsky.app",
                 "instagram.com" => "ddinstagram.com",
                 "pixiv.net" => "phixiv.net",
                 "reddit.com" | "old.reddit.com" => "rxddit.com",
                 "tiktok.com" => "vxtiktok.com",
                 "vt.tiktok.com" => "vt.vxtiktok.com",
-                "x.com" | "twitter.com" => "fixupx.com",
+                "x.com" | "twitter.com" => "fixvx.com",
                 _ => continue,
             };
             let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
