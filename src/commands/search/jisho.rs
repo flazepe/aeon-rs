@@ -1,10 +1,9 @@
 use crate::structs::{
     api::jisho::JishoSearch,
     command::AeonCommand,
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
     select_menu::SelectMenu,
 };
-use anyhow::bail;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, MessageResponse},
@@ -21,16 +20,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             }
         }
 
-        let query = match &ctx.command_input {
-            AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("query")?,
-            AeonCommandInput::MessageCommand(_, args, _) => args.into(),
-        };
-
-        if query.is_empty() {
-            bail!("Please provide a query.");
-        }
-
-        let results = JishoSearch::search(query).await?;
+        let results = JishoSearch::search(ctx.get_string_arg("query")?).await?;
 
         let select_menu = SelectMenu::new("jisho", "search", "View other results…", Some(&results[0].slug))
             .add_options(results.iter().map(|result| (result.format_title(), result.slug.clone(), None::<String>)));

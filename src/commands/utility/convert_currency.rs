@@ -1,7 +1,7 @@
 use crate::structs::{
     api::xe::{Xe, statics::XE_CURRENCIES},
     command::AeonCommand,
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
 };
 use anyhow::Context;
 use slashook::{
@@ -20,8 +20,8 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         }
 
         let (amount, origin_currency, target_currency) = match &ctx.command_input {
-            AeonCommandInput::ApplicationCommand(input, _) => {
-                (input.get_f64_arg("amount")?, input.get_string_arg("origin-currency")?, input.get_string_arg("target-currency")?)
+            AeonCommandInput::ApplicationCommand(_, _) => {
+                (ctx.get_f64_arg("amount")?, ctx.get_string_arg("origin-currency")?, ctx.get_string_arg("target-currency")?)
             },
             AeonCommandInput::MessageCommand(_, args, _) => {
                 let mut args = args.split_whitespace();

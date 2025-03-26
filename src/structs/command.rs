@@ -1,7 +1,7 @@
 use crate::{
     functions::now,
     statics::{CACHE, FLAZEPE_ID},
-    structs::command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    structs::command_context::{AeonCommandContext, AeonCommandInput},
 };
 use anyhow::Result;
 use futures::{Future, future::BoxFuture};
@@ -126,7 +126,7 @@ impl AeonCommand {
         match &ctx.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => {
                 // Only add cooldown to non-search commands
-                if !input.get_bool_arg("search").unwrap_or(false) {
+                if !ctx.get_bool_arg("search").unwrap_or(false) {
                     CACHE.cooldowns.write().unwrap().insert(input.user.id.clone(), now() + 3);
                 }
             },

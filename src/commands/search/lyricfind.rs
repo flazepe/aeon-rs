@@ -3,7 +3,7 @@ use crate::{
     structs::{
         api::lyricfind::LyricFind,
         command::AeonCommand,
-        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+        command_context::{AeonCommandContext, AeonCommandInput},
         select_menu::SelectMenu,
     },
 };
@@ -17,16 +17,18 @@ use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("lyricfind", &["lf"]).main(|ctx: Arc<AeonCommandContext>| async move {
-        let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
-
-        if input.is_string_select() {
-            return ctx.respond(LyricFind::search(&input.values.as_ref().unwrap()[0]).await?[0].format(), false).await;
+        if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
+            if input.is_string_select() {
+                return ctx.respond(LyricFind::search(&input.values.as_ref().unwrap()[0]).await?[0].format(), false).await;
+            }
         }
 
-        let query = input
+        let query = ctx
             .get_string_arg("song")
             .ok()
-            .or_else(|| CACHE.song_activities.read().unwrap().get(&input.user.id).map(|song| format!("{} - {}", song.artist, song.title)))
+            .or_else(|| {
+                CACHE.song_activities.read().unwrap().get(&ctx.get_user_id()).map(|song| format!("{} - {}", song.artist, song.title))
+            })
             .context("Please provide a song.")?;
 
         let tracks = LyricFind::search(&query).await?;

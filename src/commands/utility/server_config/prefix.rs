@@ -1,7 +1,7 @@
 use std::cmp::Reverse;
 
 use crate::structs::{
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
     database::guilds::Guilds,
 };
 use anyhow::{Result, bail};
@@ -15,7 +15,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         return ctx.autocomplete(guild.prefixes.iter().map(|prefix| (prefix, prefix))).await;
     }
 
-    let prefix = input.get_string_arg("prefix")?.to_lowercase();
+    let prefix = ctx.get_string_arg("prefix")?.to_lowercase();
     let remove_prefix = guild.prefixes.contains(&prefix);
 
     if !remove_prefix && guild.prefixes.len() >= 10 {

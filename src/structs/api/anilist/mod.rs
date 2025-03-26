@@ -5,14 +5,14 @@ pub mod statics;
 mod user;
 
 use crate::{
-    functions::{format_timestamp, limit_strings, TimestampFormat},
+    functions::{TimestampFormat, format_timestamp, limit_strings},
     statics::REQWEST,
     structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
 };
 use anyhow::Result;
 use nipper::Document;
 use serde::de::DeserializeOwned;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
 use std::{collections::HashMap, fmt::Display};
 
@@ -36,19 +36,15 @@ impl AniList {
         let mut dates = vec![];
 
         for fuzzy_date in [start, end] {
-            if let (Some(day), Some(month), Some(year)) = (fuzzy_date.day, fuzzy_date.month, fuzzy_date.year) {
+            if let (Some(year), Some(month), Some(day)) = (fuzzy_date.year, fuzzy_date.month, fuzzy_date.day) {
                 dates.push(format_timestamp(
-                    NaiveDateTime::parse_from_str(&format!("{day}-{month}-{year} 00:00"), "%F %R").unwrap().and_utc().timestamp(),
+                    NaiveDateTime::parse_from_str(&format!("{year}-{month}-{day} 00:00"), "%F %R").unwrap().and_utc().timestamp(),
                     TimestampFormat::Simple,
                 ));
             }
         }
 
-        if dates.is_empty() {
-            "TBA".into()
-        } else {
-            dates.join(" - ")
-        }
+        if dates.is_empty() { "TBA".into() } else { dates.join(" - ") }
     }
 
     pub fn format_embed_description<T: Display>(embed: Embed, description: Option<&T>) -> Embed {

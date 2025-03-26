@@ -1,6 +1,6 @@
 use crate::structs::{
     api::google::Google,
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
     select_menu::SelectMenu,
 };
 use anyhow::Result;
@@ -9,7 +9,7 @@ use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
-    let query = input.get_string_arg("query").unwrap_or_else(|_| input.values.as_ref().unwrap()[0].clone());
+    let query = ctx.get_string_arg("query").unwrap_or_else(|_| input.values.as_ref().unwrap()[0].clone());
 
     ctx.defer(false).await?;
 

@@ -3,7 +3,7 @@ use crate::{
     structs::{
         api::tio::{Tio, statics::TIO_PROGRAMMING_LANGUAGES},
         command::AeonCommand,
-        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+        command_context::{AeonCommandContext, AeonCommandInput},
     },
 };
 use anyhow::Context;
@@ -27,7 +27,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             }
 
             // This had to be defined first
-            let programming_language = input.get_string_arg("programming-language").ok().or(CACHE
+            let programming_language = ctx.get_string_arg("programming-language").ok().or(CACHE
                 .last_tio_programming_languages
                 .read()
                 .unwrap()
@@ -44,7 +44,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             if input.is_modal_submit() {
                 ctx.defer(false).await?;
 
-                let tio = Tio::new(programming_language, input.get_string_arg("code")?).run().await?;
+                let tio = Tio::new(programming_language, ctx.get_string_arg("code")?).run().await?;
                 ctx.respond(tio.format(), false).await
             } else {
                 let code_input = TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code").set_label("Code");

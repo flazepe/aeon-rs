@@ -1,7 +1,7 @@
 use crate::{
     functions::eien,
     statics::CACHE,
-    structs::command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    structs::command_context::{AeonCommandContext, AeonCommandInput},
     traits::UserExt,
 };
 use anyhow::{Result, bail};
@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
-    let mut user = input.get_user_arg("member").unwrap_or(&input.user);
+    let mut user = ctx.get_user_arg("member").unwrap_or(&input.user);
 
     // Set to author if there's no resolved member
     if input.resolved.as_ref().and_then(|resolved| resolved.members.as_ref().and_then(|members| members.values().next())).is_none() {
@@ -24,7 +24,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     ctx.defer(false).await?;
 
     // Set to proper style
-    if let Ok(style) = input.get_string_arg("card").as_deref() {
+    if let Ok(style) = ctx.get_string_arg("card").as_deref() {
         activity.style = style.into();
     }
 
@@ -34,7 +34,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     }
 
     // Collapse if requested
-    if input.get_bool_arg("collapse").unwrap_or(false) {
+    if ctx.get_bool_arg("collapse").unwrap_or(false) {
         activity.timestamps = None;
     }
 

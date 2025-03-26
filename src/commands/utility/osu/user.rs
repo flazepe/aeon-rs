@@ -1,6 +1,6 @@
 use crate::structs::{
     api::osu::Osu,
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
     select_menu::SelectMenu,
 };
 use anyhow::Result;
@@ -8,9 +8,9 @@ use slashook::commands::MessageResponse;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
+    let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input else { return Ok(()) };
 
-    let mode = input.get_string_arg("mode");
+    let mode = ctx.get_string_arg("mode");
 
     let (query, section) = ctx.get_query_and_section("user")?;
     let (user, mode) = query.split_once('|').unwrap_or((&query, mode.as_deref().unwrap_or("default")));

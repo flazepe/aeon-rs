@@ -1,9 +1,8 @@
 use crate::structs::{
     command::AeonCommand,
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
     scraping::distrowatch::{Distribution, statics::DISTRIBUTIONS},
 };
-use anyhow::bail;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -19,16 +18,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             }
         }
 
-        let name = match &ctx.command_input {
-            AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("distribution")?,
-            AeonCommandInput::MessageCommand(_, args, _) => args.into(),
-        };
-
-        if name.is_empty() {
-            bail!("Please provide a distribution.");
-        }
-
-        let distribution = Distribution::get(name).await?;
+        let distribution = Distribution::get(ctx.get_string_arg("distribution")?).await?;
         ctx.respond(distribution.format(), false).await
     })
 });

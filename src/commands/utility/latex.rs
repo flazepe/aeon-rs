@@ -1,6 +1,6 @@
 use crate::structs::{
     command::AeonCommand,
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
 };
 use anyhow::bail;
 use image::ImageOutputFormat;
@@ -20,16 +20,11 @@ use std::{
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("latex", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
-        let (expression, color) = match &ctx.command_input {
-            AeonCommandInput::ApplicationCommand(input, _) => {
-                (input.get_string_arg("expression")?, input.get_string_arg("color").unwrap_or("#fff".into()))
-            },
-            AeonCommandInput::MessageCommand(_, args, _) => (args.into(), "#fff".into()),
+        let expression = ctx.get_string_arg("expression")?;
+        let color = match &ctx.command_input {
+            AeonCommandInput::ApplicationCommand(_, _) => ctx.get_string_arg("color").unwrap_or("#fff".into()),
+            AeonCommandInput::MessageCommand(_, _, _) => "#fff".into(),
         };
-
-        if expression.is_empty() {
-            bail!("Please provide an expression.");
-        }
 
         ctx.defer(false).await?;
 

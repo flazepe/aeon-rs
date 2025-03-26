@@ -1,5 +1,5 @@
 use crate::structs::{
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
     database::tags::Tags,
 };
 use anyhow::Result;
@@ -13,16 +13,16 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
     if input.is_modal_submit() {
-        let name = input.get_string_arg("tag")?;
+        let name = ctx.get_string_arg("tag")?;
         let guild_id = input.guild_id.as_ref().unwrap();
-        let new_name = input.get_string_arg("name")?;
-        let content = input.get_string_arg("content")?;
+        let new_name = ctx.get_string_arg("name")?;
+        let content = ctx.get_string_arg("content")?;
         let modifier = input.member.as_ref().unwrap();
 
         let response = Tags::edit(name, guild_id, new_name, content, modifier).await?;
         ctx.respond_success(response, true).await
     } else {
-        let name = input.get_string_arg("tag")?;
+        let name = ctx.get_string_arg("tag")?;
         let guild_id = input.guild_id.as_ref().unwrap();
         let member = input.member.as_ref().unwrap();
         let tag = Tags::get(name, guild_id).await.and_then(|tag| Tags::validate_tag_modifier(tag, member))?;

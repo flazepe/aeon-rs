@@ -1,16 +1,16 @@
 use crate::structs::{
     api::spotify::Spotify,
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
     select_menu::SelectMenu,
 };
-use anyhow::{Result, bail};
+use anyhow::Result;
 use slashook::commands::MessageResponse;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
-        if input.get_bool_arg("search").unwrap_or(false) {
-            let results = Spotify::search_simple_album(input.get_string_arg("album")?).await?;
+    if let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input {
+        if ctx.get_bool_arg("search").unwrap_or(false) {
+            let results = Spotify::search_simple_album(ctx.get_string_arg("album")?).await?;
 
             let select_menu = SelectMenu::new("spotify", "album", "Select an album…", None::<String>)
                 .add_options(results.iter().map(|result| (&result.name, &result.id, Some(&result.artists[0].name))));
@@ -20,10 +20,6 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     }
 
     let (query, section) = ctx.get_query_and_section("album")?;
-
-    if query.is_empty() {
-        bail!("Please provide an album.");
-    }
 
     let album = if ctx.is_string_select() {
         Spotify::get_album(query).await?

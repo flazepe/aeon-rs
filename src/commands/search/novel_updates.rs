@@ -1,7 +1,7 @@
 use crate::structs::{
     api::localdown::LocalDownNovel,
     command::AeonCommand,
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
     select_menu::SelectMenu,
 };
 use slashook::{
@@ -12,15 +12,15 @@ use slashook::{
 use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("novel-updates", &["nu"]).main(|ctx: Arc<AeonCommandContext>| async move {
-        let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
-
-        if input.is_string_select() {
-            let novel = LocalDownNovel::get(input.values.as_ref().unwrap()[0].parse::<u64>()?).await?;
-            return ctx.respond(novel.format(), false).await;
+    AeonCommand::new("novel-updates", &["nu", "novel"]).main(|ctx: Arc<AeonCommandContext>| async move {
+        if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
+            if input.is_string_select() {
+                let novel = LocalDownNovel::get(input.values.as_ref().unwrap()[0].parse::<u64>()?).await?;
+                return ctx.respond(novel.format(), false).await;
+            }
         }
 
-        let results = LocalDownNovel::search(input.get_string_arg("novel")?).await?;
+        let results = LocalDownNovel::search(ctx.get_string_arg("novel")?).await?;
         let select_menu = SelectMenu::new("novel-updates", "novel-updates", "View other novels…", Some(results[0].id))
             .add_options(results.iter().map(|result| (&result.title, result.id, None::<String>)));
         let novel = LocalDownNovel::get(results[0].id).await?;

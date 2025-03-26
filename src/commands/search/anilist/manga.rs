@@ -1,43 +1,48 @@
-use crate::structs::{
-    api::anilist::AniList,
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
-    select_menu::SelectMenu,
+use crate::{
+    statics::REST,
+    structs::{
+        api::anilist::AniList,
+        command_context::{AeonCommandContext, AeonCommandInput},
+        select_menu::SelectMenu,
+    },
 };
 use anyhow::{Result, bail};
-use slashook::commands::MessageResponse;
+use slashook::{commands::MessageResponse, structs::channels::Channel};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
+    if let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input {
+        if ctx.get_bool_arg("search").unwrap_or(false) {
+            let results = AniList::search_manga(ctx.get_string_arg("manga")?).await?;
 
-    if input.get_bool_arg("search").unwrap_or(false) {
-        let results = AniList::search_manga(input.get_string_arg("manga")?).await?;
+            let select_menu =
+                SelectMenu::new("anilist", "manga", "Select a manga…", None::<String>).add_options(results.iter().map(|result| {
+                    (
+                        &result.title.romaji,
+                        &result.id,
+                        Some(format!(
+                            "{} - {}",
+                            result.format.as_ref().map(|format| format.to_string()).as_deref().unwrap_or("TBA"),
+                            result.status,
+                        )),
+                    )
+                }));
 
-        let select_menu =
-            SelectMenu::new("anilist", "manga", "Select a manga…", None::<String>).add_options(results.iter().map(|result| {
-                (
-                    &result.title.romaji,
-                    &result.id,
-                    Some(format!(
-                        "{} - {}",
-                        result.format.as_ref().map(|format| format.to_string()).as_deref().unwrap_or("TBA"),
-                        result.status,
-                    )),
-                )
-            }));
-
-        return ctx.respond(select_menu, false).await;
+            return ctx.respond(select_menu, false).await;
+        }
     }
 
     let (query, section) = ctx.get_query_and_section("manga")?;
 
-    let manga = if input.is_string_select() {
+    let manga = if ctx.is_string_select() {
         AniList::get_manga(query.parse::<u64>()?).await?
     } else {
         AniList::search_manga(query).await?.remove(0)
     };
 
-    if manga.is_adult && !input.channel.as_ref().and_then(|channel| channel.nsfw).unwrap_or(false) {
+    let nsfw_channel = Channel::fetch(&REST, ctx.get_channel_id()).await.is_ok_and(|channel| channel.nsfw.unwrap_or(false));
+
+    if manga.is_adult && !nsfw_channel {
         bail!("NSFW channels only.");
     }
 

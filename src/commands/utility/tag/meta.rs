@@ -2,7 +2,7 @@ use crate::{
     functions::{TimestampFormat, format_timestamp},
     macros::yes_no,
     structs::{
-        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+        command_context::{AeonCommandContext, AeonCommandInput},
         database::tags::Tags,
     },
 };
@@ -13,7 +13,7 @@ use std::sync::Arc;
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 
-    let tag = Tags::get(input.get_string_arg("tag")?, input.guild_id.as_ref().unwrap()).await?;
+    let tag = Tags::get(ctx.get_string_arg("tag")?, input.guild_id.as_ref().unwrap()).await?;
     let name = tag.name;
     let author_id = tag.author_id;
     let author = input.rest.get::<User>(format!("users/{author_id}")).await.map(|user| user.username).unwrap_or_else(|_| "N/A".into());

@@ -1,6 +1,6 @@
 use crate::structs::{
     api::google::{Google, statics::GOOGLE_TRANSLATE_LANGUAGES},
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
     simple_message::SimpleMessage,
 };
 use anyhow::{Result, bail};
@@ -14,10 +14,10 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     }
 
     let (text, origin_language, target_language) = match &ctx.command_input {
-        AeonCommandInput::ApplicationCommand(input, _) => (
-            input.get_string_arg("text")?,
-            input.get_string_arg("origin-language").as_deref().unwrap_or("auto").to_string(),
-            input.get_string_arg("target-language").as_deref().unwrap_or("en").to_string(),
+        AeonCommandInput::ApplicationCommand(_, _) => (
+            ctx.get_string_arg("text")?,
+            ctx.get_string_arg("origin-language").as_deref().unwrap_or("auto").to_string(),
+            ctx.get_string_arg("target-language").as_deref().unwrap_or("en").to_string(),
         ),
         AeonCommandInput::MessageCommand(message, args, _) => {
             let mut args = args.split_whitespace();

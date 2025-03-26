@@ -1,9 +1,9 @@
 use crate::structs::{
     api::vndb::Vndb,
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
     select_menu::SelectMenu,
 };
-use anyhow::{Result, bail};
+use anyhow::Result;
 use slashook::commands::MessageResponse;
 use std::sync::Arc;
 
@@ -14,16 +14,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         }
     }
 
-    let trait_query = match &ctx.command_input {
-        AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("trait")?,
-        AeonCommandInput::MessageCommand(_, args, _) => args.into(),
-    };
-
-    if trait_query.is_empty() {
-        bail!("Please provide a trait.");
-    }
-
-    let results = Vndb::search_trait(trait_query).await?;
+    let results = Vndb::search_trait(ctx.get_string_arg("trait")?).await?;
     let select_menu = SelectMenu::new("vndb", "trait", "View other traits…", Some(&results[0].id))
         .add_options(results.iter().map(|result| (&result.name, &result.id, Some(&result.group_name))));
 

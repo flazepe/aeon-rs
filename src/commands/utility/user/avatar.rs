@@ -1,6 +1,6 @@
 use crate::{
     statics::REQWEST,
-    structs::command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    structs::command_context::{AeonCommandContext, AeonCommandInput},
     traits::UserExt,
 };
 use anyhow::Result;
@@ -15,7 +15,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
 
     ctx.defer(false).await?;
 
-    let user = input.get_user_arg("user").unwrap_or(&input.user);
+    let user = ctx.get_user_arg("user").unwrap_or(&input.user);
     let user_id = &user.id;
 
     let guild_avatar = match input.guild_id.as_ref() {
@@ -25,7 +25,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         None => None,
     };
 
-    let avatar_url = if input.get_bool_arg("force-user-avatar").unwrap_or(false) {
+    let avatar_url = if ctx.get_bool_arg("force-user-avatar").unwrap_or(false) {
         user.display_avatar_url("gif", 4096)
     } else {
         guild_avatar.unwrap_or_else(|| user.display_avatar_url("gif", 4096))

@@ -1,15 +1,9 @@
-use crate::structs::{
-    api::anilist::AniList,
-    command_context::{AeonCommandContext, AeonCommandInput},
-    select_menu::SelectMenu,
-};
+use crate::structs::{api::anilist::AniList, command_context::AeonCommandContext, select_menu::SelectMenu};
 use anyhow::Result;
 use slashook::commands::MessageResponse;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input else { return Ok(()) };
-
     let (query, section) = ctx.get_query_and_section("user")?;
     let user = AniList::get_user(query).await?;
     let name = &user.name;

@@ -1,7 +1,7 @@
 use crate::structs::{
     api::voice_message::VoiceMessage,
     command::AeonCommand,
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
 };
 use anyhow::Context;
 use slashook::{
@@ -13,11 +13,11 @@ use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("voice-message", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
-        let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
+        let AeonCommandInput::ApplicationCommand(_, res) = &ctx.command_input else { return Ok(()) };
 
-        let audio_url = input
+        let audio_url = ctx
             .get_string_arg("media-url")
-            .or(input.get_attachment_arg("media-file").map(|attachment| attachment.url.clone()))
+            .or(ctx.get_attachment_arg("media-file").map(|attachment| attachment.url.clone()))
             .context("Please provide a media URL or file.")?;
 
         VoiceMessage::send(res, audio_url, false).await

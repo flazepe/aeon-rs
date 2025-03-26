@@ -2,11 +2,11 @@ use crate::{
     statics::CACHE,
     structs::{
         api::{google::statics::GOOGLE_TRANSLATE_LANGUAGES, spotify::Spotify},
-        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+        command_context::{AeonCommandContext, AeonCommandInput},
         select_menu::SelectMenu,
     },
 };
-use anyhow::{Result, bail};
+use anyhow::Result;
 use slashook::commands::MessageResponse;
 use std::sync::Arc;
 
@@ -26,22 +26,16 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         }
     }
 
-    let (user_id, query, translate_language) = match &ctx.command_input {
-        AeonCommandInput::ApplicationCommand(input, _) => {
-            (input.user.id.clone(), input.get_string_arg("song").ok(), input.get_string_arg("translate").ok())
-        },
-        AeonCommandInput::MessageCommand(message, args, _) => {
-            (message.author.id.to_string(), if args.trim().is_empty() { None } else { Some(args.into()) }, None::<String>)
-        },
+    let translate_language = match &ctx.command_input {
+        AeonCommandInput::ApplicationCommand(_, _) => ctx.get_string_arg("translate").ok(),
+        AeonCommandInput::MessageCommand(_, _, _) => None::<String>,
     };
 
-    let query = query
-        .or_else(|| CACHE.song_activities.read().unwrap().get(&user_id).map(|song| format!("{} - {}", song.artist, song.title)))
+    let query = ctx
+        .get_string_arg("song")
+        .ok()
+        .or_else(|| CACHE.song_activities.read().unwrap().get(&ctx.get_user_id()).map(|song| format!("{} - {}", song.artist, song.title)))
         .unwrap_or_default();
-
-    if query.is_empty() {
-        bail!("Please provide a song.");
-    }
 
     ctx.defer(false).await?;
 

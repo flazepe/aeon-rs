@@ -1,22 +1,12 @@
 use crate::{
     functions::{hastebin, limit_strings},
-    structs::{
-        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
-        unicode::Unicode,
-    },
+    structs::{command_context::AeonCommandContext, unicode::Unicode},
 };
-use anyhow::{Result, bail};
+use anyhow::Result;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let character = match &ctx.command_input {
-        AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("text")?,
-        AeonCommandInput::MessageCommand(_, args, _) => args.into(),
-    };
-
-    if character.is_empty() {
-        bail!("Please provide a character.");
-    }
+    let character = ctx.get_string_arg("text")?;
 
     ctx.defer(false).await?;
 

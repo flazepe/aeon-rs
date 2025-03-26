@@ -1,14 +1,10 @@
-use crate::{
-    statics::REQWEST,
-    structs::command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
-};
+use crate::{statics::REQWEST, structs::command_context::AeonCommandContext};
 use anyhow::{Context, Result};
 use serde_json::{Value, json};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
-    let mut url = input.get_string_arg("url")?;
+    let mut url = ctx.get_string_arg("url")?;
 
     if !url.starts_with("http") {
         url = format!("http://{url}");

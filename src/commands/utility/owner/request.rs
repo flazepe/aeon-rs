@@ -1,6 +1,6 @@
 use crate::{
     statics::{CONFIG, REQWEST, colors::PRIMARY_COLOR},
-    structs::command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    structs::command_context::{AeonCommandContext, AeonCommandInput},
 };
 use anyhow::{Error, Result};
 use reqwest::Method;
@@ -9,12 +9,12 @@ use slashook::structs::embeds::Embed;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
-    let method = Method::from_bytes(input.get_string_arg("method").as_deref().unwrap_or("GET").as_bytes()).unwrap_or(Method::GET);
-    let url: String = format!("https://discord.com/api/{}", input.get_string_arg("endpoint")?);
+    let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input else { return Ok(()) };
+    let method = Method::from_bytes(ctx.get_string_arg("method").as_deref().unwrap_or("GET").as_bytes()).unwrap_or(Method::GET);
+    let url: String = format!("https://discord.com/api/{}", ctx.get_string_arg("endpoint")?);
     let mut request = REQWEST.request(method, url).header("authorization", format!("Bot {}", CONFIG.bot.token));
 
-    if let Ok(body) = input.get_string_arg("body") {
+    if let Ok(body) = ctx.get_string_arg("body") {
         let content_type = from_str::<Value>(&body).map_or("application/x-www-form-urlencoded", |_| "application/json");
         request = request.header("content-type", content_type).body(body);
     }

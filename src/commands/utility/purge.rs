@@ -3,7 +3,7 @@ use crate::{
     statics::{CONFIG, FLAZEPE_ID},
     structs::{
         command::AeonCommand,
-        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+        command_context::{AeonCommandContext, AeonCommandInput},
     },
     traits::UserExt,
 };
@@ -24,7 +24,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("purge", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
         let has_permission = input.app_permissions.contains(Permissions::MANAGE_MESSAGES);
-        let is_self_purge = input.get_user_arg("user").is_ok_and( |user| user.id == CONFIG.bot.client_id);
+        let is_self_purge = ctx.get_user_arg("user").is_ok_and( |user| user.id == CONFIG.bot.client_id);
 
         if !has_permission && !is_self_purge {
             bail!("I do not have the Manage Messages permission to purge messages.");
@@ -40,18 +40,18 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             bail!("You do not have the Manage Messages permission to purge messages.");
         }
 
-        let channel = input.get_channel_arg("channel").unwrap_or(input.channel.as_ref().unwrap());
+        let channel = ctx.get_channel_arg("channel").unwrap_or(input.channel.as_ref().unwrap());
 
         let Ok(mut messages) = channel.fetch_messages(&input.rest, MessageFetchOptions::new().set_limit(100)).await else {
             bail!("An error occurred while trying to fetch messages. Please make sure I have the permission to view the channel and its messages.");
         };
 
         messages.retain(|message| {
-            input.get_user_arg("user").map_or(true, |user| user.id == message.author.id)
+            ctx.get_user_arg("user").map_or(true, |user| user.id == message.author.id)
                 && message.timestamp > Utc::now() - Duration::weeks(2)
         });
 
-        messages.drain((input.get_i64_arg("amount").unwrap_or(1) as usize).min(messages.len())..);
+        messages.drain((ctx.get_i64_arg("amount").unwrap_or(1) as usize).min(messages.len())..);
 
         if messages.is_empty() {
             bail!("No messages found.");
@@ -78,7 +78,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             format!(
                 "Deleted {}{}{}.",
                 label_num(messages.len(), "message", "messages"),
-                input.get_user_arg("user").map(|user| format!(" from {}", user.label())).as_deref().unwrap_or(""),
+                ctx.get_user_arg("user").map(|user| format!(" from {}", user.label())).as_deref().unwrap_or(""),
                 if channel.id != *input.channel_id.as_ref().unwrap() { format!(" in <#{}>", channel.id) } else { "".into() },
             ),
             true,

@@ -2,7 +2,7 @@ use crate::{
     statics::REQWEST,
     structs::{
         command::AeonCommand,
-        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+        command_context::{AeonCommandContext, AeonCommandInput},
     },
 };
 use anyhow::{Context, bail};
@@ -14,15 +14,8 @@ use slashook::{
 use std::{sync::Arc, sync::LazyLock, time::Duration};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("calculate", &["calc"]).main(|ctx: Arc<AeonCommandContext>| async move {
-        let expression = match &ctx.command_input {
-            AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("expression")?,
-            AeonCommandInput::MessageCommand(_, args, _) => args.into(),
-        };
-
-        if expression.is_empty() {
-            bail!("Please provide an expression");
-        }
+    AeonCommand::new("calculate", &["calc", "count", "math"]).main(|ctx: Arc<AeonCommandContext>| async move {
+        let expression = ctx.get_string_arg("expression")?;
 
         if expression.chars().all(|char| char.is_numeric()) {
             let fact = REQWEST.get(format!("http://numbersapi.com/{expression}")).send().await?.text().await?;

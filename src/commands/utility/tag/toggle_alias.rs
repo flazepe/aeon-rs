@@ -1,5 +1,5 @@
 use crate::structs::{
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
     database::tags::Tags,
 };
 use anyhow::Result;
@@ -7,9 +7,9 @@ use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
-    let name = input.get_string_arg("tag")?;
+    let name = ctx.get_string_arg("tag")?;
     let guild_id = input.guild_id.as_ref().unwrap();
-    let alias = input.get_string_arg("alias")?;
+    let alias = ctx.get_string_arg("alias")?;
     let modifier = input.member.as_ref().unwrap();
     let response = Tags::toggle_alias(name, guild_id, alias, modifier).await?;
 

@@ -101,6 +101,7 @@ impl OrdrRender {
         Ok(render)
     }
 
+    #[allow(dead_code)]
     pub async fn poll_progress(&self, ctx: Arc<AeonCommandContext>) -> Result<()> {
         let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 

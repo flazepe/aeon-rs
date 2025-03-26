@@ -2,7 +2,7 @@ use crate::{
     statics::REQWEST,
     structs::{
         command::AeonCommand,
-        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+        command_context::{AeonCommandContext, AeonCommandInput},
     },
 };
 use anyhow::bail;
@@ -18,7 +18,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let text = REQWEST
             .get("https://www.youtube.com/results")
-            .query(&[("search_query", input.get_string_arg("video")?)])
+            .query(&[("search_query", ctx.get_string_arg("video")?)])
             .send()
             .await?
             .text()

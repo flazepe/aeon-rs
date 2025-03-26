@@ -1,16 +1,16 @@
 use crate::structs::{
     api::vndb::Vndb,
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
     select_menu::SelectMenu,
 };
-use anyhow::{Result, bail};
+use anyhow::Result;
 use slashook::commands::MessageResponse;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
-        if input.get_bool_arg("search").unwrap_or(false) {
-            let characters = Vndb::search_character(input.get_string_arg("character")?).await?;
+    if let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input {
+        if ctx.get_bool_arg("search").unwrap_or(false) {
+            let characters = Vndb::search_character(ctx.get_string_arg("character")?).await?;
             let select_menu = SelectMenu::new("vndb", "character", "Select a character…", None::<String>)
                 .add_options(characters.iter().map(|character| (&character.name, &character.id, Some(&character.vns[0].title))));
 
@@ -19,11 +19,6 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     }
 
     let (query, section) = ctx.get_query_and_section("character")?;
-
-    if query.is_empty() {
-        bail!("Please provide a query.");
-    }
-
     let character = Vndb::search_character(query).await?.remove(0);
     let id = &character.id;
     let select_menu = SelectMenu::new("vndb", "character", "View other sections…", Some(&section))

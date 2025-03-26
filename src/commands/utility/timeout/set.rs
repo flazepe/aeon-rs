@@ -1,5 +1,5 @@
 use crate::structs::{
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
     duration::{Duration, statics::SECS_PER_DAY},
 };
 use anyhow::{Result, bail};
@@ -13,13 +13,13 @@ use std::sync::Arc;
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 
-    let duration = Duration::new().parse(input.get_string_arg("duration")?)?;
+    let duration = Duration::new().parse(ctx.get_string_arg("duration")?)?;
 
     if duration.total_secs < 30 || duration.total_secs > SECS_PER_DAY * 28 {
         bail!("Duration cannot be under 30 seconds or over 28 days.");
     }
 
-    let user = input.get_user_arg("member")?;
+    let user = ctx.get_user_arg("member")?;
 
     input
         .rest

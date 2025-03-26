@@ -1,6 +1,6 @@
 use crate::{
     statics::REQWEST,
-    structs::command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    structs::command_context::{AeonCommandContext, AeonCommandInput},
 };
 use anyhow::{Context, Result};
 use serde::Deserialize;
@@ -17,7 +17,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
 
     ctx.defer(false).await?;
 
-    let user = input.get_user_arg("user").unwrap_or(&input.user);
+    let user = ctx.get_user_arg("user").unwrap_or(&input.user);
     let user_id = &user.id;
     let banner_url = input
         .rest

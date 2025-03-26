@@ -2,7 +2,7 @@ use crate::{
     functions::limit_strings,
     statics::colors::PRIMARY_COLOR,
     structs::{
-        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+        command_context::{AeonCommandContext, AeonCommandInput},
         database::tags::Tags,
     },
     traits::UserExt,
@@ -13,11 +13,9 @@ use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let (query, author, guild_id) = match &ctx.command_input {
-        AeonCommandInput::ApplicationCommand(input, _) => (
-            input.get_string_arg("query").as_deref().unwrap_or("").to_lowercase(),
-            input.get_user_arg("author").ok(),
-            input.guild_id.clone(),
-        ),
+        AeonCommandInput::ApplicationCommand(input, _) => {
+            (ctx.get_string_arg("query").as_deref().unwrap_or("").to_lowercase(), ctx.get_user_arg("author").ok(), input.guild_id.clone())
+        },
         AeonCommandInput::MessageCommand(message, args, _) => (args.into(), None, message.guild_id.map(|guild_id| guild_id.to_string())),
     };
 

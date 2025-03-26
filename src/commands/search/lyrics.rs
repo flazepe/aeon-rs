@@ -3,7 +3,7 @@ use crate::{
     structs::{
         api::google::statics::GOOGLE_TRANSLATE_LANGUAGES,
         command::AeonCommand,
-        command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+        command_context::{AeonCommandContext, AeonCommandInput},
         scraping::petitlyrics::PetitLyrics,
         select_menu::SelectMenu,
     },
@@ -38,14 +38,14 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 
         let (user_id, mut artist, mut title, lyrics, translate_language) = match &ctx.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => {
-                let query = input.get_string_arg("song").unwrap_or_default();
+                let query = ctx.get_string_arg("song").unwrap_or_default();
                 let (artist, title) = query.split_once('-').unwrap_or(("", &query));
                 (
                     input.user.id.clone(),
                     if artist.trim().is_empty() { None } else { Some(artist.into()) },
                     if title.trim().is_empty() { None } else { Some(title.into()) },
-                    input.get_string_arg("lyrics").ok(),
-                    input.get_string_arg("translate").ok(),
+                    ctx.get_string_arg("lyrics").ok(),
+                    ctx.get_string_arg("translate").ok(),
                 )
             },
             AeonCommandInput::MessageCommand(message, args, _) => {

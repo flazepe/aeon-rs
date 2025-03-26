@@ -1,9 +1,8 @@
 use crate::structs::{
     api::virtualearth::TimeZoneLocation,
     command::AeonCommand,
-    command_context::{AeonCommandContext, AeonCommandInput, CommandInputExt},
+    command_context::{AeonCommandContext, AeonCommandInput},
 };
-use anyhow::bail;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -13,16 +12,7 @@ use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("time", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
-        let location = match &ctx.command_input {
-            AeonCommandInput::ApplicationCommand(input, _) => input.get_string_arg("location")?,
-            AeonCommandInput::MessageCommand(_, args, _) => args.into(),
-        };
-
-        if location.is_empty() {
-            bail!("Please provide a location.");
-        }
-
-        let location = TimeZoneLocation::get(location).await?;
+        let location = TimeZoneLocation::get(ctx.get_string_arg("location")?).await?;
         ctx.respond(location.format(), false).await
     })
 });
