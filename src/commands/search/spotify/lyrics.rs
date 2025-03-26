@@ -34,14 +34,14 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
         AeonCommandInput::ApplicationCommand(input, _) => {
             (input.user.id.clone(), input.get_string_arg("song").ok(), input.get_string_arg("translate").ok())
         },
-        AeonCommandInput::MessageCommand(message, args, _) => (message.author.id.to_string(), args.clone().into(), None::<String>),
+        AeonCommandInput::MessageCommand(message, args, _) => {
+            (message.author.id.to_string(), if args.trim().is_empty() { None } else { Some(args.into()) }, None::<String>)
+        },
     };
 
-    let Some(query) =
-        query.or_else(|| CACHE.song_activities.read().unwrap().get(&user_id).map(|song| format!("{} - {}", song.artist, song.title)))
-    else {
-        return ctx.respond_error("Please provide a song.", true).await;
-    };
+    let query = query
+        .or_else(|| CACHE.song_activities.read().unwrap().get(&user_id).map(|song| format!("{} - {}", song.artist, song.title)))
+        .unwrap_or_default();
 
     if query.is_empty() {
         return ctx.respond_error("Please provide a song.", true).await;

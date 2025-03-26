@@ -17,7 +17,7 @@ pub async fn run(ctx: AeonCommandContext) -> Result<()> {
     }
 
     let Some(mut activity) = CACHE.song_activities.read().unwrap().get(&user.id).cloned() else {
-        return ctx.respond_error(format!("No Spotify activity found for <@{}>.", user.id), true).await;
+        return ctx.respond_error(format!("No Spotify activity found for {}.", user.mention()), true).await;
     };
 
     ctx.defer(false).await?;
