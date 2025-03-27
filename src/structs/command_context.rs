@@ -2,7 +2,7 @@ use crate::statics::{
     CACHE, REST,
     emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
 };
-use anyhow::{Context, Error, Result, bail};
+use anyhow::{Context, Error, Result};
 use slashook::{
     commands::{CommandInput, CommandResponder, MessageResponse},
     structs::{
@@ -20,7 +20,6 @@ use twilight_model::channel::Message as TwilightMessage;
 
 pub struct AeonCommandContext {
     pub command_input: AeonCommandInput,
-    verified: bool,
 }
 
 pub enum AeonCommandInput {
@@ -30,7 +29,7 @@ pub enum AeonCommandInput {
 
 impl AeonCommandContext {
     pub fn new(command_input: AeonCommandInput) -> Self {
-        Self { command_input, verified: false }
+        Self { command_input }
     }
 
     pub fn get_user_id(&self) -> String {
@@ -54,25 +53,6 @@ impl AeonCommandContext {
         }
     }
 
-    pub fn verify(&mut self) -> Result<()> {
-        self.verified = true;
-
-        if let AeonCommandInput::ApplicationCommand(input, _) = &self.command_input {
-            // Ignore verification for autocomplete
-            if input.is_autocomplete() {
-                return Ok(());
-            }
-
-            if let Some(interaction_metadata) = input.message.as_ref().and_then(|message| message.interaction_metadata.as_ref()) {
-                if input.user.id != interaction_metadata.user.id {
-                    bail!("This isn't your interaction.");
-                }
-            }
-        }
-
-        Ok(())
-    }
-
     pub async fn defer(&self, ephemeral: bool) -> Result<()> {
         let AeonCommandInput::ApplicationCommand(input, res) = &self.command_input else { return Ok(()) };
 
@@ -86,10 +66,6 @@ impl AeonCommandContext {
     }
 
     pub async fn respond<T: Into<MessageResponse>>(&self, response: T, ephemeral: bool) -> Result<()> {
-        if !self.verified {
-            bail!("Interaction isn't verified.");
-        }
-
         let mut response = response.into().set_ephemeral(ephemeral);
 
         if response.content.is_some() {

@@ -64,19 +64,16 @@ impl AeonCommand {
     pub async fn run(&self, command_input: AeonCommandInput) -> Result<()> {
         let mut ctx = AeonCommandContext::new(command_input);
 
-        if let Err(error) = ctx.verify() {
-            return ctx.respond_error(error, true).await;
+        if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
+            if let Some(interaction_metadata) = input.message.as_ref().and_then(|message| message.interaction_metadata.as_ref()) {
+                if input.user.id != interaction_metadata.user.id {
+                    return ctx.respond_error("This isn't your interaction.", true).await;
+                }
+            }
         }
 
-        if self.owner_only {
-            let is_owner = match &ctx.command_input {
-                AeonCommandInput::ApplicationCommand(input, _) => input.user.id == FLAZEPE_ID,
-                AeonCommandInput::MessageCommand(message, _, _) => message.author.id.to_string() == FLAZEPE_ID,
-            };
-
-            if !is_owner {
-                return ctx.respond_error("This command is owner-only.", true).await;
-            }
+        if self.owner_only && ctx.get_user_id() != FLAZEPE_ID {
+            return ctx.respond_error("This command is owner-only.", true).await;
         }
 
         let mut func = self.func.as_ref();
@@ -114,19 +111,14 @@ impl AeonCommand {
 
         let Some(func) = func else { return Ok(()) };
 
-        let user_id = match &ctx.command_input {
-            AeonCommandInput::ApplicationCommand(input, _) => input.user.id.clone(),
-            AeonCommandInput::MessageCommand(message, _, _) => message.author.id.to_string(),
-        };
-
-        if CACHE.cooldowns.read().unwrap().get(&user_id).unwrap_or(&0) > &now() {
+        if CACHE.cooldowns.read().unwrap().get(&ctx.get_user_id()).unwrap_or(&0) > &now() {
             return ctx.respond_error("You are under a cooldown. Try again later.", true).await;
         }
 
         match &ctx.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => {
-                // Only add cooldown to non-search commands
-                if !ctx.get_bool_arg("search").unwrap_or(false) {
+                // Only add cooldown if the input was a command without search option
+                if input.is_command() && !ctx.get_bool_arg("search").unwrap_or(false) {
                     CACHE.cooldowns.write().unwrap().insert(input.user.id.clone(), now() + 3);
                 }
             },
