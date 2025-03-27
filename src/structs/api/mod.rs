@@ -7,7 +7,6 @@ pub mod localdown;
 pub mod lyricfind;
 pub mod ordr;
 pub mod osu;
-pub mod saucenao;
 pub mod spotify;
 pub mod steam;
 pub mod tio;

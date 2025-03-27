@@ -13,7 +13,6 @@ mod owner;
 mod purge;
 mod reminder;
 mod reminder_set_context;
-mod sauce;
 mod server_config;
 mod shorten_url;
 mod snipe;
@@ -46,7 +45,6 @@ pub fn get_aeon_commands() -> Vec<&'static LazyLock<AeonCommand>> {
         &purge::COMMAND,
         &reminder::COMMAND,
         &reminder_set_context::COMMAND,
-        &sauce::COMMAND,
         &server_config::COMMAND,
         &shorten_url::COMMAND,
         &snipe::COMMAND,
@@ -77,7 +75,6 @@ pub fn get_slashook_commands() -> Vec<SlashookCommand> {
         purge::get_slashook_command(),
         reminder::get_slashook_command(),
         reminder_set_context::get_slashook_command(),
-        sauce::get_slashook_command(),
         server_config::get_slashook_command(),
         shorten_url::get_slashook_command(),
         snipe::get_slashook_command(),
