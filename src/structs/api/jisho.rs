@@ -1,8 +1,12 @@
-use crate::statics::{REQWEST, colors::PRIMARY_COLOR};
+use crate::statics::REQWEST;
 use anyhow::{Result, bail};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::{collections::HashMap, fmt::Display};
+
+static JISHO_EMBED_COLOR: &str = "#3edd00";
+static JISHO_EMBED_AUTHOR_URL: &str = "https://jisho.org";
+static JISHO_EMBED_AUTHOR_ICON_URL: &str = "https://i.ibb.co/StJJz61/jisho.png";
 
 #[derive(Deserialize, Debug)]
 pub struct JishoJapanese {
@@ -127,6 +131,12 @@ impl JishoSearch {
         .collect::<Vec<String>>()
         .join("\n\n");
 
-        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_title(title).set_url(url).set_description(description)
+        Embed::new()
+            .set_color(JISHO_EMBED_COLOR)
+            .unwrap_or_default()
+            .set_author("Jisho", Some(JISHO_EMBED_AUTHOR_URL), Some(JISHO_EMBED_AUTHOR_ICON_URL))
+            .set_title(title)
+            .set_url(url)
+            .set_description(description)
     }
 }

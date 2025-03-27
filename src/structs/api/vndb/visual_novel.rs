@@ -1,7 +1,9 @@
 use crate::{
     functions::{label_num, limit_strings},
-    statics::colors::PRIMARY_COLOR,
-    structs::api::vndb::{Vndb, statics::VISUAL_NOVEL_FIELDS},
+    structs::api::vndb::{
+        Vndb,
+        statics::{VNDB_EMBED_AUTHOR_ICON_URL, VNDB_EMBED_AUTHOR_URL, VNDB_EMBED_COLOR, VNDB_VISUAL_NOVEL_FIELDS},
+    },
 };
 use anyhow::{Result, bail};
 use serde::Deserialize;
@@ -533,7 +535,13 @@ impl VndbVisualNovel {
         );
         let url = format!("https://vndb.org/{}", self.id);
 
-        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_thumbnail(thumbnail).set_title(title).set_url(url)
+        Embed::new()
+            .set_color(VNDB_EMBED_COLOR)
+            .unwrap_or_default()
+            .set_thumbnail(thumbnail)
+            .set_author("vndb  •  Visual Novel", Some(VNDB_EMBED_AUTHOR_URL), Some(VNDB_EMBED_AUTHOR_ICON_URL))
+            .set_title(title)
+            .set_url(url)
     }
 
     pub fn format(&self) -> Embed {
@@ -595,12 +603,12 @@ impl Vndb {
             if query.starts_with('v') && query.chars().skip(1).all(|char| char.is_numeric()) {
                 json!({
                     "filters": ["id", "=", query],
-                    "fields": VISUAL_NOVEL_FIELDS,
+                    "fields": VNDB_VISUAL_NOVEL_FIELDS,
                 })
             } else {
                 json!({
                     "filters": ["search", "=", query],
-                    "fields": VISUAL_NOVEL_FIELDS,
+                    "fields": VNDB_VISUAL_NOVEL_FIELDS,
                     "sort": "searchrank",
                 })
             },

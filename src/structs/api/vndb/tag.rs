@@ -1,11 +1,13 @@
 use crate::{
     functions::limit_strings,
     macros::yes_no,
-    statics::colors::PRIMARY_COLOR,
-    structs::api::vndb::{statics::TAG_FIELDS, Vndb},
+    structs::api::vndb::{
+        Vndb,
+        statics::{VNDB_EMBED_AUTHOR_ICON_URL, VNDB_EMBED_AUTHOR_URL, VNDB_EMBED_COLOR, VNDB_TAG_FIELDS},
+    },
     traits::Commas,
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::structs::embeds::Embed;
@@ -59,8 +61,9 @@ impl VndbTag {
         let vn_count = self.vn_count.commas();
 
         Embed::new()
-            .set_color(PRIMARY_COLOR)
+            .set_color(VNDB_EMBED_COLOR)
             .unwrap_or_default()
+            .set_author("vndb  •  Tag", Some(VNDB_EMBED_AUTHOR_URL), Some(VNDB_EMBED_AUTHOR_ICON_URL))
             .set_title(title)
             .set_url(url)
             .set_description(aliases)
@@ -80,12 +83,12 @@ impl Vndb {
             if query.starts_with('g') && query.chars().skip(1).all(|char| char.is_numeric()) {
                 json!({
                     "filters": ["id", "=", query],
-                    "fields": TAG_FIELDS,
+                    "fields": VNDB_TAG_FIELDS,
                 })
             } else {
                 json!({
                     "filters": ["search", "=", query],
-                    "fields": TAG_FIELDS,
+                    "fields": VNDB_TAG_FIELDS,
                     "sort": "searchrank",
                 })
             },

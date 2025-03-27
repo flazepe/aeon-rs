@@ -1,9 +1,13 @@
 use crate::{
     functions::limit_strings,
-    statics::{CACHE, CONFIG, REQWEST, colors::PRIMARY_COLOR},
+    statics::{CACHE, CONFIG, REQWEST},
     structs::api::{
         google::{Google, statics::GOOGLE_TRANSLATE_LANGUAGES},
-        spotify::{Spotify, track::SpotifyFullTrack},
+        spotify::{
+            Spotify,
+            statics::{SPOTIFY_EMBED_AUTHOR_ICON_URL, SPOTIFY_EMBED_AUTHOR_URL, SPOTIFY_EMBED_COLOR},
+            track::SpotifyFullTrack,
+        },
     },
 };
 use anyhow::{Context, Result};
@@ -58,17 +62,15 @@ struct SpotifyAccessToken {
 impl SpotifyLyricsWithTrack {
     pub fn format(&self) -> Embed {
         let thumbnail = self.track.album.images.first().map_or("", |image| image.url.as_str());
-        let author_name = self.track.artists[0].name.chars().take(256).collect::<String>();
-        let author_url = Some(&self.track.artists[0].external_urls.spotify);
-        let title = self.track.name.chars().take(256).collect::<String>();
+        let title = format!("{} - {}", self.track.artists[0].name, self.track.name).chars().take(256).collect::<String>();
         let url = &self.track.external_urls.spotify;
         let description = limit_strings(&self.lyrics, "\n", 4096);
 
         Embed::new()
-            .set_color(PRIMARY_COLOR)
+            .set_color(SPOTIFY_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(thumbnail)
-            .set_author(author_name, author_url, None::<String>)
+            .set_author("Spotify  •  Lyrics", Some(SPOTIFY_EMBED_AUTHOR_URL), Some(SPOTIFY_EMBED_AUTHOR_ICON_URL))
             .set_title(title)
             .set_url(url)
             .set_description(description)

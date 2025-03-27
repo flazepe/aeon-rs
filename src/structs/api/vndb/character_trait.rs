@@ -1,8 +1,10 @@
 use crate::{
     functions::limit_strings,
     macros::yes_no,
-    statics::colors::PRIMARY_COLOR,
-    structs::api::vndb::{Vndb, statics::TRAIT_FIELDS},
+    structs::api::vndb::{
+        Vndb,
+        statics::{VNDB_EMBED_AUTHOR_ICON_URL, VNDB_EMBED_AUTHOR_URL, VNDB_EMBED_COLOR, VNDB_TRAIT_FIELDS},
+    },
     traits::Commas,
 };
 use anyhow::{Result, bail};
@@ -36,8 +38,9 @@ impl VndbTrait {
         let char_count = self.char_count.commas();
 
         Embed::new()
-            .set_color(PRIMARY_COLOR)
+            .set_color(VNDB_EMBED_COLOR)
             .unwrap_or_default()
+            .set_author("vndb  •  Trait", Some(VNDB_EMBED_AUTHOR_URL), Some(VNDB_EMBED_AUTHOR_ICON_URL))
             .set_title(title)
             .set_url(url)
             .set_description(aliases)
@@ -57,12 +60,12 @@ impl Vndb {
             if query.starts_with('i') && query.chars().skip(1).all(|char| char.is_numeric()) {
                 json!({
                     "filters": ["id", "=", query],
-                    "fields": TRAIT_FIELDS,
+                    "fields": VNDB_TRAIT_FIELDS,
                 })
             } else {
                 json!({
                     "filters": ["search", "=", query],
-                    "fields": TRAIT_FIELDS,
+                    "fields": VNDB_TRAIT_FIELDS,
                     "sort": "searchrank",
                 })
             },

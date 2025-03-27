@@ -7,7 +7,7 @@ use crate::{
             SpotifyAudioFeatures, SpotifyExternalIDs, SpotifyExternalURLs, SpotifyItems, SpotifyRestrictions, SpotifySimpleAlbum,
             SpotifySimpleArtist, SpotifyTrackLink,
         },
-        statics::{SPOTIFY_CAMELOT, SPOTIFY_EMBED_COLOR, SPOTIFY_PITCH_NOTATIONS},
+        statics::{SPOTIFY_CAMELOT, SPOTIFY_EMBED_AUTHOR_ICON_URL, SPOTIFY_EMBED_AUTHOR_URL, SPOTIFY_EMBED_COLOR, SPOTIFY_PITCH_NOTATIONS},
     },
 };
 use anyhow::{Context, Result, bail};
@@ -59,7 +59,13 @@ impl SpotifyFullTrack {
         let title = format!("{}{}", if self.explicit { format!("{EXPLICIT_EMOJI} ") } else { "".into() }, self.name);
         let url = &self.external_urls.spotify;
 
-        Embed::new().set_color(SPOTIFY_EMBED_COLOR).unwrap_or_default().set_thumbnail(thumbnail).set_title(title).set_url(url)
+        Embed::new()
+            .set_color(SPOTIFY_EMBED_COLOR)
+            .unwrap_or_default()
+            .set_author("Spotify  •  Song", Some(SPOTIFY_EMBED_AUTHOR_URL), Some(SPOTIFY_EMBED_AUTHOR_ICON_URL))
+            .set_thumbnail(thumbnail)
+            .set_title(title)
+            .set_url(url)
     }
 
     pub fn format(&self) -> Embed {

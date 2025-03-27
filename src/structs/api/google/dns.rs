@@ -1,8 +1,8 @@
 use crate::{
-    statics::{REQWEST, colors::PRIMARY_COLOR},
+    statics::REQWEST,
     structs::api::google::{
         Google,
-        statics::{GOOGLE_DNS_CODES, GOOGLE_DNS_RECORD_TYPES},
+        statics::{GOOGLE_DNS_CODES, GOOGLE_DNS_RECORD_TYPES, GOOGLE_EMBED_AUTHOR_ICON_URL, GOOGLE_EMBED_AUTHOR_URL, GOOGLE_EMBED_COLOR},
     },
 };
 use anyhow::{Result, bail};
@@ -77,7 +77,12 @@ impl GoogleDns {
             self.records.iter().map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl)).collect::<Vec<String>>().join("\n"),
         );
 
-        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_title(title).set_description(records)
+        Embed::new()
+            .set_color(GOOGLE_EMBED_COLOR)
+            .unwrap_or_default()
+            .set_author("Google  •  DNS", Some(GOOGLE_EMBED_AUTHOR_URL), Some(GOOGLE_EMBED_AUTHOR_ICON_URL))
+            .set_title(title)
+            .set_description(records)
     }
 }
 

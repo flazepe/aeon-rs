@@ -1,7 +1,10 @@
 use crate::{
     functions::{TimestampFormat, format_timestamp, limit_strings},
     statics::REQWEST,
-    structs::api::steam::{Steam, statics::STEAM_EMBED_COLOR},
+    structs::api::steam::{
+        Steam,
+        statics::{STEAM_EMBED_AUTHOR_ICON_URL, STEAM_EMBED_AUTHOR_URL, STEAM_EMBED_COLOR},
+    },
 };
 use anyhow::{Result, bail};
 use nipper::Document;
@@ -205,7 +208,12 @@ impl SteamGame {
         let title = &self.name;
         let url = format!("https://store.steampowered.com/app/{}", self.id);
 
-        Embed::new().set_color(STEAM_EMBED_COLOR).unwrap_or_default().set_title(title).set_url(url)
+        Embed::new()
+            .set_color(STEAM_EMBED_COLOR)
+            .unwrap_or_default()
+            .set_author("Steam  •  Game", Some(STEAM_EMBED_AUTHOR_URL), Some(STEAM_EMBED_AUTHOR_ICON_URL))
+            .set_title(title)
+            .set_url(url)
     }
 
     pub fn format(&self) -> Embed {

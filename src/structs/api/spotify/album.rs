@@ -11,6 +11,7 @@ use crate::{
             SpotifyImage, SpotifyItems, SpotifyObjectType, SpotifyPaging, SpotifyReleaseDatePrecision, SpotifyRestrictions,
             SpotifySimpleAlbum, SpotifySimpleArtist, SpotifySimpleTrack,
         },
+        statics::{SPOTIFY_EMBED_AUTHOR_ICON_URL, SPOTIFY_EMBED_AUTHOR_URL},
     },
 };
 use anyhow::{Context, Result, bail};
@@ -60,7 +61,13 @@ impl SpotifyFullAlbum {
         let title = if self.name.is_empty() { "N/A".into() } else { self.name.clone() };
         let url = &self.external_urls.spotify;
 
-        Embed::new().set_color(SPOTIFY_EMBED_COLOR).unwrap_or_default().set_thumbnail(thumbnail).set_title(title).set_url(url)
+        Embed::new()
+            .set_color(SPOTIFY_EMBED_COLOR)
+            .unwrap_or_default()
+            .set_thumbnail(thumbnail)
+            .set_author("Spotify  •  Album", Some(SPOTIFY_EMBED_AUTHOR_URL), Some(SPOTIFY_EMBED_AUTHOR_ICON_URL))
+            .set_title(title)
+            .set_url(url)
     }
 
     pub fn format(&self) -> Embed {

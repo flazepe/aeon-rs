@@ -1,5 +1,6 @@
 pub static ANILIST_EMBED_COLOR: &str = "#00aaff";
-
+pub static ANILIST_EMBED_AUTHOR_URL: &str = "https://anilist.co";
+pub static ANILIST_EMBED_AUTHOR_ICON_URL: &str = "https://i.ibb.co/vYBvP34/anilist.png";
 pub static ANILIST_ANIME_FIELDS: &str = "
 	id siteUrl coverImage { extraLarge } bannerImage
 	countryOfOrigin title { romaji native english } format synonyms isAdult
@@ -30,7 +31,6 @@ pub static ANILIST_ANIME_FIELDS: &str = "
 	}
 	updatedAt
 ";
-
 pub static ANILIST_MANGA_FIELDS: &str = "
 	id siteUrl coverImage { extraLarge } bannerImage
 	countryOfOrigin title { romaji native english } format synonyms isAdult
@@ -57,7 +57,6 @@ pub static ANILIST_MANGA_FIELDS: &str = "
 	}
 	updatedAt
 ";
-
 pub static ANILIST_USER_FIELDS: &str = "
 	id siteUrl avatar { large } name createdAt updatedAt about
 	statistics {

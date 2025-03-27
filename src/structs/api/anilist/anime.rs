@@ -7,7 +7,7 @@ use crate::{
             AniListFuzzyDate, AniListMediaPageResponse, AniListMediaResponse, AniListNodes, AniListRanking, AniListRelation,
             AniListResponse, AniListSeason, AniListSource, AniListStatus, AniListStudio, AniListTitle, AniListTrailer,
         },
-        statics::{ANILIST_ANIME_FIELDS, ANILIST_EMBED_COLOR},
+        statics::{ANILIST_ANIME_FIELDS, ANILIST_EMBED_AUTHOR_ICON_URL, ANILIST_EMBED_AUTHOR_URL, ANILIST_EMBED_COLOR},
     },
 };
 use anyhow::{Context, Result, bail};
@@ -78,6 +78,7 @@ impl AniListAnime {
             .unwrap_or_default()
             .set_thumbnail(thumbnail)
             .set_image(image)
+            .set_author("AniList  •  Anime", Some(ANILIST_EMBED_AUTHOR_URL), Some(ANILIST_EMBED_AUTHOR_ICON_URL))
             .set_title(title)
             .set_url(url)
     }

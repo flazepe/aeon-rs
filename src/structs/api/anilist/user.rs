@@ -3,7 +3,7 @@ use crate::{
     structs::api::anilist::{
         AniList,
         components::{AniListCharacterNode, AniListFormat, AniListImage, AniListNodes, AniListResponse, AniListTitle},
-        statics::{ANILIST_EMBED_COLOR, ANILIST_USER_FIELDS},
+        statics::{ANILIST_EMBED_AUTHOR_ICON_URL, ANILIST_EMBED_AUTHOR_URL, ANILIST_EMBED_COLOR, ANILIST_USER_FIELDS},
     },
 };
 use anyhow::{Context, Result};
@@ -81,7 +81,13 @@ impl AniListUser {
         let name: &String = &self.name;
         let url = &self.site_url;
 
-        Embed::new().set_color(ANILIST_EMBED_COLOR).unwrap_or_default().set_thumbnail(thumbnail).set_title(name).set_url(url)
+        Embed::new()
+            .set_color(ANILIST_EMBED_COLOR)
+            .unwrap_or_default()
+            .set_thumbnail(thumbnail)
+            .set_author("AniList  •  User", Some(ANILIST_EMBED_AUTHOR_URL), Some(ANILIST_EMBED_AUTHOR_ICON_URL))
+            .set_title(name)
+            .set_url(url)
     }
 
     pub fn format(&self) -> Embed {

@@ -1,10 +1,12 @@
 use std::{collections::HashMap, sync::LazyLock};
 
+pub static GOOGLE_EMBED_COLOR: &str = "#ffffff";
+pub static GOOGLE_EMBED_AUTHOR_URL: &str = "https://google.com";
+pub static GOOGLE_EMBED_AUTHOR_ICON_URL: &str = "https://i.ibb.co/WWz45VS9/google.png";
 pub static GOOGLE_DNS_RECORD_TYPES: [&str; 19] = [
     "A", "AAAA", /* "ALIAS", */ "CAA", "CNAME", "DNSKEY", "DS", "HTTPS", "IPSECKEY", "MX", "NAPTR", "NS", "PTR", "SOA", "SPF", "SRV",
     "SSHFP", "SVCB", "TLSA", "TXT",
 ];
-
 pub static GOOGLE_DNS_CODES: LazyLock<HashMap<u8, &str>> = LazyLock::new(|| {
     HashMap::from([
         (0, "NOERROR: DNS Query completed successfully."),
@@ -19,7 +21,6 @@ pub static GOOGLE_DNS_CODES: LazyLock<HashMap<u8, &str>> = LazyLock::new(|| {
         (9, "NOTZONE: Name not in zone."),
     ])
 });
-
 pub static GOOGLE_TRANSLATE_LANGUAGES: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
     HashMap::from([
         ("auto", "Automatic"),

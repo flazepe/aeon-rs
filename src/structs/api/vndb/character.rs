@@ -1,7 +1,10 @@
 use crate::{
     functions::limit_strings,
-    statics::colors::PRIMARY_COLOR,
-    structs::api::vndb::{Vndb, statics::CHARACTER_FIELDS, visual_novel::VndbImage},
+    structs::api::vndb::{
+        Vndb,
+        statics::{VNDB_CHARACTER_FIELDS, VNDB_EMBED_AUTHOR_ICON_URL, VNDB_EMBED_AUTHOR_URL, VNDB_EMBED_COLOR},
+        visual_novel::VndbImage,
+    },
     traits::Commas,
 };
 use anyhow::{Result, bail};
@@ -119,7 +122,13 @@ impl VndbCharacter {
         let title = self.name.chars().take(256).collect::<String>();
         let url = format!("https://vndb.org/{}", self.id);
 
-        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_thumbnail(thumbnail).set_title(title).set_url(url)
+        Embed::new()
+            .set_color(VNDB_EMBED_COLOR)
+            .unwrap_or_default()
+            .set_thumbnail(thumbnail)
+            .set_author("vndb  •  Character", Some(VNDB_EMBED_AUTHOR_URL), Some(VNDB_EMBED_AUTHOR_ICON_URL))
+            .set_title(title)
+            .set_url(url)
     }
 
     pub fn format(&self) -> Embed {
@@ -200,12 +209,12 @@ impl Vndb {
             if query.starts_with('c') && query.chars().skip(1).all(|char| char.is_numeric()) {
                 json!({
                     "filters": ["id", "=", query],
-                    "fields": CHARACTER_FIELDS,
+                    "fields": VNDB_CHARACTER_FIELDS,
                 })
             } else {
                 json!({
                     "filters": ["search", "=", query],
-                    "fields": CHARACTER_FIELDS,
+                    "fields": VNDB_CHARACTER_FIELDS,
                     "sort": "searchrank",
                 })
             },

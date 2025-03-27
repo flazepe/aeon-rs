@@ -3,7 +3,7 @@ use crate::{
     macros::yes_no,
     structs::api::steam::{
         Steam,
-        statics::{STEAM_COUNTRIES, STEAM_EMBED_COLOR, STEAM_USER_STATES},
+        statics::{STEAM_COUNTRIES, STEAM_EMBED_AUTHOR_ICON_URL, STEAM_EMBED_AUTHOR_URL, STEAM_EMBED_COLOR, STEAM_USER_STATES},
         user_bans::SteamUserBans,
     },
     traits::Commas,
@@ -23,8 +23,8 @@ struct SteamUsers {
     players: Vec<SteamUser>,
 }
 
-#[derive(Deserialize, Debug)] // Can't use `rename_all = "lowercase"` since serde doesn't remove underscores
-#[serde(rename_all = "lowercase")]
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "lowercase")] // Can't actually use `rename_all = "lowercase"` since serde doesn't remove underscores
 #[allow(dead_code)]
 pub struct SteamUser {
     #[serde(rename = "steamid")]
@@ -138,6 +138,7 @@ impl SteamUser {
             .set_color(STEAM_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(thumbnail)
+            .set_author("Steam  •  User", Some(STEAM_EMBED_AUTHOR_URL), Some(STEAM_EMBED_AUTHOR_ICON_URL))
             .set_title(title)
             .set_url(url)
             .add_field("ID", id, true)

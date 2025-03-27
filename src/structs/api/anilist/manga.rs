@@ -8,7 +8,7 @@ use crate::{
             AniListMediaPageResponse, AniListMediaResponse, AniListRanking, AniListRelation, AniListResponse, AniListSource, AniListStatus,
             AniListTitle,
         },
-        statics::{ANILIST_EMBED_COLOR, ANILIST_MANGA_FIELDS},
+        statics::{ANILIST_EMBED_AUTHOR_ICON_URL, ANILIST_EMBED_AUTHOR_URL, ANILIST_EMBED_COLOR, ANILIST_MANGA_FIELDS},
     },
 };
 use anyhow::{Context, Result, bail};
@@ -74,6 +74,7 @@ impl AniListManga {
             .unwrap_or_default()
             .set_thumbnail(thumbnail)
             .set_image(image)
+            .set_author("AniList  •  Manga", Some(ANILIST_EMBED_AUTHOR_URL), Some(ANILIST_EMBED_AUTHOR_ICON_URL))
             .set_title(title)
             .set_url(url)
     }

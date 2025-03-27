@@ -1,6 +1,9 @@
 use crate::{
-    statics::{REQWEST, colors::PRIMARY_COLOR},
-    structs::api::google::{Google, statics::GOOGLE_TRANSLATE_LANGUAGES},
+    statics::REQWEST,
+    structs::api::google::{
+        Google,
+        statics::{GOOGLE_EMBED_AUTHOR_ICON_URL, GOOGLE_EMBED_AUTHOR_URL, GOOGLE_EMBED_COLOR, GOOGLE_TRANSLATE_LANGUAGES},
+    },
 };
 use anyhow::{Context, Result, bail};
 use serde::Deserialize;
@@ -30,7 +33,12 @@ impl GoogleTranslateTranslation {
         let title = format!("{} to {}", self.origin_language, self.target_language);
         let translation = self.translation.chars().take(4096).collect::<String>();
 
-        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_title(title).set_description(translation)
+        Embed::new()
+            .set_color(GOOGLE_EMBED_COLOR)
+            .unwrap_or_default()
+            .set_author("Google  •  Translate", Some(GOOGLE_EMBED_AUTHOR_URL), Some(GOOGLE_EMBED_AUTHOR_ICON_URL))
+            .set_title(title)
+            .set_description(translation)
     }
 }
 
