@@ -1,5 +1,5 @@
 use crate::{
-    statics::{CACHE, colors::NOTICE_COLOR},
+    statics::{CACHE, colors::NOTICE_EMBED_COLOR},
     structs::{database::guilds::Guilds, simple_message::SimpleMessage},
     traits::UserExt,
 };
@@ -40,7 +40,7 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
         .collect::<String>();
 
     let embed = Embed::new()
-        .set_color(NOTICE_COLOR)
+        .set_color(NOTICE_EMBED_COLOR)
         .unwrap_or_default()
         .set_title("Message Edited")
         .set_description(format!(

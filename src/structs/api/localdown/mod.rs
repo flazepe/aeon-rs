@@ -1,7 +1,7 @@
 mod statics;
 
 use crate::{
-    statics::{CACHE, REQWEST, colors::PRIMARY_COLOR},
+    statics::{CACHE, REQWEST, colors::PRIMARY_EMBED_COLOR},
     traits::LimitedVec,
 };
 use anyhow::{Result, bail};
@@ -123,7 +123,7 @@ impl LocalDownNovel {
         let publisher = &self.publisher;
 
         Embed::new()
-            .set_color(PRIMARY_COLOR)
+            .set_color(PRIMARY_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(thumbnail)
             .set_title(title)

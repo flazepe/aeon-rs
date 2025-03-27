@@ -1,6 +1,6 @@
 use crate::{
     functions::label_num,
-    statics::{CACHE, colors::PRIMARY_COLOR},
+    statics::{CACHE, colors::PRIMARY_EMBED_COLOR},
     structs::simple_message::SimpleMessage,
     traits::UserExt,
 };
@@ -65,7 +65,7 @@ impl Snipes {
         let snipe = &snipes[snipes.len() - 1];
 
         Ok(Embed::new()
-            .set_color(PRIMARY_COLOR)?
+            .set_color(PRIMARY_EMBED_COLOR)?
             .set_description(SimpleMessage::from(snipe.clone()))
             .set_footer(snipe.author.label(), Some(snipe.author.display_avatar_url("png", 64)))
             .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?)
@@ -105,6 +105,6 @@ impl ReactionSnipes {
             self.channel_id,
             self.message_id,
         ))
-        .add_embed(Embed::new().set_color(PRIMARY_COLOR)?.set_description(reaction_snipes.join("\n\n"))))
+        .add_embed(Embed::new().set_color(PRIMARY_EMBED_COLOR)?.set_description(reaction_snipes.join("\n\n"))))
     }
 }

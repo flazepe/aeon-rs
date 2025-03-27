@@ -1,4 +1,4 @@
-use crate::statics::{REQWEST, colors::PRIMARY_COLOR};
+use crate::statics::{REQWEST, colors::PRIMARY_EMBED_COLOR};
 use anyhow::{Result, bail};
 use nipper::Document;
 use serde::Deserialize;
@@ -107,7 +107,7 @@ impl LyricFindSearchResultTrack {
         let url = format!("https://lyrics.lyricfind.com/lyrics/{}", self.slug);
 
         let mut embed = Embed::new()
-            .set_color(PRIMARY_COLOR)
+            .set_color(PRIMARY_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(thumbnail.as_deref().unwrap_or(""))
             .set_author(author, None::<String>, None::<String>)

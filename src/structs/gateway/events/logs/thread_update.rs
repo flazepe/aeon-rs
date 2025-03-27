@@ -1,4 +1,4 @@
-use crate::{statics::colors::NOTICE_COLOR, structs::database::guilds::Guilds};
+use crate::{statics::colors::NOTICE_EMBED_COLOR, structs::database::guilds::Guilds};
 use anyhow::Result;
 use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::ThreadUpdate;
@@ -7,7 +7,7 @@ pub async fn handle(event: &ThreadUpdate) -> Result<()> {
     let Some(guild_id) = event.guild_id else { return Ok(()) };
 
     let mut embed = Embed::new()
-        .set_color(NOTICE_COLOR)
+        .set_color(NOTICE_EMBED_COLOR)
         .unwrap_or_default()
         .set_title("Thread Updated")
         .set_description(format!("<#{thread_id}> ({thread_id})", thread_id = event.id))

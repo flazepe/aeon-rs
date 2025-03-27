@@ -2,7 +2,7 @@ pub mod statics;
 
 use crate::{
     functions::hastebin,
-    statics::{REQWEST, colors::PRIMARY_COLOR},
+    statics::{REQWEST, colors::PRIMARY_EMBED_COLOR},
     structs::api::tio::statics::TIO_PROGRAMMING_LANGUAGES,
 };
 use anyhow::{Context, Result};
@@ -91,6 +91,6 @@ impl Tio {
             self.result.as_deref().unwrap_or("No output.").chars().take(3900).collect::<String>(),
         );
 
-        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_title(title).set_url(url).set_description(result)
+        Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_title(title).set_url(url).set_description(result)
     }
 }

@@ -1,4 +1,4 @@
-use crate::statics::{REQWEST, colors::PRIMARY_COLOR};
+use crate::statics::{REQWEST, colors::PRIMARY_EMBED_COLOR};
 use anyhow::{Result, bail};
 use nipper::Document;
 use slashook::structs::embeds::Embed;
@@ -41,6 +41,12 @@ impl AnimeSongLyrics {
         let url = &self.url;
         let anime = &self.anime;
 
-        Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_image(image).set_title(anime).set_url(url).set_description(title)
+        Embed::new()
+            .set_color(PRIMARY_EMBED_COLOR)
+            .unwrap_or_default()
+            .set_image(image)
+            .set_title(anime)
+            .set_url(url)
+            .set_description(title)
     }
 }

@@ -1,6 +1,6 @@
 use crate::{
     functions::limit_strings,
-    statics::{REQWEST, colors::PRIMARY_COLOR},
+    statics::{REQWEST, colors::PRIMARY_EMBED_COLOR},
     structs::api::google::{Google, statics::GOOGLE_TRANSLATE_LANGUAGES},
 };
 use anyhow::{Result, bail};
@@ -152,6 +152,6 @@ impl PetitLyrics {
         let title = format!("{} - {}", self.artist, self.title).chars().take(256).collect::<String>();
         let description = limit_strings(lyrics, "\n", 4096);
 
-        Ok(Embed::new().set_color(PRIMARY_COLOR).unwrap_or_default().set_title(title).set_description(description))
+        Ok(Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_title(title).set_description(description))
     }
 }

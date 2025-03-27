@@ -1,6 +1,6 @@
 use crate::{
     functions::{TimestampFormat, format_timestamp, label_num},
-    statics::{CACHE, colors::PRIMARY_COLOR},
+    statics::{CACHE, colors::PRIMARY_EMBED_COLOR},
     structs::command_context::AeonCommandContext,
 };
 use anyhow::{Context, Error, Result};
@@ -17,7 +17,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let virtual_memory = bytes_to_mb(process.virtual_memory());
     let cache = get_cache_list().join("\n");
     let embed = Embed::new()
-        .set_color(PRIMARY_COLOR)?
+        .set_color(PRIMARY_EMBED_COLOR)?
         .add_field("Process Started", process_started, false)
         .add_field("Memory", memory, false)
         .add_field("Virtual Memory", virtual_memory, false)

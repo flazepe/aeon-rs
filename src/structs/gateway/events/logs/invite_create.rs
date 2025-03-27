@@ -2,7 +2,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::{
     functions::{TimestampFormat, format_timestamp},
-    statics::colors::SUCCESS_COLOR,
+    statics::colors::SUCCESS_EMBED_COLOR,
     structs::database::guilds::Guilds,
     traits::UserExt,
 };
@@ -12,7 +12,7 @@ use twilight_model::gateway::payload::incoming::InviteCreate;
 
 pub async fn handle(event: &InviteCreate) -> Result<()> {
     let mut embed = Embed::new()
-        .set_color(SUCCESS_COLOR)
+        .set_color(SUCCESS_EMBED_COLOR)
         .unwrap_or_default()
         .set_title("Invite Created")
         .set_description(format!("https://discord.gg/{}", event.code))

@@ -1,6 +1,6 @@
 use crate::{
     functions::limit_strings,
-    statics::colors::PRIMARY_COLOR,
+    statics::colors::PRIMARY_EMBED_COLOR,
     structs::{
         command_context::{AeonCommandContext, AeonCommandInput},
         database::tags::Tags,
@@ -32,7 +32,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         4096,
     );
     let embed = Embed::new()
-        .set_color(PRIMARY_COLOR)?
+        .set_color(PRIMARY_EMBED_COLOR)?
         .set_thumbnail(thumbnail.as_deref().unwrap_or(""))
         .set_title(title.as_deref().unwrap_or("All tags"))
         .set_description(description);

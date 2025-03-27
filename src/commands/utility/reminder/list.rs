@@ -1,6 +1,6 @@
 use crate::{
     functions::{TimestampFormat, format_timestamp},
-    statics::colors::PRIMARY_COLOR,
+    statics::colors::PRIMARY_EMBED_COLOR,
     structs::{
         command_context::{AeonCommandContext, AeonCommandInput},
         database::reminders::Reminders,
@@ -33,7 +33,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         })
         .collect::<Vec<String>>()
         .join("\n\n");
-    let embed = Embed::new().set_color(PRIMARY_COLOR)?.set_description(description);
+    let embed = Embed::new().set_color(PRIMARY_EMBED_COLOR)?.set_description(description);
 
     ctx.respond(embed, true).await
 }

@@ -1,7 +1,7 @@
 use crate::{
     functions::{TimestampFormat, format_timestamp},
     macros::yes_no,
-    statics::colors::{ERROR_COLOR, NOTICE_COLOR},
+    statics::colors::{ERROR_EMBED_COLOR, NOTICE_EMBED_COLOR},
     structs::database::guilds::Guilds,
     traits::UserExt,
 };
@@ -25,12 +25,12 @@ pub async fn handle(event: &VoiceStateUpdate) -> Result<()> {
 
     if let Some(channel_id) = event.channel_id {
         embed = embed
-            .set_color(NOTICE_COLOR)
+            .set_color(NOTICE_EMBED_COLOR)
             .unwrap_or_default()
             .set_title("Voice State Updated")
             .set_description(format!("<#{channel_id}> ({channel_id})"));
     } else {
-        embed = embed.set_color(ERROR_COLOR).unwrap_or_default().set_title("Left Voice Channel");
+        embed = embed.set_color(ERROR_EMBED_COLOR).unwrap_or_default().set_title("Left Voice Channel");
     }
 
     if let Some(member) = &event.member {

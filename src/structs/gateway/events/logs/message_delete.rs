@@ -1,5 +1,5 @@
 use crate::{
-    statics::{CACHE, colors::ERROR_COLOR},
+    statics::{CACHE, colors::ERROR_EMBED_COLOR},
     structs::{database::guilds::Guilds, simple_message::SimpleMessage},
     traits::UserExt,
 };
@@ -9,7 +9,7 @@ use twilight_model::gateway::payload::incoming::MessageDelete;
 
 pub async fn handle(event: &MessageDelete) -> Result<()> {
     let Some(guild_id) = event.guild_id else { return Ok(()) };
-    let mut embed = Embed::new().set_color(ERROR_COLOR).unwrap_or_default().set_title("Message Deleted").add_field(
+    let mut embed = Embed::new().set_color(ERROR_EMBED_COLOR).unwrap_or_default().set_title("Message Deleted").add_field(
         "Channel",
         format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id),
         false,

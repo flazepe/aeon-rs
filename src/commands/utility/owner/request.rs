@@ -1,5 +1,5 @@
 use crate::{
-    statics::{CONFIG, REQWEST, colors::PRIMARY_COLOR},
+    statics::{CONFIG, REQWEST, colors::PRIMARY_EMBED_COLOR},
     structs::command_context::{AeonCommandContext, AeonCommandInput},
 };
 use anyhow::{Error, Result};
@@ -32,7 +32,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         .collect::<String>();
 
     let description = format!("```js\n{final_text}```");
-    let embed = Embed::new().set_color(PRIMARY_COLOR)?.set_description(description);
+    let embed = Embed::new().set_color(PRIMARY_EMBED_COLOR)?.set_description(description);
 
     ctx.respond(embed, true).await
 }

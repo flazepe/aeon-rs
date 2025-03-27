@@ -1,6 +1,6 @@
 use crate::{
     functions::{add_reminder_select_options, now},
-    statics::{COLLECTIONS, REST, colors::NOTICE_COLOR},
+    statics::{COLLECTIONS, REST, colors::NOTICE_EMBED_COLOR},
     structs::{
         client::AeonClient,
         duration::{Duration, statics::SECS_PER_MONTH},
@@ -84,7 +84,7 @@ impl Reminders {
 
         let mut response = MessageResponse::from(mention).add_embed(
             Embed::new()
-                .set_color(NOTICE_COLOR)?
+                .set_color(NOTICE_EMBED_COLOR)?
                 .set_title("Reminder")
                 .set_url(format!("https://discord.com/channels/{}", reminder.url))
                 .set_description(&reminder.reminder),

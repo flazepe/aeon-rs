@@ -1,7 +1,7 @@
 pub mod statics;
 
-use crate::statics::{colors::PRIMARY_COLOR, REQWEST};
-use anyhow::{bail, Context, Result};
+use crate::statics::{REQWEST, colors::PRIMARY_EMBED_COLOR};
+use anyhow::{Context, Result, bail};
 use nipper::Document;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
@@ -100,7 +100,7 @@ impl Distribution {
         let popularity = format!("[{popularity}]({BASE_DOMAIN}/dwres.php?resource=popularity)", popularity = self.popularity);
 
         Embed::new()
-            .set_color(PRIMARY_COLOR)
+            .set_color(PRIMARY_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(thumbnail)
             .set_title(title)
