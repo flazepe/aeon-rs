@@ -1,5 +1,5 @@
 use crate::{functions::limit_strings, statics::REQWEST};
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::Deserialize;
 use std::fmt::Display;
 

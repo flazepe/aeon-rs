@@ -1,19 +1,19 @@
 use crate::{
-    functions::{format_timestamp, label_num, limit_strings, TimestampFormat},
+    functions::{TimestampFormat, format_timestamp, label_num, limit_strings},
     statics::{
         emojis::{COPYRIGHT_EMOJI, FIRE_EMOJI, PHONOGRAM_EMOJI},
         regex::COPYRIGHT_REGEX,
     },
     structs::api::spotify::{
+        SPOTIFY_EMBED_COLOR, Spotify,
         components::{
             SpotifyAlbumGroup, SpotifyAlbumType, SpotifyCopyright, SpotifyCopyrightType, SpotifyExternalIDs, SpotifyExternalURLs,
             SpotifyImage, SpotifyItems, SpotifyObjectType, SpotifyPaging, SpotifyReleaseDatePrecision, SpotifyRestrictions,
             SpotifySimpleAlbum, SpotifySimpleArtist, SpotifySimpleTrack,
         },
-        Spotify, SPOTIFY_EMBED_COLOR,
     },
 };
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
 use std::fmt::Display;

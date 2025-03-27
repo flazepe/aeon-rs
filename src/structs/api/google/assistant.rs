@@ -1,33 +1,33 @@
 use crate::{
     statics::CONFIG,
     structs::api::google::{
+        Google,
         protos::{
             assistant::embedded::v1alpha2::{
+                AssistConfig, AssistRequest, AudioOutConfig, DeviceConfig, DeviceLocation, DialogStateIn, ScreenOutConfig,
                 assist_config::Type as AssistConfigType, assist_request::Type as AssistRequestType, audio_out_config::Encoding,
                 device_location::Type as DeviceLocationType, embedded_assistant_client::EmbeddedAssistantClient,
-                screen_out_config::ScreenMode, AssistConfig, AssistRequest, AudioOutConfig, DeviceConfig, DeviceLocation, DialogStateIn,
-                ScreenOutConfig,
+                screen_out_config::ScreenMode,
             },
             r#type::LatLng,
         },
-        Google,
     },
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use chromiumoxide::{
     browser::{Browser, BrowserConfig},
     handler::viewport::Viewport,
     page::ScreenshotParams,
 };
-use futures::{stream::iter, StreamExt};
+use futures::{StreamExt, stream::iter};
 use gouth::Builder;
 use serde_json::json;
 use std::fmt::Display;
 use tokio::{fs::read, spawn};
 use tonic::{
+    Request,
     metadata::MetadataValue,
     transport::{Certificate, Channel, ClientTlsConfig},
-    Request,
 };
 
 pub struct GoogleAssistant {

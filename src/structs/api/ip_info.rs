@@ -1,5 +1,5 @@
 use crate::statics::REQWEST;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::Deserialize;
 use std::fmt::Display;
 

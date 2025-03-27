@@ -60,10 +60,6 @@ impl Oauth {
             return Ok(self.generate_token().await?.token);
         };
 
-        if token.expires_at > self.timestamp {
-            Ok(token.token)
-        } else {
-            Ok(self.generate_token().await?.token)
-        }
+        if token.expires_at > self.timestamp { Ok(token.token) } else { Ok(self.generate_token().await?.token) }
     }
 }

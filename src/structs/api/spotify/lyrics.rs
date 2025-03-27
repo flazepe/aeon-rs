@@ -1,9 +1,9 @@
 use crate::{
     functions::limit_strings,
-    statics::{colors::PRIMARY_COLOR, CACHE, CONFIG, REQWEST},
+    statics::{CACHE, CONFIG, REQWEST, colors::PRIMARY_COLOR},
     structs::api::{
-        google::{statics::GOOGLE_TRANSLATE_LANGUAGES, Google},
-        spotify::{track::SpotifyFullTrack, Spotify},
+        google::{Google, statics::GOOGLE_TRANSLATE_LANGUAGES},
+        spotify::{Spotify, track::SpotifyFullTrack},
     },
 };
 use anyhow::{Context, Result};

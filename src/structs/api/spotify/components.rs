@@ -1,5 +1,5 @@
-use serde::{de::DeserializeOwned, Deserialize};
-use serde_with::{serde_as, VecSkipError};
+use serde::{Deserialize, de::DeserializeOwned};
+use serde_with::{VecSkipError, serde_as};
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]

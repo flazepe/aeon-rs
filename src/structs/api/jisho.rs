@@ -1,5 +1,5 @@
-use crate::statics::{colors::PRIMARY_COLOR, REQWEST};
-use anyhow::{bail, Result};
+use crate::statics::{REQWEST, colors::PRIMARY_COLOR};
+use anyhow::{Result, bail};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::{collections::HashMap, fmt::Display};
@@ -100,11 +100,7 @@ impl JishoSearch {
         let title = self.japanese[0].word.as_ref().unwrap_or_else(|| self.japanese[0].reading.as_ref().unwrap()).to_string(); // One of these gotta exist
         let reading = self.japanese[0].reading.as_deref().unwrap_or("");
 
-        if title == reading || reading.is_empty() {
-            title
-        } else {
-            format!("{title} （{reading}）")
-        }
+        if title == reading || reading.is_empty() { title } else { format!("{title} （{reading}）") }
     }
 
     pub fn format(&self) -> Embed {

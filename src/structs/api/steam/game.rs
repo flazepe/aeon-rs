@@ -1,12 +1,12 @@
 use crate::{
-    functions::{format_timestamp, limit_strings, TimestampFormat},
+    functions::{TimestampFormat, format_timestamp, limit_strings},
     statics::REQWEST,
-    structs::api::steam::{statics::STEAM_EMBED_COLOR, Steam},
+    structs::api::steam::{Steam, statics::STEAM_EMBED_COLOR},
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use nipper::Document;
 use serde::Deserialize;
-use serde_json::{from_value, Value};
+use serde_json::{Value, from_value};
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
 use std::fmt::Display;
 

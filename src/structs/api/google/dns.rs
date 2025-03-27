@@ -1,11 +1,11 @@
 use crate::{
-    statics::{colors::PRIMARY_COLOR, REQWEST},
+    statics::{REQWEST, colors::PRIMARY_COLOR},
     structs::api::google::{
-        statics::{GOOGLE_DNS_CODES, GOOGLE_DNS_RECORD_TYPES},
         Google,
+        statics::{GOOGLE_DNS_CODES, GOOGLE_DNS_RECORD_TYPES},
     },
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;

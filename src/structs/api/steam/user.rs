@@ -1,10 +1,10 @@
 use crate::{
-    functions::{format_timestamp, label_num, TimestampFormat},
+    functions::{TimestampFormat, format_timestamp, label_num},
     macros::yes_no,
     structs::api::steam::{
+        Steam,
         statics::{STEAM_COUNTRIES, STEAM_EMBED_COLOR, STEAM_USER_STATES},
         user_bans::SteamUserBans,
-        Steam,
     },
     traits::Commas,
 };

@@ -1,5 +1,5 @@
 use crate::{
-    statics::{regex::MARKDOWN_REGEX, REQWEST},
+    statics::{REQWEST, regex::MARKDOWN_REGEX},
     traits::Commas,
 };
 use anyhow::Result;
@@ -43,11 +43,7 @@ pub async fn eien<T: Display>(command: T, extra_args: &[&str]) -> Result<File> {
 pub fn escape_markdown<T: Display>(string: T) -> String {
     MARKDOWN_REGEX
         .replace_all(&string.to_string(), |captures: &Captures| {
-            if captures[0].starts_with('\\') {
-                captures[0].to_string()
-            } else {
-                format!("\\{}", &captures[0])
-            }
+            if captures[0].starts_with('\\') { captures[0].to_string() } else { format!("\\{}", &captures[0]) }
         })
         .trim()
         .to_string()

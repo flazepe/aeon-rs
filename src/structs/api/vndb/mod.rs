@@ -5,11 +5,11 @@ mod tag;
 mod visual_novel;
 
 use crate::statics::{
-    regex::{BBCODE_REGEX, HTTPS_URL_REGEX},
     REQWEST,
+    regex::{BBCODE_REGEX, HTTPS_URL_REGEX},
 };
 use anyhow::Result;
-use serde::{de::DeserializeOwned, Deserialize};
+use serde::{Deserialize, de::DeserializeOwned};
 use serde_json::Value;
 use std::fmt::Display;
 

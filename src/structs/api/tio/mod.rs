@@ -2,13 +2,13 @@ pub mod statics;
 
 use crate::{
     functions::hastebin,
-    statics::{colors::PRIMARY_COLOR, REQWEST},
+    statics::{REQWEST, colors::PRIMARY_COLOR},
     structs::api::tio::statics::TIO_PROGRAMMING_LANGUAGES,
 };
 use anyhow::{Context, Result};
 use flate2::{
-    write::{DeflateEncoder, GzDecoder},
     Compression,
+    write::{DeflateEncoder, GzDecoder},
 };
 use slashook::structs::embeds::Embed;
 use std::{fmt::Display, io::Write};

@@ -2,16 +2,16 @@ use crate::{
     functions::limit_strings,
     macros::yes_no,
     structs::api::anilist::{
+        AniList,
         components::{
             AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat, AniListFuzzyDate, AniListMangaCharacter,
             AniListMediaPageResponse, AniListMediaResponse, AniListRanking, AniListRelation, AniListResponse, AniListSource, AniListStatus,
             AniListTitle,
         },
         statics::{ANILIST_EMBED_COLOR, ANILIST_MANGA_FIELDS},
-        AniList,
     },
 };
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::{

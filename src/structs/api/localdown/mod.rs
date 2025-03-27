@@ -1,10 +1,10 @@
 mod statics;
 
 use crate::{
-    statics::{colors::PRIMARY_COLOR, CACHE, REQWEST},
+    statics::{CACHE, REQWEST, colors::PRIMARY_COLOR},
     traits::LimitedVec,
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::Deserialize;
 use serde_json::from_str;
 use slashook::structs::embeds::Embed;

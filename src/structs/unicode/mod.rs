@@ -1,7 +1,7 @@
 pub mod statics;
 
 use crate::structs::unicode::statics::CONTROL_CHARACTERS;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use nipper::Document;
 use reqwest::Client;
 use std::fmt::Display;

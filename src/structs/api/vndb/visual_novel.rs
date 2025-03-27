@@ -1,9 +1,9 @@
 use crate::{
     functions::{label_num, limit_strings},
     statics::colors::PRIMARY_COLOR,
-    structs::api::vndb::{statics::VISUAL_NOVEL_FIELDS, Vndb},
+    structs::api::vndb::{Vndb, statics::VISUAL_NOVEL_FIELDS},
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::Deserialize;
 use serde_json::json;
 use serde_repr::Deserialize_repr;

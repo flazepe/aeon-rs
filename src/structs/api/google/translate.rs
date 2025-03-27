@@ -1,8 +1,8 @@
 use crate::{
-    statics::{colors::PRIMARY_COLOR, REQWEST},
-    structs::api::google::{statics::GOOGLE_TRANSLATE_LANGUAGES, Google},
+    statics::{REQWEST, colors::PRIMARY_COLOR},
+    structs::api::google::{Google, statics::GOOGLE_TRANSLATE_LANGUAGES},
 };
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;

@@ -1,9 +1,9 @@
 use crate::{
-    functions::{format_timestamp, limit_strings, TimestampFormat},
+    functions::{TimestampFormat, format_timestamp, limit_strings},
     structs::api::anilist::{
+        AniList,
         components::{AniListCharacterNode, AniListFormat, AniListImage, AniListNodes, AniListResponse, AniListTitle},
         statics::{ANILIST_EMBED_COLOR, ANILIST_USER_FIELDS},
-        AniList,
     },
 };
 use anyhow::{Context, Result};

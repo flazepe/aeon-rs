@@ -2,15 +2,15 @@ use crate::{
     functions::limit_strings,
     statics::emojis::{EXPLICIT_EMOJI, FIRE_EMOJI},
     structs::api::spotify::{
+        Spotify,
         components::{
             SpotifyAudioFeatures, SpotifyExternalIDs, SpotifyExternalURLs, SpotifyItems, SpotifyRestrictions, SpotifySimpleAlbum,
             SpotifySimpleArtist, SpotifyTrackLink,
         },
         statics::{SPOTIFY_CAMELOT, SPOTIFY_EMBED_COLOR, SPOTIFY_PITCH_NOTATIONS},
-        Spotify,
     },
 };
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;

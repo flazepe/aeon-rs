@@ -2,10 +2,10 @@ use crate::{
     functions::limit_strings,
     macros::yes_no,
     statics::colors::PRIMARY_COLOR,
-    structs::api::vndb::{statics::TRAIT_FIELDS, Vndb},
+    structs::api::vndb::{Vndb, statics::TRAIT_FIELDS},
     traits::Commas,
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::structs::embeds::Embed;

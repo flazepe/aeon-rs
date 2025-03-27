@@ -7,7 +7,7 @@ mod user_vanity;
 
 use crate::statics::{CONFIG, REQWEST};
 use anyhow::Result;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use std::fmt::Display;
 
 pub struct Steam;

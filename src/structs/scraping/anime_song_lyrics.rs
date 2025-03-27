@@ -1,5 +1,5 @@
-use crate::statics::{colors::PRIMARY_COLOR, REQWEST};
-use anyhow::{bail, Result};
+use crate::statics::{REQWEST, colors::PRIMARY_COLOR};
+use anyhow::{Result, bail};
 use nipper::Document;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;

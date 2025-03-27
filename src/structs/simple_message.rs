@@ -6,9 +6,9 @@ use slashook::structs::{
 };
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use twilight_model::channel::message::{
+    Message as TwilightMessage,
     embed::{Embed as TwilightEmbed, EmbedField as TwilightEmbedField},
     sticker::MessageSticker as TwilightStickerItem,
-    Message as TwilightMessage,
 };
 
 #[derive(Debug)]

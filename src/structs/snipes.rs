@@ -1,14 +1,14 @@
 use crate::{
     functions::label_num,
-    statics::{colors::PRIMARY_COLOR, CACHE},
+    statics::{CACHE, colors::PRIMARY_COLOR},
     structs::simple_message::SimpleMessage,
     traits::UserExt,
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use slashook::{
     chrono::DateTime,
     commands::MessageResponse,
-    structs::{embeds::Embed, utils::File, Permissions},
+    structs::{Permissions, embeds::Embed, utils::File},
 };
 use std::fmt::Display;
 

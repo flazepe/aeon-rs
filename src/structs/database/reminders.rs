@@ -1,12 +1,12 @@
 use crate::{
     functions::{add_reminder_select_options, now},
-    statics::{colors::NOTICE_COLOR, COLLECTIONS, REST},
+    statics::{COLLECTIONS, REST, colors::NOTICE_COLOR},
     structs::{
         client::AeonClient,
-        duration::{statics::SECS_PER_MONTH, Duration},
+        duration::{Duration, statics::SECS_PER_MONTH},
     },
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use futures::stream::TryStreamExt;
 use mongodb::bson::{doc, oid::ObjectId};
 use serde::{Deserialize, Serialize};

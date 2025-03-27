@@ -1,10 +1,10 @@
 use crate::{
     functions::limit_strings,
     statics::colors::PRIMARY_COLOR,
-    structs::api::vndb::{statics::CHARACTER_FIELDS, visual_novel::VndbImage, Vndb},
+    structs::api::vndb::{Vndb, statics::CHARACTER_FIELDS, visual_novel::VndbImage},
     traits::Commas,
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::Deserialize;
 use serde_json::json;
 use serde_repr::Deserialize_repr;

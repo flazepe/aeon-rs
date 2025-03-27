@@ -1,9 +1,9 @@
 use crate::{
-    functions::{format_timestamp, TimestampFormat},
+    functions::{TimestampFormat, format_timestamp},
     macros::yes_no,
     statics::emojis::{
-        OFFLINE_EMOJI, ONLINE_EMOJI, OSU_A_EMOJI, OSU_SH_EMOJI, OSU_SUPPORTER_1_EMOJI, OSU_SUPPORTER_2_EMOJI, OSU_SUPPORTER_3_EMOJI,
-        OSU_S_EMOJI, OSU_XH_EMOJI, OSU_X_EMOJI,
+        OFFLINE_EMOJI, ONLINE_EMOJI, OSU_A_EMOJI, OSU_S_EMOJI, OSU_SH_EMOJI, OSU_SUPPORTER_1_EMOJI, OSU_SUPPORTER_2_EMOJI,
+        OSU_SUPPORTER_3_EMOJI, OSU_X_EMOJI, OSU_XH_EMOJI,
     },
     structs::{api::osu::Osu, duration::Duration},
     traits::Commas,
