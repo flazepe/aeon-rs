@@ -7,7 +7,7 @@ use crate::{
     traits::UserExt,
 };
 use anyhow::Result;
-use slashook::structs::embeds::Embed;
+use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::InviteCreate;
 
 pub async fn handle(event: &InviteCreate) -> Result<()> {
@@ -39,6 +39,8 @@ pub async fn handle(event: &InviteCreate) -> Result<()> {
     if let Some(inviter) = &event.inviter {
         embed = embed.set_footer(inviter.label(), Some(inviter.display_avatar_url("gif", "4096")));
     }
+
+    embed = embed.set_timestamp(Utc::now());
 
     Guilds::send_log(event.guild_id, embed).await
 }

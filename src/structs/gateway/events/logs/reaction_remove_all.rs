@@ -1,6 +1,6 @@
 use crate::{statics::colors::ERROR_COLOR, structs::database::guilds::Guilds};
 use anyhow::Result;
-use slashook::structs::embeds::Embed;
+use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::ReactionRemoveAll;
 
 pub async fn handle(event: &ReactionRemoveAll) -> Result<()> {
@@ -16,7 +16,8 @@ pub async fn handle(event: &ReactionRemoveAll) -> Result<()> {
             event.channel_id,
             event.message_id,
         ))
-        .add_field("Channel", format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id), false);
+        .add_field("Channel", format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id), false)
+        .set_timestamp(Utc::now());
 
     Guilds::send_log(guild_id, embed).await
 }

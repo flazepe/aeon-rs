@@ -1,6 +1,6 @@
 use crate::{statics::colors::ERROR_COLOR, structs::database::guilds::Guilds};
 use anyhow::Result;
-use slashook::structs::embeds::Embed;
+use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::BanAdd;
 
 pub async fn handle(event: &BanAdd) -> Result<()> {
@@ -9,7 +9,8 @@ pub async fn handle(event: &BanAdd) -> Result<()> {
         .unwrap_or_default()
         .set_title("Member Banned")
         .set_description(format!("<@{}>", event.user.id))
-        .add_field("Username", format!("{} ({})", event.user.name, event.user.id), false);
+        .add_field("Username", format!("{} ({})", event.user.name, event.user.id), false)
+        .set_timestamp(Utc::now());
 
     Guilds::send_log(event.guild_id, embed).await
 }

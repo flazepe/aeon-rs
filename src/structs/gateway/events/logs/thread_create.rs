@@ -1,6 +1,6 @@
 use crate::{statics::colors::SUCCESS_COLOR, structs::database::guilds::Guilds};
 use anyhow::Result;
-use slashook::structs::embeds::Embed;
+use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::ThreadCreate;
 
 pub async fn handle(event: &ThreadCreate) -> Result<()> {
@@ -17,6 +17,8 @@ pub async fn handle(event: &ThreadCreate) -> Result<()> {
     if let Some(parent_id) = event.parent_id {
         embed = embed.add_field("Parent", format!("<#{parent_id}> ({parent_id})"), false);
     }
+
+    embed = embed.set_timestamp(Utc::now());
 
     Guilds::send_log(guild_id, embed).await
 }

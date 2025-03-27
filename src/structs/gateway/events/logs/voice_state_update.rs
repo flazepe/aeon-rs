@@ -6,7 +6,7 @@ use crate::{
     traits::UserExt,
 };
 use anyhow::Result;
-use slashook::structs::embeds::Embed;
+use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::VoiceStateUpdate;
 
 pub async fn handle(event: &VoiceStateUpdate) -> Result<()> {
@@ -38,6 +38,8 @@ pub async fn handle(event: &VoiceStateUpdate) -> Result<()> {
     } else {
         embed = embed.set_footer(format!("User ID: {}", event.user_id), None::<String>);
     }
+
+    embed = embed.set_timestamp(Utc::now());
 
     Guilds::send_log(guild_id, embed).await
 }

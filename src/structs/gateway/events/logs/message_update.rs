@@ -5,7 +5,7 @@ use crate::{
 };
 use anyhow::Result;
 use similar::{ChangeTag, TextDiff};
-use slashook::structs::embeds::Embed;
+use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::MessageUpdate;
 
 pub async fn handle(event: &MessageUpdate) -> Result<()> {
@@ -52,7 +52,8 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
         .add_field("Channel", format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id), false)
         .add_field("Before", old_content.chars().take(1024).collect::<String>(), false)
         .add_field("After", diff.chars().take(1024).collect::<String>(), false)
-        .set_footer(event.author.label(), Some(event.author.display_avatar_url("gif", 4096)));
+        .set_footer(event.author.label(), Some(event.author.display_avatar_url("gif", 4096)))
+        .set_timestamp(Utc::now());
 
     Guilds::send_log(guild_id, embed).await
 }

@@ -4,7 +4,7 @@ use crate::{
     traits::UserExt,
 };
 use anyhow::Result;
-use slashook::structs::embeds::Embed;
+use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::MessageDelete;
 
 pub async fn handle(event: &MessageDelete) -> Result<()> {
@@ -25,6 +25,8 @@ pub async fn handle(event: &MessageDelete) -> Result<()> {
             .add_field("Content", SimpleMessage::from(old_message.clone()), false)
             .set_footer(old_message.author.label(), Some(old_message.author.display_avatar_url("gif", 4096)));
     }
+
+    embed = embed.set_timestamp(Utc::now());
 
     Guilds::send_log(guild_id, embed).await
 }

@@ -1,6 +1,6 @@
 use crate::{statics::colors::NOTICE_COLOR, structs::database::guilds::Guilds};
 use anyhow::Result;
-use slashook::structs::embeds::Embed;
+use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::ChannelUpdate;
 
 pub async fn handle(event: &ChannelUpdate) -> Result<()> {
@@ -11,7 +11,8 @@ pub async fn handle(event: &ChannelUpdate) -> Result<()> {
         .unwrap_or_default()
         .set_title("Channel Updated")
         .set_description(format!("<#{channel_id}> ({channel_id})", channel_id = event.id))
-        .add_field("Name", format!("#{}", event.name.as_deref().unwrap_or("unknown")), false);
+        .add_field("Name", format!("#{}", event.name.as_deref().unwrap_or("unknown")), false)
+        .set_timestamp(Utc::now());
 
     Guilds::send_log(guild_id, embed).await
 }
