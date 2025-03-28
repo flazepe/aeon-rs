@@ -15,7 +15,7 @@ use crate::{
 };
 use anyhow::{Result, bail};
 use chromiumoxide::{
-    browser::{Browser, BrowserConfig},
+    browser::{Browser, BrowserConfig, HeadlessMode},
     handler::viewport::Viewport,
     page::ScreenshotParams,
 };
@@ -110,7 +110,7 @@ impl Google {
             is_landscape: true,
             has_touch: false,
         };
-        let config = BrowserConfig::builder().no_sandbox().viewport(viewport).build().unwrap();
+        let config = BrowserConfig::builder().no_sandbox().headless_mode(HeadlessMode::New).viewport(viewport).build().unwrap();
         let (mut browser, mut handler) = Browser::launch(config).await?;
         let handle = spawn(async move {
             while let Some(handle) = handler.next().await {
