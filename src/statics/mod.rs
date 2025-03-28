@@ -29,7 +29,6 @@ pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
     last_tio_programming_languages: RwLock::new(HashMap::new()),
     ordr_renders: RwLock::new(HashMap::new()),
     ordr_rendering_users: RwLock::new(HashMap::new()),
-    localdown_novels: RwLock::new(vec![]),
     spotify_access_token: RwLock::new(Default::default()),
 });
 pub static COLLECTIONS: LazyLock<Collections> = LazyLock::new(|| Collections {

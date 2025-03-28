@@ -1,4 +1,4 @@
-use crate::structs::{api::localdown::LocalDownNovel, database::guilds::Guild, gateway::song_activity::SongActivity};
+use crate::structs::{database::guilds::Guild, gateway::song_activity::SongActivity};
 use slashook::structs::messages::Message as SlashookMessage;
 use std::{collections::HashMap, sync::RwLock};
 use twilight_model::channel::Message;
@@ -15,6 +15,5 @@ pub struct Cache {
     pub last_tio_programming_languages: RwLock<HashMap<String, String>>,
     pub ordr_renders: RwLock<HashMap<u64, String>>,
     pub ordr_rendering_users: RwLock<HashMap<String, bool>>,
-    pub localdown_novels: RwLock<Vec<LocalDownNovel>>,
     pub spotify_access_token: RwLock<(String, u128)>,
 }
