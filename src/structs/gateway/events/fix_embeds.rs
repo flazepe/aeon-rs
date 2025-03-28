@@ -75,7 +75,8 @@ impl EventHandler {
                 continue;
             }
 
-            new_urls.push(new_url);
+            let spoiler = message.content.contains(&format!("||{url}||"));
+            new_urls.push(if spoiler { format!("||{new_url}||") } else { new_url });
         }
 
         if !new_urls.is_empty() {
