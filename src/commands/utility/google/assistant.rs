@@ -8,8 +8,13 @@ use slashook::{commands::MessageResponse, structs::utils::File};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
-    let query = ctx.get_string_arg("query").unwrap_or_else(|_| input.values.as_ref().unwrap()[0].clone());
+    let query = match ctx.get_string_arg("query") {
+        Ok(query) => query,
+        Err(error) => {
+            let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Err(error) };
+            input.values.as_ref().unwrap()[0].clone()
+        },
+    };
 
     ctx.defer(false).await?;
 

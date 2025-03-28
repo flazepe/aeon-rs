@@ -49,7 +49,8 @@ impl GoogleAssistant {
             .scopes(&["https://www.googleapis.com/auth/assistant-sdk-prototype"])
             .build()?;
         let certificate = Certificate::from_pem(read("google/gtsr1.pem").await?.as_slice());
-        let tls_config = ClientTlsConfig::new().ca_certificate(certificate).domain_name("embeddedassistant.googleapis.com");
+        let tls_config =
+            ClientTlsConfig::new().ca_certificate(certificate).with_native_roots().domain_name("embeddedassistant.googleapis.com");
         let interceptor = move |mut req: Request<()>| {
             req.metadata_mut().insert("authorization", MetadataValue::try_from(&*token.header_value().unwrap()).unwrap());
             Ok(req)
