@@ -8,7 +8,7 @@ use crate::{
         command_context::{AeonCommandContext, AeonCommandInput},
     },
 };
-use anyhow::{Result, bail};
+use anyhow::{Context, Result, bail};
 use futures::FutureExt;
 use rust_socketio::{Payload, asynchronous::ClientBuilder};
 use serde::Deserialize;
@@ -91,7 +91,7 @@ impl OrdrRender {
             .text()
             .await?;
 
-        let Ok(render) = from_str::<Self>(text.as_str()) else { bail!(text) }; // Sometimes it returns the error as plain text, so we just send the text as the error
+        let render = from_str::<Self>(text.as_str()).context(text)?; // Sometimes it returns the error as plain text, so we just send the text as the error
 
         // If render_id is None, then message should be returned as it would contain the error message
         if render.render_id.is_none() {

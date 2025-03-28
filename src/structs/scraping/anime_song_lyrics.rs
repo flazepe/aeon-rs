@@ -1,5 +1,5 @@
 use crate::statics::{REQWEST, colors::PRIMARY_EMBED_COLOR};
-use anyhow::{Result, bail};
+use anyhow::{Context, Result};
 use nipper::Document;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
@@ -19,13 +19,13 @@ impl AnimeSongLyrics {
         );
 
         let selection = document.select("#songlist a");
-        let Some(node) = selection.get(0) else { bail!("Anime not found.") };
+        let node = selection.get(0).context("Anime not found.")?;
 
         let data = node.text();
         let mut data = data.split('\n').map(|str| str.trim()).filter(|str| !str.is_empty());
 
-        let Some(anime) = data.next() else { bail!("Could not get song anime.") };
-        let Some(title) = data.next() else { bail!("Could not get song title.") };
+        let anime = data.next().context("Could not get song anime.")?;
+        let title = data.next().context("Could not get song title.")?;
 
         Ok(Self {
             title: title.trim_start_matches(['-', ':']).trim().to_string(),
@@ -37,16 +37,16 @@ impl AnimeSongLyrics {
 
     pub fn format(&self) -> Embed {
         let image = self.cover.as_deref().unwrap_or("");
-        let title = &self.title;
+        let title = &self.anime;
         let url = &self.url;
-        let anime = &self.anime;
+        let description = &self.title;
 
         Embed::new()
             .set_color(PRIMARY_EMBED_COLOR)
             .unwrap_or_default()
             .set_image(image)
-            .set_title(anime)
+            .set_title(title)
             .set_url(url)
-            .set_description(title)
+            .set_description(description)
     }
 }

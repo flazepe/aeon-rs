@@ -4,7 +4,7 @@ use crate::{
     statics::{CACHE, REQWEST, colors::PRIMARY_EMBED_COLOR},
     traits::LimitedVec,
 };
-use anyhow::{Result, bail};
+use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use serde_json::from_str;
 use slashook::structs::embeds::Embed;
@@ -53,16 +53,14 @@ impl LocalDownNovel {
             return Ok(novel.clone());
         }
 
-        let Ok(novel) = REQWEST
+        let novel = REQWEST
             .get(format!("https://api.ahnafzamil.com/localdown/novels/get/{id}"))
             .header("user-agent", "yes")
             .send()
             .await?
             .json::<Self>()
             .await
-        else {
-            bail!("Novel not found.")
-        };
+            .context("Novel not found.")?;
 
         CACHE.localdown_novels.write().unwrap().push_limited(novel.clone(), 100);
         Ok(novel)

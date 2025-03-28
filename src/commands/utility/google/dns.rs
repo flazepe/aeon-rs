@@ -2,7 +2,7 @@ use crate::structs::{
     api::google::Google,
     command_context::{AeonCommandContext, AeonCommandInput},
 };
-use anyhow::{Result, bail};
+use anyhow::{Context, Result};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
@@ -10,8 +10,8 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         AeonCommandInput::ApplicationCommand(_, _) => (ctx.get_string_arg("type")?, ctx.get_string_arg("domain")?),
         AeonCommandInput::MessageCommand(_, args, _) => {
             let mut args = args.split_whitespace();
-            let Some(record_type) = args.next().map(|arg| arg.to_uppercase()) else { bail!("Please provide a record type.") };
-            let Some(domain) = args.next().map(|arg| arg.to_string()) else { bail!("Please provide a domain.") };
+            let record_type = args.next().map(|arg| arg.to_uppercase()).context("Please provide a record type.")?;
+            let domain = args.next().map(|arg| arg.to_string()).context("Please provide a domain.")?;
             (record_type, domain)
         },
     };

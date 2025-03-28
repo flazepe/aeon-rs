@@ -4,7 +4,7 @@ use crate::{
     structs::command_context::{AeonCommandContext, AeonCommandInput},
     traits::UserExt,
 };
-use anyhow::{Result, bail};
+use anyhow::{Context, Result};
 use serde_json::to_string;
 use std::sync::Arc;
 
@@ -17,9 +17,13 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         user = &input.user;
     }
 
-    let Some(mut activity) = CACHE.song_activities.read().unwrap().get(&user.id).cloned() else {
-        bail!(format!("No Spotify activity found for {}.", user.mention()));
-    };
+    let mut activity = CACHE
+        .song_activities
+        .read()
+        .unwrap()
+        .get(&user.id)
+        .cloned()
+        .context(format!("No Spotify activity found for {}.", user.mention()))?;
 
     ctx.defer(false).await?;
 

@@ -2,7 +2,7 @@ use crate::structs::{
     command::AeonCommand,
     command_context::{AeonCommandContext, AeonCommandInput},
 };
-use anyhow::bail;
+use anyhow::Context;
 use image::ImageOutputFormat;
 use mathjax::MathJax;
 use slashook::{
@@ -28,12 +28,12 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 
         ctx.defer(false).await?;
 
-        let Ok(mathjax) = MathJax::new() else { bail!("Could not instantiate renderer.") };
-        let Ok(mut render) = mathjax.render(expression) else { bail!("Could not render expression.") };
+        let mathjax = MathJax::new().context("Could not instantiate renderer.")?;
+        let mut render = mathjax.render(expression).context("Could not render expression.")?;
 
         render.set_color(&color);
 
-        let Ok(image) = render.into_image(10.) else { bail!("Could not convert render into image.") };
+        let image = render.into_image(10.).context("Could not convert render into image.")?;
         let mut bytes = Vec::new();
         image.write_to(&mut Cursor::new(&mut bytes), ImageOutputFormat::Png)?;
 

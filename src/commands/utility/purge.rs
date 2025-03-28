@@ -7,7 +7,7 @@ use crate::{
     },
     traits::UserExt,
 };
-use anyhow::bail;
+use anyhow::{Context, bail};
 use slashook::{
     chrono::{Duration, Utc},
     command,
@@ -22,15 +22,15 @@ use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("purge", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
-        let AeonCommandInput::ApplicationCommand(input,  _) = &ctx.command_input else { return Ok(()) };
+        let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let has_permission = input.app_permissions.contains(Permissions::MANAGE_MESSAGES);
-        let is_self_purge = ctx.get_user_arg("user").is_ok_and( |user| user.id == CONFIG.bot.client_id);
+        let is_self_purge = ctx.get_user_arg("user").is_ok_and(|user| user.id == CONFIG.bot.client_id);
 
         if !has_permission && !is_self_purge {
             bail!("I do not have the Manage Messages permission to purge messages.");
         }
 
-        let has_permission =  input
+        let has_permission = input
             .member
             .as_ref()
             .is_some_and(|member| member.permissions.is_some_and(|permissions| permissions.contains(Permissions::MANAGE_MESSAGES)));
@@ -42,9 +42,10 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 
         let channel = ctx.get_channel_arg("channel").unwrap_or(input.channel.as_ref().unwrap());
 
-        let Ok(mut messages) = channel.fetch_messages(&input.rest, MessageFetchOptions::new().set_limit(100)).await else {
-            bail!("An error occurred while trying to fetch messages. Please make sure I have the permission to view the channel and its messages.");
-        };
+        let mut messages = channel
+            .fetch_messages(&input.rest, MessageFetchOptions::new().set_limit(100))
+            .await
+            .context("An error occurred while trying to fetch messages. Please make sure I have the permission to view the channel and its messages.")?;
 
         messages.retain(|message| {
             ctx.get_user_arg("user").map_or(true, |user| user.id == message.author.id)

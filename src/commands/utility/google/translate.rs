@@ -3,7 +3,7 @@ use crate::structs::{
     command_context::{AeonCommandContext, AeonCommandInput},
     simple_message::SimpleMessage,
 };
-use anyhow::{Result, bail};
+use anyhow::{Context, Result};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
@@ -23,7 +23,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
             let mut args = args.split_whitespace();
             let target_language = args.next().map(|arg| arg.to_string()).unwrap_or("en".into());
             let reference_text = message.referenced_message.as_ref().map(|reply| SimpleMessage::from(*reply.clone()).to_string());
-            let Some(text) = args.next().map(|arg| arg.to_string()).or(reference_text) else { bail!("Please provide a text.") };
+            let text = args.next().map(|arg| arg.to_string()).or(reference_text).context("Please provide a text.")?;
 
             (text, "auto".into(), target_language)
         },
