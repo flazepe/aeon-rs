@@ -22,14 +22,15 @@ pub struct VndbTrait {
     pub description: String,
     pub searchable: bool,
     pub applicable: bool,
-    pub group_id: String,
-    pub group_name: String,
+    pub group_id: Option<String>,
+    pub group_name: Option<String>,
     pub char_count: u64,
 }
 
 impl VndbTrait {
     pub fn format(&self) -> Embed {
-        let title = format!("{}: {}", self.group_name, self.name);
+        let group_name = self.group_name.as_ref().map(|group_name| format!("{group_name}: "));
+        let title = format!("{}{}", group_name.as_deref().unwrap_or(""), self.name);
         let url = format!("https://vndb.org/{}", self.id);
         let aliases = self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n");
         let description = limit_strings(Vndb::clean_bbcode(&self.description).split('\n'), "\n", 1024);
