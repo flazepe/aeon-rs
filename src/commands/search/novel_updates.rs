@@ -23,7 +23,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         }
 
         let results = NovelUpdates::search(ctx.get_string_arg("novel")?).await?;
-        let select_menu = SelectMenu::new("novel-updates", "novel-updates", "View other novels…", Some(&results[0].id))
+        let select_menu = SelectMenu::new("novel-updates", "novel-updates", "View other novels…", None::<String>)
             .add_options(results.iter().map(|result| (&result.title, &result.id, None::<String>)));
         let novel = NovelUpdates::get(&results[0].id).await?;
 

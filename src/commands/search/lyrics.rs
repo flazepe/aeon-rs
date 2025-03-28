@@ -74,13 +74,8 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         ctx.defer(false).await?;
 
         let results = PetitLyrics::search_partial(artist, title, lyrics).await?;
-
-        let select_menu =
-            SelectMenu::new("lyrics", "search", "View other lyrics…", Some(format!("{}|{}", results[0].artist, results[0].title)))
-                .add_options(
-                    results.iter().map(|result| (&result.title, format!("{}|{}", result.artist, result.title), Some(&result.artist))),
-                );
-
+        let select_menu = SelectMenu::new("lyrics", "search", "View other lyrics…", None::<String>)
+            .add_options(results.iter().map(|result| (&result.title, format!("{}|{}", result.artist, result.title), Some(&result.artist))));
         let embed = results[0].get_formatted_lyrics(translate_language).await?;
 
         ctx.respond(MessageResponse::from(select_menu).add_embed(embed), false).await
