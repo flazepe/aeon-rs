@@ -6,10 +6,10 @@ edition = "2024"
 [dependencies]
 anyhow = "1"
 base64 = "0.22"
-chromiumoxide = { git = "https://github.com/caido/dependency-chromiumoxide.git", rev = "3e5dcdc", default-features = false, features = ["tokio-runtime"] }
 flate2 = "1"
 futures = "0.3"
 gouth = "0.2"
+headless_chrome = "1"
 http_req = "0.13"
 image = "0.24"
 mathjax = { version = "0.1", default-features = false, features = ["node", "image"] }

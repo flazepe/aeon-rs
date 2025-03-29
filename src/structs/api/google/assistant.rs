@@ -14,16 +14,12 @@ use crate::{
     },
 };
 use anyhow::{Result, bail};
-use chromiumoxide::{
-    browser::{Browser, BrowserConfig, HeadlessMode},
-    handler::viewport::Viewport,
-    page::ScreenshotParams,
-};
-use futures::{StreamExt, stream::iter};
+use futures::stream::iter;
 use gouth::Builder;
+use headless_chrome::{Browser, LaunchOptions, protocol::cdp::Page::CaptureScreenshotFormatOption};
 use serde_json::json;
 use std::fmt::Display;
-use tokio::{fs::read, spawn};
+use tokio::fs::read;
 use tonic::{
     Request,
     metadata::MetadataValue,
@@ -101,47 +97,38 @@ impl GoogleAssistant {
 
 impl Google {
     pub async fn assistant<T: Display>(query: T) -> Result<GoogleAssistant> {
-        let content = GoogleAssistant::get_html_content(query).await?;
-        let viewport = Viewport {
-            width: 1920,
-            height: 1080,
-            device_scale_factor: None,
-            emulating_mobile: false,
-            is_landscape: true,
-            has_touch: false,
-        };
-        let config = BrowserConfig::builder().no_sandbox().headless_mode(HeadlessMode::New).viewport(viewport).build().unwrap();
-        let (mut browser, mut handler) = Browser::launch(config).await?;
-        let handle = spawn(async move {
-            while let Some(handle) = handler.next().await {
-                if handle.is_err() {
-                    break;
-                }
-            }
-        });
-        let page = browser.new_page("about:blank").await?;
+        let html_content = GoogleAssistant::get_html_content(query).await?;
+        let launch_options = LaunchOptions::default_builder().window_size(Some((1920, 1080))).sandbox(false).build()?;
+        let browser = Browser::new(launch_options)?;
+        let tab = browser.new_tab()?;
 
-        // Set content with white background fix
-        page.set_content(content.replace("<html>", r#"<html style="background-image: url(https://picsum.photos/1920/1080);">"#)).await?;
+        tab.navigate_to("about:blank")?;
+        tab.evaluate(
+            &format!(
+                r#"
+                    const html = document.querySelector("html");
+                    html.style = "background-image: url(https://picsum.photos/1920/1080)";
+                    html.innerHTML = `{}`;
+                "#,
+                html_content
+                // Trim HTML tags
+                .trim_start_matches("<html>")
+                .trim_end_matches("</html>")
+                // Force show card
+                .replace(r#"style="display:none""#, "")
+                // Fix padding issues for some cards
+                .replace("data-hveid=", r#"style="padding: 60px 90px" data-hveid="#),
+            ),
+            false,
+        )?;
 
-        // Fix padding issues
-        page.evaluate(
-            r#"
-                const element = document.querySelector("[data-hveid]");
-                if (element) element.style.padding = "60px 90px";
-            "#,
-        )
-        .await?;
+        tab.wait_until_navigated()?;
 
-        let card_image = page.screenshot(ScreenshotParams::builder().build()).await?;
-        let suggestions = page
-            .evaluate(r#"[...document.querySelectorAll(".suggestion")].map(element => element.innerText);"#)
-            .await?
-            .into_value::<Vec<String>>()
+        let card_image = tab.find_element("html")?.capture_screenshot(CaptureScreenshotFormatOption::Png)?;
+        let suggestions = tab
+            .find_elements(".suggestion")
+            .map(|elements| elements.iter().map(|element| element.get_inner_text().unwrap_or_default()).collect::<Vec<String>>())
             .unwrap_or_default();
-
-        browser.close().await?;
-        handle.await?;
 
         Ok(GoogleAssistant { card_image, suggestions })
     }
