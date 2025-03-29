@@ -128,7 +128,6 @@ impl GoogleAssistant {
                 ),
                 false,
             )?;
-
             tab.wait_until_navigated()?;
 
             card_image = Some(tab.find_element("html")?.capture_screenshot(CaptureScreenshotFormatOption::Png)?);
