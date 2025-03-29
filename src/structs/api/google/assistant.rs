@@ -148,7 +148,9 @@ impl GoogleAssistant {
             device_model_id: CONFIG.api.google_assistant.device_model_id.clone(),
         };
 
-        let device_coordinates = LatLng { latitude: 37.887, longitude: 41.132 }; // Batman, Türkiye
+        // Batman, Türkiye: 37.887, 41.132
+        // San Francisco: 37.783333, -122.416667
+        let device_coordinates = LatLng { latitude: 37.783333, longitude: -122.416667 };
         let device_location = DeviceLocation { r#type: Some(DeviceLocationType::Coordinates(device_coordinates)) };
 
         let dialog_state_in = DialogStateIn {
