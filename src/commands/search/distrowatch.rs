@@ -1,7 +1,7 @@
 use crate::structs::{
     command::AeonCommand,
     command_context::{AeonCommandContext, AeonCommandInput},
-    scraping::distrowatch::{Distribution, statics::DISTRIBUTIONS},
+    scraping::distrowatch::{DistroWatch, statics::DISTRIBUTIONS},
 };
 use slashook::{
     command,
@@ -18,15 +18,15 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             }
         }
 
-        let distribution = Distribution::get(ctx.get_string_arg("distribution")?).await?;
-        ctx.respond(distribution.format(), false).await
+        let distrowatch = DistroWatch::get(ctx.get_string_arg("distribution")?).await?;
+        ctx.respond(distrowatch.format(), false).await
     })
 });
 
 pub fn get_slashook_command() -> SlashookCommand {
     #[command(
         name = COMMAND.name.clone(),
-        description = "Fetches a distribution from distrowatch.",
+        description = "Fetches a distribution from DistroWatch.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
         options = [

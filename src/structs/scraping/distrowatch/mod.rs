@@ -1,15 +1,17 @@
 pub mod statics;
 
-use crate::statics::{REQWEST, colors::PRIMARY_EMBED_COLOR};
+use crate::statics::REQWEST;
 use anyhow::{Context, Result, bail};
 use nipper::Document;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
-const BASE_DOMAIN: &str = "https://distrowatch.com";
+static DISTROWATCH_URL: &str = "https://distrowatch.com";
+static DISTROWATCH_EMBED_COLOR: &str = "#f6edc8";
+static DISTROWATCH_EMBED_AUTHOR_ICON_URL: &str = "https://i.ibb.co/1Sz6TKh/distrowatch.png";
 
 #[derive(Debug)]
-pub struct Distribution {
+pub struct DistroWatch {
     pub name: String,
     pub url: String,
     pub logo: Option<String>,
@@ -24,10 +26,10 @@ pub struct Distribution {
     pub popularity: String,
 }
 
-impl Distribution {
+impl DistroWatch {
     pub async fn get<T: Display>(name: T) -> Result<Self> {
         let res = REQWEST
-            .get(format!("{BASE_DOMAIN}/table.php"))
+            .get(format!("{DISTROWATCH_URL}/table.php"))
             .query(&[("distribution", name.to_string())])
             .header("user-agent", "yes")
             .send()
@@ -54,7 +56,7 @@ impl Distribution {
         Ok(Self {
             name: name.to_string(),
             url,
-            logo: document.select("td.TablesTitle img").attr("src").map(|src| format!("{BASE_DOMAIN}/{src}")),
+            logo: document.select("td.TablesTitle img").attr("src").map(|src| format!("{DISTROWATCH_URL}/{src}")),
             description: document
                 .select(".TablesTitle")
                 .text()
@@ -75,19 +77,13 @@ impl Distribution {
     }
 
     pub fn format(&self) -> Embed {
-        fn to_hyperlink<T: Display>(names: T, query_param: &str) -> String {
+        let to_hyperlink = |names: &str, query_param: &str| -> String {
             names
-                .to_string()
                 .split(", ")
-                .map(|name| format!("[{name}]({BASE_DOMAIN}/search.php?{query_param}={})", name.replace(' ', "+")))
+                .map(|name| format!("[{name}]({DISTROWATCH_URL}/search.php?{query_param}={})", name.replace(' ', "+")))
                 .collect::<Vec<String>>()
                 .join(", ")
-        }
-
-        let thumbnail = self.logo.as_deref().unwrap_or("");
-        let title = format!("{} ({})", self.name, self.status);
-        let url = &self.url;
-        let description = &self.description;
+        };
         let distribution_type = format!(
             "{os_type} ({architecture})",
             os_type = to_hyperlink(&self.distribution_type, "ostype"),
@@ -97,12 +93,18 @@ impl Distribution {
         let origin = to_hyperlink(&self.origin, "origin");
         let desktop = to_hyperlink(&self.desktop, "desktop");
         let category = to_hyperlink(&self.category, "category");
-        let popularity = format!("[{popularity}]({BASE_DOMAIN}/dwres.php?resource=popularity)", popularity = self.popularity);
+        let popularity = format!("[{popularity}]({DISTROWATCH_URL}/dwres.php?resource=popularity)", popularity = self.popularity);
+
+        let thumbnail = self.logo.as_deref().unwrap_or("");
+        let title = format!("{} ({})", self.name, self.status);
+        let url = &self.url;
+        let description = &self.description;
 
         Embed::new()
-            .set_color(PRIMARY_EMBED_COLOR)
+            .set_color(DISTROWATCH_EMBED_COLOR)
             .unwrap_or_default()
             .set_thumbnail(thumbnail)
+            .set_author("DistroWatch", Some(DISTROWATCH_URL), Some(DISTROWATCH_EMBED_AUTHOR_ICON_URL))
             .set_title(title)
             .set_url(url)
             .set_description(description)
