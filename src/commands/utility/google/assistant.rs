@@ -1,10 +1,8 @@
 use crate::structs::{
     api::google::Google,
     command_context::{AeonCommandContext, AeonCommandInput},
-    select_menu::SelectMenu,
 };
 use anyhow::Result;
-use slashook::{commands::MessageResponse, structs::utils::File};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
@@ -19,15 +17,5 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     ctx.defer(false).await?;
 
     let google_assistant = Google::assistant(query).await?;
-
-    let mut response = MessageResponse::from(File::new("image.png", google_assistant.card_image));
-
-    if !google_assistant.suggestions.is_empty() {
-        let select_menu = SelectMenu::new("google", "assistant", "Try saying…", None::<String>)
-            .add_options(google_assistant.suggestions.iter().map(|suggestion| (suggestion.clone(), suggestion.clone(), None::<String>)));
-
-        response = response.set_components(select_menu.into());
-    }
-
-    ctx.respond(response, false).await
+    ctx.respond(google_assistant.format(), false).await
 }
