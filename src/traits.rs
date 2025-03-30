@@ -64,7 +64,13 @@ pub trait MessageExt {
 
 macro_rules! format_reply_text {
     ($user_label:expr, $guild_id:expr, $channel_id:expr, $message_id:expr $(,)?) => {
-        format!("[Replying to {}](https://discord.com/channels/{}/{}/{})", $user_label, $guild_id, $channel_id, $message_id)
+        format!(
+            "[Replying to {}](https://discord.com/channels/{}/{}/{})",
+            crate::functions::escape_markdown($user_label),
+            $guild_id,
+            $channel_id,
+            $message_id,
+        )
     };
     () => {
         "Replying to a message".into()

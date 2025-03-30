@@ -76,7 +76,7 @@ impl NovelUpdates {
 
     async fn get_url_from_id<T: Display>(id: T) -> Result<String> {
         let text = REQWEST
-            .get("https://www.novelupdates.com/rank-graph/")
+            .get(format!("{NOVEL_UPDATES_URL}/rank-graph/"))
             .query(&[("pid", &id.to_string())])
             .header("user-agent", "yes")
             .send()
