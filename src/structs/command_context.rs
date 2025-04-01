@@ -2,7 +2,7 @@ use crate::statics::{
     CACHE, REST,
     emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
 };
-use anyhow::{Context, Error, Result};
+use anyhow::{Context, Error, Result, bail};
 use slashook::{
     commands::{CommandInput, CommandResponder, MessageResponse},
     structs::{
@@ -51,6 +51,21 @@ impl AeonCommandContext {
             AeonCommandInput::ApplicationCommand(input, _) => input.guild_id.clone(),
             AeonCommandInput::MessageCommand(message, _, _) => message.guild_id.map(|guild_id| guild_id.to_string()),
         }
+    }
+
+    pub async fn ensure_nsfw_channel(&self) -> Result<()> {
+        let nsfw = match &self.command_input {
+            AeonCommandInput::ApplicationCommand(input, _) => input.channel.as_ref().is_some_and(|channel| channel.nsfw.unwrap_or(false)),
+            AeonCommandInput::MessageCommand(message, _, _) => {
+                Channel::fetch(&REST, message.channel_id).await.is_ok_and(|channel| channel.nsfw.unwrap_or(false))
+            },
+        };
+
+        if !nsfw {
+            bail!("NSFW channels only.")
+        }
+
+        Ok(())
     }
 
     pub async fn defer(&self, ephemeral: bool) -> Result<()> {
@@ -183,8 +198,8 @@ impl AeonCommandContext {
                 .context(format!("Please provide the `{arg}` argument."))?
                 .as_i64()
                 .context(format!("Could not convert the `{arg}` argument to `i64`.")),
-            AeonCommandInput::MessageCommand(_, args, _) => {
-                args.parse::<i64>().context(format!("Could not convert the `{arg}` argument to `i64`."))
+            AeonCommandInput::MessageCommand(_, _, _) => {
+                self.get_string_arg(&arg)?.parse::<i64>().context(format!("Could not convert the `{arg}` argument to `i64`."))
             },
         }
     }
@@ -197,8 +212,8 @@ impl AeonCommandContext {
                 .context(format!("Please provide the `{arg}` argument."))?
                 .as_f64()
                 .context(format!("Could not convert the `{arg}` argument to `f64`.")),
-            AeonCommandInput::MessageCommand(_, args, _) => {
-                args.parse::<f64>().context(format!("Could not convert the `{arg}` argument to `f64`."))
+            AeonCommandInput::MessageCommand(_, _, _) => {
+                self.get_string_arg(&arg)?.parse::<f64>().context(format!("Could not convert the `{arg}` argument to `f64`."))
             },
         }
     }

@@ -15,7 +15,6 @@ use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("youtube", &["yt"]).main(|ctx: Arc<AeonCommandContext>| async move {
-        let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let text = REQWEST
             .get("https://www.youtube.com/results")
             .query(&[("search_query", ctx.get_string_arg("video")?)])
@@ -29,10 +28,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             bail!("Video not found.");
         }
 
-        if !input.channel.as_ref().and_then(|channel| channel.nsfw).unwrap_or(false) {
-            bail!("NSFW channels only.")
-        }
-
+        ctx.ensure_nsfw_channel().await?;
         ctx.respond(format!("https://www.youtube.com/watch?v={id}"), false).await
     })
 });

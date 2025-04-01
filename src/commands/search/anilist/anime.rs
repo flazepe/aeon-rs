@@ -1,13 +1,10 @@
-use crate::{
-    statics::REST,
-    structs::{
-        api::anilist::AniList,
-        command_context::{AeonCommandContext, AeonCommandInput},
-        select_menu::SelectMenu,
-    },
+use crate::structs::{
+    api::anilist::AniList,
+    command_context::{AeonCommandContext, AeonCommandInput},
+    select_menu::SelectMenu,
 };
-use anyhow::{Result, bail};
-use slashook::{commands::MessageResponse, structs::channels::Channel};
+use anyhow::Result;
+use slashook::commands::MessageResponse;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
@@ -40,10 +37,8 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         AniList::search_anime(query).await?.remove(0)
     };
 
-    let nsfw_channel = Channel::fetch(&REST, ctx.get_channel_id()).await.is_ok_and(|channel| channel.nsfw.unwrap_or(false));
-
-    if anime.is_adult && !nsfw_channel {
-        bail!("NSFW channels only.");
+    if anime.is_adult {
+        ctx.ensure_nsfw_channel().await?;
     }
 
     let id = anime.id;
