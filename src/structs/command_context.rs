@@ -69,12 +69,17 @@ impl AeonCommandContext {
     }
 
     pub async fn defer(&self, ephemeral: bool) -> Result<()> {
-        let AeonCommandInput::ApplicationCommand(input, res) = &self.command_input else { return Ok(()) };
-
-        if input.message.is_some() {
-            res.defer_update().await?
-        } else {
-            res.defer(ephemeral).await?
+        match &self.command_input {
+            AeonCommandInput::ApplicationCommand(input, res) => {
+                if input.message.is_some() {
+                    res.defer_update().await?;
+                } else {
+                    res.defer(ephemeral).await?;
+                }
+            },
+            AeonCommandInput::MessageCommand(message, _, _) => {
+                let _ = REST.post::<(), ()>(format!("channels/{}/typing", message.channel_id), ()).await;
+            },
         }
 
         Ok(())
