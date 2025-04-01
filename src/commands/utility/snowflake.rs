@@ -1,7 +1,10 @@
-use crate::structs::{
-    command::AeonCommand,
-    command_context::{AeonCommandContext, AeonCommandInput},
-    snowflake::Snowflake,
+use crate::{
+    statics::regex::EMOJI_REGEX,
+    structs::{
+        command::AeonCommand,
+        command_context::{AeonCommandContext, AeonCommandInput},
+        snowflake::Snowflake,
+    },
 };
 use slashook::{
     command,
@@ -12,7 +15,10 @@ use std::{sync::Arc, sync::LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("snowflake", &["id"]).main(|ctx: Arc<AeonCommandContext>| async move {
-        let snowflake = Snowflake::new(ctx.get_string_arg("snowflake")?)?;
+        let id = ctx.get_string_arg("snowflake")?;
+        let emoji_id = EMOJI_REGEX.captures(&id).and_then(|captures| captures.get(1).map(|capture| capture.as_str().to_string()));
+        let snowflake = Snowflake::new(emoji_id.unwrap_or_else(|| id.chars().filter(|char| char.is_numeric()).collect::<String>()))?;
+
         ctx.respond(snowflake.format(), false).await
     })
 });

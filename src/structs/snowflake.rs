@@ -1,4 +1,7 @@
-use crate::{functions::format_timestamp, statics::colors::PRIMARY_EMBED_COLOR};
+use crate::{
+    functions::{TimestampFormat, format_timestamp},
+    statics::colors::PRIMARY_EMBED_COLOR,
+};
 use anyhow::{Context, Result};
 use slashook::{
     chrono::{DateTime, Utc},
@@ -50,7 +53,16 @@ impl Snowflake {
             .unwrap_or_default()
             .set_title(&self.snowflake)
             .set_description(format!("```{}```", self.binary))
-            .add_field("Timestamp", format_timestamp(self.timestamp.timestamp(), crate::functions::TimestampFormat::Full), false)
+            .add_field(
+                "Timestamp",
+                format!(
+                    "{}\n`{}` (seconds)\n`{}` (milliseconds)",
+                    format_timestamp(self.timestamp.timestamp(), TimestampFormat::Full),
+                    self.timestamp.timestamp(),
+                    self.timestamp.timestamp_millis(),
+                ),
+                false,
+            )
             .add_field("Internal Worker ID", self.internal_worker_id, false)
             .add_field("Internal Process ID", self.internal_process_id, false)
             .add_field("Increment", self.increment, false)
