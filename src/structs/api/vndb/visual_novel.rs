@@ -568,7 +568,7 @@ impl VndbVisualNovel {
             .add_field("Length", length, true)
             .add_field("Languages", languages, false)
             .add_field("Platforms", platforms, false)
-            .set_footer(release_date.as_deref().unwrap_or(""), None::<String>)
+            .set_footer(release_date.as_deref().unwrap_or_default(), None::<String>)
     }
 
     pub fn format_description(&self) -> Embed {

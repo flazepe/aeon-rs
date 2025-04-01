@@ -111,7 +111,7 @@ impl SteamUser {
             .find(|(index, _)| &(self.persona_state as usize) == index)
             .map_or(&"Unknown", |state| state.1);
         let created = self.time_created.map(|time_created| format_timestamp(time_created, TimestampFormat::Full));
-        let location = match STEAM_COUNTRIES.get_key_value(self.loc_country_code.as_deref().unwrap_or("")) {
+        let location = match STEAM_COUNTRIES.get_key_value(self.loc_country_code.as_deref().unwrap_or_default()) {
             Some((country_code, country)) => format!(
                 ":flag_{}: {}{}",
                 country_code.to_lowercase(),
@@ -119,7 +119,7 @@ impl SteamUser {
                     .as_ref()
                     .map(|state_code| format!("{}, ", country.states.get(state_code.as_str()).unwrap_or(&"Unknown")))
                     .as_deref()
-                    .unwrap_or(""),
+                    .unwrap_or_default(),
                 country.name,
             ),
             None => "N/A".into(),
@@ -129,7 +129,7 @@ impl SteamUser {
                 "[{}](https://store.steampowered.com/app/{}){}",
                 game_extra_info,
                 self.game_id.unwrap_or(0),
-                format!("\n{}", self.game_server_ip.as_deref().unwrap_or("")).trim(),
+                format!("\n{}", self.game_server_ip.as_deref().unwrap_or_default()).trim(),
             )
         });
         let allows_profile_comments = yes_no!(self.comment_permission.is_some());

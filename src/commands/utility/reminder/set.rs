@@ -16,7 +16,14 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     // Delete snoozed reminder
     if let Some(message) = input.message.as_ref() {
         if message.interaction_metadata.is_none() {
-            let _ = input.rest.delete::<()>(format!("channels/{}/messages/{}", message.channel_id, message.id)).await;
+            let _ = input
+                .rest
+                .delete::<()>(format!(
+                    "channels/{}/messages/{}",
+                    message.channel_id.as_deref().unwrap_or_default(),
+                    message.id.as_deref().unwrap_or_default(),
+                ))
+                .await;
         }
     }
 
@@ -24,11 +31,11 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let url = {
         let guild_id = input.guild_id.as_deref().unwrap_or("@me");
         let channel_id = input.channel_id.as_ref().unwrap();
-        let message_id = res.get_original_message().await?.id;
+        let message_id = res.get_original_message().await?.id.unwrap_or_default();
         input.custom_id.as_ref().map_or_else(|| format!("{guild_id}/{channel_id}/{message_id}"), |custom_id| custom_id.to_string())
     };
     let time = Duration::new()
-        .parse(input.values.as_ref().map_or(ctx.get_string_arg("time").as_deref().unwrap_or(""), |values| values[0].as_str()))
+        .parse(input.values.as_ref().map_or(ctx.get_string_arg("time").as_deref().unwrap_or_default(), |values| values[0].as_str()))
         .unwrap_or_default();
     let interval = Duration::new().parse(ctx.get_string_arg("interval").unwrap_or_else(|_| "".into())).unwrap_or_default();
     let reminder = {

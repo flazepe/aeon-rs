@@ -176,17 +176,8 @@ impl GoogleAssistant {
     }
 
     pub fn format(&self) -> MessageResponse {
-        let mut response = MessageResponse {
-            tts: Some(false),
-            content: None,
-            flags: None,
-            embeds: None,
-            components: None,
-            attachments: None,
-            allowed_mentions: None,
-            files: None,
-            poll: None,
-        };
+        let mut response = MessageResponse::from("");
+        response.content = None;
 
         let mut embed = Embed::new().set_color(GOOGLE_EMBED_COLOR).unwrap_or_default().set_author(
             "Google  •  Assistant",

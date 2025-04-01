@@ -8,7 +8,10 @@ use crate::{
 use anyhow::Result;
 use reqwest::StatusCode;
 use serde_json::json;
-use slashook::structs::messages::MessageFlags;
+use slashook::{
+    commands::MessageResponse,
+    structs::messages::{AllowedMentions, Message as SlashookMessage, MessageFlags, MessageReference},
+};
 use twilight_model::channel::Message;
 
 impl EventHandler {
@@ -86,16 +89,14 @@ impl EventHandler {
                     json!({ "flags": MessageFlags::SUPPRESS_EMBEDS }),
                 )
                 .await;
-            let _ = REST
-                .post::<(), _>(
-                    format!("channels/{}/messages", message.channel_id),
-                    json!({
-                        "content": format!("<@{}> {}", message.author.id, new_urls.join("\n")),
-                        "message_reference": { "message_id": message.id.to_string() },
-                        "allowed_mentions": { "replied_user": false },
-                    }),
-                )
-                .await;
+            let _ = SlashookMessage::create(
+                &REST,
+                message.channel_id,
+                MessageResponse::from(format!("<@{}> {}", message.author.id, new_urls.join("\n")))
+                    .set_message_reference(MessageReference::new_reply(message.id))
+                    .set_allowed_mentions(AllowedMentions::new().set_replied_user(false)),
+            )
+            .await;
         }
 
         Ok(())

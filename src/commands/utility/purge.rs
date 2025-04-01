@@ -48,7 +48,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             .context("An error occurred while trying to fetch messages. Please make sure I have the permission to view the channel and its messages.")?;
 
         messages.retain(|message| {
-            ctx.get_user_arg("user").map_or(true, |user| user.id == message.author.id)
+            ctx.get_user_arg("user").map_or(true, |user| message.author.as_ref().is_some_and(|author| author.id == user.id))
                 && message.timestamp > Utc::now() - Duration::weeks(2)
         });
 
@@ -68,9 +68,8 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                         message.delete(&input.rest).await?;
                     }
                 } else {
-                    channel
-                        .bulk_delete_messages(&input.rest, messages.iter().map(|message| message.id.clone()).collect::<Vec<String>>())
-                        .await?
+                    let messages = messages.iter().map(|message| message.id.clone().unwrap_or_default()).collect::<Vec<String>>();
+                    channel.bulk_delete_messages(&input.rest, messages).await?
                 }
             },
         };
@@ -79,7 +78,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             format!(
                 "Deleted {}{}{}.",
                 label_num(messages.len(), "message", "messages"),
-                ctx.get_user_arg("user").map(|user| format!(" from {}", user.label())).as_deref().unwrap_or(""),
+                ctx.get_user_arg("user").map(|user| format!(" from {}", user.label())).as_deref().unwrap_or_default(),
                 if channel.id != *input.channel_id.as_ref().unwrap() { format!(" in <#{}>", channel.id) } else { "".into() },
             ),
             true,

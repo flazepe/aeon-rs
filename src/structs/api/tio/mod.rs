@@ -84,10 +84,10 @@ impl Tio {
 
     pub fn format(&self) -> Embed {
         let title = &self.programming_language;
-        let url = self.code_url.as_deref().unwrap_or("");
+        let url = self.code_url.as_deref().unwrap_or_default();
         let result = format!(
             "{}```\n{}```",
-            self.result_url.as_ref().map(|result_url| format!("[Full Result]({result_url})")).as_deref().unwrap_or(""),
+            self.result_url.as_ref().map(|result_url| format!("[Full Result]({result_url})")).as_deref().unwrap_or_default(),
             self.result.as_deref().unwrap_or("No output.").chars().take(3900).collect::<String>(),
         );
 

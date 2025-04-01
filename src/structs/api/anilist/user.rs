@@ -113,7 +113,7 @@ impl AniListUser {
     }
 
     pub fn format_about(&self) -> Embed {
-        let about = limit_strings(self.about.as_deref().unwrap_or("").split('\n'), "\n", 4096);
+        let about = limit_strings(self.about.as_deref().unwrap_or_default().split('\n'), "\n", 4096);
         self._format().set_description(about)
     }
 
@@ -124,7 +124,7 @@ impl AniListUser {
                     "[{}]({}){}",
                     anime.title.romaji,
                     anime.site_url,
-                    anime.format.as_ref().map(|format| format!(" ({format})")).as_deref().unwrap_or(""),
+                    anime.format.as_ref().map(|format| format!(" ({format})")).as_deref().unwrap_or_default(),
                 )
             }),
             "\n",
@@ -140,7 +140,7 @@ impl AniListUser {
                     "[{}]({}){}",
                     manga.title.romaji,
                     manga.site_url,
-                    manga.format.as_ref().map(|format| format!(" ({format})")).as_deref().unwrap_or(""),
+                    manga.format.as_ref().map(|format| format!(" ({format})")).as_deref().unwrap_or_default(),
                 )
             }),
             "\n",

@@ -30,7 +30,7 @@ pub struct VndbTrait {
 impl VndbTrait {
     pub fn format(&self) -> Embed {
         let group_name = self.group_name.as_ref().map(|group_name| format!("{group_name}: "));
-        let title = format!("{}{}", group_name.as_deref().unwrap_or(""), self.name);
+        let title = format!("{}{}", group_name.as_deref().unwrap_or_default(), self.name);
         let url = format!("https://vndb.org/{}", self.id);
         let aliases = self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n");
         let description = limit_strings(Vndb::clean_bbcode(&self.description).split('\n'), "\n", 1024);

@@ -109,7 +109,7 @@ impl LyricFindSearchResultTrack {
         let mut embed = Embed::new()
             .set_color(PRIMARY_EMBED_COLOR)
             .unwrap_or_default()
-            .set_thumbnail(thumbnail.as_deref().unwrap_or(""))
+            .set_thumbnail(thumbnail.as_deref().unwrap_or_default())
             .set_author(author, None::<String>, None::<String>)
             .set_title(title)
             .set_url(url);

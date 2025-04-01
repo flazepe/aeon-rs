@@ -73,7 +73,7 @@ impl GoogleDns {
         let title = format!("{} records for {}", self.record_type, self.domain);
         let records = format!(
             "{}```diff\n{}```",
-            self.comment.as_deref().unwrap_or(""),
+            self.comment.as_deref().unwrap_or_default(),
             self.records.iter().map(|record| format!("+ {} (TTL {})", record.data.trim(), record.ttl)).collect::<Vec<String>>().join("\n"),
         );
 

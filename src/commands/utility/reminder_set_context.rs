@@ -27,7 +27,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                         "{}/{}/{}",
                         input.guild_id.as_deref().unwrap_or("@me"),
                         input.channel_id.as_ref().unwrap(),
-                        input.target_message.as_ref().unwrap().id,
+                        input.target_message.as_ref().unwrap().id.as_deref().unwrap_or_default(),
                     ),
                 )
                 .set_placeholder("Select time to remind about message");

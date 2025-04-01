@@ -41,14 +41,18 @@ impl IpInfo {
         format!(
             "[{ip}](<https://whatismyipaddress.com/ip/{ip}>)\n{}",
             [
-                self.hostname.as_deref().unwrap_or(""),
-                &[self.city.as_deref().unwrap_or(""), self.region.as_deref().unwrap_or(""), self.country.as_deref().unwrap_or("")]
-                    .into_iter()
-                    .filter(|entry| !entry.is_empty())
-                    .collect::<Vec<&str>>()
-                    .join(", "),
-                &self.loc.as_deref().unwrap_or("").replace(',', ", "),
-                self.org.as_deref().unwrap_or(""),
+                self.hostname.as_deref().unwrap_or_default(),
+                &[
+                    self.city.as_deref().unwrap_or_default(),
+                    self.region.as_deref().unwrap_or_default(),
+                    self.country.as_deref().unwrap_or_default()
+                ]
+                .into_iter()
+                .filter(|entry| !entry.is_empty())
+                .collect::<Vec<&str>>()
+                .join(", "),
+                &self.loc.as_deref().unwrap_or_default().replace(',', ", "),
+                self.org.as_deref().unwrap_or_default(),
             ]
             .into_iter()
             .filter(|entry| !entry.is_empty())

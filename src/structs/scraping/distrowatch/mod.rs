@@ -95,7 +95,7 @@ impl DistroWatch {
         let category = to_hyperlink(&self.category, "category");
         let popularity = format!("[{popularity}]({DISTROWATCH_URL}/dwres.php?resource=popularity)", popularity = self.popularity);
 
-        let thumbnail = self.logo.as_deref().unwrap_or("");
+        let thumbnail = self.logo.as_deref().unwrap_or_default();
         let title = format!("{} ({})", self.name, self.status);
         let url = &self.url;
         let description = &self.description;

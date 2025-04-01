@@ -137,7 +137,7 @@ impl VndbCharacter {
             format!(
                 "{}{}",
                 sex.as_ref().map(|sex| format!("{sex:?}")).as_deref().unwrap_or("N/A"),
-                spoiler_sex.as_ref().map(|spoiler_sex| format!(" (||actually {spoiler_sex:?}||)")).as_deref().unwrap_or(""),
+                spoiler_sex.as_ref().map(|spoiler_sex| format!(" (||actually {spoiler_sex:?}||)")).as_deref().unwrap_or_default(),
             )
         });
         let age = self.age.map(|age| age.commas());

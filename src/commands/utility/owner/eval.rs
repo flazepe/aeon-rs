@@ -8,7 +8,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::MessageCommand(message, args, _) = &ctx.command_input else { return Ok(()) };
 
     let mut code = args.to_string();
-    let mut flags = code.split(char::is_whitespace).last().unwrap_or("").to_string();
+    let mut flags = code.split(char::is_whitespace).last().unwrap_or_default().to_string();
 
     if flags.starts_with('-') && flags.chars().skip(1).all(|char| char.is_alphabetic()) {
         code = code.trim_end_matches(&flags).trim_end().to_string();

@@ -22,7 +22,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             .await?
             .text()
             .await?;
-        let id = text.split(r#"videoId":""#).nth(1).unwrap_or("").split('"').next().unwrap();
+        let id = text.split(r#"videoId":""#).nth(1).unwrap_or_default().split('"').next().unwrap();
 
         if id.is_empty() {
             bail!("Video not found.");

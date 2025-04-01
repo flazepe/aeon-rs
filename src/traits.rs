@@ -81,10 +81,10 @@ impl MessageExt for SlashookMessage {
     fn reply_text(&self) -> Option<String> {
         self.message_reference.as_ref().map(|_| match &self.referenced_message {
             Some(referenced_message) => format_reply_text!(
-                referenced_message.author.label(),
+                referenced_message.author.as_ref().map(|author| author.label()).as_deref().unwrap_or_default(),
                 referenced_message.guild_id.as_ref().map(|guild_id| guild_id.to_string()).as_deref().unwrap_or("@me"),
-                referenced_message.channel_id.clone(),
-                referenced_message.id.clone(),
+                referenced_message.channel_id.as_deref().unwrap_or_default(),
+                referenced_message.id.as_deref().unwrap_or_default(),
             ),
             None => format_reply_text!(),
         })

@@ -56,7 +56,7 @@ pub struct AniListManga {
 impl AniListManga {
     fn _format(&self) -> Embed {
         let thumbnail = &self.cover_image.extra_large;
-        let image = self.banner_image.as_deref().unwrap_or("");
+        let image = self.banner_image.as_deref().unwrap_or_default();
         let title = format!(
             ":flag_{}: {} ({})",
             self.country_of_origin.to_lowercase(),

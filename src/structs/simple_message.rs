@@ -131,7 +131,7 @@ macro_rules! impl_simple_embed {
                     }),
                     author: value.author.map(|author| {
                         let icon_url = author.icon_url.as_ref().map(|icon_url| format!("[[Icon]]({icon_url}) "));
-                        let icon_url = icon_url.as_deref().unwrap_or("");
+                        let icon_url = icon_url.as_deref().unwrap_or_default();
                         let name = author.name;
 
                         match author.url {

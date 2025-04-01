@@ -11,7 +11,7 @@ pub async fn handle(event: &ReactionAdd) -> Result<()> {
         EmojiReactionType::Unicode { name } => Some(name),
     };
 
-    if !["🗑️", "❌", "🇽", "delete"].contains(&reaction_emoji_name.as_deref().unwrap_or("")) {
+    if !["🗑️", "❌", "🇽", "delete"].contains(&reaction_emoji_name.as_deref().unwrap_or_default()) {
         return Ok(());
     }
 
@@ -39,7 +39,7 @@ pub async fn handle(event: &ReactionAdd) -> Result<()> {
     // Fetch message if not in cache
     if author_id.is_none() || user_id.is_none() {
         let Ok(message) = Message::fetch(&REST, reaction.channel_id, reaction.message_id).await else { return Ok(()) };
-        author_id = Some(message.author.id);
+        author_id = message.author.map(|author| author.id);
 
         if let Some(interaction_metadata) = message.interaction_metadata {
             if interaction_metadata.id != "1202934262123470899" {

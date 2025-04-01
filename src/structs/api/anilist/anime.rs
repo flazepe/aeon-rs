@@ -60,7 +60,7 @@ pub struct AniListAnime {
 impl AniListAnime {
     fn _format(&self) -> Embed {
         let thumbnail = &self.cover_image.extra_large;
-        let image = self.banner_image.as_deref().unwrap_or("");
+        let image = self.banner_image.as_deref().unwrap_or_default();
         let title = format!(
             ":flag_{}: {} ({})",
             self.country_of_origin.to_lowercase(),
@@ -100,7 +100,7 @@ impl AniListAnime {
         let season = self
             .season
             .as_ref()
-            .map(|season| format!("Premiered {season} {}{}\n", self.season_year.unwrap(), trailer.as_deref().unwrap_or("")));
+            .map(|season| format!("Premiered {season} {}{}\n", self.season_year.unwrap(), trailer.as_deref().unwrap_or_default()));
         let airing_date = AniList::format_airing_date(&self.start_date, &self.end_date);
         let status = &self.status;
         let airing_in = self
@@ -111,8 +111,8 @@ impl AniListAnime {
             .map(|node| format!("\nNext episode airs <t:{}:R>", now() + node.time_until_airing.unwrap() as u64));
         let aired = format!(
             "{season}{airing_date} ({status}){airing_in}",
-            season = season.as_deref().unwrap_or(""),
-            airing_in = airing_in.as_deref().unwrap_or(""),
+            season = season.as_deref().unwrap_or_default(),
+            airing_in = airing_in.as_deref().unwrap_or_default(),
         );
 
         let studios =
@@ -120,7 +120,7 @@ impl AniListAnime {
         let episodes = format!(
             "{}{}",
             self.episodes.map(|episodes| episodes.to_string()).as_deref().unwrap_or("TBA"),
-            self.duration.map(|duration| format!(" ({duration} minutes per episode)")).as_deref().unwrap_or(""),
+            self.duration.map(|duration| format!(" ({duration} minutes per episode)")).as_deref().unwrap_or_default(),
         );
         let hashtags = self.hashtag.as_ref().map(|hashtag| {
             hashtag
@@ -180,7 +180,7 @@ impl AniListAnime {
                     character.node.name.full,
                     character.node.site_url,
                     character.role,
-                    voice_actor.as_deref().unwrap_or(""),
+                    voice_actor.as_deref().unwrap_or_default(),
                 )
             }),
             "\n\n",

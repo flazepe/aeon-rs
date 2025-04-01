@@ -16,7 +16,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         let response = ReactionSnipes::new(
             input.guild_id.as_ref().unwrap(),
             input.channel_id.as_ref().unwrap(),
-            &input.target_message.as_ref().unwrap().id,
+            input.target_message.as_ref().unwrap().id.as_deref().unwrap_or_default(),
             input.app_permissions,
         )
         .to_response()?;

@@ -57,7 +57,7 @@ pub struct OrdrWsRenderFailed {
 impl OrdrRender {
     pub async fn new<T: Display, U: Display>(replay_url: T, skin: Option<U>) -> Result<Self> {
         let skin = skin.map(|skin| skin.to_string());
-        let mut skin = skin.as_deref().unwrap_or("");
+        let mut skin = skin.as_deref().unwrap_or_default();
 
         if !ORDR_SKINS.contains_key(skin) {
             skin = "whitecat_2_1_old_ck";

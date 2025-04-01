@@ -25,7 +25,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                 .get::<Value>(format!(
                     "channels/{}/messages/{}",
                     input.channel_id.as_ref().unwrap(),
-                    input.target_message.as_ref().unwrap().id,
+                    input.target_message.as_ref().unwrap().id.as_deref().unwrap_or_default(),
                 ))
                 .await
             {

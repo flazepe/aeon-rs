@@ -10,7 +10,7 @@ use slashook::{
         components::Components,
         guilds::Role,
         interactions::ApplicationCommandOptionChoice,
-        messages::{Attachment, Message},
+        messages::{AllowedMentions, Attachment, Message, MessageReference},
         users::User,
     },
 };
@@ -110,6 +110,10 @@ impl AeonCommandContext {
                     return Ok(());
                 }
 
+                response = response
+                    .set_message_reference(MessageReference::new_reply(message.id))
+                    .set_allowed_mentions(AllowedMentions::new().set_replied_user(false));
+
                 if let Ok(command_response) = Message::create(&REST, message.channel_id, response).await {
                     CACHE.command_responses.write().unwrap().insert(message.id.to_string(), command_response);
                 }
@@ -167,7 +171,7 @@ impl AeonCommandContext {
             AeonCommandInput::ApplicationCommand(input, _) => {
                 if input.is_string_select() {
                     let mut split = input.values.as_ref().unwrap()[0].split('/');
-                    Ok((split.next().unwrap().into(), split.next().unwrap_or("").into()))
+                    Ok((split.next().unwrap().into(), split.next().unwrap_or_default().into()))
                 } else {
                     Ok((self.get_string_arg(option_name)?, "".into()))
                 }

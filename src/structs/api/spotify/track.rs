@@ -79,7 +79,7 @@ impl SpotifyFullTrack {
         let duration = format!(
             "{}{}",
             Spotify::format_duration(self.duration_ms),
-            self.preview_url.as_ref().map(|preview_url| format!(" - [Preview]({preview_url})")).as_deref().unwrap_or(""),
+            self.preview_url.as_ref().map(|preview_url| format!(" - [Preview]({preview_url})")).as_deref().unwrap_or_default(),
         );
         let popularity = format!("{FIRE_EMOJI} {}%", self.popularity);
 

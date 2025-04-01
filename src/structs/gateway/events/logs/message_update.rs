@@ -45,7 +45,7 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
         .set_title("Message Edited")
         .set_description(format!(
             "https://discord.com/channels/{}/{}/{}",
-            event.guild_id.map(|guild_id| guild_id.to_string()).as_deref().unwrap_or(""),
+            event.guild_id.map(|guild_id| guild_id.to_string()).as_deref().unwrap_or_default(),
             event.channel_id,
             event.id,
         ))

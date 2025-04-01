@@ -36,7 +36,7 @@ impl AnimeSongLyrics {
     }
 
     pub fn format(&self) -> Embed {
-        let image = self.cover.as_deref().unwrap_or("");
+        let image = self.cover.as_deref().unwrap_or_default();
         let title = &self.anime;
         let url = &self.url;
         let description = &self.title;
