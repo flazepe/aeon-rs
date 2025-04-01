@@ -10,4 +10,5 @@ pub mod scraping;
 pub mod select_menu;
 pub mod simple_message;
 pub mod snipes;
+pub mod snowflake;
 pub mod unicode;

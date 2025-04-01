@@ -17,6 +17,7 @@ mod server_config;
 mod shorten_url;
 mod snipe;
 mod snipe_reaction_context;
+mod snowflake;
 mod tag;
 mod timeout;
 mod unicode;
@@ -49,6 +50,7 @@ pub fn get_aeon_commands() -> Vec<&'static LazyLock<AeonCommand>> {
         &shorten_url::COMMAND,
         &snipe::COMMAND,
         &snipe_reaction_context::COMMAND,
+        &snowflake::COMMAND,
         &tag::COMMAND,
         &timeout::COMMAND,
         &unicode::COMMAND,
@@ -79,6 +81,7 @@ pub fn get_slashook_commands() -> Vec<SlashookCommand> {
         shorten_url::get_slashook_command(),
         snipe::get_slashook_command(),
         snipe_reaction_context::get_slashook_command(),
+        snowflake::get_slashook_command(),
         tag::get_slashook_command(),
         timeout::get_slashook_command(),
         unicode::get_slashook_command(),
