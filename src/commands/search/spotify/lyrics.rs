@@ -6,7 +6,7 @@ use crate::{
         select_menu::SelectMenu,
     },
 };
-use anyhow::Result;
+use anyhow::{Context, Result};
 use slashook::commands::MessageResponse;
 use std::sync::Arc;
 
@@ -31,11 +31,16 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         AeonCommandInput::MessageCommand(_, _, _) => None::<String>,
     };
 
-    let query = ctx
-        .get_string_arg("song")
-        .ok()
-        .or_else(|| CACHE.song_activities.read().unwrap().get(&ctx.get_user_id()).map(|song| format!("{} - {}", song.artist, song.title)))
-        .unwrap_or_default();
+    let query = match ctx.get_string_arg("song") {
+        Ok(query) => Ok(query),
+        Err(error) => CACHE
+            .song_activities
+            .read()
+            .unwrap()
+            .get(&ctx.get_user_id())
+            .map(|song| format!("{} - {}", song.artist, song.title))
+            .context(error),
+    }?;
 
     ctx.defer(false).await?;
 
