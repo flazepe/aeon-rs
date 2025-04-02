@@ -1,5 +1,5 @@
 use crate::{
-    functions::{TimestampFormat, format_timestamp, label_num},
+    functions::{format_timestamp, label_num},
     macros::yes_no,
     structs::api::steam::{
         Steam,
@@ -110,7 +110,7 @@ impl SteamUser {
             .enumerate()
             .find(|(index, _)| &(self.persona_state as usize) == index)
             .map_or(&"Unknown", |state| state.1);
-        let created = self.time_created.map(|time_created| format_timestamp(time_created, TimestampFormat::Full));
+        let created = self.time_created.map(|time_created| format_timestamp(time_created, true));
         let location = match STEAM_COUNTRIES.get_key_value(self.loc_country_code.as_deref().unwrap_or_default()) {
             Some((country_code, country)) => format!(
                 ":flag_{}: {}{}",

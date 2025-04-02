@@ -1,5 +1,5 @@
 use crate::{
-    functions::{TimestampFormat, format_timestamp},
+    functions::format_timestamp,
     macros::yes_no,
     statics::emojis::{
         OFFLINE_EMOJI, ONLINE_EMOJI, OSU_A_EMOJI, OSU_S_EMOJI, OSU_SH_EMOJI, OSU_SUPPORTER_1_EMOJI, OSU_SUPPORTER_2_EMOJI,
@@ -289,7 +289,7 @@ impl OsuUser {
         );
         let playstyle =
             self.playstyle.as_ref().map(|playstyle| playstyle.iter().map(|entry| format!("{entry:?}")).collect::<Vec<String>>().join(", "));
-        let created = format_timestamp(DateTime::parse_from_rfc3339(self.join_date.as_str()).unwrap().timestamp(), TimestampFormat::Full);
+        let created = format_timestamp(DateTime::parse_from_rfc3339(self.join_date.as_str()).unwrap().timestamp(), true);
 
         self._format()
             .add_field("Mode", mode, true)

@@ -24,7 +24,7 @@ pub async fn handle(event: &MessageDelete) -> Result<()> {
             event.id,
         ))
         .add_field("Channel", format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id), false)
-        .add_field("Created", format_timestamp(snowflake.timestamp.timestamp(), crate::functions::TimestampFormat::Full), false);
+        .add_field("Created", format_timestamp(snowflake.timestamp.timestamp(), true), false);
 
     let old_message = {
         let channels = CACHE.channels.read().unwrap();

@@ -5,7 +5,7 @@ pub mod statics;
 mod user;
 
 use crate::{
-    functions::{TimestampFormat, format_timestamp, limit_strings},
+    functions::{format_timestamp, limit_strings},
     statics::REQWEST,
     structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
 };
@@ -39,7 +39,7 @@ impl AniList {
             if let (Some(year), Some(month), Some(day)) = (fuzzy_date.year, fuzzy_date.month, fuzzy_date.day) {
                 dates.push(format_timestamp(
                     NaiveDateTime::parse_from_str(&format!("{year}-{month}-{day} 00:00"), "%F %R").unwrap().and_utc().timestamp(),
-                    TimestampFormat::Simple,
+                    false,
                 ));
             }
         }

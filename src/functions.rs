@@ -49,23 +49,8 @@ pub fn escape_markdown<T: Display>(string: T) -> String {
         .to_string()
 }
 
-#[allow(dead_code)]
-pub enum TimestampFormat {
-    Duration,
-    Simple,
-    Full,
-}
-
-pub fn format_timestamp<T: Display>(timestamp: T, format: TimestampFormat) -> String {
-    let duration = format!("<t:{timestamp}:R>");
-    let simple = format!("<t:{timestamp}:D>");
-    let full = format!("{simple} ({duration})");
-
-    match format {
-        TimestampFormat::Duration => duration,
-        TimestampFormat::Simple => simple,
-        TimestampFormat::Full => full,
-    }
+pub fn format_timestamp<T: Display>(timestamp: T, full: bool) -> String {
+    if full { format!("<t:{timestamp}:F> (<t:{timestamp}:R>)") } else { format!("<t:{timestamp}:D>") }
 }
 
 pub async fn hastebin<T: Display>(string: T) -> Result<String> {

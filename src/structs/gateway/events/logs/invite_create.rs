@@ -1,11 +1,6 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::{
-    functions::{TimestampFormat, format_timestamp},
-    statics::colors::SUCCESS_EMBED_COLOR,
-    structs::database::guilds::Guilds,
-    traits::UserExt,
-};
+use crate::{functions::format_timestamp, statics::colors::SUCCESS_EMBED_COLOR, structs::database::guilds::Guilds, traits::UserExt};
 use anyhow::Result;
 use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::InviteCreate;
@@ -23,7 +18,7 @@ pub async fn handle(event: &InviteCreate) -> Result<()> {
             if event.max_age == 0 {
                 "Forever".into()
             } else {
-                format_timestamp(SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + event.max_age, TimestampFormat::Full)
+                format_timestamp(SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + event.max_age, true)
             },
             false,
         );

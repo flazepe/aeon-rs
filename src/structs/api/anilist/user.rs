@@ -1,5 +1,5 @@
 use crate::{
-    functions::{TimestampFormat, format_timestamp, limit_strings},
+    functions::{format_timestamp, limit_strings},
     structs::api::anilist::{
         AniList,
         components::{AniListCharacterNode, AniListFormat, AniListImage, AniListNodes, AniListResponse, AniListTitle},
@@ -92,7 +92,7 @@ impl AniListUser {
 
     pub fn format(&self) -> Embed {
         let image = format!("https://img.anili.st/user/{}", self.id);
-        let created = format_timestamp(self.created_at, TimestampFormat::Full);
+        let created = format_timestamp(self.created_at, true);
         let anime_statistics = format!(
             "Watched {} episodes\n{} minutes spent\n{:.0}% mean score",
             self.statistics.anime.episodes_watched, self.statistics.anime.minutes_watched, self.statistics.anime.mean_score,

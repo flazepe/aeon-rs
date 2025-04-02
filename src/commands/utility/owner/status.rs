@@ -1,5 +1,5 @@
 use crate::{
-    functions::{TimestampFormat, format_timestamp, label_num},
+    functions::{format_timestamp, label_num},
     statics::{CACHE, colors::PRIMARY_EMBED_COLOR},
     structs::command_context::AeonCommandContext,
 };
@@ -12,7 +12,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let system = System::new_all();
     let pid = get_current_pid().map_err(Error::msg)?;
     let process = system.process(pid).context("Could not get process.")?;
-    let process_started = format_timestamp(process.start_time(), TimestampFormat::Full);
+    let process_started = format_timestamp(process.start_time(), true);
     let memory = bytes_to_mb(process.memory());
     let virtual_memory = bytes_to_mb(process.virtual_memory());
     let cache = get_cache_list().join("\n");

@@ -1,5 +1,5 @@
 use crate::{
-    functions::{TimestampFormat, format_timestamp, limit_strings},
+    functions::{format_timestamp, limit_strings},
     statics::REQWEST,
     structs::api::steam::{
         Steam,
@@ -230,7 +230,7 @@ impl SteamGame {
                             .unwrap()
                             .and_utc()
                             .timestamp(),
-                        TimestampFormat::Full,
+                        true,
                     ),
                     if release_date.coming_soon { " (coming soon)" } else { "" },
                 )

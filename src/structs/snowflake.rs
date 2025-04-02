@@ -1,7 +1,4 @@
-use crate::{
-    functions::{TimestampFormat, format_timestamp},
-    statics::colors::PRIMARY_EMBED_COLOR,
-};
+use crate::{functions::format_timestamp, statics::colors::PRIMARY_EMBED_COLOR};
 use anyhow::{Context, Result};
 use slashook::{
     chrono::{DateTime, Utc},
@@ -57,7 +54,7 @@ impl Snowflake {
                 "Timestamp",
                 format!(
                     "{}\n`{}` (seconds)\n`{}` (milliseconds)",
-                    format_timestamp(self.timestamp.timestamp(), TimestampFormat::Full),
+                    format_timestamp(self.timestamp.timestamp(), true),
                     self.timestamp.timestamp(),
                     self.timestamp.timestamp_millis(),
                 ),

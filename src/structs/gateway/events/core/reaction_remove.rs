@@ -1,5 +1,5 @@
 use crate::{
-    functions::{TimestampFormat, format_timestamp, now},
+    functions::{format_timestamp, now},
     statics::CACHE,
 };
 use anyhow::Result;
@@ -25,7 +25,7 @@ pub async fn handle(event: &ReactionRemove) -> Result<()> {
                 format!("[{}](https://cdn.discordapp.com/emojis/{id})", name.as_deref().unwrap_or("<unknown>")),
             EmojiReactionType::Unicode { name } => name,
         },
-        format_timestamp(now(), TimestampFormat::Full),
+        format_timestamp(now(), true),
     ));
 
     // Limit

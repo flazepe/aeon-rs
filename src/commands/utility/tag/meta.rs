@@ -1,5 +1,5 @@
 use crate::{
-    functions::{TimestampFormat, format_timestamp},
+    functions::format_timestamp,
     macros::yes_no,
     structs::{
         command_context::{AeonCommandContext, AeonCommandInput},
@@ -17,8 +17,8 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let name = tag.name;
     let author_id = tag.author_id;
     let author = input.rest.get::<User>(format!("users/{author_id}")).await.map(|user| user.username).unwrap_or_else(|_| "N/A".into());
-    let created_timestamp = format_timestamp(tag.created_timestamp, TimestampFormat::Full);
-    let updated_timestamp = format_timestamp(tag.updated_timestamp, TimestampFormat::Full);
+    let created_timestamp = format_timestamp(tag.created_timestamp, true);
+    let updated_timestamp = format_timestamp(tag.updated_timestamp, true);
     let nsfw = yes_no!(tag.nsfw);
     let mut aliases = tag.aliases.iter().map(|alias| format!("`{alias}`")).collect::<Vec<String>>().join(", ");
 

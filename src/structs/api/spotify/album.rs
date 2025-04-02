@@ -1,5 +1,5 @@
 use crate::{
-    functions::{TimestampFormat, format_timestamp, label_num, limit_strings},
+    functions::{format_timestamp, label_num, limit_strings},
     statics::{
         emojis::{COPYRIGHT_EMOJI, FIRE_EMOJI, PHONOGRAM_EMOJI},
         regex::COPYRIGHT_REGEX,
@@ -78,7 +78,7 @@ impl SpotifyFullAlbum {
         let release_date = match self.release_date_precision {
             SpotifyReleaseDatePrecision::Day => format_timestamp(
                 NaiveDateTime::parse_from_str(&format!("{} 00:00", self.release_date), "%F %R").unwrap().and_utc().timestamp(),
-                TimestampFormat::Full,
+                true,
             ),
             _ => self.release_date.clone(),
         };

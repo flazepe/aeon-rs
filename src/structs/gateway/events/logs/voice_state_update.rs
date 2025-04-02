@@ -1,5 +1,5 @@
 use crate::{
-    functions::{TimestampFormat, format_timestamp},
+    functions::format_timestamp,
     macros::yes_no,
     statics::colors::{ERROR_EMBED_COLOR, NOTICE_EMBED_COLOR},
     structs::database::guilds::Guilds,
@@ -18,7 +18,7 @@ pub async fn handle(event: &VoiceStateUpdate) -> Result<()> {
         .add_field("Suppressed (for stage channels)", yes_no!(event.suppress), false);
 
     if let Some(request_to_speak_timestamp) = event.request_to_speak_timestamp {
-        embed = embed.add_field("Requested to speak", format_timestamp(request_to_speak_timestamp.as_secs(), TimestampFormat::Full), false);
+        embed = embed.add_field("Requested to speak", format_timestamp(request_to_speak_timestamp.as_secs(), true), false);
     }
 
     embed = embed.add_field("Streaming", yes_no!(event.self_stream), true).add_field("Camera On", yes_no!(event.self_video), true);

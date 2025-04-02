@@ -1,5 +1,5 @@
 use crate::{
-    functions::{TimestampFormat, format_timestamp},
+    functions::format_timestamp,
     statics::colors::PRIMARY_EMBED_COLOR,
     structs::{
         command_context::{AeonCommandContext, AeonCommandInput},
@@ -23,7 +23,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
                 index + 1,
                 reminder.reminder.replace('`', "｀"),
                 reminder.url,
-                format_timestamp(reminder.timestamp, TimestampFormat::Full),
+                format_timestamp(reminder.timestamp, true),
                 if reminder.interval > 0 {
                     format!(" (every {})", Duration::new().parse(reminder.interval).unwrap_or_default())
                 } else {
