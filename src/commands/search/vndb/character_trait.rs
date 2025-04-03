@@ -15,8 +15,8 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     }
 
     let results = Vndb::search_trait(ctx.get_string_arg("trait")?).await?;
-    let select_menu = SelectMenu::new("vndb", "trait", "View other traits…", None::<String>)
-        .add_options(results.iter().map(|result| (&result.name, &result.id, result.group_name.as_ref())));
+    let options = results.iter().map(|result| (&result.name, &result.id, result.group_name.as_ref()));
+    let select_menu = SelectMenu::new("vndb", "trait", "View other traits…", None::<String>).add_options(options);
 
     ctx.respond(MessageResponse::from(select_menu).add_embed(results[0].format()), false).await
 }

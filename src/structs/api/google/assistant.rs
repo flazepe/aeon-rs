@@ -191,8 +191,8 @@ impl GoogleAssistant {
         }
 
         if !self.suggestions.is_empty() {
-            let select_menu = SelectMenu::new("google", "assistant", "Try saying…", None::<String>)
-                .add_options(self.suggestions.iter().map(|suggestion| (suggestion.clone(), suggestion.clone(), None::<String>)));
+            let options = self.suggestions.iter().map(|suggestion| (suggestion.clone(), suggestion.clone(), None::<String>));
+            let select_menu = SelectMenu::new("google", "assistant", "Try saying…", None::<String>).add_options(options);
             response = response.set_components(select_menu.into());
         }
 

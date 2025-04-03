@@ -11,19 +11,18 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     if let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input {
         if ctx.get_bool_arg("search").unwrap_or(false) {
             let results = AniList::search_anime(ctx.get_string_arg("anime")?).await?;
-
-            let select_menu =
-                SelectMenu::new("anilist", "anime", "Select an anime…", None::<String>).add_options(results.iter().map(|result| {
-                    (
-                        &result.title.romaji,
-                        &result.id,
-                        Some(format!(
-                            "{} - {}",
-                            result.format.as_ref().map(|format| format.to_string()).as_deref().unwrap_or("TBA"),
-                            result.status,
-                        )),
-                    )
-                }));
+            let options = results.iter().map(|result| {
+                (
+                    &result.title.romaji,
+                    &result.id,
+                    Some(format!(
+                        "{} - {}",
+                        result.format.as_ref().map(|format| format.to_string()).as_deref().unwrap_or("TBA"),
+                        result.status,
+                    )),
+                )
+            });
+            let select_menu = SelectMenu::new("anilist", "anime", "Select an anime…", None::<String>).add_options(options);
 
             return ctx.respond(select_menu, false).await;
         }

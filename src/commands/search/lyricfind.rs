@@ -32,10 +32,8 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             .context("Please provide a song.")?;
 
         let tracks = LyricFind::search(&query).await?;
-
-        let select_menu = SelectMenu::new("lyricfind", "search", "View other lyrics…", None::<String>).add_options(
-            tracks.iter().map(|track| (&track.title, format!("{} {query}", &track.artist.name), Some(track.artist.name.clone()))),
-        );
+        let options = tracks.iter().map(|track| (&track.title, format!("{} {query}", &track.artist.name), Some(track.artist.name.clone())));
+        let select_menu = SelectMenu::new("lyricfind", "search", "View other lyrics…", None::<String>).add_options(options);
 
         ctx.respond(MessageResponse::from(select_menu).add_embed(tracks[0].format()), false).await
     })

@@ -11,8 +11,8 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     if let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input {
         if ctx.get_bool_arg("search").unwrap_or(false) {
             let characters = Vndb::search_character(ctx.get_string_arg("character")?).await?;
-            let select_menu = SelectMenu::new("vndb", "character", "Select a character…", None::<String>)
-                .add_options(characters.iter().map(|character| (&character.name, &character.id, Some(&character.vns[0].title))));
+            let options = characters.iter().map(|character| (&character.name, &character.id, Some(&character.vns[0].title)));
+            let select_menu = SelectMenu::new("vndb", "character", "Select a character…", None::<String>).add_options(options);
 
             return ctx.respond(select_menu, false).await;
         }

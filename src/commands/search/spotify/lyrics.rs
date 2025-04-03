@@ -45,8 +45,8 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     ctx.defer(false).await?;
 
     let mut tracks = Spotify::search_track(query).await?;
-    let select_menu = SelectMenu::new("spotify", "lyrics", "View other lyrics…", Some(&tracks[0].id))
-        .add_options(tracks.iter().map(|track| (&track.name, &track.id, Some(&track.artists[0].name))));
+    let options = tracks.iter().map(|track| (&track.name, &track.id, Some(&track.artists[0].name)));
+    let select_menu = SelectMenu::new("spotify", "lyrics", "View other lyrics…", Some(&tracks[0].id)).add_options(options);
     let lyrics = Spotify::get_lyrics(tracks.remove(0), translate_language).await?;
 
     ctx.respond(MessageResponse::from(select_menu).add_embed(lyrics.format()), false).await

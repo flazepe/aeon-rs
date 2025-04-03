@@ -11,9 +11,8 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     if let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input {
         if ctx.get_bool_arg("search").unwrap_or(false) {
             let results = Spotify::search_simple_album(ctx.get_string_arg("album")?).await?;
-
-            let select_menu = SelectMenu::new("spotify", "album", "Select an album…", None::<String>)
-                .add_options(results.iter().map(|result| (&result.name, &result.id, Some(&result.artists[0].name))));
+            let options = results.iter().map(|result| (&result.name, &result.id, Some(&result.artists[0].name)));
+            let select_menu = SelectMenu::new("spotify", "album", "Select an album…", None::<String>).add_options(options);
 
             return ctx.respond(select_menu, false).await;
         }
