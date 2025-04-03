@@ -23,9 +23,9 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     }
 
     let message = if remove_prefix {
-        format!("Removed **{}** from prefixes.", prefix.replace("*", "\\*"))
+        format!("Removed **{}** from prefixes.", prefix.replace('*', "\\*"))
     } else {
-        format!("Added **{}** to prefixes.", prefix.replace("*", "\\*"))
+        format!("Added **{}** to prefixes.", prefix.replace('*', "\\*"))
     };
 
     if remove_prefix {

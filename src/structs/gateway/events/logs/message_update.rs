@@ -25,7 +25,7 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
     let diff = TextDiff::from_words(&old_content, &new_content)
         .iter_all_changes()
         .map(|change| {
-            let string = change.as_str().unwrap_or_default().replace("~", "\\~").replace("*", "\\*");
+            let string = change.as_str().unwrap_or_default().replace('`', "\\`").replace('~', "\\~").replace('*', "\\*");
 
             if string.trim().is_empty() {
                 return string;
