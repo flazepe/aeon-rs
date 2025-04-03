@@ -78,7 +78,9 @@ impl AeonCommandContext {
                 }
             },
             AeonCommandInput::MessageCommand(message, _, _) => {
-                let _ = REST.post::<(), ()>(format!("channels/{}/typing", message.channel_id), ()).await;
+                if message.edited_timestamp.is_none() {
+                    let _ = REST.post::<(), ()>(format!("channels/{}/typing", message.channel_id), ()).await;
+                }
             },
         }
 
