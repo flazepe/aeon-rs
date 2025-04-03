@@ -11,6 +11,7 @@ use flate2::{
     write::{DeflateEncoder, GzDecoder},
 };
 use slashook::structs::embeds::Embed;
+use statics::TIO_PROGRAMMING_LANGUAGE_CODES;
 use std::{fmt::Display, io::Write};
 
 #[derive(Debug)]
@@ -34,6 +35,11 @@ impl Tio {
     }
 
     pub async fn run(mut self) -> Result<Self> {
+        // Turn language codes to IDs
+        if let Some((_, programming_language)) = TIO_PROGRAMMING_LANGUAGE_CODES.get_key_value(self.programming_language.as_str()) {
+            self.programming_language = programming_language.to_string();
+        }
+
         let (programming_language_id, programming_language_name) =
             TIO_PROGRAMMING_LANGUAGES.get_key_value(self.programming_language.as_str()).context("Invalid programming language.")?;
 

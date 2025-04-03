@@ -685,3 +685,38 @@ pub static TIO_PROGRAMMING_LANGUAGES: LazyLock<HashMap<&str, &str>> = LazyLock::
         ("zsh", "Zsh"),
     ])
 });
+pub static TIO_PROGRAMMING_LANGUAGE_CODES: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
+    HashMap::from([
+        ("assembly", "assembly-nasm"),
+        ("asm", "assembly-nasm"),
+        ("bf", "brainfuck"),
+        ("c", "c-clang"),
+        ("c++", "cpp-clang"),
+        ("cpp", "cpp-clang"),
+        ("cxx", "cpp-clang"),
+        ("c#", "cs-core"),
+        ("cs", "cs-core"),
+        ("csharp", "cs-core"),
+        ("coffee", "coffeescript"),
+        ("ex", "elixir"),
+        ("exs", "elixir"),
+        ("f#", "fs-core"),
+        ("fs", "fs-core"),
+        ("fsharp", "fs-core"),
+        ("hs", "haskell"),
+        ("java", "java-jdk"),
+        ("javascipt", "javascript-node"),
+        ("js", "javascript-node"),
+        ("kt", "kotlin"),
+        ("pascal", "pascal-fpc"),
+        ("perl", "perl5"),
+        ("ps", "powershell"),
+        ("ps1", "powershell"),
+        ("py", "python3"),
+        ("python", "python3"),
+        ("rs", "rust"),
+        ("rb", "ruby"),
+        ("ts", "typescript"),
+        ("vb", "vb-core"),
+    ])
+});
