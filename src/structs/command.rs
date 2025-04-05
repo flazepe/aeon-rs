@@ -78,7 +78,7 @@ impl AeonCommand {
 
         let mut func = self.func.as_ref();
 
-        if func.is_none() {
+        if !self.subcommands.is_empty() {
             match &mut ctx.command_input {
                 AeonCommandInput::MessageCommand(_, args, _) => {
                     let (subcommand, new_args) = args.split_once(char::is_whitespace).unwrap_or((args, ""));
