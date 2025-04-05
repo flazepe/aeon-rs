@@ -25,11 +25,17 @@ pub struct Xe {
 
 impl Xe {
     pub async fn convert<T: Display, U: Display>(amount: f64, origin_currency: T, target_currency: U) -> Result<Self> {
-        let origin_currency =
-            XE_CURRENCIES.get_key_value(origin_currency.to_string().to_uppercase().as_str()).context("Invalid origin currency.")?;
+        let origin_currency = origin_currency.to_string().to_lowercase();
+        let origin_currency = XE_CURRENCIES
+            .iter()
+            .find(|(k, v)| [k.to_lowercase(), v.to_lowercase()].contains(&origin_currency))
+            .context("Invalid origin currency.")?;
 
-        let target_currency =
-            XE_CURRENCIES.get_key_value(target_currency.to_string().to_uppercase().as_str()).context("Invalid target currency.")?;
+        let target_currency = target_currency.to_string().to_lowercase();
+        let target_currency = XE_CURRENCIES
+            .iter()
+            .find(|(k, v)| [k.to_lowercase(), v.to_lowercase()].contains(&target_currency))
+            .context("Invalid target currency.")?;
 
         Ok(Self {
             origin_currency: format!("{} ({})", origin_currency.1, origin_currency.0),

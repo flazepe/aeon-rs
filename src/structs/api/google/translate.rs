@@ -49,18 +49,22 @@ impl Google {
         target_language: V,
     ) -> Result<GoogleTranslateTranslation> {
         let text = text.to_string();
-        let origin_language = origin_language.to_string();
-        let target_language = target_language.to_string();
 
         if text.is_empty() {
             bail!("Text is empty.");
         }
 
-        let origin_language =
-            GOOGLE_TRANSLATE_LANGUAGES.get_key_value(origin_language.to_lowercase().as_str()).context("Invalid origin language.")?;
+        let origin_language = origin_language.to_string().to_lowercase();
+        let origin_language = GOOGLE_TRANSLATE_LANGUAGES
+            .iter()
+            .find(|(k, v)| [k.to_lowercase(), v.to_lowercase()].contains(&origin_language))
+            .context("Invalid origin language.")?;
 
-        let target_language =
-            GOOGLE_TRANSLATE_LANGUAGES.get_key_value(target_language.to_lowercase().as_str()).context("Invalid target language.")?;
+        let target_language = target_language.to_string().to_lowercase();
+        let target_language = GOOGLE_TRANSLATE_LANGUAGES
+            .iter()
+            .find(|(k, v)| [k.to_lowercase(), v.to_lowercase()].contains(&target_language))
+            .context("Invalid target language.")?;
 
         let google_translate_response = REQWEST
             .get("https://translate.googleapis.com/translate_a/single")
@@ -81,7 +85,7 @@ impl Google {
             origin_language: format!(
                 "{}{}",
                 GOOGLE_TRANSLATE_LANGUAGES.get(&google_translate_response.src.as_str()).context("Unexpected language code from API.")?,
-                if origin_language.0 == &"auto" { " (detected)" } else { "" },
+                if *origin_language.0 == "auto" { " (detected)" } else { "" },
             ),
             target_language: target_language.1.to_string(),
             translation: google_translate_response
