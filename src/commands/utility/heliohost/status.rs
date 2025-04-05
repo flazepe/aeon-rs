@@ -4,7 +4,7 @@ use nipper::Document;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let user = ctx.get_string_arg("user")?;
+    let user = ctx.get_string_arg("user")?.to_lowercase();
     let response = REQWEST.get("https://heliohost.org/status/").query(&[("u", &user)]).send().await?;
     let url = response.url().to_string();
     let status = {
