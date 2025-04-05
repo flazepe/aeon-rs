@@ -66,7 +66,7 @@ impl GatewayClient {
                 Err(_) => continue,
             };
 
-            let _ = EventHandler::handle(event, shard.sender()).await;
+            EventHandler::handle(event, shard.sender()).await;
         }
     }
 }
