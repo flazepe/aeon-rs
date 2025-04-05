@@ -95,7 +95,7 @@ impl AeonCommand {
                             format!(
                                 "`{}{}`",
                                 entry.name,
-                                if entry.aliases.is_empty() { "".into() } else { format!("|{}", entry.aliases.join("|")) }
+                                if entry.aliases.is_empty() { "".into() } else { format!("|{}", entry.aliases.join("|")) },
                             )
                         })
                         .collect::<Vec<String>>()
