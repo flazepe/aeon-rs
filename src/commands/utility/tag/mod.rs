@@ -18,14 +18,14 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("tag", &["t"])
-        .subcommand("create", &[], create::run)
-        .subcommand("delete", &[], delete::run)
-        .subcommand("edit", &[], edit::run)
-        .subcommand("list", &["ls"], list::run)
-        .subcommand("meta", &[], meta::run)
-        .subcommand("toggle-alias", &[], toggle_alias::run)
-        .subcommand("toggle-nsfw", &[], toggle_nsfw::run)
-        .subcommand("view", &[], view::run)
+        .add_subcommand("create", &[], create::run)
+        .add_subcommand("delete", &[], delete::run)
+        .add_subcommand("edit", &[], edit::run)
+        .add_subcommand("list", &["ls"], list::run)
+        .add_subcommand("meta", &[], meta::run)
+        .add_subcommand("toggle-alias", &[], toggle_alias::run)
+        .add_subcommand("toggle-nsfw", &[], toggle_nsfw::run)
+        .add_subcommand("view", &[], view::run)
 });
 
 pub fn get_slashook_command() -> SlashookCommand {
@@ -55,7 +55,7 @@ pub fn get_slashook_command() -> SlashookCommand {
             },
 			{
                 name = "edit",
-                description = "Edits a tag.",	
+                description = "Edits a tag.",
                 options = [
                     {
                         name = "tag",

@@ -13,10 +13,10 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("heliohost", &["hh"])
-        .subcommand("load", &[], load::run)
-        .subcommand("signups", &[], signups::run)
-        .subcommand("status", &[], status::run)
-        .subcommand("uptime", &[], uptime::run)
+        .add_subcommand("load", &[], load::run)
+        .add_subcommand("signups", &[], signups::run)
+        .add_subcommand("status", &[], status::run)
+        .add_subcommand("uptime", &[], uptime::run)
 });
 
 pub fn get_slashook_command() -> SlashookCommand {

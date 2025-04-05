@@ -11,7 +11,7 @@ use slashook::{
 use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("time", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
+    AeonCommand::new("time", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let location = TimeZoneLocation::get(ctx.get_string_arg("location")?).await?;
         ctx.respond(location.format(), false).await
     })

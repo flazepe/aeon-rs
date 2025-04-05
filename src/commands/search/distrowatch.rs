@@ -11,7 +11,7 @@ use slashook::{
 use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("distrowatch", &["distro"]).main(|ctx: Arc<AeonCommandContext>| async move {
+    AeonCommand::new("distrowatch", &["distro"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
             if input.is_autocomplete() {
                 return ctx.autocomplete(DISTRIBUTIONS.iter()).await;

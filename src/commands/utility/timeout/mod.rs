@@ -12,8 +12,9 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static COMMAND: LazyLock<AeonCommand> =
-    LazyLock::new(|| AeonCommand::new("timeout", &["mute"]).subcommand("remove", &[], remove::run).subcommand("set", &[], set::run));
+pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
+    AeonCommand::new("timeout", &["mute"]).add_subcommand("remove", &[], remove::run).add_subcommand("set", &[], set::run)
+});
 
 pub fn get_slashook_command() -> SlashookCommand {
     #[command(

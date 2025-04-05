@@ -10,7 +10,7 @@ use slashook::{
 use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> =
-    LazyLock::new(|| AeonCommand::new("user", &[]).subcommand("avatar", &[], avatar::run).subcommand("banner", &[], banner::run));
+    LazyLock::new(|| AeonCommand::new("user", &[]).add_subcommand("avatar", &[], avatar::run).add_subcommand("banner", &[], banner::run));
 
 pub fn get_slashook_command() -> SlashookCommand {
     #[command(

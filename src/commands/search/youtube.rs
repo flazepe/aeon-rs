@@ -14,7 +14,7 @@ use slashook::{
 use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("youtube", &["yt"]).main(|ctx: Arc<AeonCommandContext>| async move {
+    AeonCommand::new("youtube", &["yt"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let text = REQWEST
             .get("https://www.youtube.com/results")
             .query(&[("search_query", ctx.get_string_arg("video")?)])

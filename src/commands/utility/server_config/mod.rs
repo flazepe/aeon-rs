@@ -17,10 +17,10 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("server-config", &[])
-        .subcommand("fix-embeds", &[], fix_embeds::run)
-        .subcommand("logs", &[], logs::run)
-        .subcommand("prefix", &[], prefix::run)
-        .subcommand("view", &[], view::run)
+        .add_subcommand("fix-embeds", &[], fix_embeds::run)
+        .add_subcommand("logs", &[], logs::run)
+        .add_subcommand("prefix", &[], prefix::run)
+        .add_subcommand("view", &[], view::run)
 });
 
 pub fn get_slashook_command() -> SlashookCommand {

@@ -11,7 +11,7 @@ use slashook::{
 use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("anilist", &["al"]).subcommand("anime", &[], anime::run).subcommand("manga", &[], manga::run).subcommand(
+    AeonCommand::new("anilist", &["al"]).add_subcommand("anime", &[], anime::run).add_subcommand("manga", &[], manga::run).add_subcommand(
         "user",
         &[],
         user::run,

@@ -12,7 +12,7 @@ use slashook::{
 use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("Translate to English", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
+    AeonCommand::new("Translate to English", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let message = SimpleMessage::from(input.target_message.as_ref().unwrap().clone());
         let translation = Google::translate(message, "auto", "en").await?;

@@ -12,7 +12,7 @@ use slashook::{
 use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("convert-currency", &["cc"]).main(|ctx: Arc<AeonCommandContext>| async move {
+    AeonCommand::new("convert-currency", &["cc"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
             if input.is_autocomplete() {
                 return ctx.autocomplete(XE_CURRENCIES.iter()).await;

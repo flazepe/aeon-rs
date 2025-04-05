@@ -13,10 +13,10 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("vndb", &[])
-        .subcommand("character", &[], character::run)
-        .subcommand("tag", &[], tag::run)
-        .subcommand("trait", &[], character_trait::run)
-        .subcommand("visual-novel", &["vn"], visual_novel::run)
+        .add_subcommand("character", &[], character::run)
+        .add_subcommand("tag", &[], tag::run)
+        .add_subcommand("trait", &[], character_trait::run)
+        .add_subcommand("visual-novel", &["vn"], visual_novel::run)
 });
 
 pub fn get_slashook_command() -> SlashookCommand {

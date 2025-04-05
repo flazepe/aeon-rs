@@ -11,7 +11,7 @@ use slashook::{
 use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("ip", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
+    AeonCommand::new("ip", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let ip_info = IpInfo::get(ctx.get_string_arg("ip")?).await?;
         ctx.respond(ip_info.format(), false).await
     })

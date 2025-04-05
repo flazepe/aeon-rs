@@ -15,13 +15,13 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("owner", &["o"])
-        .owner_only()
-        .subcommand("delete", &["del"], delete::run)
-        .subcommand("eien", &[], eien::run)
-        .subcommand("eval", &["e", "ev", "evak"], eval::run)
-        .subcommand("request", &["req"], request::run)
-        .subcommand("set-status", &["ss"], set_status::run)
-        .subcommand("status", &[], status::run)
+        .set_owner_only(true)
+        .add_subcommand("delete", &["del"], delete::run)
+        .add_subcommand("eien", &[], eien::run)
+        .add_subcommand("eval", &["e", "ev", "evak"], eval::run)
+        .add_subcommand("request", &["req"], request::run)
+        .add_subcommand("set-status", &["ss"], set_status::run)
+        .add_subcommand("status", &[], status::run)
 });
 
 pub fn get_slashook_command() -> SlashookCommand {

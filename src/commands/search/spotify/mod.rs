@@ -13,10 +13,10 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("spotify", &["sp"])
-        .subcommand("album", &[], album::run)
-        .subcommand("lyrics", &[], lyrics::run)
-        .subcommand("member", &["user"], member::run)
-        .subcommand("song", &["track"], song::run)
+        .add_subcommand("album", &[], album::run)
+        .add_subcommand("lyrics", &[], lyrics::run)
+        .add_subcommand("member", &["user"], member::run)
+        .add_subcommand("song", &["track"], song::run)
 });
 
 pub fn get_slashook_command() -> SlashookCommand {

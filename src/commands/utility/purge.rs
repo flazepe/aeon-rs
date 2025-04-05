@@ -21,7 +21,7 @@ use slashook::{
 use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("purge", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
+    AeonCommand::new("purge", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let has_permission = input.app_permissions.contains(Permissions::MANAGE_MESSAGES);
         let is_self_purge = ctx.get_user_arg("user").is_ok_and(|user| user.id == CONFIG.bot.client_id);

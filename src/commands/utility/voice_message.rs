@@ -12,7 +12,7 @@ use slashook::{
 use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("voice-message", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
+    AeonCommand::new("voice-message", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(_, res) = &ctx.command_input else { return Ok(()) };
 
         let audio_url = ctx

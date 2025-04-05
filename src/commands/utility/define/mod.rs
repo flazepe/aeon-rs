@@ -10,7 +10,7 @@ use slashook::{
 use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("define", &["d"]).subcommand("dictionary", &["dict", "word"], dictionary::run).subcommand(
+    AeonCommand::new("define", &["d"]).add_subcommand("dictionary", &["dict", "word"], dictionary::run).add_subcommand(
         "urban-dictionary",
         &["ud", "urban"],
         urban_dictionary::run,

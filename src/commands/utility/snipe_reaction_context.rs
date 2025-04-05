@@ -11,7 +11,7 @@ use slashook::{
 use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("Snipe Reactions", &[]).main(|ctx: Arc<AeonCommandContext>| async move {
+    AeonCommand::new("Snipe Reactions", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let response = ReactionSnipes::new(
             input.guild_id.as_ref().unwrap(),

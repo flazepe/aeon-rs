@@ -16,7 +16,7 @@ use slashook::{
 use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("Remind me", &[]).main({
+    AeonCommand::new("Remind me", &[]).set_main({
         |ctx: Arc<AeonCommandContext>| async move {
             let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 

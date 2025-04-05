@@ -14,7 +14,7 @@ use slashook::{
 use std::{sync::Arc, sync::LazyLock, time::Duration};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("calculate", &["calc", "count", "math"]).main(|ctx: Arc<AeonCommandContext>| async move {
+    AeonCommand::new("calculate", &["calc", "count", "math"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let expression = ctx.get_string_arg("expression")?;
 
         if expression.chars().all(|char| char.is_numeric()) {

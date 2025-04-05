@@ -42,17 +42,17 @@ impl AeonCommand {
         }
     }
 
-    pub fn owner_only(mut self) -> Self {
-        self.owner_only = true;
+    pub fn set_owner_only(mut self, owner_only: bool) -> Self {
+        self.owner_only = owner_only;
         self
     }
 
-    pub fn main<T: AeonCommandFn + 'static>(mut self, func: T) -> Self {
+    pub fn set_main<T: AeonCommandFn + 'static>(mut self, func: T) -> Self {
         self.func = Some(Box::new(func));
         self
     }
 
-    pub fn subcommand<T: Display, U: AeonCommandFn + 'static>(mut self, name: T, aliases: &[&str], func: U) -> Self {
+    pub fn add_subcommand<T: Display, U: AeonCommandFn + 'static>(mut self, name: T, aliases: &[&str], func: U) -> Self {
         self.subcommands.push(AeonSubcommand {
             name: name.to_string(),
             aliases: aliases.iter().map(|alias| alias.to_string()).collect(),
