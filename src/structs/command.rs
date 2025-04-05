@@ -80,21 +80,28 @@ impl AeonCommand {
 
         match &mut ctx.command_input {
             AeonCommandInput::MessageCommand(_, args, _) => {
-                let (subcommand_name, new_args) = args.split_once(' ').unwrap_or((args, ""));
+                let (subcommand, new_args) = args.split_once(' ').unwrap_or((args, ""));
+                let subcommand = subcommand.to_lowercase();
+                let subcommand = self.subcommands.iter().find(|entry| entry.name == subcommand || entry.aliases.contains(&subcommand));
 
-                if !subcommand_name.is_empty() {
-                    let subcommand_name = subcommand_name.to_lowercase();
+                if let Some(subcommand) = subcommand {
+                    *args = new_args.to_string();
+                    func = Some(&subcommand.func);
+                } else {
+                    let subcommands = self
+                        .subcommands
+                        .iter()
+                        .map(|entry| {
+                            format!(
+                                "`{}{}`",
+                                entry.name,
+                                if entry.aliases.is_empty() { "".into() } else { format!("|{}", entry.aliases.join("|")) }
+                            )
+                        })
+                        .collect::<Vec<String>>()
+                        .join(", ");
 
-                    let subcommand_exact_match =
-                        self.subcommands.iter().find(|entry| entry.name == subcommand_name || entry.aliases.contains(&subcommand_name));
-                    let subcommand_starts_with_match = self.subcommands.iter().find(|entry| {
-                        entry.name.starts_with(&subcommand_name) || entry.aliases.iter().any(|alias| alias.starts_with(&subcommand_name))
-                    });
-
-                    if let Some(subcommand) = subcommand_exact_match.or(subcommand_starts_with_match) {
-                        *args = new_args.to_string();
-                        func = Some(&subcommand.func);
-                    }
+                    return ctx.respond_error(format!("Invalid subcommand. Valid subcommands: {subcommands}"), false).await;
                 }
             },
             AeonCommandInput::ApplicationCommand(input, _) => {

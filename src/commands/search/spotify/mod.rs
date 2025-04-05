@@ -14,7 +14,7 @@ use std::sync::LazyLock;
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("spotify", &["sp"])
         .add_subcommand("album", &[], album::run)
-        .add_subcommand("lyrics", &[], lyrics::run)
+        .add_subcommand("lyrics", &["ly"], lyrics::run)
         .add_subcommand("member", &["user"], member::run)
         .add_subcommand("song", &["track"], song::run)
 });

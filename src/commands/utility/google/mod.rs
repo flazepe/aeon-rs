@@ -12,9 +12,9 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("google", &["g", "goog"])
-        .add_subcommand("assistant", &[], assistant::run)
+        .add_subcommand("assistant", &["ass"], assistant::run)
         .add_subcommand("dns", &[], dns::run)
-        .add_subcommand("translate", &["tl"], translate::run)
+        .add_subcommand("translate", &["tl", "trans"], translate::run)
 });
 
 pub fn get_slashook_command() -> SlashookCommand {
