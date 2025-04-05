@@ -11,6 +11,7 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
+pub static HELIOHOST_SERVERS: [&str; 4] = ["Tommy", "Ricky", "Johnny", "Lily"];
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("heliohost", &["hh"])
         .add_subcommand("load", &[], load::run)
@@ -34,12 +35,10 @@ pub fn get_slashook_command() -> SlashookCommand {
                         name = "server",
                         description = "The server",
                         option_type = InteractionOptionType::STRING,
-						choices = [
-							ApplicationCommandOptionChoice::new("Tommy", "Tommy"),
-							ApplicationCommandOptionChoice::new("Ricky", "Ricky"),
-							ApplicationCommandOptionChoice::new("Johnny", "Johnny"),
-							ApplicationCommandOptionChoice::new("Lily", "Lily"),
-						],
+						choices = HELIOHOST_SERVERS
+						    .iter()
+						    .map(|entry| ApplicationCommandOptionChoice::new(&entry, entry.to_string()))
+							.collect::<Vec<ApplicationCommandOptionChoice>>(),
                         required = true,
                     },
                 ],
@@ -68,12 +67,10 @@ pub fn get_slashook_command() -> SlashookCommand {
                         name = "server",
                         description = "The server",
                         option_type = InteractionOptionType::STRING,
-						choices = [
-							ApplicationCommandOptionChoice::new("Tommy", "Tommy"),
-							ApplicationCommandOptionChoice::new("Ricky", "Ricky"),
-							ApplicationCommandOptionChoice::new("Johnny", "Johnny"),
-							ApplicationCommandOptionChoice::new("Lily", "Lily"),
-						],
+						choices = HELIOHOST_SERVERS
+						    .iter()
+						    .map(|entry| ApplicationCommandOptionChoice::new(&entry, entry.to_string()))
+							.collect::<Vec<ApplicationCommandOptionChoice>>(),
                         required = true,
                     },
                 ],

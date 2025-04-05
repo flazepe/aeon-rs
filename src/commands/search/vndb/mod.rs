@@ -13,7 +13,7 @@ use std::sync::LazyLock;
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("vndb", &[])
-        .add_subcommand("character", &[], character::run)
+        .add_subcommand("character", &["char"], character::run)
         .add_subcommand("tag", &[], tag::run)
         .add_subcommand("trait", &[], character_trait::run)
         .add_subcommand("visual-novel", &["vn"], visual_novel::run)

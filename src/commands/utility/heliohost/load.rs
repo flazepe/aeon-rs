@@ -1,13 +1,10 @@
-use crate::{
-    statics::REQWEST,
-    structs::command_context::{AeonCommandContext, AeonCommandInput},
-};
-use anyhow::Result;
+use crate::{commands::utility::heliohost::HELIOHOST_SERVERS, statics::REQWEST, structs::command_context::AeonCommandContext};
+use anyhow::{Context, Result};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input else { return Ok(()) };
-    let server = ctx.get_string_arg("server")?;
+    let server = ctx.get_string_arg("server")?.to_lowercase();
+    let server = HELIOHOST_SERVERS.iter().find(|entry| entry.to_lowercase() == server).context("Invalid server.")?;
 
     ctx.respond(
         format!(
