@@ -12,5 +12,4 @@ pub mod tio;
 pub mod urban_dictionary;
 pub mod virtualearth;
 pub mod vndb;
-pub mod voice_message;
 pub mod xe;
