@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let (record_type, domain) = match &ctx.command_input {
-        AeonCommandInput::ApplicationCommand(_, _) => (ctx.get_string_arg("type")?, ctx.get_string_arg("domain")?),
+        AeonCommandInput::ApplicationCommand(..) => (ctx.get_string_arg("type")?, ctx.get_string_arg("domain")?),
         AeonCommandInput::MessageCommand(_, args, _) => {
             let mut args = args.split_whitespace();
             let record_type = args.next().map(|arg| arg.to_uppercase()).context("Please provide a record type.")?;

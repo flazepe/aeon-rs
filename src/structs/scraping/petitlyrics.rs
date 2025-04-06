@@ -109,7 +109,8 @@ impl PetitLyrics {
 
         // Fetch the ajax URL with a request client that preserves header cases (for X-CSRF-Token). I know, it's stupid.
         let mut body = Vec::new();
-        let _ = Request::new(&Uri::try_from("https://petitlyrics.com/com/get_lyrics.ajax")?)
+
+        Request::new(&Uri::try_from("https://petitlyrics.com/com/get_lyrics.ajax")?)
             .method(Method::POST)
             .header("content-type", "application/x-www-form-urlencoded")
             .header("cookie", &cookie)

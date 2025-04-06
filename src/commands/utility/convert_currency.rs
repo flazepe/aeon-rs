@@ -20,7 +20,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         }
 
         let (amount, origin_currency, target_currency) = match &ctx.command_input {
-            AeonCommandInput::ApplicationCommand(_, _) => {
+            AeonCommandInput::ApplicationCommand(..) => {
                 (ctx.get_f64_arg("amount")?, ctx.get_string_arg("origin-currency")?, ctx.get_string_arg("target-currency")?)
             },
             AeonCommandInput::MessageCommand(_, args, _) => {

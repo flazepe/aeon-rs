@@ -8,7 +8,7 @@ use slashook::commands::MessageResponse;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    if let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input {
+    if let AeonCommandInput::ApplicationCommand(..) = &ctx.command_input {
         if ctx.get_bool_arg("search").unwrap_or(false) {
             let results = AniList::search_manga(ctx.get_string_arg("manga")?).await?;
             let options = results.iter().map(|result| {

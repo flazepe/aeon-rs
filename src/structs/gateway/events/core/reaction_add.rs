@@ -7,7 +7,7 @@ pub async fn handle(event: &ReactionAdd) -> Result<()> {
     let reaction = event.0.clone();
 
     let reaction_emoji_name = match reaction.emoji {
-        EmojiReactionType::Custom { name, animated: _, id: _ } => name,
+        EmojiReactionType::Custom { name, .. } => name,
         EmojiReactionType::Unicode { name } => Some(name),
     };
 
@@ -53,7 +53,7 @@ pub async fn handle(event: &ReactionAdd) -> Result<()> {
     if user_id.as_deref().unwrap_or(FLAZEPE_ID) == reaction.user_id.to_string() && author_id == CONFIG.bot.client_id {
         let channel_id = reaction.channel_id;
         let message_id = reaction.message_id;
-        let _ = REST.delete::<()>(format!("channels/{channel_id}/messages/{message_id}")).await;
+        _ = REST.delete::<()>(format!("channels/{channel_id}/messages/{message_id}")).await;
     }
 
     Ok(())

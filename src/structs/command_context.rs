@@ -35,28 +35,28 @@ impl AeonCommandContext {
     pub fn get_user_id(&self) -> String {
         match &self.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => input.user.id.clone(),
-            AeonCommandInput::MessageCommand(message, _, _) => message.author.id.to_string(),
+            AeonCommandInput::MessageCommand(message, ..) => message.author.id.to_string(),
         }
     }
 
     pub fn get_channel_id(&self) -> String {
         match &self.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => input.channel_id.clone().unwrap(),
-            AeonCommandInput::MessageCommand(message, _, _) => message.channel_id.to_string(),
+            AeonCommandInput::MessageCommand(message, ..) => message.channel_id.to_string(),
         }
     }
 
     pub fn get_guild_id(&self) -> Option<String> {
         match &self.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => input.guild_id.clone(),
-            AeonCommandInput::MessageCommand(message, _, _) => message.guild_id.map(|guild_id| guild_id.to_string()),
+            AeonCommandInput::MessageCommand(message, ..) => message.guild_id.map(|guild_id| guild_id.to_string()),
         }
     }
 
     pub async fn ensure_nsfw_channel(&self) -> Result<()> {
         let nsfw = match &self.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => input.channel.as_ref().is_some_and(|channel| channel.nsfw.unwrap_or(false)),
-            AeonCommandInput::MessageCommand(message, _, _) => {
+            AeonCommandInput::MessageCommand(message, ..) => {
                 Channel::fetch(&REST, message.channel_id).await.is_ok_and(|channel| channel.nsfw.unwrap_or(false))
             },
         };
@@ -77,9 +77,9 @@ impl AeonCommandContext {
                     res.defer(ephemeral).await?;
                 }
             },
-            AeonCommandInput::MessageCommand(message, _, _) => {
+            AeonCommandInput::MessageCommand(message, ..) => {
                 if message.edited_timestamp.is_none() {
-                    let _ = REST.post::<(), ()>(format!("channels/{}/typing", message.channel_id), ()).await;
+                    _ = REST.post::<(), ()>(format!("channels/{}/typing", message.channel_id), ()).await;
                 }
             },
         }
@@ -104,11 +104,11 @@ impl AeonCommandContext {
                     res.send_message(response).await?;
                 }
             },
-            AeonCommandInput::MessageCommand(message, _, _) => {
+            AeonCommandInput::MessageCommand(message, ..) => {
                 let command_response = CACHE.command_responses.read().unwrap().get(message.id.to_string().as_str()).cloned();
 
                 if let Some(command_response) = command_response {
-                    let _ = command_response.edit(&REST, response).await;
+                    _ = command_response.edit(&REST, response).await;
                     return Ok(());
                 }
 
@@ -178,7 +178,7 @@ impl AeonCommandContext {
                     Ok((self.get_string_arg(option_name)?, "".into()))
                 }
             },
-            AeonCommandInput::MessageCommand(_, _, _) => Ok((self.get_string_arg(option_name)?, "".into())),
+            AeonCommandInput::MessageCommand(..) => Ok((self.get_string_arg(option_name)?, "".into())),
         }
     }
 
@@ -209,7 +209,7 @@ impl AeonCommandContext {
                 .context(format!("Please provide the `{arg}` argument."))?
                 .as_i64()
                 .context(format!("Could not convert the `{arg}` argument to `i64`.")),
-            AeonCommandInput::MessageCommand(_, _, _) => {
+            AeonCommandInput::MessageCommand(..) => {
                 self.get_string_arg(&arg)?.parse::<i64>().context(format!("Could not convert the `{arg}` argument to `i64`."))
             },
         }
@@ -223,7 +223,7 @@ impl AeonCommandContext {
                 .context(format!("Please provide the `{arg}` argument."))?
                 .as_f64()
                 .context(format!("Could not convert the `{arg}` argument to `f64`.")),
-            AeonCommandInput::MessageCommand(_, _, _) => {
+            AeonCommandInput::MessageCommand(..) => {
                 self.get_string_arg(&arg)?.parse::<f64>().context(format!("Could not convert the `{arg}` argument to `f64`."))
             },
         }

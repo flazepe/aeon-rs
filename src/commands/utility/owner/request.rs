@@ -9,7 +9,7 @@ use slashook::structs::embeds::Embed;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input else { return Ok(()) };
+    let AeonCommandInput::ApplicationCommand(..) = &ctx.command_input else { return Ok(()) };
     let method = Method::from_bytes(ctx.get_string_arg("method").as_deref().unwrap_or("GET").as_bytes()).unwrap_or(Method::GET);
     let url: String = format!("https://discord.com/api/{}", ctx.get_string_arg("endpoint")?);
     let mut request = REQWEST.request(method, url).header("authorization", format!("Bot {}", CONFIG.bot.token));

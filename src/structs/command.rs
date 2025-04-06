@@ -131,7 +131,7 @@ impl AeonCommand {
                     CACHE.cooldowns.write().unwrap().insert(input.user.id.clone(), now() + 3);
                 }
             },
-            AeonCommandInput::MessageCommand(message, _, _) => {
+            AeonCommandInput::MessageCommand(message, ..) => {
                 CACHE.cooldowns.write().unwrap().insert(message.author.id.to_string(), now() + 3);
             },
         }

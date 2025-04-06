@@ -83,13 +83,13 @@ impl EventHandler {
         }
 
         if !new_urls.is_empty() {
-            let _ = REST
+            _ = REST
                 .patch::<(), _>(
                     format!("channels/{}/messages/{}", message.channel_id, message.id),
                     json!({ "flags": MessageFlags::SUPPRESS_EMBEDS }),
                 )
                 .await;
-            let _ = SlashookMessage::create(
+            _ = SlashookMessage::create(
                 &REST,
                 message.channel_id,
                 MessageResponse::from(format!("<@{}> {}", message.author.id, new_urls.join("\n")))

@@ -16,7 +16,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     // Delete snoozed reminder
     if let Some(message) = input.message.as_ref() {
         if message.interaction_metadata.is_none() {
-            let _ = input
+            _ = input
                 .rest
                 .delete::<()>(format!(
                     "channels/{}/messages/{}",

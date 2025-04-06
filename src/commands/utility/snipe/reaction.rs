@@ -15,7 +15,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let (message_id, channel_id) = (split.next().unwrap(), split.next().unwrap_or(&channel_id));
     let permissions = match &ctx.command_input {
         AeonCommandInput::ApplicationCommand(input, _) => input.app_permissions,
-        AeonCommandInput::MessageCommand(_, _, _) => Permissions::empty(),
+        AeonCommandInput::MessageCommand(..) => Permissions::empty(),
     };
 
     let response = ReactionSnipes::new(guild_id, channel_id, message_id, permissions).to_response()?;

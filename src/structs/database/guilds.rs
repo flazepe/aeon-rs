@@ -52,7 +52,7 @@ impl Guilds {
     pub async fn send_log<T: Display>(guild_id: T, embed: Embed) -> Result<()> {
         let guild = Self::get(guild_id).await?;
         let Some(logs_channel_id) = &guild.logs_channel_id else { return Ok(()) };
-        let _ = Message::create(&REST, logs_channel_id, embed).await;
+        _ = Message::create(&REST, logs_channel_id, embed).await;
         Ok(())
     }
 }

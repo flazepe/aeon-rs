@@ -8,7 +8,7 @@ use slashook::commands::MessageResponse;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let AeonCommandInput::ApplicationCommand(_, _) = &ctx.command_input else { return Ok(()) };
+    let AeonCommandInput::ApplicationCommand(..) = &ctx.command_input else { return Ok(()) };
 
     let mode = ctx.get_string_arg("mode");
 

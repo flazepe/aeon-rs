@@ -12,7 +12,7 @@ pub async fn handle(event: &ReactionRemoveEmoji) -> Result<()> {
         .add_field(
             "Emoji",
             match &event.emoji {
-                EmojiReactionType::Custom { name, id, animated: _ } => {
+                EmojiReactionType::Custom { name, id, .. } => {
                     format!("[{}](https://cdn.discordapp.com/emojis/{id})", name.as_deref().unwrap_or("<unknown>"))
                 },
                 EmojiReactionType::Unicode { name } => name.clone(),

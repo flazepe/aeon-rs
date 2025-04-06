@@ -14,7 +14,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     }
 
     let (text, origin_language, target_language) = match &ctx.command_input {
-        AeonCommandInput::ApplicationCommand(_, _) => (
+        AeonCommandInput::ApplicationCommand(..) => (
             ctx.get_string_arg("text")?,
             ctx.get_string_arg("origin-language").as_deref().unwrap_or("auto").to_string(),
             ctx.get_string_arg("target-language").as_deref().unwrap_or("en").to_string(),
