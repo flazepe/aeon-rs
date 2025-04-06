@@ -11,7 +11,6 @@ mod invite_create;
 mod invite_delete;
 mod member_add;
 mod member_remove;
-mod member_update;
 mod message_delete;
 mod message_delete_bulk;
 mod message_update;
@@ -45,7 +44,6 @@ impl EventHandler {
             Event::InviteDelete(event) => invite_delete::handle(event).await,
             Event::MemberAdd(event) => member_add::handle(event).await,
             Event::MemberRemove(event) => member_remove::handle(event).await,
-            Event::MemberUpdate(event) => member_update::handle(event).await,
             Event::MessageDelete(event) => message_delete::handle(event).await,
             Event::MessageDeleteBulk(event) => message_delete_bulk::handle(event).await,
             Event::MessageUpdate(event) => message_update::handle(event).await,
