@@ -22,9 +22,12 @@ impl GatewayClient {
                 CONFIG.bot.token.clone(),
                 Intents::DIRECT_MESSAGES
                     | Intents::GUILDS
+                    | Intents::GUILD_EMOJIS_AND_STICKERS
                     | Intents::GUILD_INVITES
+                    | Intents::GUILD_MEMBERS
                     | Intents::GUILD_MESSAGES
                     | Intents::GUILD_MESSAGE_REACTIONS
+                    | Intents::GUILD_MODERATION
                     | Intents::GUILD_PRESENCES
                     | Intents::GUILD_VOICE_STATES
                     | Intents::MESSAGE_CONTENT,
