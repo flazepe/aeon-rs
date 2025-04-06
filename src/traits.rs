@@ -10,7 +10,7 @@ pub trait UserExt {
 
 impl UserExt for SlashookUser {
     fn label(&self) -> String {
-        format!("{} ({})", self.username, self.id)
+        format!("@{} ({})", self.username, self.id)
     }
 
     fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String> {
@@ -35,7 +35,7 @@ impl UserExt for SlashookUser {
 
 impl UserExt for TwilightUser {
     fn label(&self) -> String {
-        format!("{} ({})", self.name, self.id)
+        format!("@{} ({})", self.name, self.id)
     }
 
     fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String> {
