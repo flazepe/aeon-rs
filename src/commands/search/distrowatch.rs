@@ -18,7 +18,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             }
         }
 
-        let distrowatch = DistroWatch::get(ctx.get_string_arg("distribution")?).await?;
+        let distrowatch = DistroWatch::get(ctx.get_string_arg("distribution", 0, true)?).await?;
         ctx.respond(distrowatch.format(), false).await
     })
 });

@@ -22,8 +22,8 @@ impl EventHandler {
             return Ok(());
         };
         let prefixless = message.content.chars().skip(prefix.len()).skip_while(|char| char.is_whitespace()).collect::<String>();
-        let (command, args) = prefixless.split_once(char::is_whitespace).unwrap_or((&prefixless, ""));
+        let (command, content) = prefixless.split_once(char::is_whitespace).unwrap_or((&prefixless, ""));
 
-        commands::run(message, sender, command.to_lowercase(), args.trim()).await
+        commands::run(message, sender, command.to_lowercase(), content.trim()).await
     }
 }

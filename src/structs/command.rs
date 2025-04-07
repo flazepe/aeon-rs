@@ -81,12 +81,12 @@ impl AeonCommand {
         if !self.subcommands.is_empty() {
             match &mut ctx.command_input {
                 AeonCommandInput::MessageCommand(_, args, _) => {
-                    let (subcommand, new_args) = args.split_once(char::is_whitespace).unwrap_or((args, ""));
+                    let (subcommand, new_args) = args.get_content().split_once(char::is_whitespace).unwrap_or((&args.get_content(), ""));
                     let subcommand = subcommand.to_lowercase();
                     let subcommand = self.subcommands.iter().find(|entry| entry.name == subcommand || entry.aliases.contains(&subcommand));
 
                     if let Some(subcommand) = subcommand {
-                        *args = new_args.to_string();
+                        *args = new_args.into();
                         func = Some(&subcommand.func);
                     } else {
                         let subcommands = self

@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     if ctx.get_bool_arg("search").unwrap_or(false) {
-        let results = Steam::search_game(ctx.get_string_arg("game")?).await?;
+        let results = Steam::search_game(ctx.get_string_arg("game", 0, true)?).await?;
         let options = results.iter().map(|result| (&result.name, &result.id, None::<String>));
         let select_menu = SelectMenu::new("steam", "game", "Select a game…", None::<String>).add_options(options);
 

@@ -12,7 +12,7 @@ use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("anison", &["anime-song", "anisong"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
-        let anime_song_lyrics = AnimeSongLyrics::query(ctx.get_string_arg("song")?).await?;
+        let anime_song_lyrics = AnimeSongLyrics::query(ctx.get_string_arg("song", 0, true)?).await?;
         ctx.respond(anime_song_lyrics.format(), false).await
     })
 });

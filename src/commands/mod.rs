@@ -26,12 +26,12 @@ pub fn get_slashook_commands() -> Vec<SlashookCommand> {
     commands
 }
 
-pub async fn run<T: Display, U: Display>(message: &Message, sender: &MessageSender, command_name: T, args: U) -> Result<()> {
+pub async fn run<T: Display, U: Display>(message: &Message, sender: &MessageSender, command_name: T, content: U) -> Result<()> {
     let command_name = command_name.to_string();
     let command = COMMANDS.iter().find(|command| command.name == command_name || command.aliases.contains(&command_name));
 
     if let Some(command) = command {
-        return command.run(AeonCommandInput::MessageCommand(message.clone(), args.to_string(), sender.clone())).await;
+        return command.run(AeonCommandInput::MessageCommand(message.clone(), content.into(), sender.clone())).await;
     }
 
     Ok(())

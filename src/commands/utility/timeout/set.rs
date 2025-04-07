@@ -13,7 +13,7 @@ use std::sync::Arc;
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 
-    let duration = Duration::new().parse(ctx.get_string_arg("duration")?)?;
+    let duration = Duration::new().parse(ctx.get_string_arg("duration", 0, true)?)?;
 
     if duration.total_secs < 30 || duration.total_secs > SECS_PER_DAY * 28 {
         bail!("Duration cannot be under 30 seconds or over 28 days.");

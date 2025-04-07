@@ -10,7 +10,7 @@ use std::sync::Arc;
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     if let AeonCommandInput::ApplicationCommand(..) = &ctx.command_input {
         if ctx.get_bool_arg("search").unwrap_or(false) {
-            let results = AniList::search_anime(ctx.get_string_arg("anime")?).await?;
+            let results = AniList::search_anime(ctx.get_string_arg("anime", 0, true)?).await?;
             let options = results.iter().map(|result| {
                 (
                     &result.title.romaji,

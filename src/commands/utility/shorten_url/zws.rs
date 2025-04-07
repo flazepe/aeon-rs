@@ -4,7 +4,7 @@ use serde_json::{Value, json};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let mut url = ctx.get_string_arg("url")?;
+    let mut url = ctx.get_string_arg("url", 0, true)?;
 
     if !url.starts_with("http") {
         url = format!("http://{url}");

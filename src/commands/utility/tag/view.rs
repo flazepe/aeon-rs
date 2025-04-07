@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let Some(guild_id) = ctx.get_guild_id() else { return Ok(()) };
-    let name = ctx.get_string_arg("tag")?;
+    let name = ctx.get_string_arg("tag", 0, true)?;
     let tag = Tags::get(name, guild_id).await?;
 
     if tag.nsfw {

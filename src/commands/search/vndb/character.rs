@@ -10,7 +10,7 @@ use std::sync::Arc;
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     if let AeonCommandInput::ApplicationCommand(..) = &ctx.command_input {
         if ctx.get_bool_arg("search").unwrap_or(false) {
-            let characters = Vndb::search_character(ctx.get_string_arg("character")?).await?;
+            let characters = Vndb::search_character(ctx.get_string_arg("character", 0, true)?).await?;
             let options = characters.iter().map(|character| (&character.name, &character.id, Some(&character.vns[0].title)));
             let select_menu = SelectMenu::new("vndb", "character", "Select a character…", None::<String>).add_options(options);
 

@@ -10,7 +10,7 @@ use std::sync::Arc;
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     if let AeonCommandInput::ApplicationCommand(..) = &ctx.command_input {
         if ctx.get_bool_arg("search").unwrap_or(false) {
-            let visual_novels = Vndb::search_visual_novel(ctx.get_string_arg("visual-novel")?).await?;
+            let visual_novels = Vndb::search_visual_novel(ctx.get_string_arg("visual-novel", 0, true)?).await?;
             let options = visual_novels.iter().map(|visual_novel| (&visual_novel.title, &visual_novel.id, Some(&visual_novel.dev_status)));
             let select_menu = SelectMenu::new("vndb", "visual-novel", "Select a visual novel…", None::<String>).add_options(options);
 

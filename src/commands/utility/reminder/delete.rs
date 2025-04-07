@@ -17,7 +17,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         return ctx.autocomplete(options).await;
     }
 
-    let index = ctx.get_string_arg("reminder")?.parse::<usize>().context("Please enter a valid number.")? - 1;
+    let index = ctx.get_string_arg("reminder", 0, true)?.parse::<usize>().context("Please enter a valid number.")? - 1;
     let reminder = reminders.get(index).context("Invalid reminder.")?;
 
     Reminders::delete(reminder._id).await?;

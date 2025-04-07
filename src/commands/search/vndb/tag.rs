@@ -14,7 +14,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         }
     }
 
-    let tags = Vndb::search_tag(ctx.get_string_arg("tag")?).await?;
+    let tags = Vndb::search_tag(ctx.get_string_arg("tag", 0, true)?).await?;
     let options = tags.iter().map(|tag| (&tag.name, &tag.id, Some(&tag.category)));
     let select_menu = SelectMenu::new("vndb", "tag", "View other tags…", None::<String>).add_options(options);
 

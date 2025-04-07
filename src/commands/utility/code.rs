@@ -27,7 +27,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     }
 
                     // This had to be defined first
-                    let programming_language = ctx.get_string_arg("programming-language").ok().or(CACHE
+                    let programming_language = ctx.get_string_arg("programming-language", 0, true).ok().or(CACHE
                         .last_tio_programming_languages
                         .read()
                         .unwrap()
@@ -48,7 +48,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     if input.is_modal_submit() {
                         ctx.defer(false).await?;
 
-                        let tio = Tio::new(programming_language, ctx.get_string_arg("code")?).run().await?;
+                        let tio = Tio::new(programming_language, ctx.get_string_arg("code", 0, true)?).run().await?;
                         ctx.respond(tio.format(), false).await
                     } else {
                         let code_input = TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code").set_label("Code");
@@ -59,7 +59,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     }
                 },
                 AeonCommandInput::MessageCommand(..) => {
-                    let codeblock = ctx.get_string_arg("codeblock")?;
+                    let codeblock = ctx.get_string_arg("codeblock", 0, true)?;
 
                     if !codeblock.starts_with("```") || !codeblock.ends_with("```") {
                         bail!("Please provide a valid codeblock.");

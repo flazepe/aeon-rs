@@ -20,7 +20,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             }
         }
 
-        let results = JishoSearch::search(ctx.get_string_arg("query")?).await?;
+        let results = JishoSearch::search(ctx.get_string_arg("query", 0, true)?).await?;
         let options = results.iter().map(|result| (result.format_title(), result.slug.clone(), None::<String>));
         let select_menu = SelectMenu::new("jisho", "search", "View other results…", None::<String>).add_options(options);
 

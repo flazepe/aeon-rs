@@ -38,18 +38,18 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 
         let (user_id, mut artist, mut title, lyrics, translate_language) = match &ctx.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => {
-                let query = ctx.get_string_arg("song").unwrap_or_default();
+                let query = ctx.get_string_arg("song", 0, true).unwrap_or_default();
                 let (artist, title) = query.split_once('-').unwrap_or(("", &query));
                 (
                     input.user.id.clone(),
                     if artist.trim().is_empty() { None } else { Some(artist.into()) },
                     if title.trim().is_empty() { None } else { Some(title.into()) },
-                    ctx.get_string_arg("lyrics").ok(),
-                    ctx.get_string_arg("translate").ok(),
+                    ctx.get_string_arg("lyrics", 0, true).ok(),
+                    ctx.get_string_arg("translate", 0, true).ok(),
                 )
             },
             AeonCommandInput::MessageCommand(message, args, _) => {
-                let (artist, title) = args.split_once('-').unwrap_or(("", args));
+                let (artist, title) = args.get_content().split_once('-').unwrap_or(("", &args.get_content()));
                 (
                     message.author.id.to_string(),
                     if artist.trim().is_empty() { None } else { Some(artist.into()) },

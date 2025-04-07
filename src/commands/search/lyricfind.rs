@@ -24,7 +24,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         }
 
         let query = ctx
-            .get_string_arg("song")
+            .get_string_arg("song", 0, true)
             .ok()
             .or_else(|| {
                 CACHE.song_activities.read().unwrap().get(&ctx.get_user_id()).map(|song| format!("{} - {}", song.artist, song.title))

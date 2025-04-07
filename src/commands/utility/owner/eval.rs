@@ -7,7 +7,7 @@ use std::{fmt::Display, process::Command, sync::Arc};
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::MessageCommand(message, args, _) = &ctx.command_input else { return Ok(()) };
 
-    let mut code = args.to_string();
+    let mut code = args.get_content().to_string();
     let mut flags = code.split(char::is_whitespace).last().unwrap_or_default().to_string();
 
     if flags.starts_with('-') && flags.chars().skip(1).all(|char| char.is_alphabetic()) {
@@ -70,7 +70,7 @@ fn generate_eval_context<T: Display>(message: T, code: String) -> String {
                 }} catch {{}}
 
                 if (typeof options.body === "string" && !options.headers["content-type"]) options.headers["content-type"] = "application/json";
-            
+
                 return fetch(url, options);
             }}
 
@@ -88,7 +88,7 @@ fn generate_eval_context<T: Display>(message: T, code: String) -> String {
 
                 return botFetch(`channels/${{message.channel_id}}/messages`, {{ method: "POST", body }});
             }};
-            
+
             {code}
         "#,
     )

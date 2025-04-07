@@ -35,11 +35,13 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         input.custom_id.as_ref().map_or_else(|| format!("{guild_id}/{channel_id}/{message_id}"), |custom_id| custom_id.to_string())
     };
     let time = Duration::new()
-        .parse(input.values.as_ref().map_or(ctx.get_string_arg("time").as_deref().unwrap_or_default(), |values| values[0].as_str()))
+        .parse(
+            input.values.as_ref().map_or(ctx.get_string_arg("time", 0, true).as_deref().unwrap_or_default(), |values| values[0].as_str()),
+        )
         .unwrap_or_default();
-    let interval = Duration::new().parse(ctx.get_string_arg("interval").unwrap_or_else(|_| "".into())).unwrap_or_default();
+    let interval = Duration::new().parse(ctx.get_string_arg("interval", 0, true).unwrap_or_else(|_| "".into())).unwrap_or_default();
     let reminder = {
-        let mut reminder = ctx.get_string_arg("reminder").unwrap_or_else(|_| "Do something".into());
+        let mut reminder = ctx.get_string_arg("reminder", 0, true).unwrap_or_else(|_| "Do something".into());
         if input.is_string_select() {
             if let Some(parsed_reminder) = || -> Option<&String> { input.message.as_ref()?.embeds.first()?.description.as_ref() }() {
                 reminder = parsed_reminder.to_string();

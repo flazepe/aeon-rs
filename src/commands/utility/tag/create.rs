@@ -13,10 +13,10 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
     if input.is_modal_submit() {
-        let name = ctx.get_string_arg("tag")?;
+        let name = ctx.get_string_arg("tag", 0, true)?;
         let guild_id = input.guild_id.as_ref().unwrap();
         let author_id = &input.user.id;
-        let content = ctx.get_string_arg("content")?;
+        let content = ctx.get_string_arg("content", 0, true)?;
         let modifier = input.member.as_ref().unwrap();
         let response = Tags::create(name, guild_id, author_id, content, modifier).await?;
 

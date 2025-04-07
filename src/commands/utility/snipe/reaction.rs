@@ -10,7 +10,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let Some(guild_id) = ctx.get_guild_id() else { return Ok(()) };
     let channel_id = ctx.get_channel_id();
 
-    let message = ctx.get_string_arg("message")?;
+    let message = ctx.get_string_arg("message", 0, true)?;
     let mut split = message.split('/').rev();
     let (message_id, channel_id) = (split.next().unwrap(), split.next().unwrap_or(&channel_id));
     let permissions = match &ctx.command_input {

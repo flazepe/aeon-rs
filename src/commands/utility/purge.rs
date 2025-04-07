@@ -52,7 +52,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                 && message.timestamp > Utc::now() - Duration::weeks(2)
         });
 
-        messages.drain((ctx.get_i64_arg("amount").unwrap_or(1) as usize).min(messages.len())..);
+        messages.drain((ctx.get_i64_arg("amount", 0).unwrap_or(1) as usize).min(messages.len())..);
 
         if messages.is_empty() {
             bail!("No messages found.");

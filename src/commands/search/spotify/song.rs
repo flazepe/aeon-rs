@@ -16,7 +16,7 @@ use std::sync::Arc;
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     if let AeonCommandInput::ApplicationCommand(..) = &ctx.command_input {
         if ctx.get_bool_arg("search").unwrap_or(false) {
-            let results = Spotify::search_track(ctx.get_string_arg("song")?).await?;
+            let results = Spotify::search_track(ctx.get_string_arg("song", 0, true)?).await?;
             let options = results.iter().map(|result| (&result.name, &result.id, Some(&result.artists[0].name)));
             let select_menu = SelectMenu::new("spotify", "song", "Select a song…", None::<String>).add_options(options);
 
@@ -28,7 +28,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let mut track = if ctx.is_string_select() { Spotify::get_track(query).await? } else { Spotify::search_track(query).await?.remove(0) };
 
     if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
-        if let Ok(style) = ctx.get_string_arg("card").as_deref() {
+        if let Ok(style) = ctx.get_string_arg("card", 0, true).as_deref() {
             let activity = SongActivity {
                 service: SongActivityService::Spotify,
                 style: style.into(),

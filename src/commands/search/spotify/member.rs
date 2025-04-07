@@ -28,7 +28,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     ctx.defer(false).await?;
 
     // Set to proper style
-    if let Ok(style) = ctx.get_string_arg("card").as_deref() {
+    if let Ok(style) = ctx.get_string_arg("card", 0, true).as_deref() {
         activity.style = style.into();
     }
 

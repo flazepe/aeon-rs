@@ -10,7 +10,7 @@ use std::sync::Arc;
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(..) = &ctx.command_input else { return Ok(()) };
 
-    let mode = ctx.get_string_arg("mode");
+    let mode = ctx.get_string_arg("mode", 0, true);
 
     let (query, section) = ctx.get_query_and_section("user")?;
     let (user, mode) = query.split_once('|').unwrap_or((&query, mode.as_deref().unwrap_or("default")));

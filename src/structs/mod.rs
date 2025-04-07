@@ -1,6 +1,7 @@
 pub mod api;
 pub mod client;
 pub mod command;
+pub mod command_args;
 pub mod command_context;
 pub mod config;
 pub mod database;

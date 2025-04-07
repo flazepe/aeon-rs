@@ -1,6 +1,9 @@
-use crate::statics::{
-    CACHE, REST,
-    emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
+use crate::{
+    statics::{
+        CACHE, REST,
+        emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
+    },
+    structs::command_args::CommandArgs,
 };
 use anyhow::{Context, Error, Result, bail};
 use slashook::{
@@ -24,7 +27,7 @@ pub struct AeonCommandContext {
 
 pub enum AeonCommandInput {
     ApplicationCommand(CommandInput, CommandResponder),
-    MessageCommand(TwilightMessage, String, MessageSender),
+    MessageCommand(TwilightMessage, CommandArgs, MessageSender),
 }
 
 impl AeonCommandContext {
@@ -107,14 +110,14 @@ impl AeonCommandContext {
             AeonCommandInput::MessageCommand(message, ..) => {
                 let command_response = CACHE.command_responses.read().unwrap().get(message.id.to_string().as_str()).cloned();
 
+                response = response
+                    .set_message_reference(MessageReference::new_reply(message.id))
+                    .set_allowed_mentions(AllowedMentions::new().set_replied_user(false));
+
                 if let Some(command_response) = command_response {
                     _ = command_response.edit(&REST, response).await;
                     return Ok(());
                 }
-
-                response = response
-                    .set_message_reference(MessageReference::new_reply(message.id))
-                    .set_allowed_mentions(AllowedMentions::new().set_replied_user(false));
 
                 if let Ok(command_response) = Message::create(&REST, message.channel_id, response).await {
                     CACHE.command_responses.write().unwrap().insert(message.id.to_string(), command_response);
@@ -153,9 +156,9 @@ impl AeonCommandContext {
         let value = input
             .args
             .get(input.focused.as_ref().context("Missing focused argument.")?)
-            .context("Could not get focused argument.")?
+            .context("Could not get the focused argument.")?
             .as_string()
-            .context("Could not convert focused argument to String.")?
+            .context("Could not get the focused argument as `String`.")?
             .to_lowercase();
 
         Ok(res
@@ -175,10 +178,10 @@ impl AeonCommandContext {
                     let mut split = input.values.as_ref().unwrap()[0].split('/');
                     Ok((split.next().unwrap().into(), split.next().unwrap_or_default().into()))
                 } else {
-                    Ok((self.get_string_arg(option_name)?, "".into()))
+                    Ok((self.get_string_arg(option_name, 0, true)?, "".into()))
                 }
             },
-            AeonCommandInput::MessageCommand(..) => Ok((self.get_string_arg(option_name)?, "".into())),
+            AeonCommandInput::MessageCommand(..) => Ok((self.get_string_arg(option_name, 0, true)?, "".into())),
         }
     }
 
@@ -186,45 +189,44 @@ impl AeonCommandContext {
         if let AeonCommandInput::ApplicationCommand(input, _) = &self.command_input { input.is_string_select() } else { false }
     }
 
-    pub fn get_string_arg<T: Display>(&self, arg: T) -> Result<String> {
+    pub fn get_string_arg<T: Display>(&self, arg: T, pos: usize, get_rest: bool) -> Result<String> {
         match &self.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => input
                 .args
                 .get(&arg.to_string())
                 .context(format!("Please provide the `{arg}` argument."))?
                 .as_string()
-                .context(format!("Could not convert the `{arg}` argument to `String`.")),
+                .context(format!("Could not get the `{arg}` argument as `String`.")),
             AeonCommandInput::MessageCommand(_, args, _) => {
-                let args = args.trim().to_string();
-                if args.is_empty() { Err(Error::msg(format!("Please provide the `{arg}` argument."))) } else { Ok(args) }
+                args.get_pos_arg(pos, get_rest).context(format!("Please provide the `{arg}` argument."))
             },
         }
     }
 
-    pub fn get_i64_arg<T: Display>(&self, arg: T) -> Result<i64> {
+    pub fn get_i64_arg<T: Display>(&self, arg: T, pos: usize) -> Result<i64> {
         match &self.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => input
                 .args
                 .get(&arg.to_string())
                 .context(format!("Please provide the `{arg}` argument."))?
                 .as_i64()
-                .context(format!("Could not convert the `{arg}` argument to `i64`.")),
+                .context(format!("Could not get the `{arg}` argument as `i64`.")),
             AeonCommandInput::MessageCommand(..) => {
-                self.get_string_arg(&arg)?.parse::<i64>().context(format!("Could not convert the `{arg}` argument to `i64`."))
+                self.get_string_arg(&arg, pos, false)?.parse::<i64>().context(format!("Could not get the `{arg}` argument as `i64`."))
             },
         }
     }
 
-    pub fn get_f64_arg<T: Display>(&self, arg: T) -> Result<f64> {
+    pub fn get_f64_arg<T: Display>(&self, arg: T, pos: usize) -> Result<f64> {
         match &self.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => input
                 .args
                 .get(&arg.to_string())
                 .context(format!("Please provide the `{arg}` argument."))?
                 .as_f64()
-                .context(format!("Could not convert the `{arg}` argument to `f64`.")),
+                .context(format!("Could not get the `{arg}` argument as `f64`.")),
             AeonCommandInput::MessageCommand(..) => {
-                self.get_string_arg(&arg)?.parse::<f64>().context(format!("Could not convert the `{arg}` argument to `f64`."))
+                self.get_string_arg(&arg, pos, false)?.parse::<f64>().context(format!("Could not get the `{arg}` argument as `f64`."))
             },
         }
     }
@@ -238,7 +240,7 @@ impl AeonCommandContext {
             .get(&arg.to_string())
             .context(format!("Please provide the `{arg}` argument."))?
             .as_bool()
-            .context(format!("Could not convert the `{arg}` argument to `bool`."))
+            .context(format!("Could not get the `{arg}` argument as `bool`."))
     }
 
     pub fn get_user_arg<T: Display>(&self, arg: T) -> Result<&User> {
@@ -250,7 +252,7 @@ impl AeonCommandContext {
             .get(&arg.to_string())
             .context(format!("Please provide the `{arg}` argument."))?
             .as_user()
-            .context(format!("Could not convert the `{arg}` argument to `User`."))
+            .context(format!("Could not get the `{arg}` argument as `User`."))
     }
 
     pub fn get_channel_arg<T: Display>(&self, arg: T) -> Result<&Channel> {
@@ -262,7 +264,7 @@ impl AeonCommandContext {
             .get(&arg.to_string())
             .context(format!("Please provide the `{arg}` argument."))?
             .as_channel()
-            .context(format!("Could not convert the `{arg}` argument to `Channel`."))
+            .context(format!("Could not get the `{arg}` argument to `Channel`."))
     }
 
     #[allow(dead_code)]
@@ -275,7 +277,7 @@ impl AeonCommandContext {
             .get(&arg.to_string())
             .context(format!("Please provide the `{arg}` argument."))?
             .as_role()
-            .context(format!("Could not convert the `{arg}` argument to `Role`."))
+            .context(format!("Could not get the `{arg}` argument as `Role`."))
     }
 
     pub fn get_attachment_arg<T: Display>(&self, arg: T) -> Result<&Attachment> {
@@ -287,6 +289,6 @@ impl AeonCommandContext {
             .get(&arg.to_string())
             .context(format!("Please provide the `{arg}` argument."))?
             .as_attachment()
-            .context(format!("Could not convert the `{arg}` argument to `Attachment`."))
+            .context(format!("Could not get the `{arg}` argument as `Attachment`."))
     }
 }

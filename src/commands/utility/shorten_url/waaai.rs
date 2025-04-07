@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(..) = &ctx.command_input else { return Ok(()) };
-    let mut url = ctx.get_string_arg("url")?;
+    let mut url = ctx.get_string_arg("url", 0, true)?;
 
     if !url.starts_with("http") {
         url = format!("http://{url}");
@@ -19,7 +19,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         .header("authorization", format!("API-Key {}", CONFIG.api.waaai_key))
         .json(&json!({
             "url": url,
-            "custom_code": ctx.get_string_arg("custom-id").as_deref().unwrap_or_default(),
+            "custom_code": ctx.get_string_arg("custom-id", 0, true).as_deref().unwrap_or_default(),
             "private": ctx.get_bool_arg("hash").unwrap_or(false),
         }))
         .send()

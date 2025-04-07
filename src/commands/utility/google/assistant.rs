@@ -6,7 +6,7 @@ use anyhow::Result;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let query = match ctx.get_string_arg("query") {
+    let query = match ctx.get_string_arg("query", 0, true) {
         Ok(query) => query,
         Err(error) => {
             let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Err(error) };

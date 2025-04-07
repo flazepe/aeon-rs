@@ -3,7 +3,6 @@ use crate::structs::{
     command::AeonCommand,
     command_context::{AeonCommandContext, AeonCommandInput},
 };
-use anyhow::Context;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -19,20 +18,9 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             }
         }
 
-        let (amount, origin_currency, target_currency) = match &ctx.command_input {
-            AeonCommandInput::ApplicationCommand(..) => {
-                (ctx.get_f64_arg("amount")?, ctx.get_string_arg("origin-currency")?, ctx.get_string_arg("target-currency")?)
-            },
-            AeonCommandInput::MessageCommand(_, args, _) => {
-                let mut args = args.split_whitespace();
-
-                (
-                    args.next().and_then(|arg| arg.to_lowercase().parse::<f64>().ok()).context("Please provide a valid amount.")?,
-                    args.next().map(|arg| arg.to_string()).context("Please provide the origin currency.")?,
-                    args.next().map(|arg| arg.to_string()).context("Please provide the target currency.")?,
-                )
-            },
-        };
+        let amount = ctx.get_f64_arg("amount", 0)?;
+        let origin_currency = ctx.get_string_arg("origin-currency", 1, false)?;
+        let target_currency = ctx.get_string_arg("target-currency", 2, true)?;
 
         let xe = Xe::convert(amount, origin_currency, target_currency).await?;
         ctx.respond_success(xe.format(), false).await

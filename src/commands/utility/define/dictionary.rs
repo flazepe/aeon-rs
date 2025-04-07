@@ -11,6 +11,6 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         AeonCommandInput::MessageCommand(..) => false,
     };
 
-    let dictionary = Dictionary::search(ctx.get_string_arg("word")?).await?;
+    let dictionary = Dictionary::search(ctx.get_string_arg("word", 0, true)?).await?;
     ctx.respond(dictionary.format(), ephemeral).await
 }

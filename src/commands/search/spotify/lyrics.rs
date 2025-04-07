@@ -27,11 +27,11 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     }
 
     let translate_language = match &ctx.command_input {
-        AeonCommandInput::ApplicationCommand(..) => ctx.get_string_arg("translate").ok(),
+        AeonCommandInput::ApplicationCommand(..) => ctx.get_string_arg("translate", 0, true).ok(),
         AeonCommandInput::MessageCommand(..) => None::<String>,
     };
 
-    let query = match ctx.get_string_arg("song") {
+    let query = match ctx.get_string_arg("song", 0, true) {
         Ok(query) => Ok(query),
         Err(error) => CACHE
             .song_activities

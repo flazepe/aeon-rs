@@ -6,7 +6,7 @@ use anyhow::Result;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let mut formatted = Unicode::list(ctx.get_string_arg("text")?).format();
+    let mut formatted = Unicode::list(ctx.get_string_arg("text", 0, true)?).format();
 
     if formatted.len() > 2000 {
         let extra = format!("\n\nFull list: {}", hastebin(&formatted).await?);

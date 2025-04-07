@@ -17,7 +17,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("youtube", &["yt"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let text = REQWEST
             .get("https://www.youtube.com/results")
-            .query(&[("search_query", ctx.get_string_arg("video")?)])
+            .query(&[("search_query", ctx.get_string_arg("video", 0, true)?)])
             .send()
             .await?
             .text()

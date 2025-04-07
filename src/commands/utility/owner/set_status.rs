@@ -15,7 +15,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
                 "activities": [{
                     "name": "yes",
                     "type": ActivityType::Custom,
-                    "state": args.to_string(),
+                    "state": args.get_content(),
                 }],
                 "status": "online",
                 "afk": false,

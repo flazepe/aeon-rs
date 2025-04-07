@@ -15,7 +15,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         return ctx.autocomplete(guild.prefixes.iter().map(|prefix| (prefix, prefix))).await;
     }
 
-    let prefix = ctx.get_string_arg("prefix")?.to_lowercase();
+    let prefix = ctx.get_string_arg("prefix", 0, true)?.to_lowercase();
     let remove_prefix = guild.prefixes.contains(&prefix);
 
     if !remove_prefix && guild.prefixes.len() >= 10 {

@@ -6,7 +6,7 @@ use anyhow::Result;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let character = ctx.get_string_arg("text")?;
+    let character = ctx.get_string_arg("text", 0, true)?;
 
     ctx.defer(false).await?;
 

@@ -9,7 +9,7 @@ use anyhow::{Context, Result, bail};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let mut replay_url = ctx.get_string_arg("replay-url");
+    let mut replay_url = ctx.get_string_arg("replay-url", 0, true);
     let mut skin = None::<String>;
 
     if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
@@ -18,7 +18,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         }
 
         replay_url = replay_url.or(ctx.get_attachment_arg("replay-file").map(|attachment| attachment.url.clone()));
-        skin = ctx.get_string_arg("skin").ok();
+        skin = ctx.get_string_arg("skin", 0, true).ok();
     }
 
     if CACHE.ordr_rendering_users.read().unwrap().contains_key(&ctx.get_user_id()) {

@@ -20,9 +20,9 @@ use std::{
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("latex", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
-        let expression = ctx.get_string_arg("expression")?;
+        let expression = ctx.get_string_arg("expression", 0, true)?;
         let color = match &ctx.command_input {
-            AeonCommandInput::ApplicationCommand(..) => ctx.get_string_arg("color").unwrap_or("#fff".into()),
+            AeonCommandInput::ApplicationCommand(..) => ctx.get_string_arg("color", 0, true).unwrap_or("#fff".into()),
             AeonCommandInput::MessageCommand(..) => "#fff".into(),
         };
 

@@ -15,7 +15,7 @@ use std::{sync::Arc, sync::LazyLock, time::Duration};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("calculate", &["calc", "count", "math"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
-        let expression = ctx.get_string_arg("expression")?;
+        let expression = ctx.get_string_arg("expression", 0, true)?;
 
         if expression.chars().all(|char| char.is_numeric()) {
             let fact = REQWEST.get(format!("http://numbersapi.com/{expression}")).send().await?.text().await?;

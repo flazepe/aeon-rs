@@ -25,7 +25,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         .add_subcommand("meta", &[], meta::run)
         .add_subcommand("toggle-alias", &[], toggle_alias::run)
         .add_subcommand("toggle-nsfw", &[], toggle_nsfw::run)
-        .add_subcommand("view", &[], view::run)
+        .add_subcommand("view", &["s", "show", "v"], view::run)
 });
 
 pub fn get_slashook_command() -> SlashookCommand {

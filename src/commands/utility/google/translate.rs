@@ -13,21 +13,22 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         }
     }
 
-    let (text, origin_language, target_language) = match &ctx.command_input {
-        AeonCommandInput::ApplicationCommand(..) => (
-            ctx.get_string_arg("text")?,
-            ctx.get_string_arg("origin-language").as_deref().unwrap_or("auto").to_string(),
-            ctx.get_string_arg("target-language").as_deref().unwrap_or("en").to_string(),
-        ),
-        AeonCommandInput::MessageCommand(message, args, _) => {
-            let mut args = args.split_whitespace();
-            let target_language = args.next().map(|arg| arg.to_string()).unwrap_or("en".into());
-            let reference_text = message.referenced_message.as_ref().map(|reply| SimpleMessage::from(*reply.clone()).to_string());
-            let text = args.next().map(|arg| arg.to_string()).or(reference_text).context("Please provide a text.")?;
-
-            (text, "auto".into(), target_language)
-        },
+    let origin_language = if let AeonCommandInput::MessageCommand(..) = &ctx.command_input {
+        "auto".into()
+    } else {
+        ctx.get_string_arg("origin-language", 0, true).as_deref().unwrap_or("auto").to_string()
     };
+    let target_language = ctx.get_string_arg("target-language", 0, false).as_deref().unwrap_or("en").to_string();
+
+    let reference_text = if let AeonCommandInput::MessageCommand(message, ..) = &ctx.command_input {
+        message.referenced_message.as_ref().map(|reply| SimpleMessage::from(*reply.clone()).to_string())
+    } else {
+        None
+    };
+    let text = match ctx.get_string_arg("text", 1, true) {
+        Ok(text) => Ok(text),
+        Err(error) => reference_text.context(error),
+    }?;
 
     let translation = Google::translate(text, origin_language, target_language).await?;
     ctx.respond(translation.format(), false).await
