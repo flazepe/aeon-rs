@@ -716,6 +716,7 @@ pub static TIO_PROGRAMMING_LANGUAGE_CODES: LazyLock<HashMap<&str, &str>> = LazyL
         ("python", "python3"),
         ("rs", "rust"),
         ("rb", "ruby"),
+        ("sh", "bash"),
         ("ts", "typescript"),
         ("vb", "vb-core"),
     ])
