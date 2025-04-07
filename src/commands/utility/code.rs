@@ -58,8 +58,8 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                         Ok(res.open_modal(modal).await?)
                     }
                 },
-                AeonCommandInput::MessageCommand(..) => {
-                    let codeblock = ctx.get_string_arg("codeblock", 0, true)?;
+                AeonCommandInput::MessageCommand(_, args, _) => {
+                    let codeblock = args.get_content();
 
                     if !codeblock.starts_with("```") || !codeblock.ends_with("```") {
                         bail!("Please provide a valid codeblock.");
