@@ -6,6 +6,7 @@ pub mod jisho;
 pub mod lyricfind;
 pub mod ordr;
 pub mod osu;
+pub mod piston;
 pub mod spotify;
 pub mod steam;
 pub mod tio;

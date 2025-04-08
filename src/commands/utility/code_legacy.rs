@@ -1,7 +1,7 @@
 use crate::{
     statics::CACHE,
     structs::{
-        api::piston::{Piston, statics::PISTON_RUNTIMES},
+        api::tio::{Tio, statics::TIO_PROGRAMMING_LANGUAGES},
         command::AeonCommand,
         command_context::{AeonCommandContext, AeonCommandInput},
     },
@@ -18,25 +18,25 @@ use slashook::{
 use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("code", &["exec", "execute", "run"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
+    AeonCommand::new("code-legacy", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         match &ctx.command_input {
             AeonCommandInput::ApplicationCommand(input, res) => {
                 if input.is_autocomplete() {
-                    return ctx.autocomplete(PISTON_RUNTIMES.iter().map(|runtime| (&runtime.language, runtime.label()))).await;
+                    return ctx.autocomplete(TIO_PROGRAMMING_LANGUAGES.iter()).await;
                 }
 
                 let programming_language = ctx
                     .get_string_arg("programming-language", 0, true)
                     .ok()
-                    .or(CACHE.last_piston_programming_languages.read().unwrap().get(&input.user.id).cloned())
+                    .or(CACHE.last_tio_programming_languages.read().unwrap().get(&input.user.id).cloned())
                     .context("Please provide a programming language.")?;
 
-                CACHE.last_piston_programming_languages.write().unwrap().insert(input.user.id.clone(), programming_language.clone());
+                CACHE.last_tio_programming_languages.write().unwrap().insert(input.user.id.clone(), programming_language.clone());
 
                 if input.is_modal_submit() {
                     ctx.defer(false).await?;
 
-                    let tio = Piston::new(programming_language, ctx.get_string_arg("code", 0, true)?).run().await?;
+                    let tio = Tio::new(programming_language, ctx.get_string_arg("code", 0, true)?).run().await?;
                     ctx.respond(tio.format(), false).await
                 } else {
                     let code_input = TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code").set_label("Code");
@@ -58,8 +58,8 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 
                 ctx.defer(false).await?;
 
-                let piston = Piston::new(programming_language.trim(), code.trim()).run().await?;
-                ctx.respond(piston.format(), false).await
+                let tio = Tio::new(programming_language.trim(), code.trim()).run().await?;
+                ctx.respond(tio.format(), false).await
             },
         }
     })

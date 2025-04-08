@@ -19,8 +19,8 @@ pub struct Tio {
     pub programming_language: String,
     pub code: String,
     pub code_url: Option<String>,
-    pub result: Option<String>,
-    pub result_url: Option<String>,
+    pub output: Option<String>,
+    pub output_url: Option<String>,
 }
 
 impl Tio {
@@ -29,8 +29,8 @@ impl Tio {
             programming_language: programming_language.to_string().to_lowercase(),
             code: code.to_string(),
             code_url: None,
-            result: None,
-            result_url: None,
+            output: None,
+            output_url: None,
         }
     }
 
@@ -43,14 +43,10 @@ impl Tio {
         let (programming_language_id, programming_language_name) =
             TIO_PROGRAMMING_LANGUAGES.get_key_value(self.programming_language.as_str()).context("Invalid programming language.")?;
 
-        // Set to real programming language name
         self.programming_language = programming_language_name.to_string();
-
-        // Upload code to hastebin
         self.code_url = Some(hastebin(&self.code).await?);
 
         let mut body = vec![];
-
         DeflateEncoder::new(&mut body, Compression::default()).write_all(
             format!(
                 "{}\0R",
@@ -72,17 +68,16 @@ impl Tio {
             .as_bytes(),
         )?;
 
-        let mut result = vec![];
+        let mut output = vec![];
+        GzDecoder::new(&mut output).write_all(&REQWEST.post("https://tio.run/cgi-bin/run/api/").body(body).send().await?.bytes().await?)?;
 
-        GzDecoder::new(&mut result).write_all(&REQWEST.post("https://tio.run/cgi-bin/run/api/").body(body).send().await?.bytes().await?)?;
+        let output = String::from_utf8_lossy(&output);
+        let output = output.replace(&output.chars().take(16).collect::<String>(), "");
 
-        let result = String::from_utf8_lossy(&result);
-        let result = result.replace(&result.chars().take(16).collect::<String>(), "");
+        self.output = Some(output.clone());
 
-        self.result = Some(result.clone());
-
-        if result.len() > 3900 {
-            self.result_url = Some(hastebin(result).await?);
+        if output.len() > 3900 {
+            self.output_url = Some(hastebin(output).await?);
         }
 
         Ok(self)
@@ -91,12 +86,12 @@ impl Tio {
     pub fn format(&self) -> Embed {
         let title = &self.programming_language;
         let url = self.code_url.as_deref().unwrap_or_default();
-        let result = format!(
+        let description = format!(
             "{}```\n{}```",
-            self.result_url.as_ref().map(|result_url| format!("[Full Result]({result_url})")).as_deref().unwrap_or_default(),
-            self.result.as_deref().unwrap_or("No output.").chars().take(3900).collect::<String>(),
+            self.output_url.as_ref().map(|output_url| format!("[Full Output]({output_url})")).as_deref().unwrap_or_default(),
+            self.output.as_deref().unwrap_or("No output.").chars().take(3900).collect::<String>(),
         );
 
-        Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_title(title).set_url(url).set_description(result)
+        Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_title(title).set_url(url).set_description(description)
     }
 }

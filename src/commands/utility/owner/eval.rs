@@ -21,7 +21,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         code = code.trim_end_matches("```").chars().skip(if code.starts_with("```js") { 5 } else { 3 }).collect::<String>();
     }
 
-    let mut text = "No result.".to_string();
+    let mut text = "No output.".to_string();
 
     if let Ok(output) = Command::new("node")
         .args([
@@ -49,7 +49,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     if !flags.contains('s') {
         return ctx
             .respond(
-                if text.len() > 2000 { MessageResponse::from(File::new("result.txt", text)) } else { MessageResponse::from(text) },
+                if text.len() > 2000 { MessageResponse::from(File::new("output.txt", text)) } else { MessageResponse::from(text) },
                 false,
             )
             .await;
