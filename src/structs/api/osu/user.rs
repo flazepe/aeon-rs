@@ -66,7 +66,7 @@ pub struct OsuUser {
     pub page: OsuUserPage,
     pub pending_beatmapset_count: u64,
     pub previous_usernames: Vec<String>,
-    pub rank_highest: OsuUserRankHighest,
+    pub rank_highest: Option<OsuUserRankHighest>,
     pub ranked_beatmapset_count: u64,
     pub replays_watched_counts: Vec<OsuUserDateCount>,
     pub scores_best_count: u64,
@@ -76,8 +76,7 @@ pub struct OsuUser {
     pub statistics: OsuUserStatistics,
     pub support_level: u8,
     pub user_achievements: Vec<OsuUserAchievement>,
-    pub rank_history: OsuUserRankHistory,
-    // pub rankHistory: OsuUserRankHistory,
+    pub rank_history: Option<OsuUserRankHistory>,
     pub ranked_and_approved_beatmapset_count: u64,
     pub unranked_beatmapset_count: u64,
 }
@@ -273,11 +272,11 @@ impl OsuUser {
     }
 
     pub fn format(&self) -> Embed {
-        let mode = self.rank_history.mode.to_string();
+        let mode = self.rank_history.as_ref().map_or(&OsuMode::Osu, |rank_history| &rank_history.mode);
         let rank = format!(
-            "#{} (#{} peak)",
+            "#{}{}",
             self.statistics.global_rank.map(|global_rank| global_rank.commas()).as_deref().unwrap_or("-"),
-            self.rank_highest.rank.commas(),
+            self.rank_highest.as_ref().map(|rank_highest| format!(" (#{} peak)", rank_highest.rank.commas())).as_deref().unwrap_or(""),
         );
         let id = self.id;
         let followers = self.follower_count;
