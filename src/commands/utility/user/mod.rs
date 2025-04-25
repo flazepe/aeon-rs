@@ -44,6 +44,11 @@ pub fn get_slashook_command() -> SlashookCommand {
 						description = "The user",
 						option_type = InteractionOptionType::USER,
 					},
+					{
+						name = "force-user-banner",
+						description = "Whether to force showing user banner instead of server banner",
+						option_type = InteractionOptionType::BOOLEAN,
+					},
 				],
 			},
 		],

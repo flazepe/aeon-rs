@@ -37,7 +37,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                         option_type = InteractionOptionType::STRING,
 						choices = HELIOHOST_SERVERS
 						    .iter()
-						    .map(|entry| ApplicationCommandOptionChoice::new(&entry, entry.to_string()))
+						    .map(|entry| ApplicationCommandOptionChoice::new(entry, entry.to_string()))
 							.collect::<Vec<ApplicationCommandOptionChoice>>(),
                         required = true,
                     },
@@ -69,7 +69,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                         option_type = InteractionOptionType::STRING,
 						choices = HELIOHOST_SERVERS
 						    .iter()
-						    .map(|entry| ApplicationCommandOptionChoice::new(&entry, entry.to_string()))
+						    .map(|entry| ApplicationCommandOptionChoice::new(entry, entry.to_string()))
 							.collect::<Vec<ApplicationCommandOptionChoice>>(),
                         required = true,
                     },

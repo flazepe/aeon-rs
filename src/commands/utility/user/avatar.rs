@@ -4,10 +4,7 @@ use crate::{
     traits::UserExt,
 };
 use anyhow::Result;
-use slashook::{
-    commands::MessageResponse,
-    structs::{guilds::GuildMember, utils::File},
-};
+use slashook::{commands::MessageResponse, structs::utils::File};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
@@ -17,19 +14,17 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
 
     let user = ctx.get_user_arg("user").unwrap_or(&input.user);
     let user_id = &user.id;
-
-    let guild_avatar = match input.guild_id.as_ref() {
-        Some(guild_id) => input.rest.get::<GuildMember>(format!("guilds/{guild_id}/members/{user_id}")).await.ok().and_then(|member| {
-            member.avatar.map(|avatar| format!("https://cdn.discordapp.com/guilds/{guild_id}/users/{user_id}/avatars/{avatar}?size=4096"))
-        }),
-        None => None,
-    };
-
-    let avatar_url = if ctx.get_bool_arg("force-user-avatar").unwrap_or(false) {
-        user.display_avatar_url("gif", 4096)
-    } else {
-        guild_avatar.unwrap_or_else(|| user.display_avatar_url("gif", 4096))
-    };
+    let user_avatar_url = user.display_avatar_url("gif", 4096);
+    let guild_avatar_url = input.guild_id.as_ref().and_then(|guild_id| {
+        input.member.as_ref().and_then(|member| {
+            member
+                .avatar
+                .as_ref()
+                .map(|avatar| format!("https://cdn.discordapp.com/guilds/{guild_id}/users/{user_id}/avatars/{avatar}?size=4096"))
+        })
+    });
+    let avatar_url =
+        if ctx.get_bool_arg("force-user-avatar").unwrap_or(false) { user_avatar_url } else { guild_avatar_url.unwrap_or(user_avatar_url) };
 
     ctx.respond(
         MessageResponse::from(format!(
