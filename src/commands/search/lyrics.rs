@@ -49,7 +49,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                 )
             },
             AeonCommandInput::MessageCommand(message, args, _) => {
-                let (artist, title) = args.get_content().split_once('-').unwrap_or(("", &args.get_content()));
+                let (artist, title) = args.get_content().split_once(" - ").unwrap_or(("", &args.get_content()));
                 (
                     message.author.id.to_string(),
                     if artist.trim().is_empty() { None } else { Some(artist.into()) },
