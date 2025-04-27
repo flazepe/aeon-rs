@@ -48,7 +48,9 @@ impl EventHandler {
                     .and_then(|og_image_tag| og_image_tag.as_str().split('"').find(|entry| entry.contains("https")))
                     .unwrap_or_default();
 
-                if REQWEST.get(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK) {
+                if !image_url.contains("amplify_video_thumb")
+                    && REQWEST.get(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK)
+                {
                     continue;
                 }
             }
