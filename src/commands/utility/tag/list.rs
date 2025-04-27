@@ -5,7 +5,6 @@ use crate::{
         command_context::{AeonCommandContext, AeonCommandInput},
         database::tags::Tags,
     },
-    traits::UserExt,
 };
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
@@ -26,7 +25,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let Some(guild_id) = guild_id else { return Ok(()) };
     let tags = Tags::search(guild_id, author.map(|user| &user.id)).await?;
 
-    let thumbnail = author.map(|author| author.display_avatar_url("png", 512));
+    let thumbnail = author.map(|author| author.display_avatar_url("png", Some("gif"), 512));
     let title = author.map(|author| format!("{}'s tags", author.username));
     let description = limit_strings(
         tags.iter()

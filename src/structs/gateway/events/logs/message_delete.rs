@@ -2,7 +2,7 @@ use crate::{
     functions::format_timestamp,
     statics::{CACHE, colors::ERROR_EMBED_COLOR},
     structs::{database::guilds::Guilds, simple_message::SimpleMessage, snowflake::Snowflake},
-    traits::UserExt,
+    traits::{UserAvatarExt, UserExt},
 };
 use anyhow::Result;
 use slashook::{chrono::Utc, structs::embeds::Embed};

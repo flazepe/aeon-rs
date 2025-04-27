@@ -6,7 +6,6 @@ use crate::{
         gateway::song_activity::{SongActivity, SongActivityService},
         select_menu::SelectMenu,
     },
-    traits::UserExt,
 };
 use anyhow::Result;
 use serde_json::to_string;
@@ -39,7 +38,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
                     .album
                     .images
                     .first()
-                    .map_or_else(|| input.user.display_avatar_url("png", 4096), |image| image.url.clone()),
+                    .map_or_else(|| input.user.display_avatar_url("png", None::<String>, 4096), |image| image.url.clone()),
                 timestamps: None,
             };
 

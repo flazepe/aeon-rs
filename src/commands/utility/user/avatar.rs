@@ -1,7 +1,6 @@
 use crate::{
     statics::REQWEST,
     structs::command_context::{AeonCommandContext, AeonCommandInput},
-    traits::UserExt,
 };
 use anyhow::Result;
 use slashook::{commands::MessageResponse, structs::utils::File};
@@ -14,15 +13,13 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
 
     let user = ctx.get_user_arg("user").unwrap_or(&input.user);
     let user_id = &user.id;
-    let user_avatar_url = user.display_avatar_url("gif", 4096);
-    let guild_avatar_url = input.guild_id.as_ref().and_then(|guild_id| {
-        input.member.as_ref().and_then(|member| {
-            member
-                .avatar
-                .as_ref()
-                .map(|avatar| format!("https://cdn.discordapp.com/guilds/{guild_id}/users/{user_id}/avatars/{avatar}?size=4096"))
-        })
-    });
+
+    let user_avatar_url = user.display_avatar_url("png", Some("gif"), 4096);
+    let guild_avatar_url = input
+        .guild_id
+        .as_ref()
+        .and_then(|guild_id| input.member.as_ref().and_then(|member| member.avatar_url(guild_id, user_id, "png", Some("gif"), 4096)));
+
     let avatar_url =
         if ctx.get_bool_arg("force-user-avatar").unwrap_or(false) { user_avatar_url } else { guild_avatar_url.unwrap_or(user_avatar_url) };
 

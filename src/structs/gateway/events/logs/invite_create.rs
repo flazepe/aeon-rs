@@ -1,8 +1,12 @@
-use std::time::{SystemTime, UNIX_EPOCH};
-
-use crate::{functions::format_timestamp, statics::colors::SUCCESS_EMBED_COLOR, structs::database::guilds::Guilds, traits::UserExt};
+use crate::{
+    functions::format_timestamp,
+    statics::colors::SUCCESS_EMBED_COLOR,
+    structs::database::guilds::Guilds,
+    traits::{UserAvatarExt, UserExt},
+};
 use anyhow::Result;
 use slashook::{chrono::Utc, structs::embeds::Embed};
+use std::time::{SystemTime, UNIX_EPOCH};
 use twilight_model::gateway::payload::incoming::InviteCreate;
 
 pub async fn handle(event: &InviteCreate) -> Result<()> {

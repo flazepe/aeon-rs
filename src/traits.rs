@@ -4,32 +4,11 @@ use twilight_model::{channel::Message as TwilightMessage, user::User as Twilight
 
 pub trait UserExt {
     fn label(&self) -> String;
-    fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String>;
-    fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String;
 }
 
 impl UserExt for SlashookUser {
     fn label(&self) -> String {
         format!("@{} ({})", self.username, self.id)
-    }
-
-    fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String> {
-        let format = format.to_string();
-
-        self.avatar.as_ref().map(|avatar| {
-            format!(
-                "https://cdn.discordapp.com/avatars/{user_id}/{avatar}.{format}?size={size}",
-                user_id = self.id,
-                format = if format == "gif" && !avatar.starts_with("a_") { "png" } else { &format },
-            )
-        })
-    }
-
-    fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String {
-        match UserExt::avatar_url(self, format, size) {
-            Some(avatar_url) => avatar_url,
-            None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.parse::<u64>().unwrap() >> 22) % 5),
-        }
     }
 }
 
@@ -37,7 +16,14 @@ impl UserExt for TwilightUser {
     fn label(&self) -> String {
         format!("@{} ({})", self.name, self.id)
     }
+}
 
+pub trait UserAvatarExt {
+    fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String>;
+    fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String;
+}
+
+impl UserAvatarExt for TwilightUser {
     fn avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> Option<String> {
         let format = format.to_string();
 
@@ -45,16 +31,18 @@ impl UserExt for TwilightUser {
             format!(
                 "https://cdn.discordapp.com/avatars/{user_id}/{avatar}.{format}?size={size}",
                 user_id = self.id,
-                format = if format == "gif" && !avatar.is_animated() { "png" } else { &format },
+                format = if !avatar.is_animated() && format == "gif" { "png" } else { &format },
             )
         })
     }
 
     fn display_avatar_url<T: Display, U: Display>(&self, format: T, size: U) -> String {
-        match UserExt::avatar_url(self, format, size) {
-            Some(avatar_url) => avatar_url,
-            None => format!("https://cdn.discordapp.com/embed/avatars/{}.png", (self.id.get() >> 22) % 5),
-        }
+        self.avatar_url(format, size).unwrap_or_else(|| {
+            format!(
+                "https://cdn.discordapp.com/embed/avatars/{}.png",
+                if self.discriminator == 0 { ((self.id.get() >> 22) % 6) as u8 } else { (self.discriminator % 5) as u8 },
+            )
+        })
     }
 }
 

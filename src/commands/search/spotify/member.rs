@@ -2,7 +2,6 @@ use crate::{
     functions::eien,
     statics::CACHE,
     structs::command_context::{AeonCommandContext, AeonCommandInput},
-    traits::UserExt,
 };
 use anyhow::{Context, Result};
 use serde_json::to_string;
@@ -34,7 +33,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
 
     // Set to user display avatar if track has empty album cover
     if activity.album_cover.is_empty() {
-        activity.album_cover = user.display_avatar_url("png", 4096);
+        activity.album_cover = user.display_avatar_url("png", None::<String>, 4096);
     }
 
     // Collapse if requested

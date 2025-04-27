@@ -3,7 +3,7 @@ use crate::{
     macros::yes_no,
     statics::colors::{ERROR_EMBED_COLOR, NOTICE_EMBED_COLOR},
     structs::database::guilds::Guilds,
-    traits::UserExt,
+    traits::{UserAvatarExt, UserExt},
 };
 use anyhow::Result;
 use slashook::{chrono::Utc, structs::embeds::Embed};

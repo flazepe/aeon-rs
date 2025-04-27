@@ -1,7 +1,7 @@
 use crate::{
     statics::{CACHE, colors::NOTICE_EMBED_COLOR},
     structs::{database::guilds::Guilds, simple_message::SimpleMessage},
-    traits::UserExt,
+    traits::{UserAvatarExt, UserExt},
 };
 use anyhow::Result;
 use similar::{ChangeTag, TextDiff};
