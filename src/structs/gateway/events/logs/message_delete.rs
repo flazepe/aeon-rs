@@ -33,7 +33,7 @@ pub async fn handle(event: &MessageDelete) -> Result<()> {
 
     if let Some(old_message) = old_message {
         embed = embed
-            .add_field("Content", SimpleMessage::from(old_message.clone()), false)
+            .add_field("Content", SimpleMessage::from(old_message.clone()).to_string().chars().take(1024).collect::<String>(), false)
             .set_footer(old_message.author.label(), Some(old_message.author.display_avatar_url("gif", 4096)));
     }
 

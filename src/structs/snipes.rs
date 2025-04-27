@@ -66,7 +66,7 @@ impl Snipes {
 
         Ok(Embed::new()
             .set_color(PRIMARY_EMBED_COLOR)?
-            .set_description(SimpleMessage::from(snipe.clone()))
+            .set_description(SimpleMessage::from(snipe.clone()).to_string().chars().take(4096).collect::<String>())
             .set_footer(snipe.author.label(), Some(snipe.author.display_avatar_url("png", 64)))
             .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?)
             .into())
