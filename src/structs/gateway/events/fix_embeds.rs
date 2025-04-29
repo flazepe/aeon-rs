@@ -1,11 +1,9 @@
 use crate::{
-    statics::{
-        REQWEST, REST,
-        regex::{OG_IMAGE_TAG_REGEX, URL_REGEX},
-    },
+    statics::{REQWEST, REST, regex::URL_REGEX},
     structs::{database::guilds::Guilds, gateway::events::EventHandler},
 };
 use anyhow::Result;
+use regex::Regex;
 use reqwest::StatusCode;
 use serde_json::json;
 use slashook::{
@@ -36,45 +34,33 @@ impl EventHandler {
 
             // Skip Bluesky/X posts that have a valid image
             if ["bsky.app", "x.com", "twitter.com"].contains(&domain) {
-                let body = REQWEST
-                    .get(url)
-                    .header("user-agent", "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)")
-                    .send()
-                    .await?
-                    .text()
-                    .await?;
-                let image_url = OG_IMAGE_TAG_REGEX
-                    .find(&body)
-                    .and_then(|og_image_tag| og_image_tag.as_str().split('"').find(|entry| entry.contains("https")))
-                    .unwrap_or_default();
+                let body = REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await?;
+                let image_url = get_meta_content(body.as_str(), "og:image");
 
-                if image_url.contains("/media/") && REQWEST.get(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK) {
+                if image_url.contains("/media/") && REQWEST.head(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK) {
                     continue;
                 }
             }
 
             let new_domain = match domain {
-                "bsky.app" => "vxbsky.app",
+                // "bsky.app" => "fxbsky.app",
                 "instagram.com" => "ddinstagram.com",
                 "pixiv.net" => "phixiv.net",
                 "reddit.com" | "old.reddit.com" => "rxddit.com",
                 "tiktok.com" => "vxtiktok.com",
                 "vt.tiktok.com" => "vt.vxtiktok.com",
-                "x.com" | "twitter.com" => "fixvx.com",
+                "x.com" | "twitter.com" => "fixupx.com",
                 _ => continue,
             };
             let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
             let new_url = format!("https://{new_domain}/{path}");
-            let body = REQWEST
-                .get(&new_url)
-                .header("user-agent", "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)")
-                .send()
-                .await?
-                .text()
-                .await?;
+            let body = REQWEST.get(&new_url).header("user-agent", "discordbot").send().await?.text().await?;
 
             // Only fix posts that were supposed to have an image or video
-            if !["og:image", "og:video", "twitter:image", "twitter:video"].iter().any(|entry| body.contains(entry)) {
+            if ["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]
+                .iter()
+                .all(|entry| get_meta_content(&body, entry).is_empty())
+            {
                 continue;
             }
 
@@ -101,4 +87,22 @@ impl EventHandler {
 
         Ok(())
     }
+}
+
+fn get_meta_content(html: &str, property: &str) -> String {
+    let Ok(regex) = Regex::new(
+        format!(r#"<meta\s*content="(\S+)"\s*property="{property}"\s*/?>|<meta\s*property="{property}"\s*content="(\S+)"\s*/?>"#).as_str(),
+    ) else {
+        return "".into();
+    };
+
+    let content =
+        regex.captures(html).and_then(|captures| captures.get(1).or(captures.get(2))).map(|capture| capture.as_str()).unwrap_or_default();
+
+    // Ignore some invalid contents
+    if ["0", "undefined"].contains(&content) || content.starts_with("https://pbs.twimg.com/profile_images/") {
+        return "".into();
+    }
+
+    content.into()
 }

@@ -8,7 +8,5 @@ pub static HTTPS_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"http
 pub static URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\bhttps?://(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)\b").unwrap()
 });
-pub static OG_IMAGE_TAG_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r#"<meta\s*(content="\S+")?\s*property="og:image"\s*(content="\S+")?\s*/?>"#).unwrap());
 pub static BBCODE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| RegexBuilder::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]").case_insensitive(true).build().unwrap());
