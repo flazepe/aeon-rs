@@ -17,7 +17,7 @@ impl EventHandler {
         let Some(guild_id) = &message.guild_id else { return Ok(()) };
         let guild = Guilds::get(guild_id).await?;
 
-        if !guild.fix_embeds || message.author.bot {
+        if !guild.fix_embeds.enabled || message.author.bot {
             return Ok(());
         }
 

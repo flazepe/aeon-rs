@@ -33,25 +33,34 @@ pub fn get_slashook_command() -> SlashookCommand {
         subcommands = [
 			{
                 name = "fix-embeds",
-                description = "Whether to fix embeds.",
+                description = "Fix embeds.",
                 options = [
 					{
 						name = "enabled",
-						description = "Whether to fix embeds",
+						description = "Whether to enable fix embeds",
 						option_type = InteractionOptionType::BOOLEAN,
-                        required = true,
                     },
                 ],
             },
             {
                 name = "logs",
-                description = "Whether to send logs to a channel.",
+                description = "Logs.",
                 options = [
+                    {
+						name = "enabled",
+						description = "Whether to enable logs",
+						option_type = InteractionOptionType::BOOLEAN,
+                    },
 					{
 						name = "channel",
-						description = "The channel to send logs to. Leave unset to disable logs entirely",
+						description = "The channel to send logs to",
 						option_type = InteractionOptionType::CHANNEL,
                         channel_types = [ChannelType::GUILD_TEXT],
+                    },
+                    {
+						name = "ignore-bots",
+						description = "Whether to ignore bots' messages",
+						option_type = InteractionOptionType::BOOLEAN,
                     },
                 ],
             },

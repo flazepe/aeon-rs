@@ -8,9 +8,21 @@ use std::fmt::Display;
 #[derive(Deserialize, Serialize, Clone, Default, Debug)]
 pub struct Guild {
     pub _id: String,
-    pub logs_channel_id: Option<String>,
     pub prefixes: Vec<String>,
-    pub fix_embeds: bool,
+    pub fix_embeds: GuildFixEmbeds,
+    pub logs: GuildLogs,
+}
+
+#[derive(Deserialize, Serialize, Clone, Default, Debug)]
+pub struct GuildFixEmbeds {
+    pub enabled: bool,
+}
+
+#[derive(Deserialize, Serialize, Clone, Default, Debug)]
+pub struct GuildLogs {
+    pub enabled: bool,
+    pub channel_id: Option<String>,
+    pub ignore_bots: bool,
 }
 
 pub struct Guilds;
@@ -51,8 +63,14 @@ impl Guilds {
 
     pub async fn send_log<T: Display>(guild_id: T, embed: Embed) -> Result<()> {
         let guild = Self::get(guild_id).await?;
-        let Some(logs_channel_id) = &guild.logs_channel_id else { return Ok(()) };
+
+        if !guild.logs.enabled {
+            return Ok(());
+        }
+
+        let Some(logs_channel_id) = &guild.logs.channel_id else { return Ok(()) };
         _ = Message::create(&REST, logs_channel_id, embed).await;
+
         Ok(())
     }
 }
