@@ -47,7 +47,7 @@ impl DistroWatch {
                 .select(&format!("td.TablesTitle li:nth-child({n})"))
                 .text()
                 .split(':')
-                .last()
+                .next_back()
                 .context(format!("Could not get table nth child value for {n}."))?
                 .trim()
                 .to_string())

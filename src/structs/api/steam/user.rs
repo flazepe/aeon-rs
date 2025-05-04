@@ -98,8 +98,15 @@ pub struct SteamUser {
 
 impl SteamUser {
     pub fn format(&self) -> Embed {
-        let vanity =
-            self.profile_url.chars().take(self.profile_url.len() - 1).collect::<String>().split('/').last().unwrap_or("None").to_string();
+        let vanity = self
+            .profile_url
+            .chars()
+            .take(self.profile_url.len() - 1)
+            .collect::<String>()
+            .split('/')
+            .next_back()
+            .unwrap_or("None")
+            .to_string();
         let thumbnail = &self.avatar_full;
         let title = self.real_name.as_ref().unwrap_or(&self.persona_name);
         let url = &self.profile_url;

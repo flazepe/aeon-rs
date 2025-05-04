@@ -164,7 +164,7 @@ impl Spotify {
         let query = query.to_string();
 
         if query.contains("album") {
-            return Ok(vec![Self::get_simple_album(query.split('/').last().unwrap().split('?').next().unwrap()).await?]);
+            return Ok(vec![Self::get_simple_album(query.split('/').next_back().unwrap().split('?').next().unwrap()).await?]);
         }
 
         let results = Self::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}")).await?.albums.items;

@@ -35,7 +35,7 @@ impl SelectMenu {
 
         if let Some(default) = self.default.as_ref() {
             option = option.set_default(
-                (default.is_empty() && !value.contains('/')) || (!default.is_empty() && value.split('/').last().unwrap() == default),
+                (default.is_empty() && !value.contains('/')) || (!default.is_empty() && value.split('/').next_back().unwrap() == default),
             );
         }
 

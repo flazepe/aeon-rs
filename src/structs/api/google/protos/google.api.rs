@@ -178,7 +178,7 @@ pub struct Http {
 /// Rules for HTTP mapping
 ///
 /// 1. Leaf request fields (recursive expansion nested messages in the request
-///     message) are classified into three categories:
+///    message) are classified into three categories:
 ///     - Fields referred by the path template. They are passed via the URL path.
 ///     - Fields referred by the [HttpRule.body][google.api.HttpRule.body]. They
 ///       are passed via the HTTP
