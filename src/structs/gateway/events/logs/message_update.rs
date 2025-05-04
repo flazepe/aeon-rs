@@ -55,5 +55,5 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
         .set_footer(event.author.label(), Some(event.author.display_avatar_url("gif", 4096)))
         .set_timestamp(Utc::now());
 
-    Guilds::send_log(guild_id, embed).await
+    Guilds::send_log(guild_id, embed, event.author.bot).await
 }

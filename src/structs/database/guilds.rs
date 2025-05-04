@@ -8,9 +8,9 @@ use std::fmt::Display;
 #[derive(Deserialize, Serialize, Clone, Default, Debug)]
 pub struct Guild {
     pub _id: String,
-    pub prefixes: Vec<String>,
     pub fix_embeds: GuildFixEmbeds,
     pub logs: GuildLogs,
+    pub prefixes: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize, Clone, Default, Debug)]
@@ -61,10 +61,10 @@ impl Guilds {
         Ok(())
     }
 
-    pub async fn send_log<T: Display>(guild_id: T, embed: Embed) -> Result<()> {
+    pub async fn send_log<T: Display>(guild_id: T, embed: Embed, is_bot: bool) -> Result<()> {
         let guild = Self::get(guild_id).await?;
 
-        if !guild.logs.enabled {
+        if !guild.logs.enabled || (guild.logs.ignore_bots && is_bot) {
             return Ok(());
         }
 

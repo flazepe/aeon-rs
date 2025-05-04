@@ -11,5 +11,5 @@ pub async fn handle(event: &RoleDelete) -> Result<()> {
         .set_description(format!("<@&{role_id}> ({role_id})", role_id = event.role_id))
         .set_timestamp(Utc::now());
 
-    Guilds::send_log(event.guild_id, embed).await
+    Guilds::send_log(event.guild_id, embed, false).await
 }

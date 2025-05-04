@@ -41,5 +41,5 @@ pub async fn handle(event: &VoiceStateUpdate) -> Result<()> {
 
     embed = embed.set_timestamp(Utc::now());
 
-    Guilds::send_log(guild_id, embed).await
+    Guilds::send_log(guild_id, embed, false).await
 }

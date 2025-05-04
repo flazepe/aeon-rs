@@ -12,5 +12,5 @@ pub async fn handle(event: &InviteDelete) -> Result<()> {
         .add_field("Channel", format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id), false)
         .set_timestamp(Utc::now());
 
-    Guilds::send_log(event.guild_id, embed).await
+    Guilds::send_log(event.guild_id, embed, false).await
 }

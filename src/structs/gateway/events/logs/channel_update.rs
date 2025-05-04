@@ -14,5 +14,5 @@ pub async fn handle(event: &ChannelUpdate) -> Result<()> {
         .add_field("Name", format!("#{}", event.name.as_deref().unwrap_or("unknown")), false)
         .set_timestamp(Utc::now());
 
-    Guilds::send_log(guild_id, embed).await
+    Guilds::send_log(guild_id, embed, false).await
 }

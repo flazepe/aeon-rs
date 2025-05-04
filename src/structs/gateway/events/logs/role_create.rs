@@ -12,5 +12,5 @@ pub async fn handle(event: &RoleCreate) -> Result<()> {
         .add_field("Name", format!("@{}", event.role.name), false)
         .set_timestamp(Utc::now());
 
-    Guilds::send_log(event.guild_id, embed).await
+    Guilds::send_log(event.guild_id, embed, false).await
 }

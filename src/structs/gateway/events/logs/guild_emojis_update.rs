@@ -6,5 +6,5 @@ use twilight_model::gateway::payload::incoming::GuildEmojisUpdate;
 pub async fn handle(event: &GuildEmojisUpdate) -> Result<()> {
     let embed = Embed::new().set_color(NOTICE_EMBED_COLOR).unwrap_or_default().set_title("Server Emojis Updated").set_timestamp(Utc::now());
 
-    Guilds::send_log(event.guild_id, embed).await
+    Guilds::send_log(event.guild_id, embed, false).await
 }

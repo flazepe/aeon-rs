@@ -1,10 +1,9 @@
-use std::cmp::Reverse;
-
 use crate::structs::{
     command_context::{AeonCommandContext, AeonCommandInput},
     database::guilds::Guilds,
 };
 use anyhow::{Result, bail};
+use std::cmp::Reverse;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {

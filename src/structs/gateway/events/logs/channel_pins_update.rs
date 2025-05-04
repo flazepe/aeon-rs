@@ -13,5 +13,5 @@ pub async fn handle(event: &ChannelPinsUpdate) -> Result<()> {
         .set_description(format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id))
         .set_timestamp(Utc::now());
 
-    Guilds::send_log(guild_id, embed).await
+    Guilds::send_log(guild_id, embed, false).await
 }

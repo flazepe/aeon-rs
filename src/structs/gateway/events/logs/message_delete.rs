@@ -31,7 +31,7 @@ pub async fn handle(event: &MessageDelete) -> Result<()> {
         channels.get(&event.channel_id.to_string()).and_then(|messages| messages.iter().find(|message| message.id == event.id)).cloned()
     };
 
-    if let Some(old_message) = old_message {
+    if let Some(old_message) = &old_message {
         embed = embed
             .add_field("Content", SimpleMessage::from(old_message.clone()).to_string().chars().take(1024).collect::<String>(), false)
             .set_footer(old_message.author.label(), Some(old_message.author.display_avatar_url("gif", 4096)));
@@ -39,5 +39,5 @@ pub async fn handle(event: &MessageDelete) -> Result<()> {
 
     embed = embed.set_timestamp(Utc::now());
 
-    Guilds::send_log(guild_id, embed).await
+    Guilds::send_log(guild_id, embed, old_message.is_some_and(|message| message.author.bot)).await
 }

@@ -12,5 +12,5 @@ pub async fn handle(event: &MemberAdd) -> Result<()> {
         .add_field("Username", event.user.label(), false)
         .set_timestamp(Utc::now());
 
-    Guilds::send_log(event.guild_id, embed).await
+    Guilds::send_log(event.guild_id, embed, false).await
 }

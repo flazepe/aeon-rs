@@ -11,10 +11,6 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
 
     if let Ok(enabled) = ctx.get_bool_arg("enabled") {
         guild.logs.enabled = enabled;
-
-        if !enabled {
-            guild.logs.channel_id = None;
-        }
     }
 
     if let Ok(channel) = ctx.get_channel_arg("channel") {

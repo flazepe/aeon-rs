@@ -13,5 +13,5 @@ pub async fn handle(event: &ThreadDelete) -> Result<()> {
         .add_field("Parent", format!("<#{parent_id}> ({parent_id})", parent_id = event.parent_id), false)
         .set_timestamp(Utc::now());
 
-    Guilds::send_log(event.guild_id, embed).await
+    Guilds::send_log(event.guild_id, embed, false).await
 }

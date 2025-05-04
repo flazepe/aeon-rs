@@ -33,7 +33,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         subcommands = [
 			{
                 name = "fix-embeds",
-                description = "Fix embeds.",
+                description = "Config for fix embeds.",
                 options = [
 					{
 						name = "enabled",
@@ -44,7 +44,7 @@ pub fn get_slashook_command() -> SlashookCommand {
             },
             {
                 name = "logs",
-                description = "Logs.",
+                description = "Config for logs.",
                 options = [
                     {
 						name = "enabled",
