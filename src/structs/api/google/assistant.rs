@@ -104,8 +104,7 @@ impl GoogleAssistant {
         let mut suggestions = vec![];
 
         if let Some(html) = html {
-            let launch_options: LaunchOptions<'_> =
-                LaunchOptions::default_builder().window_size(Some((1920, 1080))).sandbox(false).build()?;
+            let launch_options = LaunchOptions::default_builder().window_size(Some((1920, 1080))).sandbox(false).build()?;
             let browser = Browser::new(launch_options)?;
             let tab = browser.new_tab()?;
 

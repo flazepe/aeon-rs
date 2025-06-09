@@ -101,7 +101,7 @@ impl NovelUpdates {
             name: if a.text().is_empty() { "N/A".into() } else { a.text().to_string() },
             url: a
                 .attr("href")
-                .map(|href| if href.starts_with("//") { format!("https:{}", href) } else { href.to_string() })
+                .map(|href| if href.starts_with("//") { format!("https:{href}") } else { href.to_string() })
                 .unwrap_or(NOVEL_UPDATES_URL.into()),
         };
 
