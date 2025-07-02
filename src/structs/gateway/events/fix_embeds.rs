@@ -26,7 +26,7 @@ impl EventHandler {
 
         for url in urls {
             // Skip suppressed embeds
-            if message.content.contains(&format!("<{url}>")) {
+            if message.content.contains(&format!("<{url}")) {
                 continue;
             }
 
@@ -64,7 +64,7 @@ impl EventHandler {
                 continue;
             }
 
-            let spoiler = message.content.contains(&format!("||{url}||"));
+            let spoiler = message.content.contains(&format!("||{url}"));
             new_urls.push(if spoiler { format!("||{new_url}||") } else { new_url });
         }
 
