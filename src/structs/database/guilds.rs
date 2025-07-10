@@ -2,10 +2,7 @@ use crate::statics::{CACHE, COLLECTIONS, REST};
 use anyhow::Result;
 use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
-use slashook::{
-    commands::MessageResponse,
-    structs::{embeds::Embed, messages::Message},
-};
+use slashook::{commands::MessageResponse, structs::messages::Message};
 use std::fmt::Display;
 
 #[derive(Deserialize, Serialize, Clone, Default, Debug)]
