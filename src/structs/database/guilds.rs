@@ -2,7 +2,10 @@ use crate::statics::{CACHE, COLLECTIONS, REST};
 use anyhow::Result;
 use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
-use slashook::structs::{embeds::Embed, messages::Message};
+use slashook::{
+    commands::MessageResponse,
+    structs::{embeds::Embed, messages::Message},
+};
 use std::fmt::Display;
 
 #[derive(Deserialize, Serialize, Clone, Default, Debug)]
@@ -61,7 +64,7 @@ impl Guilds {
         Ok(())
     }
 
-    pub async fn send_log<T: Display>(guild_id: T, embed: Embed, is_bot: bool) -> Result<()> {
+    pub async fn send_log<T: Display, U: Into<MessageResponse>>(guild_id: T, response: U, is_bot: bool) -> Result<()> {
         let guild = Self::get(guild_id).await?;
 
         if !guild.logs.enabled || (guild.logs.ignore_bots && is_bot) {
@@ -69,7 +72,7 @@ impl Guilds {
         }
 
         let Some(logs_channel_id) = &guild.logs.channel_id else { return Ok(()) };
-        _ = Message::create(&REST, logs_channel_id, embed).await;
+        _ = Message::create(&REST, logs_channel_id, response).await;
 
         Ok(())
     }
