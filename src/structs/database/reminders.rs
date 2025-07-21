@@ -64,9 +64,15 @@ impl Reminders {
 
                         println!("[REMINDERS] An error occurred while handling reminder {}: {error}", reminder._id);
 
-                        if let Some(fatal_error) = ["Invalid Recipient(s)", "Missing Access", "Missing Permissions", "Unknown Channel"]
-                            .iter()
-                            .find(|message| error.contains(&message.to_string()))
+                        if let Some(fatal_error) = [
+                            "Cannot send messages to this user",
+                            "Invalid Recipient(s)",
+                            "Missing Access",
+                            "Missing Permissions",
+                            "Unknown Channel",
+                        ]
+                        .iter()
+                        .find(|message| error.contains(&message.to_string()))
                         {
                             reminders.delete_one(doc! { "_id": reminder._id }).await?;
                             println!(r#"[REMINDERS] Deleted reminder {} due to fatal error "{fatal_error}"."#, reminder._id);
