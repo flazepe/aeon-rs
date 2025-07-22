@@ -21,12 +21,29 @@ impl EventHandler {
             return Ok(());
         }
 
-        let urls = URL_REGEX.find_iter(&message.content).map(|entry| entry.as_str()).collect::<Vec<&str>>();
+        let discord_urls = URL_REGEX
+            .find_iter(&message.content)
+            .map(|entry| {
+                let string = message.content.chars().take(entry.start()).collect::<String>();
+                let mut chars = string.trim().chars();
+                let previous_char = chars.by_ref().next_back().unwrap_or_default();
+                let second_previous_char = chars.by_ref().next_back().unwrap_or_default();
+
+                DiscordURL {
+                    url: entry.as_str().to_string(),
+                    spoilered: previous_char == '|' && second_previous_char == '|',
+                    suppressed: previous_char == '<',
+                }
+            })
+            .collect::<Vec<DiscordURL>>();
+
         let mut new_urls = vec![];
 
-        for url in urls {
+        for discord_url in discord_urls {
+            let url = &discord_url.url;
+
             // Skip suppressed embeds
-            if message.content.contains(&format!("<{url}")) {
+            if discord_url.suppressed {
                 continue;
             }
 
@@ -64,8 +81,7 @@ impl EventHandler {
                 continue;
             }
 
-            let spoiler = message.content.contains(&format!("||{url}"));
-            new_urls.push(if spoiler { format!("||{new_url}||") } else { new_url });
+            new_urls.push(if discord_url.spoilered { format!("||{new_url}||") } else { new_url });
         }
 
         if !new_urls.is_empty() {
@@ -105,4 +121,10 @@ fn get_meta_content(html: &str, property: &str) -> String {
     }
 
     content.into()
+}
+
+struct DiscordURL {
+    pub url: String,
+    pub spoilered: bool,
+    pub suppressed: bool,
 }
