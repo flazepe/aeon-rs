@@ -12,6 +12,7 @@ pub struct Cache {
     pub song_activities: RwLock<HashMap<String, SongActivity>>,
     pub cooldowns: RwLock<HashMap<String, u64>>,
     pub command_responses: RwLock<HashMap<String, SlashookMessage>>,
+    pub embed_fix_responses: RwLock<HashMap<String, SlashookMessage>>,
     pub last_piston_programming_languages: RwLock<HashMap<String, String>>,
     pub last_tio_programming_languages: RwLock<HashMap<String, String>>,
     pub ordr_renders: RwLock<HashMap<u64, String>>,

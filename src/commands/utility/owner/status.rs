@@ -34,7 +34,7 @@ fn sum_cache_len<T: Iterator<Item = (U, V)>, U: Display, V: IntoIterator<Item = 
     iterable.map(|(_, vec)| vec.into_iter().count()).reduce(|acc, cur| acc + cur).unwrap_or(0)
 }
 
-fn get_cache_list() -> [String; 8] {
+fn get_cache_list() -> [String; 9] {
     [
         label_num(CACHE.guilds.read().unwrap().len(), "server", "servers"),
         label_num(CACHE.channels.read().unwrap().len(), "channel", "channels"),
@@ -44,5 +44,6 @@ fn get_cache_list() -> [String; 8] {
         label_num(sum_cache_len(CACHE.reaction_snipes.read().unwrap().iter()), "reaction snipe", "reaction snipes"),
         label_num(CACHE.song_activities.read().unwrap().len(), "Spotify activity", "Spotify activities"),
         label_num(CACHE.command_responses.read().unwrap().len(), "command response", "command responses"),
+        label_num(CACHE.embed_fix_responses.read().unwrap().len(), "embed fix response", "embed fix responses"),
     ]
 }

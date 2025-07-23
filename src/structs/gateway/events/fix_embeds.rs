@@ -1,5 +1,5 @@
 use crate::{
-    statics::{REQWEST, REST, regex::URL_REGEX},
+    statics::{CACHE, REQWEST, REST, regex::URL_REGEX},
     structs::{database::guilds::Guilds, gateway::events::EventHandler},
 };
 use anyhow::Result;
@@ -37,7 +37,7 @@ impl EventHandler {
             })
             .collect::<Vec<DiscordURL>>();
 
-        let mut new_urls = vec![];
+        let mut urls = vec![];
 
         for discord_url in discord_urls {
             let url = &discord_url.url;
@@ -54,6 +54,7 @@ impl EventHandler {
                 let body = REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await?;
                 let image_url = get_meta_content(body.as_str(), "og:image");
 
+                // Make sure the URL contains the "media" path. Otherwise, it is most likely a thumbnail for a video, which should be fixed
                 if image_url.contains("/media/") && REQWEST.head(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK) {
                     continue;
                 }
@@ -81,24 +82,35 @@ impl EventHandler {
                 continue;
             }
 
-            new_urls.push(if discord_url.spoilered { format!("||{new_url}||") } else { new_url });
+            urls.push(if discord_url.spoilered { format!("||{new_url}||") } else { new_url });
         }
 
-        if !new_urls.is_empty() {
+        let response = MessageResponse::from(format!("<@{}> {}", message.author.id, urls.join("\n")))
+            .set_message_reference(MessageReference::new_reply(message.id))
+            .set_allowed_mentions(AllowedMentions::new().set_replied_user(false));
+        let embed_fix_response = CACHE.embed_fix_responses.read().unwrap().get(message.id.to_string().as_str()).cloned();
+
+        if let Some(embed_fix_response) = embed_fix_response {
+            if embed_fix_response.content == response.content.as_deref().unwrap_or_default() {
+                return Ok(());
+            }
+
+            if urls.is_empty() {
+                _ = embed_fix_response.delete(&REST).await;
+            } else {
+                _ = embed_fix_response.edit(&REST, response).await;
+            }
+        } else if !urls.is_empty() {
             _ = REST
                 .patch::<(), _>(
                     format!("channels/{}/messages/{}", message.channel_id, message.id),
                     json!({ "flags": MessageFlags::SUPPRESS_EMBEDS }),
                 )
                 .await;
-            _ = SlashookMessage::create(
-                &REST,
-                message.channel_id,
-                MessageResponse::from(format!("<@{}> {}", message.author.id, new_urls.join("\n")))
-                    .set_message_reference(MessageReference::new_reply(message.id))
-                    .set_allowed_mentions(AllowedMentions::new().set_replied_user(false)),
-            )
-            .await;
+
+            if let Ok(embed_fix_response) = SlashookMessage::create(&REST, message.channel_id, response).await {
+                CACHE.embed_fix_responses.write().unwrap().insert(message.id.to_string(), embed_fix_response);
+            }
         }
 
         Ok(())

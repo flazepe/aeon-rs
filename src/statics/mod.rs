@@ -26,6 +26,7 @@ pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
     song_activities: RwLock::new(HashMap::new()),
     cooldowns: RwLock::new(HashMap::new()),
     command_responses: RwLock::new(HashMap::new()),
+    embed_fix_responses: RwLock::new(HashMap::new()),
     last_piston_programming_languages: RwLock::new(HashMap::new()),
     last_tio_programming_languages: RwLock::new(HashMap::new()),
     ordr_renders: RwLock::new(HashMap::new()),
