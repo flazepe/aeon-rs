@@ -15,7 +15,7 @@ pub async fn handle(event: &MessageDelete) -> Result<()> {
     if let Some(entry) = messages.iter().enumerate().find(|(_, message)| message.id == event.id) {
         let message = messages.remove(entry.0);
 
-        // Snipes
+        // Add snipe
         let mut channels = CACHE.snipes.write().unwrap();
 
         if !channels.contains_key(&channel_id) {

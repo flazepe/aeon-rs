@@ -23,7 +23,7 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
         old_message.embeds = new_message.embeds;
         old_message.pinned = new_message.pinned;
 
-        // Edit snipes
+        // Add edit snipe
         let mut channels = CACHE.edit_snipes.write().unwrap();
 
         if !channels.contains_key(&channel_id) {

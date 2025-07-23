@@ -29,7 +29,7 @@ impl EventHandler {
         if let Event::MessageUpdate(message) = &event {
             if CACHE.command_responses.read().unwrap().contains_key(&message.id.to_string()) {
                 if let Err(error) = Self::handle_commands(message, &sender).await {
-                    println!("[GATEWAY] An error occurred while handling commands: {error:?}");
+                    println!("[GATEWAY] An error occurred while handling edited commands: {error:?}");
                 }
             }
         }

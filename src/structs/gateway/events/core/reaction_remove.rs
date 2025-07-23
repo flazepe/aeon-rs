@@ -28,7 +28,7 @@ pub async fn handle(event: &ReactionRemove) -> Result<()> {
         format_timestamp(now(), true),
     ));
 
-    // Limit
+    // Limit stored reaction snipes
     while reactions.join("\n\n").len() > 4096 {
         reactions.rotate_left(1);
         reactions.pop();
