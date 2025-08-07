@@ -72,17 +72,21 @@ impl EventHandler {
             };
             let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
             let new_url = format!("https://{new_domain}/{path}");
-            let body = REQWEST.get(&new_url).header("user-agent", "discordbot").send().await?.text().await?;
+            let res = REQWEST.get(&new_url).header("user-agent", "discordbot").send().await?;
+            let is_media_response = res.headers().iter().any(|header| {
+                let value = format!("{:?}", header.1);
+                header.0 == "content-type" && (value.contains("image") || value.contains("video"))
+            });
+            let body = res.text().await?;
 
             // Only fix posts that were supposed to have an image or video
-            if ["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]
-                .iter()
-                .all(|entry| get_meta_content(&body, entry).is_empty())
+            if is_media_response
+                || ["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]
+                    .iter()
+                    .any(|entry| !get_meta_content(&body, entry).is_empty())
             {
-                continue;
+                urls.push(if discord_url.spoilered { format!("||{new_url}||") } else { new_url });
             }
-
-            urls.push(if discord_url.spoilered { format!("||{new_url}||") } else { new_url });
         }
 
         let response = MessageResponse::from(format!("<@{}> {}", message.author.id, urls.join("\n")))
