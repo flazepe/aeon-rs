@@ -72,19 +72,19 @@ impl EventHandler {
             };
             let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
             let new_url = format!("https://{new_domain}/{path}");
-            let res = REQWEST.get(&new_url).header("user-agent", "discordbot").send().await?;
-            let is_media_response = res.headers().iter().any(|header| {
-                let value = format!("{:?}", header.1);
-                header.0 == "content-type" && (value.contains("image") || value.contains("video"))
-            });
-            let body = res.text().await?;
+            let is_valid_response =
+                REQWEST.head(&new_url).header("user-agent", "discordbot").send().await?.headers().iter().any(|header| {
+                    let value = format!("{:?}", header.1);
+                    header.0 == "content-type" && (value.contains("image") || value.contains("video"))
+                }) || {
+                    let body = REQWEST.get(&new_url).header("user-agent", "discordbot").send().await?.text().await?;
+                    ["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]
+                        .iter()
+                        .any(|entry| !get_meta_content(&body, entry).is_empty())
+                };
 
             // Only fix posts that were supposed to have an image or video
-            if is_media_response
-                || ["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]
-                    .iter()
-                    .any(|entry| !get_meta_content(&body, entry).is_empty())
-            {
+            if is_valid_response {
                 urls.push(if discord_url.spoilered { format!("||{new_url}||") } else { new_url });
             }
         }
