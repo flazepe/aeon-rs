@@ -5,7 +5,7 @@ use twilight_model::gateway::payload::incoming::GuildDelete;
 pub async fn handle(event: &GuildDelete) -> Result<()> {
     if event.unavailable.is_none() {
         Guilds::delete(event.id).await?;
-        CACHE.discord_guilds.write().unwrap().remove(&event.id.to_string());
+        CACHE.discord.guilds.write().unwrap().remove(&event.id.to_string());
     }
 
     Ok(())

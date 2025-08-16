@@ -8,7 +8,7 @@ use twilight_model::{channel::message::EmojiReactionType, gateway::payload::inco
 pub async fn handle(event: &ReactionRemove) -> Result<()> {
     let reaction = event.0.clone();
 
-    let mut messages = CACHE.reaction_snipes.write().unwrap();
+    let mut messages = CACHE.discord.reaction_snipes.write().unwrap();
     let key = format!("{}/{}", reaction.channel_id, reaction.message_id);
 
     if !messages.contains_key(&key) {

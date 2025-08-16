@@ -34,6 +34,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let query = match ctx.get_string_arg("song", 0, true) {
         Ok(query) => Ok(query),
         Err(error) => CACHE
+            .discord
             .song_activities
             .read()
             .unwrap()

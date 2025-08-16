@@ -3,9 +3,9 @@ pub mod emojis;
 pub mod regex;
 
 use crate::structs::{
+    cache::{Cache, DatabaseCache, DiscordCache},
     config::Config,
     database::{Collections, guilds::Guild, oauth::OauthToken, reminders::Reminder, tags::Tag},
-    gateway::cache::Cache,
 };
 use mongodb::Database;
 use reqwest::Client;
@@ -18,16 +18,18 @@ use std::{
 use toml::from_str;
 
 pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
-    discord_guilds: RwLock::new(HashMap::new()),
-    guilds: RwLock::new(HashMap::new()),
-    channels: RwLock::new(HashMap::new()),
-    snipes: RwLock::new(HashMap::new()),
-    edit_snipes: RwLock::new(HashMap::new()),
-    reaction_snipes: RwLock::new(HashMap::new()),
-    song_activities: RwLock::new(HashMap::new()),
+    discord: DiscordCache {
+        guilds: RwLock::new(HashMap::new()),
+        channels: RwLock::new(HashMap::new()),
+        snipes: RwLock::new(HashMap::new()),
+        edit_snipes: RwLock::new(HashMap::new()),
+        reaction_snipes: RwLock::new(HashMap::new()),
+        song_activities: RwLock::new(HashMap::new()),
+        command_responses: RwLock::new(HashMap::new()),
+        embed_fix_responses: RwLock::new(HashMap::new()),
+    },
+    db: DatabaseCache { guilds: RwLock::new(HashMap::new()) },
     cooldowns: RwLock::new(HashMap::new()),
-    command_responses: RwLock::new(HashMap::new()),
-    embed_fix_responses: RwLock::new(HashMap::new()),
     last_piston_programming_languages: RwLock::new(HashMap::new()),
     last_tio_programming_languages: RwLock::new(HashMap::new()),
     ordr_renders: RwLock::new(HashMap::new()),

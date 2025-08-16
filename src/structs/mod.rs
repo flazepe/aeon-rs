@@ -1,4 +1,5 @@
 pub mod api;
+pub mod cache;
 pub mod client;
 pub mod command;
 pub mod command_args;

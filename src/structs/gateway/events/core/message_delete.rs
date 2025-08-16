@@ -3,7 +3,7 @@ use anyhow::Result;
 use twilight_model::gateway::payload::incoming::MessageDelete;
 
 pub async fn handle(event: &MessageDelete) -> Result<()> {
-    let mut channels = CACHE.channels.write().unwrap();
+    let mut channels = CACHE.discord.channels.write().unwrap();
     let channel_id = event.channel_id.to_string();
 
     if !channels.contains_key(&channel_id) {
@@ -16,7 +16,7 @@ pub async fn handle(event: &MessageDelete) -> Result<()> {
         let message = messages.remove(entry.0);
 
         // Add snipe
-        let mut channels = CACHE.snipes.write().unwrap();
+        let mut channels = CACHE.discord.snipes.write().unwrap();
 
         if !channels.contains_key(&channel_id) {
             channels.insert(channel_id.clone(), vec![]);

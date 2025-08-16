@@ -3,7 +3,7 @@ use anyhow::Result;
 use twilight_model::gateway::payload::incoming::MessageUpdate;
 
 pub async fn handle(event: &MessageUpdate) -> Result<()> {
-    let mut channels = CACHE.channels.write().unwrap();
+    let mut channels = CACHE.discord.channels.write().unwrap();
     let channel_id = event.channel_id.to_string();
 
     if !channels.contains_key(&channel_id) {
@@ -25,7 +25,7 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
         old_message.pinned = new_message.pinned;
 
         // Add edit snipe
-        let mut channels = CACHE.edit_snipes.write().unwrap();
+        let mut channels = CACHE.discord.edit_snipes.write().unwrap();
 
         if !channels.contains_key(&channel_id) {
             channels.insert(channel_id.clone(), vec![]);
@@ -35,7 +35,7 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
     }
 
     // Update embed fix response if available
-    if let Some(embed_fix_response) = CACHE.embed_fix_responses.write().unwrap().get_mut(&event.id.to_string()) {
+    if let Some(embed_fix_response) = CACHE.discord.embed_fix_responses.write().unwrap().get_mut(&event.id.to_string()) {
         embed_fix_response.content = event.content.clone();
     }
 

@@ -11,7 +11,7 @@ use twilight_model::gateway::payload::incoming::MessageUpdate;
 pub async fn handle(event: &MessageUpdate) -> Result<()> {
     let Some(guild_id) = event.guild_id else { return Ok(()) };
     let old_message = {
-        let channels = CACHE.channels.read().unwrap();
+        let channels = CACHE.discord.channels.read().unwrap();
         channels.get(&event.channel_id.to_string()).and_then(|messages| messages.iter().find(|message| message.id == event.id)).cloned()
     };
     let Some(old_message) = old_message else { return Ok(()) };

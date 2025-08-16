@@ -3,7 +3,7 @@ use anyhow::Result;
 use twilight_model::gateway::payload::incoming::GuildUpdate;
 
 pub async fn handle(event: &GuildUpdate) -> Result<()> {
-    let Some(mut new_guild) = CACHE.discord_guilds.read().unwrap().get(&event.id.to_string()).cloned() else { return Ok(()) };
+    let Some(mut new_guild) = CACHE.discord.guilds.read().unwrap().get(&event.id.to_string()).cloned() else { return Ok(()) };
     let guild = event.0.clone();
 
     new_guild.afk_channel_id = guild.afk_channel_id;
@@ -42,7 +42,7 @@ pub async fn handle(event: &GuildUpdate) -> Result<()> {
     new_guild.widget_channel_id = guild.widget_channel_id;
     new_guild.widget_enabled = guild.widget_enabled;
 
-    CACHE.discord_guilds.write().unwrap().insert(event.id.to_string(), new_guild);
+    CACHE.discord.guilds.write().unwrap().insert(event.id.to_string(), new_guild);
 
     Ok(())
 }

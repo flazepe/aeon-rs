@@ -6,7 +6,7 @@ use anyhow::Result;
 use twilight_model::gateway::payload::incoming::PresenceUpdate;
 
 pub async fn handle(event: &PresenceUpdate) -> Result<()> {
-    let mut song_activities = CACHE.song_activities.write().unwrap();
+    let mut song_activities = CACHE.discord.song_activities.write().unwrap();
     let user_id: String = event.user.id().to_string();
     let Some(activity) = event.activities.iter().find(|activity| activity.name == "Spotify") else {
         song_activities.remove(&user_id);

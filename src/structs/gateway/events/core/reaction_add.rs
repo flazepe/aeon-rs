@@ -20,7 +20,7 @@ pub async fn handle(event: &ReactionAdd) -> Result<()> {
 
     // Find message in cache
     {
-        let channels = CACHE.channels.read().unwrap();
+        let channels = CACHE.discord.channels.read().unwrap();
 
         if let Some(message) = channels
             .get(&reaction.channel_id.to_string())

@@ -17,6 +17,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     }
 
     let mut activity = CACHE
+        .discord
         .song_activities
         .read()
         .unwrap()

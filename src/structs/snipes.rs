@@ -26,7 +26,7 @@ impl Snipes {
 
     pub fn to_response(&self) -> Result<MessageResponse> {
         let empty_vec = vec![];
-        let snipes = if self.is_edit { &CACHE.edit_snipes } else { &CACHE.snipes }.read().unwrap();
+        let snipes = if self.is_edit { &CACHE.discord.edit_snipes } else { &CACHE.discord.snipes }.read().unwrap();
         let snipes = snipes.get(&self.channel_id).unwrap_or(&empty_vec);
 
         if snipes.is_empty() {
@@ -87,7 +87,7 @@ impl ReactionSnipes {
 
     pub fn to_response(&self) -> Result<MessageResponse> {
         let empty_vec = vec![];
-        let reaction_snipes = CACHE.reaction_snipes.read().unwrap();
+        let reaction_snipes = CACHE.discord.reaction_snipes.read().unwrap();
         let reaction_snipes = reaction_snipes.get(&format!("{}/{}", self.channel_id, self.message_id)).unwrap_or(&empty_vec);
 
         if reaction_snipes.is_empty() {

@@ -31,7 +31,7 @@ impl Guilds {
     pub async fn get<T: Display>(guild_id: T) -> Result<Guild> {
         let guild_id = guild_id.to_string();
 
-        if let Some(guild) = CACHE.guilds.read().unwrap().get(&guild_id) {
+        if let Some(guild) = CACHE.db.guilds.read().unwrap().get(&guild_id) {
             return Ok(guild.clone());
         }
 
@@ -44,19 +44,19 @@ impl Guilds {
             },
         };
 
-        CACHE.guilds.write().unwrap().insert(guild_id.clone(), guild.clone());
+        CACHE.db.guilds.write().unwrap().insert(guild_id.clone(), guild.clone());
         Ok(guild)
     }
 
     pub async fn update(guild: Guild) -> Result<()> {
-        CACHE.guilds.write().unwrap().insert(guild._id.clone(), guild.clone());
+        CACHE.db.guilds.write().unwrap().insert(guild._id.clone(), guild.clone());
         COLLECTIONS.guilds.replace_one(doc! { "_id": &guild._id }, guild).await?;
         Ok(())
     }
 
     pub async fn delete<T: Display>(guild_id: T) -> Result<()> {
         let guild_id = guild_id.to_string();
-        CACHE.guilds.write().unwrap().remove(&guild_id);
+        CACHE.db.guilds.write().unwrap().remove(&guild_id);
         COLLECTIONS.guilds.delete_one(doc! { "_id": guild_id }).await?;
         Ok(())
     }

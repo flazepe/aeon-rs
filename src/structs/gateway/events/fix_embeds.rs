@@ -92,7 +92,7 @@ impl EventHandler {
         let response = MessageResponse::from(format!("<@{}> {}", message.author.id, urls.join("\n")))
             .set_message_reference(MessageReference::new_reply(message.id))
             .set_allowed_mentions(AllowedMentions::new().set_replied_user(false));
-        let embed_fix_response = CACHE.embed_fix_responses.read().unwrap().get(message.id.to_string().as_str()).cloned();
+        let embed_fix_response = CACHE.discord.embed_fix_responses.read().unwrap().get(message.id.to_string().as_str()).cloned();
 
         if let Some(embed_fix_response) = embed_fix_response {
             if embed_fix_response.content == response.content.as_deref().unwrap_or_default() {
@@ -113,7 +113,7 @@ impl EventHandler {
                 .await;
 
             if let Ok(embed_fix_response) = SlashookMessage::create(&REST, message.channel_id, response).await {
-                CACHE.embed_fix_responses.write().unwrap().insert(message.id.to_string(), embed_fix_response);
+                CACHE.discord.embed_fix_responses.write().unwrap().insert(message.id.to_string(), embed_fix_response);
             }
         }
 

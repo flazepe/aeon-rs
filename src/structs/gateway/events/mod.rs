@@ -27,13 +27,13 @@ impl EventHandler {
         }
 
         if let Event::MessageUpdate(message) = &event {
-            if CACHE.command_responses.read().unwrap().contains_key(&message.id.to_string()) {
+            if CACHE.discord.command_responses.read().unwrap().contains_key(&message.id.to_string()) {
                 if let Err(error) = Self::handle_commands(message, &sender).await {
                     println!("[GATEWAY] An error occurred while handling edited commands: {error:?}");
                 }
             }
 
-            if CACHE.embed_fix_responses.read().unwrap().contains_key(&message.id.to_string()) {
+            if CACHE.discord.embed_fix_responses.read().unwrap().contains_key(&message.id.to_string()) {
                 if let Err(error) = Self::handle_fix_embeds(message).await {
                     println!("[GATEWAY] An error occurred while handling edited fix embeds: {error:?}");
                 }
@@ -42,25 +42,27 @@ impl EventHandler {
 
         if let Event::MessageDelete(message) = &event {
             let message_id = message.id.to_string();
-            let command_response = CACHE.command_responses.read().unwrap().get(&message.id.to_string()).cloned();
+            let command_response = CACHE.discord.command_responses.read().unwrap().get(&message.id.to_string()).cloned();
 
             if let Some(command_response) = command_response {
                 _ = command_response.delete(&REST).await;
             }
 
             CACHE
+                .discord
                 .command_responses
                 .write()
                 .unwrap()
                 .retain(|id, command_response| id != &message_id && command_response.id.as_deref().unwrap_or_default() != message_id);
 
-            let embed_fix_response = CACHE.embed_fix_responses.read().unwrap().get(&message.id.to_string()).cloned();
+            let embed_fix_response = CACHE.discord.embed_fix_responses.read().unwrap().get(&message.id.to_string()).cloned();
 
             if let Some(embed_fix_response) = embed_fix_response {
                 _ = embed_fix_response.delete(&REST).await;
             }
 
             CACHE
+                .discord
                 .embed_fix_responses
                 .write()
                 .unwrap()

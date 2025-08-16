@@ -61,7 +61,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         };
 
         if let (None, None, None) = (&artist, &title, &lyrics) {
-            if let Some(song) = CACHE.song_activities.read().unwrap().get(&user_id) {
+            if let Some(song) = CACHE.discord.song_activities.read().unwrap().get(&user_id) {
                 artist = Some(song.artist.split(',').next().unwrap().to_string());
                 title = Some(song.title.clone());
             }

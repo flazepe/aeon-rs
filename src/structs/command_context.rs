@@ -108,7 +108,7 @@ impl AeonCommandContext {
                 }
             },
             AeonCommandInput::MessageCommand(message, ..) => {
-                let command_response = CACHE.command_responses.read().unwrap().get(message.id.to_string().as_str()).cloned();
+                let command_response = CACHE.discord.command_responses.read().unwrap().get(message.id.to_string().as_str()).cloned();
 
                 response = response
                     .set_message_reference(MessageReference::new_reply(message.id))
@@ -120,7 +120,7 @@ impl AeonCommandContext {
                 }
 
                 if let Ok(command_response) = Message::create(&REST, message.channel_id, response).await {
-                    CACHE.command_responses.write().unwrap().insert(message.id.to_string(), command_response);
+                    CACHE.discord.command_responses.write().unwrap().insert(message.id.to_string(), command_response);
                 }
             },
         }

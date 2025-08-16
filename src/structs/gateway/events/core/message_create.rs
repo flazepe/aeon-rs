@@ -4,7 +4,7 @@ use twilight_model::gateway::payload::incoming::MessageCreate;
 
 pub async fn handle(event: &MessageCreate) -> Result<()> {
     {
-        let mut channels = CACHE.channels.write().unwrap();
+        let mut channels = CACHE.discord.channels.write().unwrap();
         let channel_id = event.channel_id.to_string();
 
         if !channels.contains_key(&channel_id) {

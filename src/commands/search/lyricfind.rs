@@ -27,7 +27,13 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             .get_string_arg("song", 0, true)
             .ok()
             .or_else(|| {
-                CACHE.song_activities.read().unwrap().get(&ctx.get_user_id()).map(|song| format!("{} - {}", song.artist, song.title))
+                CACHE
+                    .discord
+                    .song_activities
+                    .read()
+                    .unwrap()
+                    .get(&ctx.get_user_id())
+                    .map(|song| format!("{} - {}", song.artist, song.title))
             })
             .context("Please provide a song.")?;
 
