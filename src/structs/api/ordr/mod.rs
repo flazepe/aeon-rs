@@ -88,7 +88,7 @@ impl OrdrRender {
     pub async fn poll_progress(&self, ctx: Arc<AeonCommandContext>) -> Result<()> {
         let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
-        res.send_message("In queue...").await?;
+        res.send_message(self.progress.as_str()).await?;
 
         let poll = async || -> Result<()> {
             sleep(Duration::from_secs(5)).await;
