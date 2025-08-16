@@ -7,7 +7,7 @@ mod traits;
 
 use crate::{
     statics::MONGODB,
-    structs::{api::ordr::OrdrRender, client::AeonClient, database::reminders::Reminders, gateway::client::GatewayClient},
+    structs::{client::AeonClient, database::reminders::Reminders, gateway::client::GatewayClient},
 };
 use anyhow::Result;
 use slashook::main;
@@ -23,9 +23,6 @@ async fn main() -> Result<()> {
 
     spawn(GatewayClient::new().create_shards());
     println!("[GATEWAY] Spawned client.");
-
-    spawn(OrdrRender::connect());
-    println!("[ORDR] Spawned socket client.");
 
     let mut client = AeonClient::new();
 

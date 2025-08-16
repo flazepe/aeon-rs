@@ -56,7 +56,7 @@ fn get_db_cache_list() -> [String; 1] {
     [label_num(CACHE.db.guilds.read().unwrap().len(), "server", "servers")]
 }
 
-fn get_other_cache_list() -> [String; 5] {
+fn get_other_cache_list() -> [String; 4] {
     [
         label_num(CACHE.cooldowns.read().unwrap().len(), "cooldown", "cooldowns"),
         label_num(
@@ -69,7 +69,6 @@ fn get_other_cache_list() -> [String; 5] {
             "last tio programming language",
             "last tio programming languages",
         ),
-        label_num(CACHE.ordr_renders.read().unwrap().len(), "o!rdr render", "o!rdr renders"),
         label_num(CACHE.ordr_rendering_users.read().unwrap().len(), "o!rdr rendering user", "o!rdr rendering users"),
     ]
 }

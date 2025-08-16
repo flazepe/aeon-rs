@@ -27,9 +27,6 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
 
     ctx.defer(false).await?;
 
-    // let render = OrdrRender::new(replay_url.context("Please provide an image URL or file.")?, skin).await?;
-    // render.poll_progress(ctx).await
-
-    OrdrRender::new(replay_url.context("Please provide an image URL or file.")?, skin).await?;
-    ctx.respond_success("Render request sent! Check out <https://ordr.issou.best/renders>.", false).await
+    let render = OrdrRender::new(replay_url.context("Please provide an image URL or file.")?, skin).await?;
+    render.poll_progress(ctx.clone()).await
 }

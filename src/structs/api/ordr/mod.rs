@@ -9,49 +9,33 @@ use crate::{
     },
 };
 use anyhow::{Context, Result, bail};
-use futures::FutureExt;
-use rust_socketio::{Payload, asynchronous::ClientBuilder};
 use serde::Deserialize;
-use serde_json::{from_str, from_value, json};
+use serde_json::{from_str, json};
 use std::{fmt::Display, sync::Arc, time::Duration};
 use tokio::time::sleep;
 
 #[derive(Deserialize, Debug)]
+pub struct OrdrRenders {
+    pub renders: Vec<OrdrRender>,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct OrdrRender {
     #[serde(rename = "renderID")]
-    pub render_id: Option<u64>,
-
-    pub message: String,
-}
-
-#[derive(Deserialize, Debug)]
-#[allow(dead_code)]
-pub struct OrdrWsRenderProgress {
-    #[serde(rename = "renderID")]
     pub render_id: u64,
 
-    pub username: String,
-    pub renderer: String,
     pub progress: String,
-    pub description: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct OrdrWsRenderDone {
-    #[serde(rename = "renderID")]
-    pub render_id: u64,
-
-    #[serde(rename = "videoUrl")]
+    pub error_code: u64,
     pub video_url: String,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct OrdrWsRenderFailed {
+pub struct OrdrRenderSubmit {
     #[serde(rename = "renderID")]
-    pub render_id: u64,
+    pub render_id: Option<u64>,
 
-    #[serde(rename = "errorMessage")]
-    pub error_message: String,
+    pub message: String,
 }
 
 impl OrdrRender {
@@ -91,92 +75,69 @@ impl OrdrRender {
             .text()
             .await?;
 
-        let render = from_str::<Self>(text.as_str()).context(text)?; // Sometimes it returns the error as plain text, so we just send the text as the error
+        let render = from_str::<OrdrRenderSubmit>(text.as_str()).context(text)?; // Sometimes it returns the error as plain text, so we just send the text as the error
 
         // If render_id is None, then message should be returned as it would contain the error message
-        if render.render_id.is_none() {
+        let Some(render_id) = render.render_id else {
             bail!(render.message);
-        }
+        };
 
-        Ok(render)
+        Self::get_render(render_id).await
     }
 
-    #[allow(dead_code)]
     pub async fn poll_progress(&self, ctx: Arc<AeonCommandContext>) -> Result<()> {
         let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
-        CACHE.ordr_renders.write().unwrap().insert(self.render_id.unwrap(), "Rendering... (0%)".into());
+        res.send_message("In queue...").await?;
+
+        let poll = async || -> Result<()> {
+            sleep(Duration::from_secs(5)).await;
+
+            let start_time = now();
+
+            while now() - start_time < 480 {
+                let render = Self::get_render(self.render_id).await?;
+
+                if render.error_code != 0 {
+                    bail!(render.progress.clone());
+                }
+
+                if render.video_url.starts_with("https://") {
+                    res.edit_original_message(render.video_url.as_str()).await?;
+                    break;
+                } else {
+                    res.edit_original_message(render.progress.as_str()).await?;
+                    sleep(Duration::from_secs(5)).await;
+                }
+            }
+
+            Ok(())
+        };
+
         CACHE.ordr_rendering_users.write().unwrap().insert(input.user.id.clone(), true);
 
-        let start_time = now();
-
-        let mut renders = CACHE.ordr_renders.read().unwrap().clone();
-        let mut state = renders.get(&self.render_id.unwrap()).unwrap();
-
-        while
-        // 8 minutes timeout
-        now() - start_time < 480 &&
-            // Break if the state is no longer a progress
-            state.contains('%')
-        {
-            renders = CACHE.ordr_renders.read().unwrap().clone();
-            state = renders.get(&self.render_id.unwrap()).unwrap();
-
-            res.edit_original_message(state.clone()).await?;
-
-            // To prevent rate limits
-            sleep(Duration::from_secs(3)).await;
+        match poll().await {
+            Ok(()) => {
+                CACHE.ordr_rendering_users.write().unwrap().remove(&input.user.id);
+                Ok(())
+            },
+            Err(error) => {
+                CACHE.ordr_rendering_users.write().unwrap().remove(&input.user.id);
+                res.edit_original_message(format!("{error:?}").trim_matches('"')).await?;
+                bail!(error)
+            },
         }
-
-        CACHE.ordr_renders.write().unwrap().remove(&self.render_id.unwrap());
-        CACHE.ordr_rendering_users.write().unwrap().remove(&input.user.id);
-
-        Ok(())
     }
 
-    pub async fn connect() -> Result<()> {
-        ClientBuilder::new("https://apis.issou.best")
-            .namespace("/ordr/ws")
-            .on("render_progress_json", |payload, _| {
-                async move {
-                    let Payload::Text(mut values) = payload else { return };
-                    let value = if values.is_empty() { return } else { values.remove(0) };
-                    let render = from_value::<OrdrWsRenderProgress>(value).unwrap();
-
-                    if render.progress.contains("0%") && CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
-                        CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.progress);
-                    }
-                }
-                .boxed()
-            })
-            .on("render_done_json", |payload, _| {
-                async move {
-                    let Payload::Text(mut values) = payload else { return };
-                    let value = if values.is_empty() { return } else { values.remove(0) };
-                    let render = from_value::<OrdrWsRenderDone>(value).unwrap();
-
-                    if CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
-                        CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.video_url);
-                    }
-                }
-                .boxed()
-            })
-            .on("render_failed_json", |payload, _| {
-                async move {
-                    let Payload::Text(mut values) = payload else { return };
-                    let value = if values.is_empty() { return } else { values.remove(0) };
-                    let render = from_value::<OrdrWsRenderFailed>(value).unwrap();
-
-                    if CACHE.ordr_renders.read().unwrap().contains_key(&render.render_id) {
-                        CACHE.ordr_renders.write().unwrap().insert(render.render_id, render.error_message);
-                    }
-                }
-                .boxed()
-            })
-            .reconnect_on_disconnect(true)
-            .connect()
+    pub async fn get_render(render_id: u64) -> Result<Self> {
+        let json = REQWEST
+            .get("https://apis.issou.best/ordr/renders")
+            .query(&[("renderID", render_id)])
+            .send()
+            .await?
+            .json::<OrdrRenders>()
             .await?;
 
-        Ok(())
+        json.renders.into_iter().find(|render| render.render_id == render_id).context("Could not get render.")
     }
 }
