@@ -8,12 +8,12 @@ public_key = "public_key"
 mongodb_uri = "mongodb_uri"
 
 [api]
+ipgeolocation_key = "ipgeolocation_key"
 ordr_key = "ordr_key"
 saucenao_key = "saucenao_key"
 spotify_dc = "spotify_dc"
 spotify_token = "spotify_token"
 steam_key = "steam_key"
-virtualearth_key = "virtualearth_key"
 waaai_key = "waaai_key"
 
 [api.google_assistant]

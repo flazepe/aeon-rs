@@ -22,6 +22,7 @@ pub struct DatabaseConfig {
 
 #[derive(Deserialize, Debug)]
 pub struct APIConfig {
+    pub ipgeolocation_key: String,
     pub google_assistant: GoogleAssistantConfig,
     pub ordr_key: String,
     pub osu: OsuConfig,
@@ -29,7 +30,6 @@ pub struct APIConfig {
     pub spotify_dc: String,
     pub spotify_token: String,
     pub steam_key: String,
-    pub virtualearth_key: String,
     pub waaai_key: String,
 }
 
