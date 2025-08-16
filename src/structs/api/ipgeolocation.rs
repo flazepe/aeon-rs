@@ -45,7 +45,7 @@ impl IPGeolocationTimeZone {
 
         format!(
             "It is `{}:{min} {}` or `{hour}:{min}` in {} (`{} / UTC{}`).",
-            if hour == 12 { 12 } else { hour % 12 },
+            if hour == 0 || hour == 12 { 12 } else { hour % 12 },
             if hour < 12 { "AM" } else { "PM" },
             &[self.location.city.as_str(), self.location.state_prov.as_str(), self.location.country_name.as_str(),]
                 .into_iter()
