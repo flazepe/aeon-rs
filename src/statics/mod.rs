@@ -18,6 +18,7 @@ use std::{
 use toml::from_str;
 
 pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
+    discord_guilds: RwLock::new(HashMap::new()),
     guilds: RwLock::new(HashMap::new()),
     channels: RwLock::new(HashMap::new()),
     snipes: RwLock::new(HashMap::new()),
