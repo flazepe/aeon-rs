@@ -1,5 +1,4 @@
 mod album;
-mod lyrics;
 mod member;
 mod song;
 
@@ -14,7 +13,6 @@ use std::sync::LazyLock;
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("spotify", &["sp"])
         .add_subcommand("album", &[], album::run)
-        .add_subcommand("lyrics", &["ly"], lyrics::run)
         .add_subcommand("member", &["user"], member::run)
         .add_subcommand("song", &["track"], song::run)
 });
@@ -40,23 +38,6 @@ pub fn get_slashook_command() -> SlashookCommand {
                         name = "search",
                         description = "Whether to search",
                         option_type = InteractionOptionType::BOOLEAN,
-                    },
-                ],
-            },
-            {
-                name = "lyrics",
-                description = "Fetches song lyrics based on query or user's Spotify status.",
-                options = [
-                    {
-                        name = "song",
-                        description = "The song",
-                        option_type = InteractionOptionType::STRING,
-                    },
-                    {
-                        name = "translate",
-                        description = "Translate the lyrics to a language",
-                        option_type = InteractionOptionType::STRING,
-                        autocomplete = true,
                     },
                 ],
             },

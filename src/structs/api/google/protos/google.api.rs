@@ -3,6 +3,7 @@
 /// \[HttpRule\]\[google.api.HttpRule\], each specifying the mapping of an RPC method
 /// to one or more HTTP REST API methods.
 #[derive(Clone, PartialEq, ::prost::Message)]
+#[allow(dead_code)]
 pub struct Http {
     /// A list of HTTP configuration rules that apply to individual API methods.
     ///
@@ -297,6 +298,7 @@ pub struct Http {
 /// the request or response body to a repeated field. However, some gRPC
 /// Transcoding implementations may not support this feature.
 #[derive(Clone, PartialEq, ::prost::Message)]
+#[allow(dead_code)]
 pub struct HttpRule {
     /// Selects a method to which this rule applies.
     ///
@@ -364,6 +366,7 @@ pub mod http_rule {
 }
 /// A custom pattern is used for defining custom HTTP verb.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+#[allow(dead_code)]
 pub struct CustomHttpPattern {
     /// The name of this custom HTTP verb.
     #[prost(string, tag = "1")]

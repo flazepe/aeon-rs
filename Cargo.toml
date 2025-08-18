@@ -30,7 +30,6 @@ tokio = "1"
 toml = "0.9"
 tonic = { version = "0.14", features = ["tls-native-roots"] }
 tonic-prost = "0.14"
-totp-rs = "5"
 twilight-gateway = "0.16"
 twilight-http = "0.16"
 twilight-model = "0.16"

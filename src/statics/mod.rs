@@ -31,7 +31,6 @@ pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
     db: DatabaseCache { guilds: RwLock::new(HashMap::new()) },
     cooldowns: RwLock::new(HashMap::new()),
     last_piston_programming_languages: RwLock::new(HashMap::new()),
-    last_tio_programming_languages: RwLock::new(HashMap::new()),
     ordr_rendering_users: RwLock::new(HashMap::new()),
     spotify_access_token: RwLock::new(Default::default()),
 });
