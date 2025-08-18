@@ -14,17 +14,17 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     res.defer(input.is_string_select()).await?;
 
     // Delete snoozed reminder
-    if let Some(message) = input.message.as_ref() {
-        if message.interaction_metadata.is_none() {
-            _ = input
-                .rest
-                .delete::<()>(format!(
-                    "channels/{}/messages/{}",
-                    message.channel_id.as_deref().unwrap_or_default(),
-                    message.id.as_deref().unwrap_or_default(),
-                ))
-                .await;
-        }
+    if let Some(message) = input.message.as_ref()
+        && message.interaction_metadata.is_none()
+    {
+        _ = input
+            .rest
+            .delete::<()>(format!(
+                "channels/{}/messages/{}",
+                message.channel_id.as_deref().unwrap_or_default(),
+                message.id.as_deref().unwrap_or_default(),
+            ))
+            .await;
     }
 
     let user_id = &input.user.id;
@@ -42,11 +42,14 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let interval = Duration::new().parse(ctx.get_string_arg("interval", 0, true).unwrap_or_else(|_| "".into())).unwrap_or_default();
     let reminder = {
         let mut reminder = ctx.get_string_arg("reminder", 0, true).unwrap_or_else(|_| "Do something".into());
-        if input.is_string_select() {
-            if let Some(parsed_reminder) = || -> Option<&String> { input.message.as_ref()?.embeds.first()?.description.as_ref() }() {
-                reminder = parsed_reminder.to_string();
-            };
+
+        if input.is_string_select()
+            && let Some(parsed_reminder) =
+                input.message.as_ref().and_then(|message| message.embeds.first()).and_then(|embed| embed.description.as_ref())
+        {
+            reminder = parsed_reminder.to_string();
         }
+
         reminder
     };
     let dm = ctx.get_bool_arg("dm").unwrap_or(false)

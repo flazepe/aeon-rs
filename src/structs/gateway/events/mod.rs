@@ -27,16 +27,16 @@ impl EventHandler {
         }
 
         if let Event::MessageUpdate(message) = &event {
-            if CACHE.discord.command_responses.read().unwrap().contains_key(&message.id.to_string()) {
-                if let Err(error) = Self::handle_commands(message, &sender).await {
-                    println!("[GATEWAY] An error occurred while handling edited commands: {error:?}");
-                }
+            if CACHE.discord.command_responses.read().unwrap().contains_key(&message.id.to_string())
+                && let Err(error) = Self::handle_commands(message, &sender).await
+            {
+                println!("[GATEWAY] An error occurred while handling edited commands: {error:?}");
             }
 
-            if CACHE.discord.embed_fix_responses.read().unwrap().contains_key(&message.id.to_string()) {
-                if let Err(error) = Self::handle_fix_embeds(message).await {
-                    println!("[GATEWAY] An error occurred while handling edited fix embeds: {error:?}");
-                }
+            if CACHE.discord.embed_fix_responses.read().unwrap().contains_key(&message.id.to_string())
+                && let Err(error) = Self::handle_fix_embeds(message).await
+            {
+                println!("[GATEWAY] An error occurred while handling edited fix embeds: {error:?}");
             }
         }
 

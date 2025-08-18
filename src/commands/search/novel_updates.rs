@@ -15,11 +15,11 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("novel-updates", &["novel", "nu"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         ctx.defer(false).await?;
 
-        if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
-            if input.is_string_select() {
-                let novel = NovelUpdates::get(&input.values.as_ref().unwrap()[0]).await?;
-                return ctx.respond(novel.format(), false).await;
-            }
+        if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input
+            && input.is_string_select()
+        {
+            let novel = NovelUpdates::get(&input.values.as_ref().unwrap()[0]).await?;
+            return ctx.respond(novel.format(), false).await;
         }
 
         let results = NovelUpdates::search(ctx.get_string_arg("novel", 0, true)?).await?;

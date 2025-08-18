@@ -13,11 +13,11 @@ use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("jisho", &["j"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
-        if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
-            if input.is_string_select() {
-                let jisho = JishoSearch::get(&input.values.as_ref().unwrap()[0]).await?;
-                return ctx.respond(jisho.format(), false).await;
-            }
+        if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input
+            && input.is_string_select()
+        {
+            let jisho = JishoSearch::get(&input.values.as_ref().unwrap()[0]).await?;
+            return ctx.respond(jisho.format(), false).await;
         }
 
         let results = JishoSearch::search(ctx.get_string_arg("query", 0, true)?).await?;

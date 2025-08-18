@@ -8,10 +8,10 @@ use slashook::commands::MessageResponse;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
-        if input.is_string_select() {
-            return ctx.respond(Vndb::search_tag(&input.values.as_ref().unwrap()[0]).await?[0].format(), false).await;
-        }
+    if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input
+        && input.is_string_select()
+    {
+        return ctx.respond(Vndb::search_tag(&input.values.as_ref().unwrap()[0]).await?[0].format(), false).await;
     }
 
     let tags = Vndb::search_tag(ctx.get_string_arg("tag", 0, true)?).await?;

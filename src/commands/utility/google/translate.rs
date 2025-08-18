@@ -7,10 +7,10 @@ use anyhow::{Context, Result};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
-        if input.is_autocomplete() {
-            return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
-        }
+    if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input
+        && input.is_autocomplete()
+    {
+        return ctx.autocomplete(GOOGLE_TRANSLATE_LANGUAGES.iter()).await;
     }
 
     let origin_language = if let AeonCommandInput::MessageCommand(..) = &ctx.command_input {

@@ -64,12 +64,11 @@ impl AeonCommand {
     pub async fn run(&self, command_input: AeonCommandInput) -> Result<()> {
         let mut ctx = AeonCommandContext::new(command_input);
 
-        if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
-            if let Some(interaction_metadata) = input.message.as_ref().and_then(|message| message.interaction_metadata.as_ref()) {
-                if input.user.id != interaction_metadata.user.id {
-                    return ctx.respond_error("This isn't your interaction.", true).await;
-                }
-            }
+        if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input
+            && let Some(interaction_metadata) = input.message.as_ref().and_then(|message| message.interaction_metadata.as_ref())
+            && input.user.id != interaction_metadata.user.id
+        {
+            return ctx.respond_error("This isn't your interaction.", true).await;
         }
 
         if self.owner_only && ctx.get_user_id() != FLAZEPE_ID {

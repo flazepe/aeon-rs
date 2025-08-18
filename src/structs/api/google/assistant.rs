@@ -81,10 +81,10 @@ impl GoogleAssistant {
                 html = Some(String::from_utf8(screen_out.data)?);
             }
 
-            if let Some(dialog_state_out) = message.dialog_state_out {
-                if !dialog_state_out.supplemental_display_text.is_empty() {
-                    text = Some(dialog_state_out.supplemental_display_text);
-                }
+            if let Some(dialog_state_out) = message.dialog_state_out
+                && !dialog_state_out.supplemental_display_text.is_empty()
+            {
+                text = Some(dialog_state_out.supplemental_display_text);
             }
 
             if let Some(mut audio_out) = message.audio_out {

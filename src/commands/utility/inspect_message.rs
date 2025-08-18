@@ -19,8 +19,8 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let mut response = MessageResponse::from(File::new("message.rs", format!("{:#?}", input.target_message.as_ref().unwrap())));
 
-        if input.app_permissions.contains(Permissions::VIEW_CHANNEL | Permissions::READ_MESSAGE_HISTORY) {
-            if let Ok(value) = input
+        if input.app_permissions.contains(Permissions::VIEW_CHANNEL | Permissions::READ_MESSAGE_HISTORY)
+            && let Ok(value) = input
                 .rest
                 .get::<Value>(format!(
                     "channels/{}/messages/{}",
@@ -28,9 +28,8 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     input.target_message.as_ref().unwrap().id.as_deref().unwrap_or_default(),
                 ))
                 .await
-            {
-                response = response.add_file(File::new("message.json", to_string_pretty(&value)?))
-            }
+        {
+            response = response.add_file(File::new("message.json", to_string_pretty(&value)?))
         }
 
         ctx.respond(response, true).await
