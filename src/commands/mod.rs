@@ -31,7 +31,7 @@ pub async fn run<T: Display, U: Display>(message: &Message, sender: &MessageSend
     let command = COMMANDS.iter().find(|command| command.name == command_name || command.aliases.contains(&command_name));
 
     if let Some(command) = command {
-        return command.run(AeonCommandInput::MessageCommand(message.clone(), content.into(), sender.clone())).await;
+        return command.run(AeonCommandInput::MessageCommand(Box::new(message.clone()), content.into(), sender.clone())).await;
     }
 
     Ok(())

@@ -26,8 +26,8 @@ pub struct AeonCommandContext {
 }
 
 pub enum AeonCommandInput {
-    ApplicationCommand(CommandInput, CommandResponder),
-    MessageCommand(TwilightMessage, CommandArgs, MessageSender),
+    ApplicationCommand(Box<CommandInput>, CommandResponder),
+    MessageCommand(Box<TwilightMessage>, CommandArgs, MessageSender),
 }
 
 impl AeonCommandContext {

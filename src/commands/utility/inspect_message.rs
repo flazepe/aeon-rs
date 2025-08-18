@@ -44,7 +44,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
 	)]
     async fn func(input: CommandInput, res: CommandResponder) {
-        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(Box::new(input), res)).await?;
     }
 
     func

@@ -171,7 +171,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                 .await?;
         }
 
-        COMMAND.run(AeonCommandInput::ApplicationCommand(input, res)).await?;
+        COMMAND.run(AeonCommandInput::ApplicationCommand(Box::new(input), res)).await?;
     }
 
     func
