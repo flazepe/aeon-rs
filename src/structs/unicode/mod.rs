@@ -45,31 +45,14 @@ impl Unicode {
     }
 
     pub fn format(&self) -> String {
-        self.0
-            .iter()
-            .map(|character| {
-                let codepoint = character.get_codepoint();
-
-                format!(
-                    "[`{codepoint}`](<https://www.fileformat.info/info/unicode/char/{}/index.htm>) - {}",
-                    codepoint.trim_start_matches("U+"),
-                    character.get_name(),
-                )
-            })
-            .collect::<Vec<String>>()
-            .join("\n")
+        self.0.iter().map(|character| character.format()).collect::<Vec<String>>().join("\n")
     }
 }
 
 #[derive(Debug)]
-#[allow(dead_code)]
 pub struct UnicodeCharacter(char);
 
 impl UnicodeCharacter {
-    fn get_codepoint(&self) -> String {
-        format!("U+{:04X}", self.0 as u32)
-    }
-
     fn get_name(&self) -> String {
         if let Some(name) = CONTROL_CHARACTERS.get(format!("{:X}", self.0 as u32).as_str()) {
             return name.to_string();
@@ -80,5 +63,15 @@ impl UnicodeCharacter {
         }
 
         "UNKNOWN".to_string()
+    }
+
+    fn format(&self) -> String {
+        let codepoint = format!("U+{:04X}", self.0 as u32);
+
+        format!(
+            "`{codepoint}` - [{}](<https://www.fileformat.info/info/unicode/char/{}/index.htm>)",
+            self.get_name(),
+            codepoint.trim_start_matches("U+"),
+        )
     }
 }
