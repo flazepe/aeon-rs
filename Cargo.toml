@@ -6,7 +6,6 @@ edition = "2024"
 [dependencies]
 anyhow = "1"
 base64 = "0.22"
-flate2 = "1"
 futures = "0.3"
 gouth = "0.2"
 headless_chrome = "1"
