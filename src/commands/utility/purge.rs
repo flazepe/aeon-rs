@@ -45,6 +45,12 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             .fetch_messages(&input.rest, MessageFetchOptions::new().set_limit(100))
             .await
             .context("An error occurred while trying to fetch messages. Please make sure I have the permission to view the channel and its messages.")?;
+        let offset = ctx.get_i64_arg("offset", 0).unwrap_or(0);
+
+        if offset > 0 {
+            messages = messages.into_iter().skip(offset as usize).collect();
+        }
+
         let substring = ctx.get_string_arg("has-substring", 0, false).map(|substring| substring.to_lowercase());
         let keywords = ctx.get_string_arg("has-keywords", 0, false).map(|keywords| {
             keywords.split(",").map(|entry| entry.trim().to_lowercase()).filter(|entry| !entry.is_empty()).collect::<Vec<String>>()
@@ -126,6 +132,13 @@ pub fn get_slashook_command() -> SlashookCommand {
             {
                 name = "amount",
                 description = "The amount of messages to purge",
+                option_type = InteractionOptionType::INTEGER,
+                min_value = 1.0,
+                max_value = 100.0,
+            },
+            {
+                name = "offset",
+                description = "The amount of messages from newest to skip purging (before any filters are applied)",
                 option_type = InteractionOptionType::INTEGER,
                 min_value = 1.0,
                 max_value = 100.0,
