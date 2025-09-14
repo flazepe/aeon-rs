@@ -2,6 +2,7 @@ mod calculate;
 mod code;
 mod convert_currency;
 mod define;
+mod edited;
 mod google;
 mod google_translate_context;
 mod heliohost;
@@ -34,6 +35,7 @@ pub fn get_aeon_commands() -> Vec<&'static LazyLock<AeonCommand>> {
         &convert_currency::COMMAND,
         &code::COMMAND,
         &define::COMMAND,
+        &edited::COMMAND,
         &google::COMMAND,
         &google_translate_context::COMMAND,
         &heliohost::COMMAND,
@@ -64,6 +66,7 @@ pub fn get_slashook_commands() -> Vec<SlashookCommand> {
         convert_currency::get_slashook_command(),
         code::get_slashook_command(),
         define::get_slashook_command(),
+        edited::get_slashook_command(),
         google::get_slashook_command(),
         google_translate_context::get_slashook_command(),
         heliohost::get_slashook_command(),
