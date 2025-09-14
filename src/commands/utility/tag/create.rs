@@ -5,7 +5,7 @@ use crate::structs::{
 use anyhow::Result;
 use slashook::{
     commands::Modal,
-    structs::components::{Components, TextInput, TextInputStyle},
+    structs::components::{Components, Label, TextInput, TextInputStyle},
 };
 use std::sync::Arc;
 
@@ -22,10 +22,12 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
 
         ctx.respond_success(response, true).await
     } else {
-        let tag_input = TextInput::new().set_id("tag").set_max_length(32).set_label("Tag");
-        let content_input =
-            TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("content").set_max_length(1000).set_label("Content");
-        let components = Components::new().add_text_input(tag_input).add_row().add_text_input(content_input);
+        let tag_input = TextInput::new().set_id("tag").set_max_length(32);
+        let content_input = TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("content").set_max_length(1000);
+        let components = Components::new_label(Label::new("Tag"))
+            .add_text_input(tag_input)
+            .add_label(Label::new("Content"))
+            .add_text_input(content_input);
         let modal = Modal::new("tag", "create", "Create Tag").set_components(components);
 
         Ok(res.open_modal(modal).await?)

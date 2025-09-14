@@ -11,7 +11,7 @@ use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, Modal},
     structs::{
-        components::{Components, TextInput, TextInputStyle},
+        components::{Components, Label, TextInput, TextInputStyle},
         interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
     },
 };
@@ -36,11 +36,11 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                 if input.is_modal_submit() {
                     ctx.defer(false).await?;
 
-                    let tio = Piston::new(programming_language, ctx.get_string_arg("code", 0, true)?).run().await?;
-                    ctx.respond(tio.format(), false).await
+                    let piston = Piston::new(programming_language, ctx.get_string_arg("code", 0, true)?).run().await?;
+                    ctx.respond(piston.format(), false).await
                 } else {
-                    let code_input = TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code").set_label("Code");
-                    let components = Components::new().add_text_input(code_input);
+                    let code_input = TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code");
+                    let components = Components::new_label(Label::new("Code")).add_text_input(code_input);
                     let modal = Modal::new("code", "modal", "Enter Code").set_components(components);
 
                     Ok(res.open_modal(modal).await?)
