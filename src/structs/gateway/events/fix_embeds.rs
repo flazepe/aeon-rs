@@ -72,6 +72,11 @@ impl EventHandler {
             };
             let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
             let new_url = format!("https://{new_domain}/{path}");
+
+            if urls.contains(&new_url) {
+                continue;
+            }
+
             let is_valid_response =
                 REQWEST.head(&new_url).header("user-agent", "discordbot").send().await?.headers().iter().any(|header| {
                     let value = format!("{:?}", header.1);
