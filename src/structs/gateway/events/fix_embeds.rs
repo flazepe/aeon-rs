@@ -71,6 +71,7 @@ impl EventHandler {
                 _ => continue,
             };
             let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
+            let path = path.split("?").next().unwrap_or_default(); // Trim query string
             let new_url = format!("https://{new_domain}/{path}");
 
             if urls.contains(&new_url) {
