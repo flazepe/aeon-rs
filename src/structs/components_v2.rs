@@ -9,7 +9,6 @@ use slashook::{
 };
 use std::fmt::Display;
 
-#[derive(Default)]
 pub struct ComponentsV2Embed {
     color: Option<String>,
     title: Option<String>,
@@ -24,7 +23,17 @@ pub struct ComponentsV2Embed {
 
 impl ComponentsV2Embed {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            color: None,
+            title: None,
+            url: None,
+            thumbnail: None,
+            description: None,
+            components: Components::empty(),
+            footer: None,
+            buttons: vec![],
+            ephemeral: false,
+        }
     }
 
     pub fn set_color<T: Display>(mut self, color: T) -> Self {
@@ -70,6 +79,12 @@ impl ComponentsV2Embed {
     pub fn set_ephemeral(mut self, ephemeral: bool) -> Self {
         self.ephemeral = ephemeral;
         self
+    }
+}
+
+impl Default for ComponentsV2Embed {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
