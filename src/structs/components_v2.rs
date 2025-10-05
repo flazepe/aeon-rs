@@ -13,6 +13,7 @@ use std::fmt::Display;
 pub struct ComponentsV2Embed {
     color: Option<String>,
     title: Option<String>,
+    url: Option<String>,
     thumbnail: Option<String>,
     description: Option<String>,
     components: Components,
@@ -33,6 +34,11 @@ impl ComponentsV2Embed {
 
     pub fn set_title<T: Display>(mut self, title: T) -> Self {
         self.title = Some(title.to_string());
+        self
+    }
+
+    pub fn set_url<T: Display>(mut self, url: T) -> Self {
+        self.url = Some(url.to_string());
         self
     }
 
@@ -71,7 +77,7 @@ impl From<ComponentsV2Embed> for Container {
     fn from(value: ComponentsV2Embed) -> Self {
         let mut container = Container::new();
 
-        let title = value.title.map(|title| format!("### {title}"));
+        let title = value.title.map(|title| format!("### {}", value.url.map(|url| format!("[{title}]({url})")).unwrap_or(title)));
         let text = [title.unwrap_or_default(), value.description.unwrap_or_default()]
             .into_iter()
             .filter(|entry| !entry.is_empty())
