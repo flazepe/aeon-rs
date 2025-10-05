@@ -3,7 +3,7 @@ use serde_json::{Value, json};
 use slashook::{
     commands::MessageResponse,
     structs::{
-        components::{ActionRow, Button, Components, Container, Section, Separator, TextDisplay, Thumbnail},
+        components::{ActionRow, Button, Components, Container, Section, SelectMenu, Separator, TextDisplay, Thumbnail},
         messages::MessageFlags,
     },
 };
@@ -18,6 +18,7 @@ pub struct ComponentsV2Embed {
     components: Components,
     footer: Option<String>,
     buttons: Vec<Button>,
+    select_menu: Option<SelectMenu>,
     ephemeral: bool,
 }
 
@@ -32,6 +33,7 @@ impl ComponentsV2Embed {
             components: Components::empty(),
             footer: None,
             buttons: vec![],
+            select_menu: None,
             ephemeral: false,
         }
     }
@@ -73,6 +75,11 @@ impl ComponentsV2Embed {
 
     pub fn set_buttons(mut self, buttons: Vec<Button>) -> Self {
         self.buttons = buttons;
+        self
+    }
+
+    pub fn set_select_menu<T: Into<SelectMenu>>(mut self, select_menu: T) -> Self {
+        self.select_menu = Some(select_menu.into());
         self
     }
 
@@ -143,6 +150,11 @@ impl From<ComponentsV2Embed> for Container {
 
             let text_display = TextDisplay::new(format!("-# {footer}"));
             container = container.add_component(text_display);
+        }
+
+        if let Some(select_menu) = value.select_menu {
+            let action_row = ActionRow::new().add_component(select_menu);
+            container = container.add_component(action_row);
         }
 
         container
