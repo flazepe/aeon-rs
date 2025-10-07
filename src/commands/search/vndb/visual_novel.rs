@@ -12,11 +12,9 @@ use slashook::structs::components::{ActionRow, Button, Components, Section, Sepa
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    if let AeonCommandInput::ApplicationCommand(_, res) = &ctx.command_input
+    if let AeonCommandInput::ApplicationCommand(..) = &ctx.command_input
         && ctx.get_bool_arg("search").unwrap_or(false)
     {
-        res.defer(false).await?;
-
         let visual_novels = Vndb::search_visual_novel(ctx.get_string_arg("visual-novel", 0, true)?).await?;
         let mut embed = ComponentsV2Embed::new().set_title("Select a visual novel");
         let mut components = Components::empty();
