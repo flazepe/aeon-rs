@@ -4,7 +4,6 @@ use crate::structs::{
     select_menu::SelectMenu,
 };
 use anyhow::Result;
-use slashook::commands::MessageResponse;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
@@ -19,5 +18,5 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let options = tags.iter().map(|tag| (&tag.name, &tag.id, Some(&tag.category)));
     let select_menu = SelectMenu::new("vndb", "tag", "View other tags…", None::<String>).add_options(options);
 
-    ctx.respond(MessageResponse::from(tags[0].format().set_select_menu(select_menu)), false).await
+    ctx.respond(tags[0].format().set_select_menu(select_menu), false).await
 }
