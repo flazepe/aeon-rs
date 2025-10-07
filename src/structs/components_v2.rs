@@ -1,9 +1,9 @@
 use crate::statics::colors::PRIMARY_EMBED_COLOR;
 use serde_json::{Value, json};
 use slashook::{
-    commands::MessageResponse,
+    commands::{CommandInput, MessageResponse},
     structs::{
-        components::{ActionRow, Button, Components, Container, Section, SelectMenu, Separator, TextDisplay, Thumbnail},
+        components::{ActionRow, Button, Component, Components, Container, Section, SelectMenu, Separator, TextDisplay, Thumbnail},
         messages::MessageFlags,
     },
 };
@@ -81,6 +81,39 @@ impl ComponentsV2Embed {
     pub fn set_select_menu<T: Into<SelectMenu>>(mut self, select_menu: T) -> Self {
         self.select_menu = Some(select_menu.into());
         self
+    }
+
+    pub fn set_select_menu_from_input(self, input: &CommandInput) -> Self {
+        let components = input.message.as_ref().and_then(|message| message.components.as_ref());
+
+        let container = components.and_then(|components| {
+            for component in components {
+                if let Component::Container(container) = component {
+                    return Some(container);
+                }
+            }
+            None
+        });
+
+        let action_row = container.and_then(|container| {
+            for component in &container.components {
+                if let Component::ActionRow(action_row) = component {
+                    return Some(action_row);
+                }
+            }
+            None
+        });
+
+        let select_menu = action_row.and_then(|action_row| {
+            for component in &action_row.components {
+                if let Component::SelectMenu(select_menu) = component {
+                    return Some(*select_menu.clone());
+                }
+            }
+            None
+        });
+
+        if let Some(select_menu) = select_menu { self.set_select_menu(select_menu) } else { self }
     }
 
     pub fn set_ephemeral(mut self, ephemeral: bool) -> Self {
