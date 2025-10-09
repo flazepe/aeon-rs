@@ -7,6 +7,7 @@ pub mod command_context;
 pub mod config;
 pub mod database;
 pub mod duration;
+pub mod emoji_manager;
 pub mod gateway;
 pub mod scraping;
 pub mod select_menu;
