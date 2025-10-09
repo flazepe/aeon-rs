@@ -6,8 +6,8 @@ mod structs;
 mod traits;
 
 use crate::{
-    statics::MONGODB,
-    structs::{client::AeonClient, database::reminders::Reminders, gateway::client::GatewayClient},
+    statics::{EMOJIS, MONGODB},
+    structs::{client::AeonClient, database::reminders::Reminders, emoji_manager::EmojiManager, gateway::client::GatewayClient},
 };
 use anyhow::Result;
 use slashook::main;
@@ -23,6 +23,15 @@ async fn main() -> Result<()> {
 
     spawn(GatewayClient::new().create_shards());
     println!("[GATEWAY] Spawned client.");
+
+    let mut emojis = EmojiManager::new();
+
+    match emojis.load().await {
+        Ok(_) => println!("[EMOJIS] Synced emojis."),
+        Err(error) => println!("[EMOJIS] An error occurred while syncing emojis: {error}"),
+    }
+
+    EMOJIS.set(emojis).expect("Could not set EmojiManager.");
 
     let mut client = AeonClient::new();
 

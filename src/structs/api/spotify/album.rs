@@ -1,9 +1,6 @@
 use crate::{
     functions::{format_timestamp, label_num, limit_strings},
-    statics::{
-        emojis::{COPYRIGHT_EMOJI, FIRE_EMOJI, PHONOGRAM_EMOJI},
-        regex::COPYRIGHT_REGEX,
-    },
+    statics::{EMOJIS, regex::COPYRIGHT_REGEX},
     structs::api::spotify::{
         SPOTIFY_EMBED_COLOR, Spotify,
         components::{
@@ -71,6 +68,7 @@ impl SpotifyFullAlbum {
     }
 
     pub fn format(&self) -> Embed {
+        let emojis = EMOJIS.get().unwrap();
         let image = Spotify::generate_scannable(&self.uri);
         let artist =
             limit_strings(self.artists.iter().map(|artist| format!("[{}]({})", artist.name, artist.external_urls.spotify)), ", ", 1024);
@@ -95,8 +93,8 @@ impl SpotifyFullAlbum {
                 format!(
                     "{} {}",
                     match copyright.copyright_type {
-                        SpotifyCopyrightType::Copyright => COPYRIGHT_EMOJI,
-                        SpotifyCopyrightType::Phonogram => PHONOGRAM_EMOJI,
+                        SpotifyCopyrightType::Copyright => emojis.get("aeon_copyright", "©").mention(),
+                        SpotifyCopyrightType::Phonogram => emojis.get("aeon_phonogram", "🇵").mention(),
                     },
                     COPYRIGHT_REGEX.replace_all(&copyright.text, ""),
                 )
@@ -111,7 +109,7 @@ impl SpotifyFullAlbum {
             .add_field("Release Date", release_date, false)
             .add_field("Genre", genres, false)
             .add_field("Duration", duration, false)
-            .add_field("Popularity", format!("{FIRE_EMOJI} {}%", self.popularity), false)
+            .add_field("Popularity", format!("{} {}%", emojis.get("aeon_fire", "🔥").mention(), self.popularity), false)
             .add_field("Copyright", copyrights, false)
     }
 

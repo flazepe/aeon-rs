@@ -1,8 +1,5 @@
 use crate::{
-    statics::{
-        CACHE, REST,
-        emojis::{ERROR_EMOJI, SUCCESS_EMOJI},
-    },
+    statics::{CACHE, EMOJIS, REST},
     structs::command_args::CommandArgs,
 };
 use anyhow::{Context, Error, Result, bail};
@@ -129,8 +126,10 @@ impl AeonCommandContext {
     }
 
     pub async fn respond_error<T: Debug>(&self, response: T, ephemeral: bool) -> Result<()> {
+        let emojis = EMOJIS.get().unwrap();
+
         self.respond(
-            MessageResponse::from(format!("{ERROR_EMOJI} {}", format!("{response:?}").trim_matches('"')))
+            MessageResponse::from(format!("{} {}", emojis.get("aeon_error", "❌").mention(), format!("{response:?}").trim_matches('"')))
                 .set_components(Components::empty())
                 .clear_embeds()
                 .clear_attachments(),
@@ -140,8 +139,10 @@ impl AeonCommandContext {
     }
 
     pub async fn respond_success<T: Display>(&self, response: T, ephemeral: bool) -> Result<()> {
+        let emojis = EMOJIS.get().unwrap();
+
         self.respond(
-            MessageResponse::from(format!("{SUCCESS_EMOJI} {response}"))
+            MessageResponse::from(format!("{} {response}", emojis.get("aeon_success", "✅").mention()))
                 .set_components(Components::empty())
                 .clear_embeds()
                 .clear_attachments(),
