@@ -71,6 +71,11 @@ impl EmojiManager {
         for entry in read_dir("emojis")? {
             let entry = entry?;
             let filename = entry.file_name();
+
+            if !filename.to_string_lossy().starts_with("aeon_") {
+                continue;
+            }
+
             let base64 = BASE64_STANDARD.encode(read(entry.path())?);
             let body = json!({
                 "name": filename.to_string_lossy().split(".").next().unwrap_or_default(),
