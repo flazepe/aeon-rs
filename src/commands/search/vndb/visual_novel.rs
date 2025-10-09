@@ -54,7 +54,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
             components = components.add_component(action_row);
 
             if i != total - 1 {
-                let separator: Separator = Separator::new();
+                let separator = Separator::new();
                 components = components.add_component(separator);
             }
         }
