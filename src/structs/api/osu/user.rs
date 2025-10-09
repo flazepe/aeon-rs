@@ -1,10 +1,7 @@
 use crate::{
     functions::format_timestamp,
     macros::yes_no,
-    statics::emojis::{
-        OFFLINE_EMOJI, ONLINE_EMOJI, OSU_A_EMOJI, OSU_S_EMOJI, OSU_SH_EMOJI, OSU_SUPPORTER_1_EMOJI, OSU_SUPPORTER_2_EMOJI,
-        OSU_SUPPORTER_3_EMOJI, OSU_X_EMOJI, OSU_XH_EMOJI,
-    },
+    statics::EMOJIS,
     structs::{api::osu::Osu, duration::Duration},
     traits::Commas,
 };
@@ -253,15 +250,28 @@ impl Display for OsuMode {
 
 impl OsuUser {
     fn _format(&self) -> Embed {
+        let emojis = EMOJIS.get().unwrap();
         let thumbnail =
             if self.avatar_url.starts_with('/') { format!("https://osu.ppy.sh{}", self.avatar_url) } else { self.avatar_url.clone() };
         let title = format!(
             "{} {}{}",
-            if self.is_online { ONLINE_EMOJI } else { OFFLINE_EMOJI },
+            if self.is_online { emojis.get("aeon_online", "❓").mention() } else { emojis.get("aeon_offline", "❓").mention() },
             match self.support_level {
-                1 => format!("{OSU_SUPPORTER_1_EMOJI} "),
-                2 => format!("{OSU_SUPPORTER_2_EMOJI} "),
-                3 => format!("{OSU_SUPPORTER_3_EMOJI} "),
+                1 => format!(
+                    "{}{} ",
+                    emojis.get("aeon_osu_supporter_1_1", "❓").mention(),
+                    emojis.get("aeon_osu_supporter_1_2", "❓").mention(),
+                ),
+                2 => format!(
+                    "{}{} ",
+                    emojis.get("aeon_osu_supporter_2_1", "❓").mention(),
+                    emojis.get("aeon_osu_supporter_2_2", "❓").mention(),
+                ),
+                3 => format!(
+                    "{}{} ",
+                    emojis.get("aeon_osu_supporter_3_1", "❓").mention(),
+                    emojis.get("aeon_osu_supporter_3_2", "❓").mention(),
+                ),
                 _ => "".into(),
             },
             self.username,
@@ -313,6 +323,7 @@ impl OsuUser {
     }
 
     pub fn format_statistics(&self) -> Embed {
+        let emojis = EMOJIS.get().unwrap();
         let pp = format!("{}pp", format!("{:.2}", self.statistics.pp).commas());
         let accuracy = format!("{:.2}%", self.statistics.hit_accuracy);
         let level = format!("{} ({}%)", self.statistics.level.current, self.statistics.level.progress);
@@ -327,11 +338,36 @@ impl OsuUser {
         );
         let replays_watched_by_others = self.statistics.replays_watched_by_others.commas();
         let grades = [
-            format!("{OSU_X_EMOJI} {}", self.statistics.grade_counts.ss.commas()),
-            format!("{OSU_XH_EMOJI} {}", self.statistics.grade_counts.ssh.commas()),
-            format!("{OSU_S_EMOJI} {}", self.statistics.grade_counts.s.commas()),
-            format!("{OSU_SH_EMOJI} {}", self.statistics.grade_counts.sh.commas()),
-            format!("{OSU_A_EMOJI} {}", self.statistics.grade_counts.a.commas()),
+            format!(
+                "{}{} {}",
+                emojis.get("aeon_osu_x_1", "❓").mention(),
+                emojis.get("aeon_osu_x_2", "❓").mention(),
+                self.statistics.grade_counts.ss.commas(),
+            ),
+            format!(
+                "{}{} {}",
+                emojis.get("aeon_osu_xh_1", "❓").mention(),
+                emojis.get("aeon_osu_xh_2", "❓").mention(),
+                self.statistics.grade_counts.ssh.commas(),
+            ),
+            format!(
+                "{}{} {}",
+                emojis.get("aeon_osu_x_1", "❓").mention(),
+                emojis.get("aeon_osu_x_1", "❓").mention(),
+                self.statistics.grade_counts.s.commas(),
+            ),
+            format!(
+                "{}{} {}",
+                emojis.get("aeon_osu_sh_1", "❓").mention(),
+                emojis.get("aeon_osu_sh_2", "❓").mention(),
+                self.statistics.grade_counts.sh.commas(),
+            ),
+            format!(
+                "{}{} {}",
+                emojis.get("aeon_osu_a_1", "❓").mention(),
+                emojis.get("aeon_osu_a_2", "❓").mention(),
+                self.statistics.grade_counts.a.commas(),
+            ),
         ]
         .join("\n");
 
