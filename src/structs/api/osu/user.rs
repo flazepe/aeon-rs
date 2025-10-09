@@ -353,7 +353,7 @@ impl OsuUser {
             format!(
                 "{}{} {}",
                 emojis.get("aeon_osu_x_1", "❓").mention(),
-                emojis.get("aeon_osu_x_1", "❓").mention(),
+                emojis.get("aeon_osu_x_2", "❓").mention(),
                 self.statistics.grade_counts.s.commas(),
             ),
             format!(
