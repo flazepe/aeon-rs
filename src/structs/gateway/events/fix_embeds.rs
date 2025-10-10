@@ -1,9 +1,12 @@
 use crate::{
-    statics::{CACHE, REQWEST, REST, regex::URL_REGEX},
+    statics::{
+        CACHE, REQWEST, REST,
+        regex::{DISCORD_URL_REGEX, SPOILER_REGEX},
+    },
     structs::{database::guilds::Guilds, gateway::events::EventHandler},
 };
 use anyhow::Result;
-use regex::Regex;
+use regex::{Captures, Regex};
 use reqwest::StatusCode;
 use serde_json::json;
 use slashook::{
@@ -21,21 +24,36 @@ impl EventHandler {
             return Ok(());
         }
 
-        let discord_urls = URL_REGEX
-            .find_iter(&message.content)
-            .map(|entry| {
-                let string = message.content.chars().take(entry.start()).collect::<String>();
-                let mut chars = string.trim().chars();
-                let previous_char = chars.by_ref().next_back().unwrap_or_default();
-                let second_previous_char = chars.by_ref().next_back().unwrap_or_default();
+        let mut discord_urls: Vec<DiscordURL> = vec![];
 
-                DiscordURL {
-                    url: entry.as_str().to_string(),
-                    spoilered: previous_char == '|' && second_previous_char == '|',
-                    suppressed: previous_char == '<',
-                }
-            })
-            .collect::<Vec<DiscordURL>>();
+        let mut process_captures = |captures: Captures<'_>, is_spoiler: bool| {
+            let suppressed_url = captures.name("suppressed_url");
+            let normal_url = captures.name("normal_url");
+
+            let url = suppressed_url.or(normal_url);
+            let Some(url) = url else { return };
+
+            if let Some(discord_url) = discord_urls.iter_mut().find(|discord_url| discord_url.url == url.as_str()) {
+                discord_url.spoilered = is_spoiler;
+                discord_url.suppressed = suppressed_url.is_some();
+            } else {
+                discord_urls.push(DiscordURL {
+                    url: url.as_str().to_string(),
+                    spoilered: is_spoiler,
+                    suppressed: suppressed_url.is_some(),
+                });
+            }
+        };
+
+        for captures in DISCORD_URL_REGEX.captures_iter(&message.content) {
+            process_captures(captures, false);
+        }
+
+        for spoiler in SPOILER_REGEX.find_iter(&message.content) {
+            for captures in DISCORD_URL_REGEX.captures_iter(spoiler.as_str()) {
+                process_captures(captures, true);
+            }
+        }
 
         let mut urls = vec![];
 
@@ -49,8 +67,8 @@ impl EventHandler {
 
             let Some(domain) = url.split('/').nth(2).map(|domain| domain.trim_start_matches("www.")) else { continue };
 
-            // Skip Bluesky/X posts that have a valid image
-            if ["bsky.app", "x.com", "twitter.com"].contains(&domain) {
+            // Skip X posts that have a valid image
+            if ["x.com", "twitter.com"].contains(&domain) {
                 let body = REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await?;
                 let image_url = get_meta_content(body.as_str(), "og:image");
 
@@ -61,7 +79,6 @@ impl EventHandler {
             }
 
             let new_domain = match domain {
-                // "bsky.app" => "fxbsky.app",
                 "instagram.com" => "eeinstagram.com",
                 "pixiv.net" => "phixiv.net",
                 "reddit.com" | "old.reddit.com" => "rxddit.com",
@@ -78,19 +95,21 @@ impl EventHandler {
                 continue;
             }
 
-            let is_valid_response =
+            let has_media_content_type =
                 REQWEST.head(&new_url).header("user-agent", "discordbot").send().await?.headers().iter().any(|header| {
                     let value = format!("{:?}", header.1);
                     header.0 == "content-type" && (value.contains("image") || value.contains("video"))
-                }) || {
-                    let body = REQWEST.get(&new_url).header("user-agent", "discordbot").send().await?.text().await?;
-                    ["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]
-                        .iter()
-                        .any(|entry| !get_meta_content(&body, entry).is_empty())
-                };
+                });
+
+            let has_media_meta_content = {
+                let body = REQWEST.get(&new_url).header("user-agent", "discordbot").send().await?.text().await?;
+                ["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]
+                    .iter()
+                    .any(|entry| !get_meta_content(&body, entry).is_empty())
+            };
 
             // Only fix posts that were supposed to have an image or video
-            if is_valid_response {
+            if has_media_content_type || has_media_meta_content {
                 urls.push(if discord_url.spoilered { format!("||{new_url}||") } else { new_url });
             }
         }
