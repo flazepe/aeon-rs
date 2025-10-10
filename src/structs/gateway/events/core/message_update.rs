@@ -34,10 +34,5 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
         channels.get_mut(&channel_id).unwrap().push_limited(cloned_old_message, 50);
     }
 
-    // Update embed fix response if available
-    if let Some(embed_fix_response) = CACHE.discord.embed_fix_responses.write().unwrap().get_mut(&event.id.to_string()) {
-        embed_fix_response.content = event.content.clone();
-    }
-
     Ok(())
 }

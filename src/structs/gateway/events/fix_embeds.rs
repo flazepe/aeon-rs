@@ -110,7 +110,7 @@ impl EventHandler {
 
             // Only fix posts that were supposed to have an image or video
             if has_media_content_type || has_media_meta_content {
-                urls.push(if discord_url.spoilered { format!("||{new_url}||") } else { new_url });
+                urls.push(if discord_url.spoilered { format!("||{new_url} ||") } else { new_url });
             }
         }
 
