@@ -38,11 +38,11 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         text = format!("{}", output.status);
 
         if !stdout.trim().is_empty() {
-            text += &format!("\nstdout:\n```js\n{}```", stdout.replace('`', "\u{200b}`"));
+            text += &format!("\nstdout:\n```js\n{}```", stdout.replace('`', "`\u{200b}"));
         }
 
         if !stderr.trim().is_empty() {
-            text += &format!("\nstderr:\n```js\n{}```", stderr.replace('`', "\u{200b}`"));
+            text += &format!("\nstderr:\n```js\n{}```", stderr.replace('`', "`\u{200b}"));
         }
     }
 

@@ -36,7 +36,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             bail!("Invalid expression.");
         }
 
-        ctx.respond_success(format!("`{}`", body.chars().take(1000).collect::<String>().replace('`', "｀")), false).await
+        ctx.respond_success(format!("``{}``", body.chars().take(1000).collect::<String>().replace('`', "`\u{200b}")), false).await
     })
 });
 

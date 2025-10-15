@@ -14,9 +14,9 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         .enumerate()
         .map(|(index, reminder)| {
             format!(
-                "{}. `{}`[*](https://discord.com/channels/{})\n{}{}",
+                "{}. ``{}``[*](https://discord.com/channels/{})\n{}{}",
                 index + 1,
-                reminder.reminder.replace('`', "｀"),
+                reminder.reminder.replace('`', "`\u{200b}"),
                 reminder.url,
                 format_timestamp(reminder.timestamp, true),
                 if reminder.interval > 0 {

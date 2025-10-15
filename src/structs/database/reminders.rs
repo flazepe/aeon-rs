@@ -178,8 +178,8 @@ impl Reminders {
             .await?;
 
         Ok(format!(
-            "I will remind you about `{}`[*](<https://discord.com/channels/{url}>) in {duration}{}. Make sure I {}.",
-            reminder.to_string().replace('`', "｀"),
+            "I will remind you about ``{}``[*](<https://discord.com/channels/{url}>) in {duration}{}. Make sure I {}.",
+            reminder.to_string().replace('`', "`\u{200b}"),
             if interval.total_secs > 0 { format!(" and every {interval} after that") } else { "".into() },
             if dm { "can DM you" } else { "have the View Channel and Send Messages permission" },
         ))
