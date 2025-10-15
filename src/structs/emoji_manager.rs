@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, from_str, json};
 use slashook::structs::Emoji as SlashookEmoji;
 use std::{
-    collections::BTreeMap,
+    collections::HashMap,
     fmt::Display,
     fs::{read, read_dir, read_to_string, write},
 };
@@ -14,7 +14,7 @@ static LAST_UPDATED_TIMESTAMP: u32 = 1760020150;
 
 #[derive(Default, Debug)]
 pub struct EmojiManager {
-    emojis: BTreeMap<String, Emoji>,
+    emojis: HashMap<String, Emoji>,
     last_updated_timestamp: u32,
 }
 
@@ -42,7 +42,7 @@ impl EmojiManager {
         let Ok(emojis) = from_str::<Emojis>(&emojis_file) else { return Default::default() };
 
         Self {
-            emojis: BTreeMap::from_iter(emojis.emojis.into_iter().map(|emoji| (emoji.name.clone(), emoji))),
+            emojis: HashMap::from_iter(emojis.emojis.into_iter().map(|emoji| (emoji.name.clone(), emoji))),
             last_updated_timestamp: emojis.last_updated_timestamp,
         }
     }
@@ -88,11 +88,13 @@ impl EmojiManager {
 
         write(
             "emojis.json",
-            json!({
-                "emojis": self.emojis.values().collect::<Vec<&Emoji>>(),
-                "last_updated_timestamp": LAST_UPDATED_TIMESTAMP,
-            })
-            .to_string(),
+            format!(
+                "{}\n",
+                json!({
+                    "emojis": self.emojis.values().collect::<Vec<&Emoji>>(),
+                    "last_updated_timestamp": LAST_UPDATED_TIMESTAMP,
+                }),
+            ),
         )?;
 
         Ok(())
