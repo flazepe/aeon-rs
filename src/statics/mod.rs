@@ -20,10 +20,6 @@ use toml::from_str;
 pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
     discord: DiscordCache {
         guilds: RwLock::new(HashMap::new()),
-        channels: RwLock::new(HashMap::new()),
-        snipes: RwLock::new(HashMap::new()),
-        edit_snipes: RwLock::new(HashMap::new()),
-        reaction_snipes: RwLock::new(HashMap::new()),
         song_activities: RwLock::new(HashMap::new()),
         command_responses: RwLock::new(HashMap::new()),
         embed_fix_responses: RwLock::new(HashMap::new()),

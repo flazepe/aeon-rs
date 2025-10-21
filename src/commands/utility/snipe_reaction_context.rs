@@ -19,6 +19,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             input.target_message.as_ref().unwrap().id.as_deref().unwrap_or_default(),
             input.app_permissions,
         )
+        .await
         .to_response()?;
 
         ctx.respond(response, false).await

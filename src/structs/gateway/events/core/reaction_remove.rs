@@ -1,38 +1,23 @@
-use crate::{
-    functions::{format_timestamp, now},
-    statics::CACHE,
-};
+use crate::{functions::now, statics::REDIS};
 use anyhow::Result;
-use twilight_model::{channel::message::EmojiReactionType, gateway::payload::incoming::ReactionRemove};
+use serde_json::to_string;
+use twilight_model::gateway::payload::incoming::ReactionRemove;
 
 pub async fn handle(event: &ReactionRemove) -> Result<()> {
-    let reaction = event.0.clone();
+    let redis = REDIS.get().unwrap();
 
-    let mut messages = CACHE.discord.reaction_snipes.write().unwrap();
-    let key = format!("{}/{}", reaction.channel_id, reaction.message_id);
+    let Some(guild_id) = event.guild_id else { return Ok(()) };
+    let channel_id = event.channel_id;
+    let message_id = event.message_id;
 
-    if !messages.contains_key(&key) {
-        messages.insert(key.clone(), vec![]);
-    }
-
-    let reactions = messages.get_mut(&key).unwrap();
-
-    reactions.push(format!(
-        "<@{}> - {}\n{}",
-        reaction.user_id,
-        match reaction.emoji {
-            EmojiReactionType::Custom { name, id, .. } =>
-                format!("[{}](https://cdn.discordapp.com/emojis/{id})", name.as_deref().unwrap_or("<unknown>")),
-            EmojiReactionType::Unicode { name } => name,
-        },
-        format_timestamp(now(), true),
-    ));
-
-    // Limit stored reaction snipes
-    while reactions.join("\n\n").len() > 4096 {
-        reactions.rotate_left(1);
-        reactions.pop();
-    }
+    redis
+        .hset(
+            format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}_reaction-snipes"),
+            now(),
+            to_string(&event.0)?,
+            Some(60 * 30),
+        )
+        .await?;
 
     Ok(())
 }

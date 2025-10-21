@@ -18,6 +18,6 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         AeonCommandInput::MessageCommand(..) => Permissions::empty(),
     };
 
-    let response = ReactionSnipes::new(guild_id, channel_id, message_id, permissions).to_response()?;
+    let response = ReactionSnipes::new(guild_id, channel_id, message_id, permissions).await.to_response()?;
     ctx.respond(response, false).await
 }

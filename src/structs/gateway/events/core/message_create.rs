@@ -1,18 +1,16 @@
-use crate::{statics::CACHE, traits::LimitedVec};
+use crate::statics::REDIS;
 use anyhow::Result;
+use serde_json::to_string;
 use twilight_model::gateway::payload::incoming::MessageCreate;
 
 pub async fn handle(event: &MessageCreate) -> Result<()> {
-    {
-        let mut channels = CACHE.discord.channels.write().unwrap();
-        let channel_id = event.channel_id.to_string();
+    let redis = REDIS.get().unwrap();
 
-        if !channels.contains_key(&channel_id) {
-            channels.insert(channel_id.clone(), vec![]);
-        }
+    let Some(guild_id) = event.guild_id else { return Ok(()) };
+    let channel_id = event.channel_id;
+    let message_id = event.id;
 
-        channels.get_mut(&channel_id).unwrap().push_limited(event.0.clone(), 50);
-    }
+    redis.set(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}"), to_string(&event.0)?, Some(60 * 60 * 2)).await?;
 
     Ok(())
 }

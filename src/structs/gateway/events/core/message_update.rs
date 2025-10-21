@@ -1,38 +1,22 @@
-use crate::{statics::CACHE, traits::LimitedVec};
+use crate::{functions::now, statics::REDIS};
 use anyhow::Result;
+use serde_json::to_string;
 use twilight_model::gateway::payload::incoming::MessageUpdate;
 
 pub async fn handle(event: &MessageUpdate) -> Result<()> {
-    let mut channels = CACHE.discord.channels.write().unwrap();
-    let channel_id = event.channel_id.to_string();
+    let redis = REDIS.get().unwrap();
 
-    if !channels.contains_key(&channel_id) {
-        channels.insert(channel_id.clone(), vec![]);
+    let Some(guild_id) = event.guild_id else { return Ok(()) };
+    let channel_id = event.channel_id;
+    let message_id = event.id;
+
+    let key = format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}");
+
+    if let Ok(old_message) = redis.get(&key).await {
+        redis.hset(format!("guilds_{guild_id}_channels_{channel_id}_edit-snipes"), now(), old_message, Some(60 * 60 * 2)).await?;
     }
 
-    let old_message = channels.get_mut(&channel_id).unwrap().iter_mut().find(|message| message.id == event.id);
-
-    if let Some(old_message) = old_message {
-        let cloned_old_message = old_message.clone();
-
-        // Update message
-        let new_message = event.0.clone();
-
-        old_message.attachments = new_message.attachments;
-        old_message.content = new_message.content;
-        old_message.edited_timestamp = new_message.edited_timestamp;
-        old_message.embeds = new_message.embeds;
-        old_message.pinned = new_message.pinned;
-
-        // Add edit snipe
-        let mut channels = CACHE.discord.edit_snipes.write().unwrap();
-
-        if !channels.contains_key(&channel_id) {
-            channels.insert(channel_id.clone(), vec![]);
-        }
-
-        channels.get_mut(&channel_id).unwrap().push_limited(cloned_old_message, 50);
-    }
+    redis.set(key, to_string(&event.0)?, Some(60 * 60 * 2)).await?;
 
     Ok(())
 }

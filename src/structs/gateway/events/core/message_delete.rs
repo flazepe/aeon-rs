@@ -1,28 +1,16 @@
-use crate::{statics::CACHE, traits::LimitedVec};
+use crate::{functions::now, statics::REDIS};
 use anyhow::Result;
 use twilight_model::gateway::payload::incoming::MessageDelete;
 
 pub async fn handle(event: &MessageDelete) -> Result<()> {
-    let mut channels = CACHE.discord.channels.write().unwrap();
-    let channel_id = event.channel_id.to_string();
+    let redis = REDIS.get().unwrap();
 
-    if !channels.contains_key(&channel_id) {
-        channels.insert(channel_id.clone(), vec![]);
-    }
+    let Some(guild_id) = event.guild_id else { return Ok(()) };
+    let channel_id = event.channel_id;
+    let message_id = event.id;
 
-    let messages = channels.get_mut(&channel_id).unwrap();
-
-    if let Some(entry) = messages.iter().enumerate().find(|(_, message)| message.id == event.id) {
-        let message = messages.remove(entry.0);
-
-        // Add snipe
-        let mut channels = CACHE.discord.snipes.write().unwrap();
-
-        if !channels.contains_key(&channel_id) {
-            channels.insert(channel_id.clone(), vec![]);
-        }
-
-        channels.get_mut(&channel_id).unwrap().push_limited(message, 50);
+    if let Ok(message) = redis.get(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}")).await {
+        redis.hset(format!("guilds_{guild_id}_channels_{channel_id}_snipes"), now(), message, Some(60 * 60 * 2)).await?;
     }
 
     Ok(())

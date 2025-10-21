@@ -1,27 +1,31 @@
-use crate::statics::CACHE;
+use crate::{functions::now, statics::REDIS};
 use anyhow::Result;
-use twilight_model::gateway::payload::incoming::MessageDeleteBulk;
+use serde_json::{from_str, to_string};
+use twilight_model::{channel::Message as TwilightMessage, gateway::payload::incoming::MessageDeleteBulk};
 
 pub async fn handle(event: &MessageDeleteBulk) -> Result<()> {
-    let channel_id = event.channel_id.to_string();
+    let redis = REDIS.get().unwrap();
 
-    if let Some(messages) = CACHE.discord.channels.write().unwrap().get_mut(&channel_id) {
-        let mut deleted_messages = vec![];
+    let Some(guild_id) = event.guild_id else { return Ok(()) };
+    let channel_id = event.channel_id;
 
-        for id in &event.ids {
-            if let Some((index, _)) = messages.iter().enumerate().find(|(_, message)| &message.id == id) {
-                deleted_messages.push(messages.remove(index));
-            }
-        }
+    let deleted_messages = redis
+        .get_many(event.ids.iter().map(|id| format!("guilds_{guild_id}_channels_{channel_id}_messages_{id}")).collect())
+        .await
+        .unwrap_or_default()
+        .into_iter()
+        .flat_map(|string| from_str::<TwilightMessage>(&string))
+        .collect::<Vec<TwilightMessage>>();
 
-        let mut channels = CACHE.discord.snipes.write().unwrap();
+    let mut fields_values = vec![];
 
-        if !channels.contains_key(&channel_id) {
-            channels.insert(channel_id.clone(), vec![]);
-        }
-
-        channels.get_mut(&channel_id).unwrap().append(&mut deleted_messages);
+    for message in deleted_messages {
+        let field = now();
+        let Ok(value) = to_string(&message) else { continue };
+        fields_values.push((field, value));
     }
+
+    redis.hset_many(format!("guilds_{guild_id}_channels_{channel_id}_snipes"), fields_values, Some(60 * 60 * 2)).await?;
 
     Ok(())
 }

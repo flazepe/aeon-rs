@@ -5,7 +5,7 @@ use crate::{
 };
 use anyhow::{Context, Error, Result};
 use slashook::structs::embeds::Embed;
-use std::{fmt::Display, sync::Arc};
+use std::sync::Arc;
 use sysinfo::{System, get_current_pid};
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
@@ -34,18 +34,9 @@ fn bytes_to_mb(bytes: u64) -> String {
     format!("{} MB", bytes / 1024 / 1024)
 }
 
-fn sum_cache_len<T: Iterator<Item = (U, V)>, U: Display, V: IntoIterator<Item = W>, W: Clone>(iterable: T) -> usize {
-    iterable.map(|(_, vec)| vec.into_iter().count()).reduce(|acc, cur| acc + cur).unwrap_or(0)
-}
-
-fn get_discord_cache_list() -> [String; 9] {
+fn get_discord_cache_list() -> [String; 4] {
     [
         label_num(CACHE.discord.guilds.read().unwrap().len(), "server", "servers"),
-        label_num(CACHE.discord.channels.read().unwrap().len(), "channel", "channels"),
-        label_num(sum_cache_len(CACHE.discord.channels.read().unwrap().iter()), "message", "messages"),
-        label_num(sum_cache_len(CACHE.discord.snipes.read().unwrap().iter()), "snipe", "snipes"),
-        label_num(sum_cache_len(CACHE.discord.edit_snipes.read().unwrap().iter()), "edit snipe", "edit snipes"),
-        label_num(sum_cache_len(CACHE.discord.reaction_snipes.read().unwrap().iter()), "reaction snipe", "reaction snipes"),
         label_num(CACHE.discord.song_activities.read().unwrap().len(), "Spotify activity", "Spotify activities"),
         label_num(CACHE.discord.command_responses.read().unwrap().len(), "command response", "command responses"),
         label_num(CACHE.discord.embed_fix_responses.read().unwrap().len(), "embed fix response", "embed fix responses"),
