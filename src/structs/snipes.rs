@@ -87,7 +87,7 @@ pub struct ReactionSnipes {
     channel_id: String,
     message_id: String,
     permissions: Permissions,
-    reaction_snipes: Vec<GatewayReaction>,
+    reaction_snipes: Vec<(u64, GatewayReaction)>,
 }
 
 impl ReactionSnipes {
@@ -105,7 +105,10 @@ impl ReactionSnipes {
             .into_iter()
             .collect::<Vec<(String, String)>>();
         reaction_snipes.sort_by_key(|(timestamp, _)| timestamp.parse::<u64>().unwrap_or(0));
-        let reaction_snipes = reaction_snipes.iter().flat_map(|reaction| from_str(&reaction.1)).collect();
+        let reaction_snipes = reaction_snipes
+            .iter()
+            .flat_map(|(timestamp, reaction)| from_str(reaction).map(|reaction| (timestamp.parse::<u64>().unwrap_or(now()), reaction)))
+            .collect::<Vec<(u64, GatewayReaction)>>();
 
         Self { guild_id, channel_id, message_id, permissions, reaction_snipes }
     }
@@ -130,7 +133,7 @@ impl ReactionSnipes {
             Embed::new().set_color(PRIMARY_EMBED_COLOR)?.set_description(
                 self.reaction_snipes
                     .iter()
-                    .map(|reaction| {
+                    .map(|(timestamp, reaction)| {
                         format!(
                             "<@{}> - {}\n{}",
                             reaction.user_id,
@@ -139,7 +142,7 @@ impl ReactionSnipes {
                                     format!("[{}](https://cdn.discordapp.com/emojis/{id})", name.as_deref().unwrap_or("<unknown>")),
                                 EmojiReactionType::Unicode { name } => name.clone(),
                             },
-                            format_timestamp(now(), true),
+                            format_timestamp(timestamp, true),
                         )
                     })
                     .collect::<Vec<String>>()
