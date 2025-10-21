@@ -1,5 +1,5 @@
 use crate::statics::CONFIG;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use redis::{AsyncTypedCommands, Client, aio::MultiplexedConnection};
 use std::fmt::Display;
 
@@ -7,7 +7,6 @@ static PREFIX: &str = "aeon_";
 
 #[derive(Debug)]
 pub struct Redis {
-    client: Client,
     connection: MultiplexedConnection,
 }
 
@@ -16,7 +15,7 @@ impl Redis {
         let client = Client::open(CONFIG.database.redis_uri.as_str())?;
         let connection = client.get_multiplexed_async_connection().await?;
 
-        Ok(Self { client, connection })
+        Ok(Self { connection })
     }
 
     pub async fn set<T: Display, U: Display>(&self, key: T, value: U, ttl_secs: Option<u64>) -> Result<()> {
@@ -31,13 +30,13 @@ impl Redis {
         Ok(())
     }
 
-    pub async fn get<T: Display>(&self, key: T) -> Result<Option<String>> {
-        Ok(self.connection.clone().get(format!("{PREFIX}{key}")).await?)
+    pub async fn get<T: Display>(&self, key: T) -> Result<String> {
+        self.connection.clone().get(format!("{PREFIX}{key}")).await?.context("Key not found")
     }
 
-    pub async fn get_many<T: Display>(&self, keys: Vec<T>) -> Result<Vec<Option<String>>> {
+    pub async fn get_many<T: Display>(&self, keys: Vec<T>) -> Result<Vec<String>> {
         let keys = keys.into_iter().map(|key| format!("{PREFIX}{key}")).collect::<Vec<String>>();
-        Ok(self.connection.clone().mget(keys).await?)
+        Ok(self.connection.clone().mget(keys).await?.into_iter().flatten().collect())
     }
 
     pub async fn delete<T: Display>(&self, key: T) -> Result<usize> {
