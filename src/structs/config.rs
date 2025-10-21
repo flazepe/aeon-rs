@@ -18,6 +18,7 @@ pub struct BotConfig {
 #[derive(Deserialize, Debug)]
 pub struct DatabaseConfig {
     pub mongodb_uri: String,
+    pub redis_uri: String,
 }
 
 #[derive(Deserialize, Debug)]

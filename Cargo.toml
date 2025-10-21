@@ -16,6 +16,7 @@ mongodb = "3"
 nipper = "0.1"
 parse_duration = "2.1"
 prost = "0.14"
+redis = { version = "0.32", features = ["tokio-comp"] }
 regex = "1"
 reqwest = "0.12"
 serde = "1"
