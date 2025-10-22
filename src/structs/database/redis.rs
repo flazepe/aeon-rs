@@ -1,5 +1,6 @@
 use crate::statics::CONFIG;
 use anyhow::{Context, Result};
+use futures::StreamExt;
 use redis::{AsyncTypedCommands, Client, HashFieldExpirationOptions, SetExpiry, aio::MultiplexedConnection};
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::{from_str, to_string};
@@ -95,5 +96,10 @@ impl Redis {
                 Some((k, v))
             }))
         })
+    }
+
+    pub async fn scan_match<T: Display>(&self, pattern: T) -> Result<usize> {
+        let pattern = format!("{PREFIX}{pattern}");
+        Ok(self.connection.clone().scan_match::<_, String>(pattern).await?.count().await)
     }
 }

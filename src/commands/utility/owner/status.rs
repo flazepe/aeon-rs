@@ -1,6 +1,6 @@
 use crate::{
     functions::{format_timestamp, label_num},
-    statics::{CACHE, colors::PRIMARY_EMBED_COLOR},
+    statics::{CACHE, REDIS, colors::PRIMARY_EMBED_COLOR},
     structs::command_context::AeonCommandContext,
 };
 use anyhow::{Context, Error, Result};
@@ -17,6 +17,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let virtual_memory = bytes_to_mb(process.virtual_memory());
     let discord_cache_list = get_discord_cache_list().join("\n");
     let db_cache_list = get_db_cache_list().join("\n");
+    let redis_cache_list = get_redis_cache_list().await?.join("\n");
     let other_cache_list = get_other_cache_list().join("\n");
     let embed = Embed::new()
         .set_color(PRIMARY_EMBED_COLOR)?
@@ -25,6 +26,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         .add_field("Virtual Memory", virtual_memory, false)
         .add_field("Discord Cache", discord_cache_list, false)
         .add_field("Database Cache", db_cache_list, false)
+        .add_field("Redis Cache", redis_cache_list, false)
         .add_field("Other Cache", other_cache_list, false);
 
     ctx.respond(embed, false).await
@@ -45,6 +47,24 @@ fn get_discord_cache_list() -> [String; 4] {
 
 fn get_db_cache_list() -> [String; 1] {
     [label_num(CACHE.db.guilds.read().unwrap().len(), "server", "servers")]
+}
+
+async fn get_redis_cache_list() -> Result<[String; 5]> {
+    let redis = REDIS.get().unwrap();
+
+    let messages = redis.scan_match("guilds_*_channels_*_messages_*[0-9]").await?;
+    let snipes = redis.scan_match("guilds_*_channels_*_snipes").await?;
+    let edit_snipes = redis.scan_match("guilds_*_channels_*_edit-snipes").await?;
+    let reaction_snipes = redis.scan_match("guilds_*_channels_*_messages_*_reaction-snipes").await?;
+    let keys = redis.scan_match("*").await?;
+
+    Ok([
+        label_num(messages, "message", "messages"),
+        label_num(snipes, "snipe hash", "snipe hashes"),
+        label_num(edit_snipes, "edit snipe hash", "edit snipe hashes"),
+        label_num(reaction_snipes, "reaction snipe hash", "reaction snipe hashes"),
+        label_num(keys, "total key", "total keys"),
+    ])
 }
 
 fn get_other_cache_list() -> [String; 3] {
