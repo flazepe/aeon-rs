@@ -49,7 +49,7 @@ fn get_db_cache_list() -> [String; 1] {
     [label_num(CACHE.db.guilds.read().unwrap().len(), "server", "servers")]
 }
 
-async fn get_redis_cache_list() -> Result<[String; 6]> {
+async fn get_redis_cache_list() -> Result<[String; 7]> {
     let redis = REDIS.get().unwrap();
 
     let messages = redis.scan_match("guilds_*_channels_*_messages_*[0-9]").await?;
@@ -57,7 +57,8 @@ async fn get_redis_cache_list() -> Result<[String; 6]> {
     let edit_snipes = redis.scan_match("guilds_*_channels_*_edit-snipes").await?;
     let reaction_snipes = redis.scan_match("guilds_*_channels_*_messages_*_reaction-snipes").await?;
     let cooldowns = redis.scan_match("users_*_cooldown").await?;
-    let keys = redis.scan_match("*").await?;
+    let last_piston_programming_languages = redis.scan_match("users_*_last-piston-programming-language").await?;
+    let total_keys = redis.scan_match("*").await?;
 
     Ok([
         label_num(messages, "message", "messages"),
@@ -65,17 +66,11 @@ async fn get_redis_cache_list() -> Result<[String; 6]> {
         label_num(edit_snipes, "edit snipe hash", "edit snipe hashes"),
         label_num(reaction_snipes, "reaction snipe hash", "reaction snipe hashes"),
         label_num(cooldowns, "cooldown", "cooldowns"),
-        label_num(keys, "total key", "total keys"),
+        label_num(last_piston_programming_languages, "last piston programming language", "last piston programming languages"),
+        label_num(total_keys, "total key", "total keys"),
     ])
 }
 
-fn get_other_cache_list() -> [String; 2] {
-    [
-        label_num(
-            CACHE.last_piston_programming_languages.read().unwrap().len(),
-            "last piston programming language",
-            "last piston programming languages",
-        ),
-        label_num(CACHE.ordr_rendering_users.read().unwrap().len(), "o!rdr rendering user", "o!rdr rendering users"),
-    ]
+fn get_other_cache_list() -> [String; 1] {
+    [label_num(CACHE.ordr_rendering_users.read().unwrap().len(), "o!rdr rendering user", "o!rdr rendering users")]
 }
