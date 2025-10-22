@@ -127,12 +127,12 @@ impl AeonCommand {
             return ctx.respond_error("You are under a cooldown. Try again later.", true).await;
         }
 
-        let mut add_cooldown = true;
-
-        if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
-            // Only add cooldown if the input was a command without search option
-            add_cooldown = input.is_command() && !ctx.get_bool_arg("search").unwrap_or(false);
-        }
+        // Only add cooldown if the input was a command without search option
+        let add_cooldown = if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
+            input.is_command() && !ctx.get_bool_arg("search").unwrap_or(false)
+        } else {
+            true
+        };
 
         if add_cooldown {
             redis.set(cooldown_key, now(), Some(3)).await?;
