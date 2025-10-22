@@ -1,6 +1,6 @@
 use crate::{functions::now, statics::REDIS};
 use anyhow::Result;
-use serde_json::{from_str, to_string};
+use serde_json::to_string;
 use twilight_model::{channel::Message as TwilightMessage, gateway::payload::incoming::MessageDeleteBulk};
 
 pub async fn handle(event: &MessageDeleteBulk) -> Result<()> {
@@ -10,12 +10,9 @@ pub async fn handle(event: &MessageDeleteBulk) -> Result<()> {
     let channel_id = event.channel_id;
 
     let deleted_messages = redis
-        .get_many(event.ids.iter().map(|id| format!("guilds_{guild_id}_channels_{channel_id}_messages_{id}")).collect())
+        .get_many::<TwilightMessage>(event.ids.iter().map(|id| format!("guilds_{guild_id}_channels_{channel_id}_messages_{id}")).collect())
         .await
-        .unwrap_or_default()
-        .into_iter()
-        .flat_map(|string| from_str::<TwilightMessage>(&string))
-        .collect::<Vec<TwilightMessage>>();
+        .unwrap_or_default();
 
     let mut fields_values = vec![];
 

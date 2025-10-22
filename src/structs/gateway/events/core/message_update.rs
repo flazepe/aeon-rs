@@ -1,6 +1,6 @@
 use crate::{functions::now, statics::REDIS};
 use anyhow::Result;
-use serde_json::to_string;
+use serde_json::Value;
 use twilight_model::gateway::payload::incoming::MessageUpdate;
 
 pub async fn handle(event: &MessageUpdate) -> Result<()> {
@@ -12,11 +12,11 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
 
     let key = format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}");
 
-    if let Ok(old_message) = redis.get(&key).await {
+    if let Ok(old_message) = redis.get::<Value>(&key).await {
         redis.hset(format!("guilds_{guild_id}_channels_{channel_id}_edit-snipes"), now(), old_message, Some(60 * 60 * 2)).await?;
     }
 
-    redis.set(key, to_string(&event.0)?, Some(60 * 60 * 2)).await?;
+    redis.set(key, &event.0, Some(60 * 60 * 2)).await?;
 
     Ok(())
 }

@@ -1,6 +1,5 @@
 use crate::{functions::now, statics::REDIS};
 use anyhow::Result;
-use serde_json::to_string;
 use twilight_model::gateway::payload::incoming::ReactionRemove;
 
 pub async fn handle(event: &ReactionRemove) -> Result<()> {
@@ -11,12 +10,7 @@ pub async fn handle(event: &ReactionRemove) -> Result<()> {
     let message_id = event.message_id;
 
     redis
-        .hset(
-            format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}_reaction-snipes"),
-            now(),
-            to_string(&event.0)?,
-            Some(60 * 30),
-        )
+        .hset(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}_reaction-snipes"), now(), &event.0, Some(60 * 30))
         .await?;
 
     Ok(())

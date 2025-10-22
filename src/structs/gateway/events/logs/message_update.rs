@@ -3,8 +3,7 @@ use crate::{
     structs::{database::guilds::Guilds, simple_message::SimpleMessage},
     traits::{UserAvatarExt, UserExt},
 };
-use anyhow::{Error, Result};
-use serde_json::from_str;
+use anyhow::Result;
 use similar::{ChangeTag, TextDiff};
 use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::{channel::Message as TwilightMessage, gateway::payload::incoming::MessageUpdate};
@@ -14,12 +13,8 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
     let channel_id = event.channel_id;
     let message_id = event.id;
 
-    let Ok(old_message) = REDIS
-        .get()
-        .unwrap()
-        .get(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}"))
-        .await
-        .and_then(|message| from_str::<TwilightMessage>(&message).map_err(Error::msg))
+    let Ok(old_message) =
+        REDIS.get().unwrap().get::<TwilightMessage>(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}")).await
     else {
         return Ok(());
     };

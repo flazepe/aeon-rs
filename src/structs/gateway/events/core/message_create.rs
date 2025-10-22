@@ -1,6 +1,5 @@
 use crate::statics::REDIS;
 use anyhow::Result;
-use serde_json::to_string;
 use twilight_model::gateway::payload::incoming::MessageCreate;
 
 pub async fn handle(event: &MessageCreate) -> Result<()> {
@@ -10,7 +9,7 @@ pub async fn handle(event: &MessageCreate) -> Result<()> {
     let channel_id = event.channel_id;
     let message_id = event.id;
 
-    redis.set(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}"), to_string(&event.0)?, Some(60 * 60 * 2)).await?;
+    redis.set(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}"), &event.0, Some(60 * 60 * 2)).await?;
 
     Ok(())
 }

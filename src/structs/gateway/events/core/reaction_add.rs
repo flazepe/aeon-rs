@@ -1,6 +1,5 @@
 use crate::statics::{CONFIG, FLAZEPE_ID, REDIS, REST};
-use anyhow::{Error, Result};
-use serde_json::from_str;
+use anyhow::Result;
 use slashook::structs::messages::Message as SlashookMessage;
 use twilight_model::{
     channel::Message as TwilightMessage, channel::message::EmojiReactionType, gateway::payload::incoming::ReactionAdd, id::Id,
@@ -25,14 +24,9 @@ pub async fn handle(event: &ReactionAdd) -> Result<()> {
     let mut author_id = None;
     let mut user_id = None;
 
-    let message = REDIS
-        .get()
-        .unwrap()
-        .get(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}"))
-        .await
-        .and_then(|message| from_str::<TwilightMessage>(&message).map_err(Error::msg));
-
-    if let Ok(message) = message {
+    if let Ok(message) =
+        REDIS.get().unwrap().get::<TwilightMessage>(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}")).await
+    {
         author_id = Some(message.author.id.to_string());
 
         if let Some(interaction_metadata) = message.interaction_metadata.as_ref()

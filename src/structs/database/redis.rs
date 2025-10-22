@@ -1,7 +1,9 @@
 use crate::statics::CONFIG;
 use anyhow::{Context, Result};
 use redis::{AsyncTypedCommands, Client, HashFieldExpirationOptions, SetExpiry, aio::MultiplexedConnection};
-use std::{collections::HashMap, fmt::Display};
+use serde::{Serialize, de::DeserializeOwned};
+use serde_json::{from_str, to_string};
+use std::{collections::BTreeMap, fmt::Display};
 
 static PREFIX: &str = "aeon_";
 
@@ -18,31 +20,36 @@ impl Redis {
         Ok(Self { connection })
     }
 
-    pub async fn set<T: Display, U: Display>(&self, key: T, value: U, ttl_secs: Option<u64>) -> Result<()> {
+    pub async fn set<T: Display, U: Serialize>(&self, key: T, value: U, ttl_secs: Option<u64>) -> Result<()> {
         let key = format!("{PREFIX}{key}");
 
         if let Some(ttl_secs) = ttl_secs {
-            self.connection.clone().set_ex(key, value.to_string(), ttl_secs).await?;
+            self.connection.clone().set_ex(key, to_string(&value)?, ttl_secs).await?;
         } else {
-            self.connection.clone().set(key, value.to_string()).await?;
+            self.connection.clone().set(key, to_string(&value)?).await?;
         }
 
         Ok(())
     }
 
-    pub async fn get<T: Display>(&self, key: T) -> Result<String> {
-        self.connection.clone().get(format!("{PREFIX}{key}")).await?.context("Key not found")
+    pub async fn get<T: DeserializeOwned>(&self, key: impl Display) -> Result<T> {
+        self.connection
+            .clone()
+            .get(format!("{PREFIX}{key}"))
+            .await?
+            .context("Key not found")
+            .and_then(|data| from_str(&data).context("Could not deserialize data"))
     }
 
-    pub async fn get_many<T: Display>(&self, keys: Vec<T>) -> Result<Vec<String>> {
+    pub async fn get_many<T: DeserializeOwned>(&self, keys: Vec<impl Display>) -> Result<Vec<T>> {
         let keys = keys.into_iter().map(|key| format!("{PREFIX}{key}")).collect::<Vec<String>>();
-        Ok(self.connection.clone().mget(keys).await?.into_iter().flatten().collect())
+        Ok(self.connection.clone().mget(keys).await?.into_iter().flat_map(|data| data.map(|data| from_str(&data))).flatten().collect())
     }
 
-    pub async fn hset<T: Display, U: Display, V: Display>(&self, key: T, field: U, value: V, ttl_secs: Option<u64>) -> Result<()> {
+    pub async fn hset<T: Serialize>(&self, key: impl Display, field: impl Display, value: T, ttl_secs: Option<u64>) -> Result<()> {
         let key = format!("{PREFIX}{key}");
         let field = field.to_string();
-        let value = value.to_string();
+        let value = to_string(&value)?;
 
         if let Some(ttl_secs) = ttl_secs {
             let hash_field_expiration_options = HashFieldExpirationOptions::default().set_expiration(SetExpiry::EX(ttl_secs));
@@ -54,14 +61,21 @@ impl Redis {
         Ok(())
     }
 
-    pub async fn hset_many<T: Display, U: IntoIterator<Item = (V, W)>, V: Display, W: Display>(
+    pub async fn hset_many<T: Serialize, U: Serialize>(
         &self,
-        key: T,
-        fields_values: U,
+        key: impl Display,
+        fields_values: impl IntoIterator<Item = (T, U)>,
         ttl_secs: Option<u64>,
     ) -> Result<()> {
         let key = format!("{PREFIX}{key}");
-        let fields_values = fields_values.into_iter().map(|(k, v)| (k.to_string(), v.to_string())).collect::<Vec<(String, String)>>();
+        let fields_values = fields_values
+            .into_iter()
+            .flat_map(|(k, v)| {
+                let Ok(k) = to_string(&k) else { return None };
+                let Ok(v) = to_string(&v) else { return None };
+                Some((k, v))
+            })
+            .collect::<Vec<(String, String)>>();
 
         if let Some(ttl_secs) = ttl_secs {
             let hash_field_expiration_options = HashFieldExpirationOptions::default().set_expiration(SetExpiry::EX(ttl_secs));
@@ -73,8 +87,14 @@ impl Redis {
         Ok(())
     }
 
-    pub async fn hget_many<T: Display>(&self, key: T) -> Result<HashMap<String, String>> {
+    pub async fn hget_many<T: DeserializeOwned + Ord, U: DeserializeOwned>(&self, key: impl Display) -> Result<BTreeMap<T, U>> {
         let key = format!("{PREFIX}{key}");
-        Ok(self.connection.clone().hgetall(key).await?)
+        Ok(self.connection.clone().hgetall(key).await?).map(|data| {
+            BTreeMap::from_iter(data.into_iter().flat_map(|(k, v)| {
+                let Ok(k) = from_str(&k) else { return None };
+                let Ok(v) = from_str(&v) else { return None };
+                Some((k, v))
+            }))
+        })
     }
 }

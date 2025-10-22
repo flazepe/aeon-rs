@@ -4,8 +4,7 @@ use crate::{
     structs::{database::guilds::Guilds, simple_message::SimpleMessage, snowflake::Snowflake},
     traits::{UserAvatarExt, UserExt},
 };
-use anyhow::{Error, Result};
-use serde_json::from_str;
+use anyhow::Result;
 use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::{channel::Message as TwilightMessage, gateway::payload::incoming::MessageDelete};
 
@@ -24,12 +23,8 @@ pub async fn handle(event: &MessageDelete) -> Result<()> {
         .add_field("Channel", format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id), false)
         .add_field("Created", format_timestamp(snowflake.timestamp.timestamp(), true), false);
 
-    let old_message = REDIS
-        .get()
-        .unwrap()
-        .get(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}"))
-        .await
-        .and_then(|message| from_str::<TwilightMessage>(&message).map_err(Error::msg));
+    let old_message =
+        REDIS.get().unwrap().get::<TwilightMessage>(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}")).await;
 
     if let Ok(old_message) = &old_message {
         embed = embed

@@ -1,11 +1,10 @@
 use crate::{
-    functions::{format_timestamp, label_num, limit_strings, now},
+    functions::{format_timestamp, label_num, limit_strings},
     statics::{REDIS, colors::PRIMARY_EMBED_COLOR},
     structs::simple_message::SimpleMessage,
     traits::{UserAvatarExt, UserExt},
 };
 use anyhow::{Result, bail};
-use serde_json::from_str;
 use slashook::{
     chrono::DateTime,
     commands::MessageResponse,
@@ -30,9 +29,7 @@ impl Snipes {
         let channel_id = channel_id.to_string();
 
         let key = format!("guilds_{guild_id}_channels_{channel_id}_{}", if is_edit { "edit-snipes" } else { "snipes" });
-        let mut snipes = REDIS.get().unwrap().hget_many(key).await.unwrap_or_default().into_iter().collect::<Vec<(String, String)>>();
-        snipes.sort_by_key(|(timestamp, _)| timestamp.parse::<u64>().unwrap_or(0));
-        let snipes = snipes.iter().flat_map(|message| from_str(&message.1)).collect();
+        let snipes = REDIS.get().unwrap().hget_many::<u64, TwilightMessage>(key).await.unwrap_or_default().into_values().collect();
 
         Self { is_edit, send_list, permissions, snipes }
     }
@@ -96,19 +93,14 @@ impl ReactionSnipes {
         let channel_id = channel_id.to_string();
         let message_id = message_id.to_string();
 
-        let mut reaction_snipes = REDIS
+        let reaction_snipes = REDIS
             .get()
             .unwrap()
-            .hget_many(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}_reaction-snipes"))
+            .hget_many::<u64, GatewayReaction>(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}_reaction-snipes"))
             .await
             .unwrap_or_default()
             .into_iter()
-            .collect::<Vec<(String, String)>>();
-        reaction_snipes.sort_by_key(|(timestamp, _)| timestamp.parse::<u64>().unwrap_or(0));
-        let reaction_snipes = reaction_snipes
-            .iter()
-            .flat_map(|(timestamp, reaction)| from_str(reaction).map(|reaction| (timestamp.parse::<u64>().unwrap_or(now()), reaction)))
-            .collect::<Vec<(u64, GatewayReaction)>>();
+            .collect();
 
         Self { guild_id, channel_id, message_id, permissions, reaction_snipes }
     }
