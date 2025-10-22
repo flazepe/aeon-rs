@@ -9,16 +9,21 @@ use std::sync::Arc;
 use sysinfo::{System, get_current_pid};
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    ctx.defer(false).await?;
+
     let system = System::new_all();
     let pid = get_current_pid().map_err(Error::msg)?;
     let process = system.process(pid).context("Could not get process.")?;
     let process_started = format_timestamp(process.start_time(), true);
+
     let memory = bytes_to_mb(process.memory());
     let virtual_memory = bytes_to_mb(process.virtual_memory());
+
     let discord_cache_list = get_discord_cache_list().join("\n");
     let db_cache_list = get_db_cache_list().join("\n");
     let redis_cache_list = get_redis_cache_list().await?.join("\n");
     let other_cache_list = get_other_cache_list().join("\n");
+
     let embed = Embed::new()
         .set_color(PRIMARY_EMBED_COLOR)?
         .add_field("Process Started", process_started, false)
