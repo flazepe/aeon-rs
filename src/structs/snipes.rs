@@ -53,17 +53,16 @@ impl Snipes {
                     .iter()
                     .rev()
                     .map(|message| {
-                        format!(
-                            "{} at {}:\n\n{}",
-                            message.author.label(),
-                            DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string()).unwrap().to_rfc2822(),
-                            SimpleMessage::from(message.clone())
-                                .to_string()
-                                .split('\n')
-                                .map(|line| format!("\t{}", if line.is_empty() { "<empty>" } else { line }))
-                                .collect::<Vec<String>>()
-                                .join("\n"),
-                        )
+                        let author_label = message.author.label();
+                        let date = DateTime::parse_from_rfc3339(&message.timestamp.iso_8601().to_string()).unwrap().to_rfc2822();
+                        let stringified_message = SimpleMessage::from(message.clone())
+                            .to_string()
+                            .split('\n')
+                            .map(|line| format!("\t{}", if line.is_empty() { "<empty>" } else { line }))
+                            .collect::<Vec<String>>()
+                            .join("\n");
+
+                        format!("{author_label} at {date}:\n\n{stringified_message}")
                     })
                     .collect::<Vec<String>>()
                     .join("\n\n"),
@@ -73,12 +72,13 @@ impl Snipes {
 
         let snipe = &self.snipes[self.snipes.len() - 1];
 
-        Ok(Embed::new()
+        let embed = Embed::new()
             .set_color(PRIMARY_EMBED_COLOR)?
             .set_description(SimpleMessage::from(snipe.clone()).to_string().chars().take(4096).collect::<String>())
             .set_footer(snipe.author.label(), Some(snipe.author.display_avatar_url("png", 64)))
-            .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?)
-            .into())
+            .set_timestamp(DateTime::parse_from_rfc3339(&snipe.timestamp.iso_8601().to_string())?);
+
+        Ok(embed.into())
     }
 }
 
@@ -124,28 +124,32 @@ impl ReactionSnipes {
 
         let reactions = limit_strings(
             self.reaction_snipes.iter().rev().map(|(timestamp, reaction)| {
-                format!(
-                    "<@{}> - {}\n{}",
-                    reaction.user_id,
-                    match &reaction.emoji {
-                        EmojiReactionType::Custom { name, id, .. } =>
-                            format!("[{}](https://cdn.discordapp.com/emojis/{id})", name.as_deref().unwrap_or("<unknown>")),
-                        EmojiReactionType::Unicode { name } => name.clone(),
+                let user_id = reaction.user_id;
+                let emoji = match &reaction.emoji {
+                    EmojiReactionType::Custom { name, id, .. } => {
+                        format!("[{}](https://cdn.discordapp.com/emojis/{id})", name.as_deref().unwrap_or("<unknown>"))
                     },
-                    format_timestamp(timestamp, true),
-                )
+                    EmojiReactionType::Unicode { name } => name.clone(),
+                };
+                let timestamp = format_timestamp(timestamp, true);
+
+                format!("<@{user_id}> - {emoji}\n{timestamp}")
             }),
             "\n\n",
             4096,
         );
 
-        Ok(MessageResponse::from(format!(
+        let embed = Embed::new().set_color(PRIMARY_EMBED_COLOR)?.set_description(reactions);
+
+        let response = MessageResponse::from(format!(
             "Last {} for https://discord.com/channels/{}/{}/{}",
             label_num(self.reaction_snipes.len(), "reaction snipe", "reaction snipes"),
             self.guild_id,
             self.channel_id,
             self.message_id,
         ))
-        .add_embed(Embed::new().set_color(PRIMARY_EMBED_COLOR)?.set_description(reactions)))
+        .add_embed(embed);
+
+        Ok(response)
     }
 }
