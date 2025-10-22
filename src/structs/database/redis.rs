@@ -16,7 +16,6 @@ impl Redis {
     pub async fn new() -> Result<Self> {
         let client = Client::open(CONFIG.database.redis_uri.as_str())?;
         let connection = client.get_multiplexed_async_connection().await?;
-
         Ok(Self { connection })
     }
 
@@ -43,7 +42,7 @@ impl Redis {
 
     pub async fn get_many<T: DeserializeOwned>(&self, keys: Vec<impl Display>) -> Result<Vec<T>> {
         let keys = keys.into_iter().map(|key| format!("{PREFIX}{key}")).collect::<Vec<String>>();
-        Ok(self.connection.clone().mget(keys).await?.into_iter().flat_map(|data| data.map(|data| from_str(&data))).flatten().collect())
+        Ok(self.connection.clone().mget(keys).await?.into_iter().flat_map(|data| from_str(&data?).ok()).collect())
     }
 
     pub async fn hset<T: Serialize>(&self, key: impl Display, field: impl Display, value: T, ttl_secs: Option<u64>) -> Result<()> {
@@ -71,8 +70,8 @@ impl Redis {
         let fields_values = fields_values
             .into_iter()
             .flat_map(|(k, v)| {
-                let Ok(k) = to_string(&k) else { return None };
-                let Ok(v) = to_string(&v) else { return None };
+                let k = to_string(&k).ok()?;
+                let v = to_string(&v).ok()?;
                 Some((k, v))
             })
             .collect::<Vec<(String, String)>>();
@@ -91,8 +90,8 @@ impl Redis {
         let key = format!("{PREFIX}{key}");
         Ok(self.connection.clone().hgetall(key).await?).map(|data| {
             BTreeMap::from_iter(data.into_iter().flat_map(|(k, v)| {
-                let Ok(k) = from_str(&k) else { return None };
-                let Ok(v) = from_str(&v) else { return None };
+                let k = from_str(&k).ok()?;
+                let v = from_str(&v).ok()?;
                 Some((k, v))
             }))
         })
