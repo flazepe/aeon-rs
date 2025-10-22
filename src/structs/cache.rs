@@ -6,7 +6,6 @@ use twilight_model::guild::Guild as DiscordGuild;
 pub struct Cache {
     pub discord: DiscordCache,
     pub db: DatabaseCache,
-    pub cooldowns: RwLock<HashMap<String, u64>>,
     pub last_piston_programming_languages: RwLock<HashMap<String, String>>,
     pub ordr_rendering_users: RwLock<HashMap<String, bool>>,
     pub spotify_access_token: RwLock<(String, u128)>,

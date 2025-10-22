@@ -49,13 +49,14 @@ fn get_db_cache_list() -> [String; 1] {
     [label_num(CACHE.db.guilds.read().unwrap().len(), "server", "servers")]
 }
 
-async fn get_redis_cache_list() -> Result<[String; 5]> {
+async fn get_redis_cache_list() -> Result<[String; 6]> {
     let redis = REDIS.get().unwrap();
 
     let messages = redis.scan_match("guilds_*_channels_*_messages_*[0-9]").await?;
     let snipes = redis.scan_match("guilds_*_channels_*_snipes").await?;
     let edit_snipes = redis.scan_match("guilds_*_channels_*_edit-snipes").await?;
     let reaction_snipes = redis.scan_match("guilds_*_channels_*_messages_*_reaction-snipes").await?;
+    let cooldowns = redis.scan_match("users_*_cooldown").await?;
     let keys = redis.scan_match("*").await?;
 
     Ok([
@@ -63,13 +64,13 @@ async fn get_redis_cache_list() -> Result<[String; 5]> {
         label_num(snipes, "snipe hash", "snipe hashes"),
         label_num(edit_snipes, "edit snipe hash", "edit snipe hashes"),
         label_num(reaction_snipes, "reaction snipe hash", "reaction snipe hashes"),
+        label_num(cooldowns, "cooldown", "cooldowns"),
         label_num(keys, "total key", "total keys"),
     ])
 }
 
-fn get_other_cache_list() -> [String; 3] {
+fn get_other_cache_list() -> [String; 2] {
     [
-        label_num(CACHE.cooldowns.read().unwrap().len(), "cooldown", "cooldowns"),
         label_num(
             CACHE.last_piston_programming_languages.read().unwrap().len(),
             "last piston programming language",
