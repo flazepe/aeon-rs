@@ -1,5 +1,5 @@
 use crate::{
-    functions::{format_timestamp, label_num, now},
+    functions::{format_timestamp, label_num, limit_strings, now},
     statics::{REDIS, colors::PRIMARY_EMBED_COLOR},
     structs::simple_message::SimpleMessage,
     traits::{UserAvatarExt, UserExt},
@@ -122,6 +122,23 @@ impl ReactionSnipes {
             bail!("No reaction snipes found.");
         }
 
+        let reactions = limit_strings(
+            self.reaction_snipes.iter().rev().map(|(timestamp, reaction)| {
+                format!(
+                    "<@{}> - {}\n{}",
+                    reaction.user_id,
+                    match &reaction.emoji {
+                        EmojiReactionType::Custom { name, id, .. } =>
+                            format!("[{}](https://cdn.discordapp.com/emojis/{id})", name.as_deref().unwrap_or("<unknown>")),
+                        EmojiReactionType::Unicode { name } => name.clone(),
+                    },
+                    format_timestamp(timestamp, true),
+                )
+            }),
+            "\n\n",
+            4096,
+        );
+
         Ok(MessageResponse::from(format!(
             "Last {} for https://discord.com/channels/{}/{}/{}",
             label_num(self.reaction_snipes.len(), "reaction snipe", "reaction snipes"),
@@ -129,25 +146,6 @@ impl ReactionSnipes {
             self.channel_id,
             self.message_id,
         ))
-        .add_embed(
-            Embed::new().set_color(PRIMARY_EMBED_COLOR)?.set_description(
-                self.reaction_snipes
-                    .iter()
-                    .map(|(timestamp, reaction)| {
-                        format!(
-                            "<@{}> - {}\n{}",
-                            reaction.user_id,
-                            match &reaction.emoji {
-                                EmojiReactionType::Custom { name, id, .. } =>
-                                    format!("[{}](https://cdn.discordapp.com/emojis/{id})", name.as_deref().unwrap_or("<unknown>")),
-                                EmojiReactionType::Unicode { name } => name.clone(),
-                            },
-                            format_timestamp(timestamp, true),
-                        )
-                    })
-                    .collect::<Vec<String>>()
-                    .join("\n\n"),
-            ),
-        ))
+        .add_embed(Embed::new().set_color(PRIMARY_EMBED_COLOR)?.set_description(reactions)))
     }
 }
