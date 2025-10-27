@@ -14,6 +14,7 @@ mod member_remove;
 mod message_delete;
 mod message_delete_bulk;
 mod message_update;
+mod reaction_remove;
 mod reaction_remove_all;
 mod reaction_remove_emoji;
 mod role_create;
@@ -47,6 +48,7 @@ impl EventHandler {
             Event::MessageDelete(event) => message_delete::handle(event).await,
             Event::MessageDeleteBulk(event) => message_delete_bulk::handle(event).await,
             Event::MessageUpdate(event) => message_update::handle(event).await,
+            Event::ReactionRemove(event) => reaction_remove::handle(event).await,
             Event::ReactionRemoveAll(event) => reaction_remove_all::handle(event).await,
             Event::ReactionRemoveEmoji(event) => reaction_remove_emoji::handle(event).await,
             Event::RoleCreate(event) => role_create::handle(event).await,

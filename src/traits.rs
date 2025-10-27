@@ -1,6 +1,9 @@
 use slashook::structs::{messages::Message as SlashookMessage, users::User as SlashookUser};
 use std::fmt::Display;
-use twilight_model::{channel::Message as TwilightMessage, user::User as TwilightUser};
+use twilight_model::{
+    channel::{Message as TwilightMessage, message::EmojiReactionType},
+    user::User as TwilightUser,
+};
 
 pub trait UserExt {
     fn label(&self) -> String;
@@ -90,6 +93,50 @@ impl MessageExt for TwilightMessage {
             ),
             None => format_reply_text!(),
         })
+    }
+}
+
+pub trait EmojiReactionExt {
+    fn get_image_url(&self) -> String;
+    fn label(&self) -> String;
+}
+
+impl EmojiReactionExt for EmojiReactionType {
+    fn get_image_url(&self) -> String {
+        match self {
+            Self::Custom { id, animated, .. } => {
+                // Usually not needed but gifs don't animate inside embed thumbnails if you don't include the proper extension
+                let ext = if *animated { "gif" } else { "png" };
+                format!("https://cdn.discordapp.com/emojis/{id}.{ext}")
+            },
+            Self::Unicode { name } => {
+                let mut hexcodes = name.chars().map(|entry| format!("{:x}", entry as u32)).collect::<Vec<String>>();
+
+                // Trim fe0f (variant selector) if total hexcodes is just 2 (for emojis like :heart: and :heart_exclamation:)
+                // The length is limited to 2 because a hexcode like :face_in_clouds: with 4 codepoints (:no_mouth: + zero width joiner + :cloud: + fe0f) exists and it's valid
+                // Not sure if this is reliable. I seriously don't want to hardcode all valid Twemojis just for an asset URL
+                if hexcodes.len() == 2 && hexcodes[1] == "fe0f" {
+                    hexcodes.pop();
+                }
+
+                format!("https://raw.githubusercontent.com/jdecked/twemoji/refs/heads/main/assets/72x72/{}.png", hexcodes.join("-"))
+            },
+        }
+    }
+
+    fn label(&self) -> String {
+        let emoji_name = match self {
+            Self::Custom { name, .. } => name.as_deref().unwrap_or("<unknown>"),
+            Self::Unicode { name } => name,
+        };
+
+        if let Self::Custom { .. } = self {
+            let image_url = self.get_image_url();
+            format!("[{emoji_name}]({image_url})")
+        } else {
+            // Can't make this a hyperlink because it'll mess up the Twemoji/Unicode emoji display
+            emoji_name.to_string()
+        }
     }
 }
 

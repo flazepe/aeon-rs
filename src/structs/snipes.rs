@@ -2,7 +2,7 @@ use crate::{
     functions::{format_timestamp, label_num, limit_strings},
     statics::{REDIS, colors::PRIMARY_EMBED_COLOR},
     structs::simple_message::SimpleMessage,
-    traits::{UserAvatarExt, UserExt},
+    traits::{EmojiReactionExt, UserAvatarExt, UserExt},
 };
 use anyhow::{Result, bail};
 use slashook::{
@@ -11,10 +11,7 @@ use slashook::{
     structs::{Permissions, embeds::Embed, utils::File},
 };
 use std::fmt::Display;
-use twilight_model::{
-    channel::{Message as TwilightMessage, message::EmojiReactionType},
-    gateway::GatewayReaction,
-};
+use twilight_model::{channel::Message as TwilightMessage, gateway::GatewayReaction};
 
 pub struct Snipes {
     is_edit: bool,
@@ -117,14 +114,8 @@ impl ReactionSnipes {
         let reactions = limit_strings(
             self.reaction_snipes.iter().rev().map(|(timestamp, reaction)| {
                 let user_id = reaction.user_id;
-                let emoji = match &reaction.emoji {
-                    EmojiReactionType::Custom { name, id, .. } => {
-                        format!("[{}](https://cdn.discordapp.com/emojis/{id})", name.as_deref().unwrap_or("<unknown>"))
-                    },
-                    EmojiReactionType::Unicode { name } => name.clone(),
-                };
+                let emoji = reaction.emoji.label();
                 let timestamp = format_timestamp(timestamp, true);
-
                 format!("<@{user_id}> - {emoji}\n{timestamp}")
             }),
             "\n\n",
