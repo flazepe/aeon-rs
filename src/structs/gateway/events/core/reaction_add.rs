@@ -29,7 +29,7 @@ pub async fn handle(event: &ReactionAdd) -> Result<()> {
     {
         author_id = Some(message.author.id.to_string());
 
-        if let Some(interaction_metadata) = message.interaction_metadata.as_ref()
+        if let Some(interaction_metadata) = message.interaction_metadata
             && interaction_metadata.id != Id::new(1202934262123470899)
         {
             user_id = Some(interaction_metadata.user.id.to_string());
