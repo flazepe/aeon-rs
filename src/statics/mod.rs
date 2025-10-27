@@ -4,11 +4,11 @@ pub mod regex;
 use crate::structs::{
     cache::{Cache, DatabaseCache, DiscordCache},
     config::Config,
-    database::{Collections, guilds::Guild, oauth::OauthToken, reminders::Reminder, tags::Tag},
+    database::{Collections, guilds::Guild, oauth::OauthToken, redis::Redis, reminders::Reminder, tags::Tag},
     emoji_manager::EmojiManager,
 };
 use mongodb::Database;
-use reqwest::Client;
+use reqwest::Client as ReqwestClient;
 use slashook::rest::Rest;
 use std::{
     collections::HashMap,
@@ -20,17 +20,11 @@ use toml::from_str;
 pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
     discord: DiscordCache {
         guilds: RwLock::new(HashMap::new()),
-        channels: RwLock::new(HashMap::new()),
-        snipes: RwLock::new(HashMap::new()),
-        edit_snipes: RwLock::new(HashMap::new()),
-        reaction_snipes: RwLock::new(HashMap::new()),
         song_activities: RwLock::new(HashMap::new()),
         command_responses: RwLock::new(HashMap::new()),
         embed_fix_responses: RwLock::new(HashMap::new()),
     },
     db: DatabaseCache { guilds: RwLock::new(HashMap::new()) },
-    cooldowns: RwLock::new(HashMap::new()),
-    last_piston_programming_languages: RwLock::new(HashMap::new()),
     ordr_rendering_users: RwLock::new(HashMap::new()),
     spotify_access_token: RwLock::new(Default::default()),
 });
@@ -45,5 +39,6 @@ pub static DEFAULT_PREFIXES: LazyLock<[String; 2]> = LazyLock::new(|| [format!("
 pub static EMOJIS: OnceLock<EmojiManager> = OnceLock::new();
 pub static FLAZEPE_ID: &str = "590455379931037697";
 pub static MONGODB: OnceLock<Database> = OnceLock::new();
-pub static REQWEST: LazyLock<Client> = LazyLock::new(Client::new);
+pub static REDIS: OnceLock<Redis> = OnceLock::new();
+pub static REQWEST: LazyLock<ReqwestClient> = LazyLock::new(ReqwestClient::new);
 pub static REST: LazyLock<Rest> = LazyLock::new(|| Rest::with_token(CONFIG.bot.token.clone()));

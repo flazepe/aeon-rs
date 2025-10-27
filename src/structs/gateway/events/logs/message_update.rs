@@ -1,20 +1,23 @@
 use crate::{
-    statics::{CACHE, colors::NOTICE_EMBED_COLOR},
+    statics::{REDIS, colors::NOTICE_EMBED_COLOR},
     structs::{database::guilds::Guilds, simple_message::SimpleMessage},
     traits::{UserAvatarExt, UserExt},
 };
 use anyhow::Result;
 use similar::{ChangeTag, TextDiff};
 use slashook::{chrono::Utc, structs::embeds::Embed};
-use twilight_model::gateway::payload::incoming::MessageUpdate;
+use twilight_model::{channel::Message as TwilightMessage, gateway::payload::incoming::MessageUpdate};
 
 pub async fn handle(event: &MessageUpdate) -> Result<()> {
     let Some(guild_id) = event.guild_id else { return Ok(()) };
-    let old_message = {
-        let channels = CACHE.discord.channels.read().unwrap();
-        channels.get(&event.channel_id.to_string()).and_then(|messages| messages.iter().find(|message| message.id == event.id)).cloned()
+    let channel_id = event.channel_id;
+    let message_id = event.id;
+
+    let Ok(old_message) =
+        REDIS.get().unwrap().get::<TwilightMessage>(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}")).await
+    else {
+        return Ok(());
     };
-    let Some(old_message) = old_message else { return Ok(()) };
 
     if old_message.content == event.content {
         return Ok(());

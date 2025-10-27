@@ -93,22 +93,6 @@ impl MessageExt for TwilightMessage {
     }
 }
 
-pub trait LimitedVec<T> {
-    fn push_limited(&mut self, value: T, limit: usize);
-}
-
-impl<T> LimitedVec<T> for Vec<T> {
-    fn push_limited(&mut self, value: T, limit: usize) {
-        self.push(value);
-
-        let length = self.len();
-
-        if length > limit {
-            self.drain(..length - limit);
-        }
-    }
-}
-
 pub trait Commas {
     fn commas(&self) -> String;
 }

@@ -1,10 +1,11 @@
 use crate::{
     functions::now,
-    statics::{CACHE, FLAZEPE_ID},
+    statics::{FLAZEPE_ID, REDIS},
     structs::command_context::{AeonCommandContext, AeonCommandInput},
 };
 use anyhow::Result;
 use futures::{Future, future::BoxFuture};
+use serde_json::Value;
 use std::{fmt::Display, sync::Arc};
 
 pub trait AeonCommandFn: Send + Sync {
@@ -119,20 +120,22 @@ impl AeonCommand {
 
         let Some(func) = func else { return Ok(()) };
 
-        if CACHE.cooldowns.read().unwrap().get(&ctx.get_user_id()).unwrap_or(&0) > &now() {
+        let redis = REDIS.get().unwrap();
+        let cooldown_key = format!("users_{}_cooldown", ctx.get_user_id());
+
+        if redis.get::<Value>(&cooldown_key).await.is_ok() {
             return ctx.respond_error("You are under a cooldown. Try again later.", true).await;
         }
 
-        match &ctx.command_input {
-            AeonCommandInput::ApplicationCommand(input, _) => {
-                // Only add cooldown if the input was a command without search option
-                if input.is_command() && !ctx.get_bool_arg("search").unwrap_or(false) {
-                    CACHE.cooldowns.write().unwrap().insert(input.user.id.clone(), now() + 3);
-                }
-            },
-            AeonCommandInput::MessageCommand(message, ..) => {
-                CACHE.cooldowns.write().unwrap().insert(message.author.id.to_string(), now() + 3);
-            },
+        // Only add cooldown if the input was a command without search option
+        let add_cooldown = if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
+            input.is_command() && !ctx.get_bool_arg("search").unwrap_or(false)
+        } else {
+            true
+        };
+
+        if add_cooldown {
+            redis.set(cooldown_key, now(), Some(3)).await?;
         }
 
         let ctx_arc = Arc::new(ctx);

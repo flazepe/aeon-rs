@@ -6,8 +6,13 @@ mod structs;
 mod traits;
 
 use crate::{
-    statics::{EMOJIS, MONGODB},
-    structs::{client::AeonClient, database::reminders::Reminders, emoji_manager::EmojiManager, gateway::client::GatewayClient},
+    statics::{EMOJIS, MONGODB, REDIS},
+    structs::{
+        client::AeonClient,
+        database::{redis::Redis, reminders::Reminders},
+        emoji_manager::EmojiManager,
+        gateway::client::GatewayClient,
+    },
 };
 use anyhow::Result;
 use slashook::main;
@@ -17,6 +22,9 @@ use tokio::spawn;
 async fn main() -> Result<()> {
     MONGODB.set(AeonClient::connect_to_database().await?).expect("Could not set MongoDB client.");
     println!("[DATABASE] Connected to MongoDB.");
+
+    REDIS.set(Redis::new().await?).expect("Could not set Redis.");
+    println!("[REDIS] Connected to Redis.");
 
     spawn(Reminders::poll());
     println!("[REMINDERS] Started polling reminders.");

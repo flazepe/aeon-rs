@@ -1,7 +1,9 @@
-use crate::statics::{CACHE, CONFIG, FLAZEPE_ID, REST};
+use crate::statics::{CONFIG, FLAZEPE_ID, REDIS, REST};
 use anyhow::Result;
-use slashook::structs::messages::Message;
-use twilight_model::{channel::message::EmojiReactionType, gateway::payload::incoming::ReactionAdd, id::Id};
+use slashook::structs::messages::Message as SlashookMessage;
+use twilight_model::{
+    channel::Message as TwilightMessage, channel::message::EmojiReactionType, gateway::payload::incoming::ReactionAdd, id::Id,
+};
 
 pub async fn handle(event: &ReactionAdd) -> Result<()> {
     let reaction = event.0.clone();
@@ -15,30 +17,27 @@ pub async fn handle(event: &ReactionAdd) -> Result<()> {
         return Ok(());
     }
 
+    let Some(guild_id) = event.guild_id else { return Ok(()) };
+    let channel_id = event.channel_id;
+    let message_id = event.message_id;
+
     let mut author_id = None;
     let mut user_id = None;
 
-    // Find message in cache
+    if let Ok(message) =
+        REDIS.get().unwrap().get::<TwilightMessage>(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}")).await
     {
-        let channels = CACHE.discord.channels.read().unwrap();
+        author_id = Some(message.author.id.to_string());
 
-        if let Some(message) = channels
-            .get(&reaction.channel_id.to_string())
-            .and_then(|messages| messages.iter().find(|message| message.id == reaction.message_id))
+        if let Some(interaction_metadata) = message.interaction_metadata.as_ref()
+            && interaction_metadata.id != Id::new(1202934262123470899)
         {
-            author_id = Some(message.author.id.to_string());
-
-            if let Some(interaction_metadata) = message.interaction_metadata.as_ref()
-                && interaction_metadata.id != Id::new(1202934262123470899)
-            {
-                user_id = Some(interaction_metadata.user.id.to_string());
-            }
+            user_id = Some(interaction_metadata.user.id.to_string());
         }
     }
 
-    // Fetch message if not in cache
     if author_id.is_none() || user_id.is_none() {
-        let Ok(message) = Message::fetch(&REST, reaction.channel_id, reaction.message_id).await else { return Ok(()) };
+        let Ok(message) = SlashookMessage::fetch(&REST, reaction.channel_id, reaction.message_id).await else { return Ok(()) };
         author_id = message.author.map(|author| author.id);
 
         if let Some(interaction_metadata) = message.interaction_metadata
@@ -51,8 +50,6 @@ pub async fn handle(event: &ReactionAdd) -> Result<()> {
     let Some(author_id) = author_id else { return Ok(()) };
 
     if user_id.as_deref().unwrap_or(FLAZEPE_ID) == reaction.user_id.to_string() && author_id == CONFIG.bot.client_id {
-        let channel_id = reaction.channel_id;
-        let message_id = reaction.message_id;
         _ = REST.delete::<()>(format!("channels/{channel_id}/messages/{message_id}")).await;
     }
 

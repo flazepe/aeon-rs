@@ -1,5 +1,5 @@
 use crate::{
-    statics::CACHE,
+    statics::REDIS,
     structs::{
         api::piston::{Piston, statics::PISTON_RUNTIMES},
         command::AeonCommand,
@@ -25,13 +25,13 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     return ctx.autocomplete(PISTON_RUNTIMES.iter().map(|runtime| (&runtime.language, runtime.label()))).await;
                 }
 
+                let redis = REDIS.get().unwrap();
+                let key = format!("users_{}_last-piston-programming-language", ctx.get_user_id());
                 let programming_language = ctx
                     .get_string_arg("programming-language", 0, true)
-                    .ok()
-                    .or(CACHE.last_piston_programming_languages.read().unwrap().get(&input.user.id).cloned())
+                    .or(redis.get::<String>(&key).await)
                     .context("Please provide a programming language.")?;
-
-                CACHE.last_piston_programming_languages.write().unwrap().insert(input.user.id.clone(), programming_language.clone());
+                redis.set(key, &programming_language, Some(60 * 60)).await?;
 
                 if input.is_modal_submit() {
                     ctx.defer(false).await?;
@@ -41,7 +41,8 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                 } else {
                     let code_input = TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code");
                     let components = Components::new_label(Label::new("Code")).add_text_input(code_input);
-                    let modal = Modal::new("code", "modal", "Enter Code").set_components(components);
+                    let modal = Modal::new("code", "modal", format!("Enter Code ({})", programming_language.to_lowercase()))
+                        .set_components(components);
 
                     Ok(res.open_modal(modal).await?)
                 }

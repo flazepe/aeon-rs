@@ -3,6 +3,7 @@ use mongodb::Collection;
 
 pub mod guilds;
 pub mod oauth;
+pub mod redis;
 pub mod reminders;
 pub mod tags;
 
