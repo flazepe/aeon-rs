@@ -59,13 +59,17 @@ impl EventHandler {
         let mut urls = vec![];
 
         for discord_url in discord_urls.values() {
-            let url = &discord_url.url;
+            // Discord only embeds up to 5 URLs
+            if urls.len() == 5 {
+                break;
+            }
 
             // Skip suppressed embeds
             if discord_url.suppressed {
                 continue;
             }
 
+            let url = &discord_url.url;
             let Some(domain) = url.split('/').nth(2).map(|domain| domain.trim_start_matches("www.")) else { continue };
 
             // Skip X posts that have a valid image
@@ -114,6 +118,7 @@ impl EventHandler {
 
             // Only fix posts that were supposed to have an image or video
             if has_media_content_type || has_media_meta_content {
+                // The space before the closing spoiler is intentional because Discord (could be the website) sometimes includes the || inside the URL when unfurling, which causes the website to return a 404 and not embed
                 urls.push(if discord_url.spoilered { format!("||{new_url} ||") } else { new_url });
             }
         }
