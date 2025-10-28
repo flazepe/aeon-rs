@@ -79,6 +79,7 @@ impl EventHandler {
             }
 
             let new_domain = match domain {
+                "bilibili.com" => "vxbilibili.com",
                 "instagram.com" => "eeinstagram.com",
                 "pixiv.net" => "phixiv.net",
                 "reddit.com" | "old.reddit.com" => "rxddit.com",
