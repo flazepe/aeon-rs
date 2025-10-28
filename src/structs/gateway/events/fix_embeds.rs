@@ -13,6 +13,7 @@ use slashook::{
     commands::MessageResponse,
     structs::messages::{AllowedMentions, Message as SlashookMessage, MessageFlags, MessageReference},
 };
+use std::collections::HashMap;
 use twilight_model::channel::Message;
 
 impl EventHandler {
@@ -24,7 +25,7 @@ impl EventHandler {
             return Ok(());
         }
 
-        let mut discord_urls: Vec<DiscordURL> = vec![];
+        let mut discord_urls: HashMap<String, DiscordURL> = HashMap::new();
 
         let mut process_captures = |captures: Captures<'_>, is_spoiler: bool| {
             let suppressed_url = captures.name("suppressed_url");
@@ -33,15 +34,14 @@ impl EventHandler {
             let url = suppressed_url.or(normal_url);
             let Some(url) = url else { return };
 
-            if let Some(discord_url) = discord_urls.iter_mut().find(|discord_url| discord_url.url == url.as_str()) {
+            if let Some(discord_url) = discord_urls.get_mut(url.as_str()) {
                 discord_url.spoilered = is_spoiler;
                 discord_url.suppressed = suppressed_url.is_some();
             } else {
-                discord_urls.push(DiscordURL {
-                    url: url.as_str().to_string(),
-                    spoilered: is_spoiler,
-                    suppressed: suppressed_url.is_some(),
-                });
+                discord_urls.insert(
+                    url.as_str().to_string(),
+                    DiscordURL { url: url.as_str().to_string(), spoilered: is_spoiler, suppressed: suppressed_url.is_some() },
+                );
             }
         };
 
@@ -57,7 +57,7 @@ impl EventHandler {
 
         let mut urls = vec![];
 
-        for discord_url in discord_urls {
+        for discord_url in discord_urls.values() {
             let url = &discord_url.url;
 
             // Skip suppressed embeds
