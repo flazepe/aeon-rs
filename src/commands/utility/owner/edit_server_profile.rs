@@ -33,16 +33,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         let bytes = res.bytes().await?;
         let base64 = BASE64_STANDARD.encode(bytes);
 
-        input
-            .rest
-            .patch::<Value, Value>(
-                endpoint.clone(),
-                json!({
-                    "avatar": format!("data:{content_type};base64,{base64}"),
-                }),
-            )
-            .await?;
-
+        input.rest.patch::<Value, Value>(endpoint.clone(), json!({ "avatar": format!("data:{content_type};base64,{base64}") })).await?;
         return ctx.respond_success("Successfuly set bot's server avatar.", true).await;
     }
 
@@ -54,61 +45,22 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         let bytes = res.bytes().await?;
         let base64 = BASE64_STANDARD.encode(bytes);
 
-        input
-            .rest
-            .patch::<Value, Value>(
-                endpoint.clone(),
-                json!({
-                    "banner": format!("data:{content_type};base64,{base64}"),
-                }),
-            )
-            .await?;
-
+        input.rest.patch::<Value, Value>(endpoint.clone(), json!({ "banner": format!("data:{content_type};base64,{base64}") })).await?;
         return ctx.respond_success("Successfuly set bot's server banner.", true).await;
     }
 
     if let Ok(nickname) = ctx.get_string_arg("nickname", 0, false) {
-        input
-            .rest
-            .patch::<Value, Value>(
-                endpoint.clone(),
-                json!({
-                    "nick": nickname,
-                }),
-            )
-            .await?;
-
+        input.rest.patch::<Value, Value>(endpoint.clone(), json!({ "nick": nickname })).await?;
         return ctx.respond_success("Successfuly set bot's server nickname.", true).await;
     }
 
     if let Ok(about_me) = ctx.get_string_arg("about-me", 0, false) {
-        input
-            .rest
-            .patch::<Value, Value>(
-                endpoint.clone(),
-                json!({
-                    "bio": about_me,
-                }),
-            )
-            .await?;
-
+        input.rest.patch::<Value, Value>(endpoint.clone(), json!({ "bio": about_me })).await?;
         return ctx.respond_success("Successfuly set bot's server about me.", true).await;
     }
 
     if ctx.get_bool_arg("reset-all").unwrap_or(false) {
-        input
-            .rest
-            .patch::<Value, Value>(
-                endpoint.clone(),
-                json!({
-                    "avatar": null,
-                    "banner": null,
-                    "nick": null,
-                    "bio": null,
-                }),
-            )
-            .await?;
-
+        input.rest.patch::<Value, Value>(endpoint.clone(), json!({ "avatar": null, "banner": null, "nick": null, "bio": null })).await?;
         return ctx.respond_success("Successfuly reset bot's server profile.", true).await;
     }
 
@@ -120,7 +72,6 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         };
 
         input.rest.patch::<Value, Value>(endpoint.clone(), json!({ property: null })).await?;
-
         return ctx.respond_success(format!("Successfuly reset bot's server {}.", reset.replace('-', " ")), true).await;
     }
 
