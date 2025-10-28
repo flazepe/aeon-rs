@@ -64,7 +64,7 @@ impl EventHandler {
                 break;
             }
 
-            // Skip suppressed embeds
+            // Skip suppressed URLs
             if discord_url.suppressed {
                 continue;
             }
