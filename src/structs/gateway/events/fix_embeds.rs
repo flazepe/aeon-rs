@@ -6,7 +6,8 @@ use crate::{
     structs::{database::guilds::Guilds, gateway::events::EventHandler},
 };
 use anyhow::Result;
-use regex::{Captures, Regex};
+use nipper::Document;
+use regex::Captures;
 use reqwest::StatusCode;
 use serde_json::json;
 use slashook::{
@@ -69,11 +70,15 @@ impl EventHandler {
 
             // Skip X posts that have a valid image
             if ["x.com", "twitter.com"].contains(&domain) {
-                let body = REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await?;
-                let image_url = get_meta_content(body.as_str(), "og:image");
+                let html = REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await?;
+                let image_url = get_meta_contents(html, &["og:image"]).into_values().next().unwrap_or_default();
 
                 // Make sure the URL contains the "media" path. Otherwise, it is most likely a thumbnail for a video, which should be fixed
-                if image_url.contains("/media/") && REQWEST.head(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK) {
+                // Also make sure that it's a valid media (status code OK). Sometimes it likes to return a placeholder URL that leads to a 404
+                if !image_url.is_empty()
+                    && image_url.contains("/media/")
+                    && REQWEST.head(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK)
+                {
                     continue;
                 }
             }
@@ -103,10 +108,8 @@ impl EventHandler {
                 });
 
             let has_media_meta_content = {
-                let body = REQWEST.get(&new_url).header("user-agent", "discordbot").send().await?.text().await?;
-                ["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]
-                    .iter()
-                    .any(|entry| !get_meta_content(&body, entry).is_empty())
+                let html = REQWEST.get(&new_url).header("user-agent", "discordbot").send().await?.text().await?;
+                !get_meta_contents(html, &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]).is_empty()
             };
 
             // Only fix posts that were supposed to have an image or video
@@ -147,22 +150,22 @@ impl EventHandler {
     }
 }
 
-fn get_meta_content(html: &str, property: &str) -> String {
-    let Ok(regex) = Regex::new(
-        format!(r#"<meta\s*content="(\S+)"\s*property="{property}"\s*/?>|<meta\s*property="{property}"\s*content="(\S+)"\s*/?>"#).as_str(),
-    ) else {
-        return "".into();
-    };
+fn get_meta_contents(html: String, names: &[&str]) -> HashMap<String, String> {
+    let document = Document::from(&html);
+    let mut contents = HashMap::new();
 
-    let content =
-        regex.captures(html).and_then(|captures| captures.get(1).or(captures.get(2))).map(|capture| capture.as_str()).unwrap_or_default();
+    for name in names {
+        let Some(content) = document.select(&format!("meta[name='{name}']")).attr("content") else { continue };
 
-    // Ignore some invalid contents
-    if ["0", "undefined"].contains(&content) || content.starts_with("https://pbs.twimg.com/profile_images/") {
-        return "".into();
+        // Ignore some invalid contents
+        if ["0", "undefined"].contains(&content.to_string().as_str()) || content.starts_with("https://pbs.twimg.com/profile_images/") {
+            continue;
+        }
+
+        contents.insert(name.to_string(), content.to_string());
     }
 
-    content.into()
+    contents
 }
 
 struct DiscordURL {
