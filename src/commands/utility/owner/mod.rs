@@ -1,4 +1,5 @@
 mod delete;
+mod edit_server_profile;
 mod eien;
 mod eval;
 mod request;
@@ -20,6 +21,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         .add_subcommand("eien", &[], eien::run)
         .add_subcommand("eval", &["e", "evak"], eval::run)
         .add_subcommand("request", &["req"], request::run)
+        .add_subcommand("edit-server-profile", &[], edit_server_profile::run)
         .add_subcommand("set-status", &["ss"], set_status::run)
         .add_subcommand("status", &[], status::run)
 });
@@ -79,6 +81,53 @@ pub fn get_slashook_command() -> SlashookCommand {
 							ApplicationCommandOptionChoice::new("PATCH", "PATCH"),
 							ApplicationCommandOptionChoice::new("TRACE", "TRACE"),
 						],
+                    },
+				],
+            },
+            {
+                name = "edit-server-profile",
+                description = "Edits the bot's server profile.",
+				options = [
+                    {
+                        name = "server-id",
+                        description = "The server ID. Defaults to the current server",
+                        option_type = InteractionOptionType::STRING,
+                    },
+					{
+                        name = "avatar",
+                        description = "The avatar to set",
+                        option_type = InteractionOptionType::ATTACHMENT,
+                    },
+                    {
+                        name = "banner",
+                        description = "The banner to set",
+                        option_type = InteractionOptionType::ATTACHMENT,
+                    },
+					{
+                        name = "nickname",
+                        description = "The nickname to set",
+                        option_type = InteractionOptionType::STRING,
+                    },
+                    {
+                        name = "about-me",
+                        description = "The about me to set",
+                        option_type = InteractionOptionType::STRING,
+                    },
+					{
+                        name = "reset",
+                        description = "The property to reset",
+                        option_type = InteractionOptionType::STRING,
+						choices = [
+							ApplicationCommandOptionChoice::new("Avatar", "avatar"),
+							ApplicationCommandOptionChoice::new("Banner", "banner"),
+							ApplicationCommandOptionChoice::new("Nickname", "nickname"),
+                            ApplicationCommandOptionChoice::new("About Me", "about-me"),
+						],
+                    },
+                    {
+                        name = "reset-all",
+                        description = "Whether to reset all properties",
+                        option_type = InteractionOptionType::BOOLEAN,
                     },
 				],
             },
