@@ -160,7 +160,9 @@ fn get_meta_contents(html: String, names: &[&str]) -> HashMap<String, String> {
     let mut contents = HashMap::new();
 
     for name in names {
-        let Some(content) = document.select(&format!("meta[name='{name}']")).attr("content") else { continue };
+        let name_content = document.select(&format!("meta[name='{name}']")).attr("content");
+        let property_content = document.select(&format!("meta[property='{name}']")).attr("content");
+        let Some(content) = name_content.or(property_content) else { continue };
 
         // Ignore some invalid contents
         if ["0", "undefined"].contains(&content.to_string().as_str()) || content.starts_with("https://pbs.twimg.com/profile_images/") {
