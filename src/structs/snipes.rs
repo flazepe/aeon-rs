@@ -1,7 +1,7 @@
 use crate::{
     functions::{format_timestamp, label_num, limit_strings},
     statics::{REDIS, colors::PRIMARY_EMBED_COLOR},
-    structs::simple_message::SimpleMessage,
+    structs::{database::redis::keys::RedisKey, simple_message::SimpleMessage},
     traits::{EmojiReactionExt, UserAvatarExt, UserExt},
 };
 use anyhow::{Result, bail};
@@ -25,8 +25,12 @@ impl Snipes {
         let guild_id = guild_id.to_string();
         let channel_id = channel_id.to_string();
 
-        let key = format!("guilds_{guild_id}_channels_{channel_id}_{}", if is_edit { "edit-snipes" } else { "snipes" });
-        let snipes = REDIS.get().unwrap().hget_many::<u64, TwilightMessage>(key).await.unwrap_or_default().into_values().collect();
+        let key = if is_edit {
+            RedisKey::GuildChannelEditSnipes(guild_id, channel_id)
+        } else {
+            RedisKey::GuildChannelSnipes(guild_id, channel_id)
+        };
+        let snipes = REDIS.get().unwrap().hget_many::<u64, TwilightMessage>(&key).await.unwrap_or_default().into_values().collect();
 
         Self { is_edit, send_list, permissions, snipes }
     }
@@ -93,7 +97,11 @@ impl ReactionSnipes {
         let reaction_snipes = REDIS
             .get()
             .unwrap()
-            .hget_many::<u64, GatewayReaction>(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}_reaction-snipes"))
+            .hget_many::<u64, GatewayReaction>(&RedisKey::GuildChannelMessageReactionSnipes(
+                guild_id.clone(),
+                channel_id.clone(),
+                message_id.clone(),
+            ))
             .await
             .unwrap_or_default()
             .into_iter()

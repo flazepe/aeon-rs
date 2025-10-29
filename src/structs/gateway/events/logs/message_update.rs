@@ -1,6 +1,9 @@
 use crate::{
     statics::{REDIS, colors::NOTICE_EMBED_COLOR},
-    structs::{database::guilds::Guilds, simple_message::SimpleMessage},
+    structs::{
+        database::{guilds::Guilds, redis::keys::RedisKey},
+        simple_message::SimpleMessage,
+    },
     traits::{UserAvatarExt, UserExt},
 };
 use anyhow::Result;
@@ -13,8 +16,11 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
     let channel_id = event.channel_id;
     let message_id = event.id;
 
-    let Ok(old_message) =
-        REDIS.get().unwrap().get::<TwilightMessage>(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}")).await
+    let Ok(old_message) = REDIS
+        .get()
+        .unwrap()
+        .get::<TwilightMessage>(&RedisKey::GuildChannelMessage(guild_id.to_string(), channel_id.to_string(), message_id.to_string()))
+        .await
     else {
         return Ok(());
     };

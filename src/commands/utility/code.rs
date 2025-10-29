@@ -4,6 +4,7 @@ use crate::{
         api::piston::{Piston, statics::PISTON_RUNTIMES},
         command::AeonCommand,
         command_context::{AeonCommandContext, AeonCommandInput},
+        database::redis::keys::RedisKey,
     },
 };
 use anyhow::{Context, bail};
@@ -26,12 +27,12 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                 }
 
                 let redis = REDIS.get().unwrap();
-                let key = format!("users_{}_last-piston-programming-language", ctx.get_user_id());
+                let key = RedisKey::UserLastPistonProgrammingLanguage(ctx.get_user_id());
                 let programming_language = ctx
                     .get_string_arg("programming-language", 0, true)
                     .or(redis.get::<String>(&key).await)
                     .context("Please provide a programming language.")?;
-                redis.set(key, &programming_language, Some(60 * 60)).await?;
+                redis.set(&key, &programming_language, Some(60 * 60)).await?;
 
                 if input.is_modal_submit() {
                     ctx.defer(false).await?;

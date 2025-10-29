@@ -3,7 +3,10 @@ use crate::{
         REDIS, REQWEST, REST,
         regex::{DISCORD_URL_REGEX, SPOILER_REGEX},
     },
-    structs::{database::guilds::Guilds, gateway::events::EventHandler},
+    structs::{
+        database::{guilds::Guilds, redis::keys::RedisKey},
+        gateway::events::EventHandler,
+    },
 };
 use anyhow::Result;
 use nipper::Document;
@@ -127,37 +130,36 @@ impl EventHandler {
         let response =
             MessageResponse::from(format!("<@{}> {}", message.author.id, if urls.is_empty() { "URLs removed" } else { &urls.join("\n") },))
                 .set_message_reference(MessageReference::new_reply(message.id))
-                .set_allowed_mentions(AllowedMentions::new());
+                .set_allowed_mentions(AllowedMentions::new().set_replied_user(false));
 
         let redis = REDIS.get().unwrap();
+        let Some(guild_id) = message.guild_id else { return Ok(()) };
         let channel_id = message.channel_id;
         let message_id = message.id;
-        let embed_fix_response_key = format!("embed-fix-responses_{message_id}");
+        let embed_fix_response_key =
+            RedisKey::GuildChannelMessageEmbedFixResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
 
         if let Ok(embed_fix_response) = redis.get::<EmbedFixResponse>(&embed_fix_response_key).await {
-            let embed_fix_response_id = embed_fix_response.id;
-
             if embed_fix_response.content != response.content.as_deref().unwrap_or_default() {
                 _ = REST
                     .patch::<(), _>(
-                        format!("channels/{channel_id}/messages/{embed_fix_response_id}"),
-                        json!({ "content": response.content.unwrap_or_default(), "allowed_mentions": { "parse": [] } }),
+                        format!("channels/{}/messages/{}", message.channel_id, embed_fix_response.id),
+                        json!({ "content": response.content.unwrap_or_default(), "allowed_mentions": { "replied_user": false } }),
                     )
                     .await;
             }
-
-            return Ok(());
-        }
-
-        if !urls.is_empty() {
+        } else if !urls.is_empty() {
             _ = REST
-                .patch::<(), _>(format!("channels/{channel_id}/messages/{message_id}"), json!({ "flags": MessageFlags::SUPPRESS_EMBEDS }))
+                .patch::<(), _>(
+                    format!("channels/{}/messages/{}", message.channel_id, message.id),
+                    json!({ "flags": MessageFlags::SUPPRESS_EMBEDS }),
+                )
                 .await;
 
-            if let Ok(embed_fix_response) = SlashookMessage::create(&REST, channel_id, response).await {
+            if let Ok(embed_fix_response) = SlashookMessage::create(&REST, message.channel_id, response).await {
                 redis
                     .set(
-                        embed_fix_response_key,
+                        &embed_fix_response_key,
                         EmbedFixResponse { id: embed_fix_response.id.unwrap_or_default(), content: embed_fix_response.content },
                         Some(60 * 5),
                     )

@@ -1,7 +1,7 @@
 use crate::{
     functions::{format_timestamp, label_num},
     statics::{CACHE, REDIS, colors::PRIMARY_EMBED_COLOR},
-    structs::command_context::AeonCommandContext,
+    structs::{command_context::AeonCommandContext, database::redis::keys::RedisKey},
 };
 use anyhow::{Context, Error, Result};
 use slashook::structs::embeds::Embed;
@@ -56,13 +56,13 @@ async fn get_redis_cache_list() -> Result<[String; 9]> {
     let redis = REDIS.get().unwrap();
 
     let messages = redis.scan_match("guilds_*_channels_*_messages_*[0-9]").await?;
-    let snipes = redis.scan_match("guilds_*_channels_*_snipes").await?;
-    let edit_snipes = redis.scan_match("guilds_*_channels_*_edit-snipes").await?;
-    let reaction_snipes = redis.scan_match("guilds_*_channels_*_messages_*_reaction-snipes").await?;
-    let cooldowns = redis.scan_match("users_*_cooldown").await?;
-    let command_responses = redis.scan_match("command-responses_*").await?;
-    let embed_fix_responses = redis.scan_match("embed-fix-responses_*").await?;
-    let last_piston_programming_languages = redis.scan_match("users_*_last-piston-programming-language").await?;
+    let snipes = redis.scan_match(RedisKey::GuildChannelSnipes("*".into(), "*".into())).await?;
+    let edit_snipes = redis.scan_match(RedisKey::GuildChannelEditSnipes("*".into(), "*".into())).await?;
+    let reaction_snipes = redis.scan_match(RedisKey::GuildChannelMessageReactionSnipes("*".into(), "*".into(), "*".into())).await?;
+    let cooldowns = redis.scan_match(RedisKey::UserCooldown("*".into())).await?;
+    let command_responses = redis.scan_match(RedisKey::GuildChannelMessageCommandResponse("*".into(), "*".into(), "*".into())).await?;
+    let embed_fix_responses = redis.scan_match(RedisKey::GuildChannelMessageEmbedFixResponse("*".into(), "*".into(), "*".into())).await?;
+    let last_piston_programming_languages = redis.scan_match(RedisKey::UserLastPistonProgrammingLanguage("*".into())).await?;
     let total_keys = redis.scan_match("*").await?;
 
     Ok([

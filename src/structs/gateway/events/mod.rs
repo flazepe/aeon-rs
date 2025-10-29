@@ -5,7 +5,7 @@ mod logs;
 
 use crate::{
     statics::{REDIS, REST},
-    structs::gateway::events::fix_embeds::EmbedFixResponse,
+    structs::{database::redis::keys::RedisKey, gateway::events::fix_embeds::EmbedFixResponse},
 };
 use serde_json::Value;
 use twilight_gateway::{Event, MessageSender};
@@ -32,13 +32,31 @@ impl EventHandler {
         }
 
         if let Event::MessageUpdate(message) = &event {
-            if redis.get::<Value>(format!("command-responses_{}", message.id)).await.is_ok()
+            let Some(guild_id) = message.guild_id else { return };
+            let channel_id = message.channel_id;
+            let message_id = message.id;
+
+            if redis
+                .get::<Value>(&RedisKey::GuildChannelMessageCommandResponse(
+                    guild_id.to_string(),
+                    channel_id.to_string(),
+                    message_id.to_string(),
+                ))
+                .await
+                .is_ok()
                 && let Err(error) = Self::handle_commands(message, &sender).await
             {
                 println!("[GATEWAY] An error occurred while handling edited commands: {error:?}");
             }
 
-            if redis.get::<Value>(format!("embed-fix-responses_{}", message.id)).await.is_ok()
+            if redis
+                .get::<Value>(&RedisKey::GuildChannelMessageEmbedFixResponse(
+                    guild_id.to_string(),
+                    channel_id.to_string(),
+                    message_id.to_string(),
+                ))
+                .await
+                .is_ok()
                 && let Err(error) = Self::handle_fix_embeds(message).await
             {
                 println!("[GATEWAY] An error occurred while handling edited fix embeds: {error:?}");
@@ -46,14 +64,29 @@ impl EventHandler {
         }
 
         if let Event::MessageDelete(message) = &event {
+            let Some(guild_id) = message.guild_id else { return };
             let channel_id = message.channel_id;
             let message_id = message.id;
 
-            if let Ok(command_response) = redis.get::<String>(format!("command-responses_{message_id}")).await {
+            if let Ok(command_response) = redis
+                .get::<String>(&RedisKey::GuildChannelMessageCommandResponse(
+                    guild_id.to_string(),
+                    channel_id.to_string(),
+                    message_id.to_string(),
+                ))
+                .await
+            {
                 _ = REST.delete::<()>(format!("channels/{channel_id}/messages/{command_response}")).await;
             }
 
-            if let Ok(embed_fix_response) = redis.get::<EmbedFixResponse>(format!("embed-fix-responses_{message_id}")).await {
+            if let Ok(embed_fix_response) = redis
+                .get::<EmbedFixResponse>(&RedisKey::GuildChannelMessageEmbedFixResponse(
+                    guild_id.to_string(),
+                    channel_id.to_string(),
+                    message_id.to_string(),
+                ))
+                .await
+            {
                 let embed_fix_response_id = embed_fix_response.id;
                 _ = REST.delete::<()>(format!("channels/{channel_id}/messages/{embed_fix_response_id}")).await;
             }

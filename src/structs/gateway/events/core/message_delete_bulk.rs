@@ -1,4 +1,4 @@
-use crate::{functions::now, statics::REDIS};
+use crate::{functions::now, statics::REDIS, structs::database::redis::keys::RedisKey};
 use anyhow::Result;
 use serde_json::to_string;
 use twilight_model::{channel::Message as TwilightMessage, gateway::payload::incoming::MessageDeleteBulk};
@@ -10,7 +10,13 @@ pub async fn handle(event: &MessageDeleteBulk) -> Result<()> {
     let channel_id = event.channel_id;
 
     let deleted_messages = redis
-        .get_many::<TwilightMessage>(event.ids.iter().map(|id| format!("guilds_{guild_id}_channels_{channel_id}_messages_{id}")).collect())
+        .get_many::<TwilightMessage>(
+            event
+                .ids
+                .iter()
+                .map(|id| RedisKey::GuildChannelMessage(guild_id.to_string(), channel_id.to_string(), id.to_string()))
+                .collect(),
+        )
         .await
         .unwrap_or_default();
 
@@ -22,7 +28,7 @@ pub async fn handle(event: &MessageDeleteBulk) -> Result<()> {
         fields_values.push((field, value));
     }
 
-    redis.hset_many(format!("guilds_{guild_id}_channels_{channel_id}_snipes"), fields_values, Some(60 * 60 * 2)).await?;
+    redis.hset_many(&RedisKey::GuildChannelSnipes(guild_id.to_string(), channel_id.to_string()), fields_values, Some(60 * 60 * 2)).await?;
 
     Ok(())
 }
