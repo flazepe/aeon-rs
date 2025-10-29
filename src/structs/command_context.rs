@@ -1,5 +1,5 @@
 use crate::{
-    statics::{CACHE, EMOJIS, REST},
+    statics::{EMOJIS, REDIS, REST},
     structs::command_args::CommandArgs,
 };
 use anyhow::{Context, Error, Result, bail};
@@ -10,7 +10,7 @@ use slashook::{
         components::Components,
         guilds::Role,
         interactions::ApplicationCommandOptionChoice,
-        messages::{AllowedMentions, Attachment, Message, MessageReference},
+        messages::{AllowedMentions, Attachment, Message as SlashookMessage, MessageReference},
         users::User,
     },
 };
@@ -105,19 +105,22 @@ impl AeonCommandContext {
                 }
             },
             AeonCommandInput::MessageCommand(message, ..) => {
-                let command_response = CACHE.discord.command_responses.read().unwrap().get(message.id.to_string().as_str()).cloned();
-
                 response = response
                     .set_message_reference(MessageReference::new_reply(message.id))
                     .set_allowed_mentions(AllowedMentions::new().set_replied_user(false));
 
-                if let Some(command_response) = command_response {
-                    _ = command_response.edit(&REST, response).await;
+                let redis = REDIS.get().unwrap();
+                let key = format!("command-responses_{}", message.id);
+
+                if let Ok(command_response) = redis.get::<String>(&key).await {
+                    if let Ok(slashook_command_response) = SlashookMessage::fetch(&REST, message.channel_id, command_response).await {
+                        _ = slashook_command_response.edit(&REST, response).await;
+                    }
                     return Ok(());
                 }
 
-                if let Ok(command_response) = Message::create(&REST, message.channel_id, response).await {
-                    CACHE.discord.command_responses.write().unwrap().insert(message.id.to_string(), command_response);
+                if let Ok(command_response) = SlashookMessage::create(&REST, message.channel_id, response).await {
+                    redis.set(&key, command_response.id.unwrap_or_default(), Some(60 * 5)).await?;
                 }
             },
         }

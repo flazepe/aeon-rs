@@ -41,12 +41,10 @@ fn bytes_to_mb(bytes: u64) -> String {
     format!("{} MB", bytes / 1024 / 1024)
 }
 
-fn get_discord_cache_list() -> [String; 4] {
+fn get_discord_cache_list() -> [String; 2] {
     [
         label_num(CACHE.discord.guilds.read().unwrap().len(), "server", "servers"),
         label_num(CACHE.discord.song_activities.read().unwrap().len(), "Spotify activity", "Spotify activities"),
-        label_num(CACHE.discord.command_responses.read().unwrap().len(), "command response", "command responses"),
-        label_num(CACHE.discord.embed_fix_responses.read().unwrap().len(), "embed fix response", "embed fix responses"),
     ]
 }
 
@@ -54,7 +52,7 @@ fn get_db_cache_list() -> [String; 1] {
     [label_num(CACHE.db.guilds.read().unwrap().len(), "server", "servers")]
 }
 
-async fn get_redis_cache_list() -> Result<[String; 7]> {
+async fn get_redis_cache_list() -> Result<[String; 9]> {
     let redis = REDIS.get().unwrap();
 
     let messages = redis.scan_match("guilds_*_channels_*_messages_*[0-9]").await?;
@@ -62,6 +60,8 @@ async fn get_redis_cache_list() -> Result<[String; 7]> {
     let edit_snipes = redis.scan_match("guilds_*_channels_*_edit-snipes").await?;
     let reaction_snipes = redis.scan_match("guilds_*_channels_*_messages_*_reaction-snipes").await?;
     let cooldowns = redis.scan_match("users_*_cooldown").await?;
+    let command_responses = redis.scan_match("command-responses_*").await?;
+    let embed_fix_responses = redis.scan_match("embed-fix-responses_*").await?;
     let last_piston_programming_languages = redis.scan_match("users_*_last-piston-programming-language").await?;
     let total_keys = redis.scan_match("*").await?;
 
@@ -71,6 +71,8 @@ async fn get_redis_cache_list() -> Result<[String; 7]> {
         label_num(edit_snipes, "edit snipe hash", "edit snipe hashes"),
         label_num(reaction_snipes, "reaction snipe hash", "reaction snipe hashes"),
         label_num(cooldowns, "cooldown", "cooldowns"),
+        label_num(command_responses, "command response", "command responses"),
+        label_num(embed_fix_responses, "embed fix response", "embed fix responses"),
         label_num(last_piston_programming_languages, "last piston programming language", "last piston programming languages"),
         label_num(total_keys, "total key", "total keys"),
     ])

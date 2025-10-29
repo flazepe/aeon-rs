@@ -1,6 +1,6 @@
 use crate::{
     statics::{
-        CACHE, REQWEST, REST,
+        REDIS, REQWEST, REST,
         regex::{DISCORD_URL_REGEX, SPOILER_REGEX},
     },
     structs::{database::guilds::Guilds, gateway::events::EventHandler},
@@ -9,6 +9,7 @@ use anyhow::Result;
 use nipper::Document;
 use regex::Captures;
 use reqwest::StatusCode;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 use slashook::{
     commands::MessageResponse,
@@ -123,20 +124,22 @@ impl EventHandler {
             }
         }
 
-        let response = MessageResponse::from(format!("<@{}> {}", message.author.id, urls.join("\n")))
-            .set_message_reference(MessageReference::new_reply(message.id))
-            .set_allowed_mentions(AllowedMentions::new().set_replied_user(false));
-        let embed_fix_response = CACHE.discord.embed_fix_responses.read().unwrap().get(message.id.to_string().as_str()).cloned();
+        let response =
+            MessageResponse::from(format!("<@{}> {}", message.author.id, if urls.is_empty() { "URLs removed" } else { &urls.join("\n") },))
+                .set_message_reference(MessageReference::new_reply(message.id))
+                .set_allowed_mentions(AllowedMentions::new().set_replied_user(false));
 
-        if let Some(embed_fix_response) = embed_fix_response {
-            if embed_fix_response.content == response.content.as_deref().unwrap_or_default() {
-                return Ok(());
-            }
+        let redis = REDIS.get().unwrap();
+        let embed_fix_response_key = format!("embed-fix-responses_{}", message.id);
 
-            if urls.is_empty() {
-                _ = embed_fix_response.delete(&REST).await;
-            } else {
-                _ = embed_fix_response.edit(&REST, response).await;
+        if let Ok(embed_fix_response) = redis.get::<EmbedFixResponse>(&embed_fix_response_key).await {
+            if embed_fix_response.content != response.content.as_deref().unwrap_or_default() {
+                _ = REST
+                    .patch::<(), _>(
+                        format!("channels/{}/messages/{}", message.channel_id, embed_fix_response.id),
+                        json!({ "content": response.content.unwrap_or_default(), "allowed_mentions": { "replied_user": false } }),
+                    )
+                    .await;
             }
         } else if !urls.is_empty() {
             _ = REST
@@ -147,7 +150,13 @@ impl EventHandler {
                 .await;
 
             if let Ok(embed_fix_response) = SlashookMessage::create(&REST, message.channel_id, response).await {
-                CACHE.discord.embed_fix_responses.write().unwrap().insert(message.id.to_string(), embed_fix_response);
+                redis
+                    .set(
+                        embed_fix_response_key,
+                        EmbedFixResponse { id: embed_fix_response.id.unwrap_or_default(), content: embed_fix_response.content },
+                        Some(60 * 5),
+                    )
+                    .await?;
             }
         }
 
@@ -179,4 +188,10 @@ struct DiscordURL {
     pub url: String,
     pub spoilered: bool,
     pub suppressed: bool,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct EmbedFixResponse {
+    pub id: String,
+    pub content: String,
 }

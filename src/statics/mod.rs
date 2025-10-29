@@ -18,12 +18,7 @@ use std::{
 use toml::from_str;
 
 pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
-    discord: DiscordCache {
-        guilds: RwLock::new(HashMap::new()),
-        song_activities: RwLock::new(HashMap::new()),
-        command_responses: RwLock::new(HashMap::new()),
-        embed_fix_responses: RwLock::new(HashMap::new()),
-    },
+    discord: DiscordCache { guilds: RwLock::new(HashMap::new()), song_activities: RwLock::new(HashMap::new()) },
     db: DatabaseCache { guilds: RwLock::new(HashMap::new()) },
     ordr_rendering_users: RwLock::new(HashMap::new()),
     spotify_access_token: RwLock::new(Default::default()),

@@ -1,5 +1,4 @@
 use crate::structs::{database::guilds::Guild, gateway::song_activity::SongActivity};
-use slashook::structs::messages::Message as SlashookMessage;
 use std::{collections::HashMap, sync::RwLock};
 use twilight_model::guild::Guild as DiscordGuild;
 
@@ -13,8 +12,6 @@ pub struct Cache {
 pub struct DiscordCache {
     pub guilds: RwLock<HashMap<String, DiscordGuild>>,
     pub song_activities: RwLock<HashMap<String, SongActivity>>,
-    pub command_responses: RwLock<HashMap<String, SlashookMessage>>,
-    pub embed_fix_responses: RwLock<HashMap<String, SlashookMessage>>,
 }
 
 pub struct DatabaseCache {
