@@ -55,7 +55,7 @@ fn get_db_cache_list() -> [String; 1] {
 async fn get_redis_cache_list() -> Result<[String; 9]> {
     let redis = REDIS.get().unwrap();
 
-    let messages = redis.scan_match("guilds_*_channels_*_messages_*[0-9]").await?;
+    let messages = redis.scan_match(RedisKey::GuildChannelMessage("*".into(), "*".into(), "*[0-9]".into())).await?;
     let snipes = redis.scan_match(RedisKey::GuildChannelSnipes("*".into(), "*".into())).await?;
     let edit_snipes = redis.scan_match(RedisKey::GuildChannelEditSnipes("*".into(), "*".into())).await?;
     let reaction_snipes = redis.scan_match(RedisKey::GuildChannelMessageReactionSnipes("*".into(), "*".into(), "*".into())).await?;
