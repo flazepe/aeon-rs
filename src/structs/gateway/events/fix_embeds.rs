@@ -130,26 +130,31 @@ impl EventHandler {
                 .set_allowed_mentions(AllowedMentions::new());
 
         let redis = REDIS.get().unwrap();
-        let embed_fix_response_key = format!("embed-fix-responses_{}", message.id);
+        let channel_id = message.channel_id;
+        let message_id = message.id;
+        let embed_fix_response_key = format!("embed-fix-responses_{message_id}");
 
         if let Ok(embed_fix_response) = redis.get::<EmbedFixResponse>(&embed_fix_response_key).await {
+            let embed_fix_response_id = embed_fix_response.id;
+
             if embed_fix_response.content != response.content.as_deref().unwrap_or_default() {
                 _ = REST
                     .patch::<(), _>(
-                        format!("channels/{}/messages/{}", message.channel_id, embed_fix_response.id),
+                        format!("channels/{channel_id}/messages/{embed_fix_response_id}"),
                         json!({ "content": response.content.unwrap_or_default(), "allowed_mentions": { "parse": [] } }),
                     )
                     .await;
             }
-        } else if !urls.is_empty() {
+
+            return Ok(());
+        }
+
+        if !urls.is_empty() {
             _ = REST
-                .patch::<(), _>(
-                    format!("channels/{}/messages/{}", message.channel_id, message.id),
-                    json!({ "flags": MessageFlags::SUPPRESS_EMBEDS }),
-                )
+                .patch::<(), _>(format!("channels/{channel_id}/messages/{message_id}"), json!({ "flags": MessageFlags::SUPPRESS_EMBEDS }))
                 .await;
 
-            if let Ok(embed_fix_response) = SlashookMessage::create(&REST, message.channel_id, response).await {
+            if let Ok(embed_fix_response) = SlashookMessage::create(&REST, channel_id, response).await {
                 redis
                     .set(
                         embed_fix_response_key,
