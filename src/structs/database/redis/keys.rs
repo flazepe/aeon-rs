@@ -24,7 +24,7 @@ impl Display for RedisKey {
                 write!(f, "guilds_{guild_id}_channels_{channel_id}_messages_{message_id}")
             },
             Self::GuildChannelMessageCommandResponse(guild_id, channel_id, message_id) => {
-                write!(f, "guilds_{guild_id}_channels_{channel_id}_messages_{message_id}_command_response")
+                write!(f, "guilds_{guild_id}_channels_{channel_id}_messages_{message_id}_command-response")
             },
             Self::GuildChannelMessageEmbedFixResponse(guild_id, channel_id, message_id) => {
                 write!(f, "guilds_{guild_id}_channels_{channel_id}_messages_{message_id}_embed-fix-response")
