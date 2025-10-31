@@ -127,10 +127,13 @@ impl EventHandler {
             }
         }
 
-        let response =
-            MessageResponse::from(format!("<@{}> {}", message.author.id, if urls.is_empty() { "URLs removed" } else { &urls.join("\n") }))
-                .set_message_reference(MessageReference::new_reply(message.id))
-                .set_allowed_mentions(AllowedMentions::new());
+        let response = MessageResponse::from(format!(
+            "<@{}> {}",
+            message.author.id,
+            if urls.is_empty() { "No embeddable URLs found" } else { &urls.join("\n") },
+        ))
+        .set_message_reference(MessageReference::new_reply(message.id))
+        .set_allowed_mentions(AllowedMentions::new());
 
         let redis = REDIS.get().unwrap();
         let Some(guild_id) = message.guild_id else { return Ok(()) };
