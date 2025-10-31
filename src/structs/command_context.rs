@@ -105,9 +105,8 @@ impl AeonCommandContext {
                 }
             },
             AeonCommandInput::MessageCommand(message, ..) => {
-                response = response
-                    .set_message_reference(MessageReference::new_reply(message.id))
-                    .set_allowed_mentions(AllowedMentions::new().set_replied_user(false));
+                response =
+                    response.set_message_reference(MessageReference::new_reply(message.id)).set_allowed_mentions(AllowedMentions::new());
 
                 let redis = REDIS.get().unwrap();
                 let key = RedisKey::GuildChannelMessageCommandResponse(
