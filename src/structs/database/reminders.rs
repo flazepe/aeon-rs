@@ -86,7 +86,7 @@ impl Reminders {
     }
 
     async fn handle(reminder: &Reminder) -> Result<()> {
-        let mention: String = if reminder.dm { "".into() } else { format!("<@{}>", reminder.user_id) };
+        let mention = if reminder.dm { "".into() } else { format!("<@{}>", reminder.user_id) };
 
         let mut response = MessageResponse::from(mention).add_embed(
             Embed::new()

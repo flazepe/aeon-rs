@@ -1,12 +1,15 @@
+pub mod keys;
+
 use crate::statics::CONFIG;
 use anyhow::{Context, Result};
 use futures::StreamExt;
+use keys::RedisKey;
 use redis::{AsyncTypedCommands, Client, HashFieldExpirationOptions, SetExpiry, aio::MultiplexedConnection};
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::{from_str, to_string};
 use std::{collections::BTreeMap, fmt::Display};
 
-static PREFIX: &str = "aeon_";
+static KEY_PREFIX: &str = "aeon_";
 
 #[derive(Debug)]
 pub struct Redis {
@@ -20,8 +23,8 @@ impl Redis {
         Ok(Self { connection })
     }
 
-    pub async fn set<T: Display, U: Serialize>(&self, key: T, value: U, ttl_secs: Option<u64>) -> Result<()> {
-        let key = format!("{PREFIX}{key}");
+    pub async fn set<T: Serialize>(&self, key: &RedisKey, value: T, ttl_secs: Option<u64>) -> Result<()> {
+        let key = format!("{KEY_PREFIX}{key}");
 
         if let Some(ttl_secs) = ttl_secs {
             self.connection.clone().set_ex(key, to_string(&value)?, ttl_secs).await?;
@@ -32,22 +35,23 @@ impl Redis {
         Ok(())
     }
 
-    pub async fn get<T: DeserializeOwned>(&self, key: impl Display) -> Result<T> {
+    pub async fn get<T: DeserializeOwned>(&self, key: &RedisKey) -> Result<T> {
+        let key = format!("{KEY_PREFIX}{key}");
         self.connection
             .clone()
-            .get(format!("{PREFIX}{key}"))
+            .get(key)
             .await?
             .context("Key not found")
             .and_then(|data| from_str(&data).context("Could not deserialize data"))
     }
 
-    pub async fn get_many<T: DeserializeOwned>(&self, keys: Vec<impl Display>) -> Result<Vec<T>> {
-        let keys = keys.into_iter().map(|key| format!("{PREFIX}{key}")).collect::<Vec<String>>();
+    pub async fn get_many<T: DeserializeOwned>(&self, keys: Vec<RedisKey>) -> Result<Vec<T>> {
+        let keys = keys.into_iter().map(|key| format!("{KEY_PREFIX}{key}")).collect::<Vec<String>>();
         Ok(self.connection.clone().mget(keys).await?.into_iter().flat_map(|data| from_str(&data?).ok()).collect())
     }
 
-    pub async fn hset<T: Serialize>(&self, key: impl Display, field: impl Display, value: T, ttl_secs: Option<u64>) -> Result<()> {
-        let key = format!("{PREFIX}{key}");
+    pub async fn hset<T: Serialize>(&self, key: &RedisKey, field: impl Display, value: T, ttl_secs: Option<u64>) -> Result<()> {
+        let key = format!("{KEY_PREFIX}{key}");
         let field = field.to_string();
         let value = to_string(&value)?;
 
@@ -63,11 +67,11 @@ impl Redis {
 
     pub async fn hset_many<T: Serialize, U: Serialize>(
         &self,
-        key: impl Display,
+        key: &RedisKey,
         fields_values: impl IntoIterator<Item = (T, U)>,
         ttl_secs: Option<u64>,
     ) -> Result<()> {
-        let key = format!("{PREFIX}{key}");
+        let key = format!("{KEY_PREFIX}{key}");
         let fields_values = fields_values
             .into_iter()
             .flat_map(|(k, v)| {
@@ -87,8 +91,8 @@ impl Redis {
         Ok(())
     }
 
-    pub async fn hget_many<T: DeserializeOwned + Ord, U: DeserializeOwned>(&self, key: impl Display) -> Result<BTreeMap<T, U>> {
-        let key = format!("{PREFIX}{key}");
+    pub async fn hget_many<T: DeserializeOwned + Ord, U: DeserializeOwned>(&self, key: &RedisKey) -> Result<BTreeMap<T, U>> {
+        let key = format!("{KEY_PREFIX}{key}");
         Ok(self.connection.clone().hgetall(key).await?).map(|data| {
             BTreeMap::from_iter(data.into_iter().flat_map(|(k, v)| {
                 let k = from_str(&k).ok()?;
@@ -99,7 +103,7 @@ impl Redis {
     }
 
     pub async fn scan_match<T: Display>(&self, pattern: T) -> Result<usize> {
-        let pattern = format!("{PREFIX}{pattern}");
+        let pattern = format!("{KEY_PREFIX}{pattern}");
         Ok(self.connection.clone().scan_match::<_, String>(pattern).await?.count().await)
     }
 }

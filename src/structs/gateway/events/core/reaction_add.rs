@@ -1,9 +1,10 @@
-use crate::statics::{CONFIG, FLAZEPE_ID, REDIS, REST};
+use crate::{
+    statics::{CONFIG, FLAZEPE_ID, REDIS, REST},
+    structs::database::redis::keys::RedisKey,
+};
 use anyhow::Result;
 use slashook::structs::messages::Message as SlashookMessage;
-use twilight_model::{
-    channel::Message as TwilightMessage, channel::message::EmojiReactionType, gateway::payload::incoming::ReactionAdd, id::Id,
-};
+use twilight_model::{channel::Message as TwilightMessage, channel::message::EmojiReactionType, gateway::payload::incoming::ReactionAdd};
 
 pub async fn handle(event: &ReactionAdd) -> Result<()> {
     let reaction = event.0.clone();
@@ -24,14 +25,13 @@ pub async fn handle(event: &ReactionAdd) -> Result<()> {
     let mut author_id = None;
     let mut user_id = None;
 
-    if let Ok(message) =
-        REDIS.get().unwrap().get::<TwilightMessage>(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}")).await
-    {
+    let redis = REDIS.get().unwrap();
+    let key = RedisKey::GuildChannelMessage(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
+
+    if let Ok(message) = redis.get::<TwilightMessage>(&key).await {
         author_id = Some(message.author.id.to_string());
 
-        if let Some(interaction_metadata) = message.interaction_metadata
-            && interaction_metadata.id != Id::new(1202934262123470899)
-        {
+        if let Some(interaction_metadata) = message.interaction_metadata {
             user_id = Some(interaction_metadata.user.id.to_string());
         }
     }
@@ -40,9 +40,7 @@ pub async fn handle(event: &ReactionAdd) -> Result<()> {
         let Ok(message) = SlashookMessage::fetch(&REST, reaction.channel_id, reaction.message_id).await else { return Ok(()) };
         author_id = message.author.map(|author| author.id);
 
-        if let Some(interaction_metadata) = message.interaction_metadata
-            && interaction_metadata.id != "1202934262123470899"
-        {
+        if let Some(interaction_metadata) = message.interaction_metadata {
             user_id = Some(interaction_metadata.user.id);
         }
     }

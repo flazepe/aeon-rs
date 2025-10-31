@@ -1,15 +1,15 @@
-use crate::statics::REDIS;
+use crate::{statics::REDIS, structs::database::redis::keys::RedisKey};
 use anyhow::Result;
 use twilight_model::gateway::payload::incoming::MessageCreate;
 
 pub async fn handle(event: &MessageCreate) -> Result<()> {
-    let redis = REDIS.get().unwrap();
-
     let Some(guild_id) = event.guild_id else { return Ok(()) };
     let channel_id = event.channel_id;
     let message_id = event.id;
 
-    redis.set(format!("guilds_{guild_id}_channels_{channel_id}_messages_{message_id}"), &event.0, Some(60 * 60 * 2)).await?;
+    let redis = REDIS.get().unwrap();
+    let key = RedisKey::GuildChannelMessage(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
+    redis.set(&key, &event.0, Some(60 * 60 * 2)).await?;
 
     Ok(())
 }

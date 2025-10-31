@@ -1,7 +1,10 @@
 use crate::{
     functions::now,
     statics::{FLAZEPE_ID, REDIS},
-    structs::command_context::{AeonCommandContext, AeonCommandInput},
+    structs::{
+        command_context::{AeonCommandContext, AeonCommandInput},
+        database::redis::keys::RedisKey,
+    },
 };
 use anyhow::Result;
 use futures::{Future, future::BoxFuture};
@@ -121,7 +124,7 @@ impl AeonCommand {
         let Some(func) = func else { return Ok(()) };
 
         let redis = REDIS.get().unwrap();
-        let cooldown_key = format!("users_{}_cooldown", ctx.get_user_id());
+        let cooldown_key = RedisKey::UserCooldown(ctx.get_user_id());
 
         if redis.get::<Value>(&cooldown_key).await.is_ok() {
             return ctx.respond_error("You are under a cooldown. Try again later.", true).await;
@@ -135,7 +138,7 @@ impl AeonCommand {
         };
 
         if add_cooldown {
-            redis.set(cooldown_key, now(), Some(3)).await?;
+            redis.set(&cooldown_key, now(), Some(3)).await?;
         }
 
         let ctx_arc = Arc::new(ctx);

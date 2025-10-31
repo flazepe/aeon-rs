@@ -5,7 +5,7 @@ mod logs;
 
 use crate::{
     statics::{REDIS, REST},
-    structs::gateway::events::fix_embeds::EmbedFixResponse,
+    structs::{database::redis::keys::RedisKey, gateway::events::fix_embeds::EmbedFixResponse},
 };
 use serde_json::Value;
 use twilight_gateway::{Event, MessageSender};
@@ -14,7 +14,6 @@ pub struct EventHandler;
 
 impl EventHandler {
     pub async fn handle(event: Event, sender: MessageSender) {
-        let redis = REDIS.get().unwrap();
         let event_name = format!("{:?}", event.kind());
 
         if let Err(error) = Self::handle_logs(&event).await {
@@ -32,28 +31,41 @@ impl EventHandler {
         }
 
         if let Event::MessageUpdate(message) = &event {
-            if redis.get::<Value>(format!("command-responses_{}", message.id)).await.is_ok()
-                && let Err(error) = Self::handle_commands(message, &sender).await
-            {
+            let Some(guild_id) = message.guild_id else { return };
+            let channel_id = message.channel_id;
+            let message_id = message.id;
+
+            let redis = REDIS.get().unwrap();
+            let key = RedisKey::GuildChannelMessageCommandResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
+            let has_response = redis.get::<Value>(&key).await.is_ok();
+
+            if has_response && let Err(error) = Self::handle_commands(message, &sender).await {
                 println!("[GATEWAY] An error occurred while handling edited commands: {error:?}");
             }
 
-            if redis.get::<Value>(format!("embed-fix-responses_{}", message.id)).await.is_ok()
-                && let Err(error) = Self::handle_fix_embeds(message).await
-            {
+            let key = RedisKey::GuildChannelMessageEmbedFixResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
+            let has_response = redis.get::<Value>(&key).await.is_ok();
+
+            if has_response && let Err(error) = Self::handle_fix_embeds(message).await {
                 println!("[GATEWAY] An error occurred while handling edited fix embeds: {error:?}");
             }
         }
 
         if let Event::MessageDelete(message) = &event {
+            let Some(guild_id) = message.guild_id else { return };
             let channel_id = message.channel_id;
             let message_id = message.id;
 
-            if let Ok(command_response) = redis.get::<String>(format!("command-responses_{message_id}")).await {
+            let redis = REDIS.get().unwrap();
+            let key = RedisKey::GuildChannelMessageCommandResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
+
+            if let Ok(command_response) = redis.get::<String>(&key).await {
                 _ = REST.delete::<()>(format!("channels/{channel_id}/messages/{command_response}")).await;
             }
 
-            if let Ok(embed_fix_response) = redis.get::<EmbedFixResponse>(format!("embed-fix-responses_{message_id}")).await {
+            let key = RedisKey::GuildChannelMessageEmbedFixResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
+
+            if let Ok(embed_fix_response) = redis.get::<EmbedFixResponse>(&key).await {
                 let embed_fix_response_id = embed_fix_response.id;
                 _ = REST.delete::<()>(format!("channels/{channel_id}/messages/{embed_fix_response_id}")).await;
             }
