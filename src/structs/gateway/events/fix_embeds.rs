@@ -128,7 +128,7 @@ impl EventHandler {
         }
 
         let response =
-            MessageResponse::from(format!("<@{}> {}", message.author.id, if urls.is_empty() { "URLs removed" } else { &urls.join("\n") },))
+            MessageResponse::from(format!("<@{}> {}", message.author.id, if urls.is_empty() { "URLs removed" } else { &urls.join("\n") }))
                 .set_message_reference(MessageReference::new_reply(message.id))
                 .set_allowed_mentions(AllowedMentions::new());
 
@@ -144,7 +144,7 @@ impl EventHandler {
                 _ = REST
                     .patch::<(), _>(
                         format!("channels/{}/messages/{}", message.channel_id, embed_fix_response.id),
-                        json!({ "content": response.content.unwrap_or_default(), "allowed_mentions": { "replied_user": false } }),
+                        json!({ "content": response.content.unwrap_or_default(), "allowed_mentions": { "parse": [] } }),
                     )
                     .await;
             }
