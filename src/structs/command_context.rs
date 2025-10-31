@@ -117,8 +117,8 @@ impl AeonCommandContext {
                 );
 
                 if let Ok(command_response) = redis.get::<String>(&key).await {
-                    if let Ok(slashook_command_response) = SlashookMessage::fetch(&REST, message.channel_id, command_response).await {
-                        _ = slashook_command_response.edit(&REST, response).await;
+                    if let Ok(command_response_message) = SlashookMessage::fetch(&REST, message.channel_id, command_response).await {
+                        _ = command_response_message.edit(&REST, response).await;
                     }
                     return Ok(());
                 }
