@@ -14,7 +14,6 @@ pub struct EventHandler;
 
 impl EventHandler {
     pub async fn handle(event: Event, sender: MessageSender) {
-        let redis = REDIS.get().unwrap();
         let event_name = format!("{:?}", event.kind());
 
         if let Err(error) = Self::handle_logs(&event).await {
@@ -36,29 +35,18 @@ impl EventHandler {
             let channel_id = message.channel_id;
             let message_id = message.id;
 
-            if redis
-                .get::<Value>(&RedisKey::GuildChannelMessageCommandResponse(
-                    guild_id.to_string(),
-                    channel_id.to_string(),
-                    message_id.to_string(),
-                ))
-                .await
-                .is_ok()
-                && let Err(error) = Self::handle_commands(message, &sender).await
-            {
+            let redis = REDIS.get().unwrap();
+            let key = RedisKey::GuildChannelMessageCommandResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
+            let has_response = redis.get::<Value>(&key).await.is_ok();
+
+            if has_response && let Err(error) = Self::handle_commands(message, &sender).await {
                 println!("[GATEWAY] An error occurred while handling edited commands: {error:?}");
             }
 
-            if redis
-                .get::<Value>(&RedisKey::GuildChannelMessageEmbedFixResponse(
-                    guild_id.to_string(),
-                    channel_id.to_string(),
-                    message_id.to_string(),
-                ))
-                .await
-                .is_ok()
-                && let Err(error) = Self::handle_fix_embeds(message).await
-            {
+            let key = RedisKey::GuildChannelMessageEmbedFixResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
+            let has_response = redis.get::<Value>(&key).await.is_ok();
+
+            if has_response && let Err(error) = Self::handle_fix_embeds(message).await {
                 println!("[GATEWAY] An error occurred while handling edited fix embeds: {error:?}");
             }
         }
@@ -68,25 +56,16 @@ impl EventHandler {
             let channel_id = message.channel_id;
             let message_id = message.id;
 
-            if let Ok(command_response) = redis
-                .get::<String>(&RedisKey::GuildChannelMessageCommandResponse(
-                    guild_id.to_string(),
-                    channel_id.to_string(),
-                    message_id.to_string(),
-                ))
-                .await
-            {
+            let redis = REDIS.get().unwrap();
+            let key = RedisKey::GuildChannelMessageCommandResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
+
+            if let Ok(command_response) = redis.get::<String>(&key).await {
                 _ = REST.delete::<()>(format!("channels/{channel_id}/messages/{command_response}")).await;
             }
 
-            if let Ok(embed_fix_response) = redis
-                .get::<EmbedFixResponse>(&RedisKey::GuildChannelMessageEmbedFixResponse(
-                    guild_id.to_string(),
-                    channel_id.to_string(),
-                    message_id.to_string(),
-                ))
-                .await
-            {
+            let key = RedisKey::GuildChannelMessageEmbedFixResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
+
+            if let Ok(embed_fix_response) = redis.get::<EmbedFixResponse>(&key).await {
                 let embed_fix_response_id = embed_fix_response.id;
                 _ = REST.delete::<()>(format!("channels/{channel_id}/messages/{embed_fix_response_id}")).await;
             }

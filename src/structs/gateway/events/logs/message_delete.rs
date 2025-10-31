@@ -27,11 +27,9 @@ pub async fn handle(event: &MessageDelete) -> Result<()> {
         .add_field("Channel", format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id), false)
         .add_field("Created", format_timestamp(snowflake.timestamp.timestamp(), true), false);
 
-    let old_message = REDIS
-        .get()
-        .unwrap()
-        .get::<TwilightMessage>(&RedisKey::GuildChannelMessage(guild_id.to_string(), channel_id.to_string(), message_id.to_string()))
-        .await;
+    let redis = REDIS.get().unwrap();
+    let key = RedisKey::GuildChannelMessage(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
+    let old_message = redis.get::<TwilightMessage>(&key).await;
 
     if let Ok(old_message) = &old_message {
         embed = embed

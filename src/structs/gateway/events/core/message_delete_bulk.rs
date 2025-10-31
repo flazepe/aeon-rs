@@ -4,11 +4,10 @@ use serde_json::to_string;
 use twilight_model::{channel::Message as TwilightMessage, gateway::payload::incoming::MessageDeleteBulk};
 
 pub async fn handle(event: &MessageDeleteBulk) -> Result<()> {
-    let redis = REDIS.get().unwrap();
-
     let Some(guild_id) = event.guild_id else { return Ok(()) };
     let channel_id = event.channel_id;
 
+    let redis = REDIS.get().unwrap();
     let deleted_messages = redis
         .get_many::<TwilightMessage>(
             event
@@ -28,7 +27,8 @@ pub async fn handle(event: &MessageDeleteBulk) -> Result<()> {
         fields_values.push((field, value));
     }
 
-    redis.hset_many(&RedisKey::GuildChannelSnipes(guild_id.to_string(), channel_id.to_string()), fields_values, Some(60 * 60 * 2)).await?;
+    let key = RedisKey::GuildChannelSnipes(guild_id.to_string(), channel_id.to_string());
+    redis.hset_many(&key, fields_values, Some(60 * 60 * 2)).await?;
 
     Ok(())
 }

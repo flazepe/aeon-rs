@@ -25,12 +25,13 @@ impl Snipes {
         let guild_id = guild_id.to_string();
         let channel_id = channel_id.to_string();
 
+        let redis = REDIS.get().unwrap();
         let key = if is_edit {
             RedisKey::GuildChannelEditSnipes(guild_id, channel_id)
         } else {
             RedisKey::GuildChannelSnipes(guild_id, channel_id)
         };
-        let snipes = REDIS.get().unwrap().hget_many::<u64, TwilightMessage>(&key).await.unwrap_or_default().into_values().collect();
+        let snipes = redis.hget_many::<u64, TwilightMessage>(&key).await.unwrap_or_default().into_values().collect();
 
         Self { is_edit, send_list, permissions, snipes }
     }
@@ -94,18 +95,9 @@ impl ReactionSnipes {
         let channel_id = channel_id.to_string();
         let message_id = message_id.to_string();
 
-        let reaction_snipes = REDIS
-            .get()
-            .unwrap()
-            .hget_many::<u64, GatewayReaction>(&RedisKey::GuildChannelMessageReactionSnipes(
-                guild_id.clone(),
-                channel_id.clone(),
-                message_id.clone(),
-            ))
-            .await
-            .unwrap_or_default()
-            .into_iter()
-            .collect();
+        let redis = REDIS.get().unwrap();
+        let key = RedisKey::GuildChannelMessageReactionSnipes(guild_id.clone(), channel_id.clone(), message_id.clone());
+        let reaction_snipes = redis.hget_many::<u64, GatewayReaction>(&key).await.unwrap_or_default().into_iter().collect();
 
         Self { guild_id, channel_id, message_id, permissions, reaction_snipes }
     }

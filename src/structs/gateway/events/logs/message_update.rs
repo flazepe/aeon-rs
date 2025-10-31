@@ -16,14 +16,9 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
     let channel_id = event.channel_id;
     let message_id = event.id;
 
-    let Ok(old_message) = REDIS
-        .get()
-        .unwrap()
-        .get::<TwilightMessage>(&RedisKey::GuildChannelMessage(guild_id.to_string(), channel_id.to_string(), message_id.to_string()))
-        .await
-    else {
-        return Ok(());
-    };
+    let redis = REDIS.get().unwrap();
+    let key = RedisKey::GuildChannelMessage(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
+    let Ok(old_message) = redis.get::<TwilightMessage>(&key).await else { return Ok(()) };
 
     if old_message.content == event.content {
         return Ok(());

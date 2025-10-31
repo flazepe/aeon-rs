@@ -25,12 +25,10 @@ pub async fn handle(event: &ReactionAdd) -> Result<()> {
     let mut author_id = None;
     let mut user_id = None;
 
-    if let Ok(message) = REDIS
-        .get()
-        .unwrap()
-        .get::<TwilightMessage>(&RedisKey::GuildChannelMessage(guild_id.to_string(), channel_id.to_string(), message_id.to_string()))
-        .await
-    {
+    let redis = REDIS.get().unwrap();
+    let key = RedisKey::GuildChannelMessage(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
+
+    if let Ok(message) = redis.get::<TwilightMessage>(&key).await {
         author_id = Some(message.author.id.to_string());
 
         if let Some(interaction_metadata) = message.interaction_metadata {
