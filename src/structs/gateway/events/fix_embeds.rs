@@ -16,10 +16,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use slashook::{
     commands::MessageResponse,
-    structs::messages::{AllowedMentions, Message as SlashookMessage, MessageFlags, MessageReference},
+    structs::messages::{AllowedMentions, Message as SlashookMessage, MessageReference},
 };
 use std::collections::HashMap;
-use twilight_model::channel::Message;
+use twilight_model::channel::message::Message;
 
 impl EventHandler {
     pub async fn handle_fix_embeds(message: &Message) -> Result<()> {
@@ -130,7 +130,7 @@ impl EventHandler {
         let response = MessageResponse::from(format!(
             "<@{}> {}",
             message.author.id,
-            if urls.is_empty() { "No embeddable URLs found" } else { &urls.join("\n") },
+            if urls.is_empty() { "No embeddable URLs found." } else { &urls.join("\n") },
         ))
         .set_message_reference(MessageReference::new_reply(message.id))
         .set_allowed_mentions(AllowedMentions::new());
@@ -157,20 +157,16 @@ impl EventHandler {
             return Ok(());
         }
 
-        if !urls.is_empty() {
-            _ = REST
-                .patch::<(), _>(format!("channels/{channel_id}/messages/{message_id}"), json!({ "flags": MessageFlags::SUPPRESS_EMBEDS }))
-                .await;
-
-            if let Ok(embed_fix_response) = SlashookMessage::create(&REST, channel_id, response).await {
-                redis
-                    .set(
-                        &embed_fix_response_key,
-                        EmbedFixResponse { id: embed_fix_response.id.unwrap_or_default(), content: embed_fix_response.content },
-                        Some(60 * 5),
-                    )
-                    .await?;
-            }
+        if !urls.is_empty()
+            && let Ok(embed_fix_response_message) = SlashookMessage::create(&REST, channel_id, response).await
+        {
+            redis
+                .set(
+                    &embed_fix_response_key,
+                    EmbedFixResponse { id: embed_fix_response_message.id.unwrap_or_default(), content: embed_fix_response_message.content },
+                    Some(60 * 5),
+                )
+                .await?;
         }
 
         Ok(())
