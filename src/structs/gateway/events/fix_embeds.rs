@@ -110,10 +110,9 @@ impl EventHandler {
             }
 
             let has_media_content_type =
-                REQWEST.head(&new_url).header("user-agent", "discordbot").send().await?.headers().iter().any(|header| {
-                    let value = format!("{:?}", header.1);
-                    header.0 == "content-type" && (value.contains("image") || value.contains("video"))
-                });
+                REQWEST.head(&new_url).header("user-agent", "discordbot").send().await?.headers().get("content-type").is_some_and(
+                    |value| value.to_str().unwrap_or_default().contains("image") || value.to_str().unwrap_or_default().contains("video"),
+                );
 
             let has_media_meta_content = !has_media_content_type && {
                 let html = REQWEST.get(&new_url).header("user-agent", "discordbot").send().await?.text().await?;
