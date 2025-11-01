@@ -115,7 +115,7 @@ impl EventHandler {
                     header.0 == "content-type" && (value.contains("image") || value.contains("video"))
                 });
 
-            let has_media_meta_content = {
+            let has_media_meta_content = !has_media_content_type && {
                 let html = REQWEST.get(&new_url).header("user-agent", "discordbot").send().await?.text().await?;
                 !get_meta_contents(html, &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]).is_empty()
             };
