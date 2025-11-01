@@ -91,18 +91,35 @@ impl EventHandler {
                 }
             }
 
+            // Skip TikTok posts that have a valid iframe player embed
+            if domain.ends_with("tiktok.com") {
+                let res = REQWEST.get(url).header("user-agent", "discordbot").send().await?;
+                let url = res.url().to_string();
+                let html = res.text().await?;
+
+                if !get_meta_contents(html, &["lark:url:video_iframe_url"]).is_empty() {
+                    // Only URLs from the base tiktok.com domains embed properly on Discord
+                    // - vm.tiktok.com URLs do not embed at all, despite having the same HTML responses
+                    // - vt.tiktok.com URLs embed, but the player does not work (it just shows a thumbnail with the play button, but it's a still image lmao)
+                    // We add the redirects from the bad ones to the fixed URLs before continuing the loop
+                    if ["vm.tiktok.com", "vt.tiktok.com"].contains(&domain) {
+                        fixed_urls.push(url.split("?").next().unwrap_or_default().to_string());
+                    }
+
+                    continue;
+                }
+            }
+
             let fixed_domain = match domain {
                 "bilibili.com" => "vxbilibili.com",
                 "instagram.com" => "eeinstagram.com",
                 "pixiv.net" => "phixiv.net",
                 "reddit.com" | "old.reddit.com" => "rxddit.com",
-                "tiktok.com" => "vxtiktok.com",
-                "vt.tiktok.com" => "vt.vxtiktok.com",
                 "x.com" | "twitter.com" => "fixupx.com",
                 _ => continue,
             };
             let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
-            let path = path.split("?").next().unwrap_or_default(); // Trim query string
+            let path = path.split("?").next().unwrap_or_default();
             let fixed_url = format!("https://{fixed_domain}/{path}");
 
             if fixed_urls.contains(&fixed_url) {
