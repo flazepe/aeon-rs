@@ -1,8 +1,4 @@
-use crate::{
-    functions::now,
-    statics::REDIS,
-    structs::{database::redis::keys::RedisKey, gateway::events::fix_embeds::EmbedFixResponse},
-};
+use crate::{functions::now, statics::REDIS, structs::database::redis::keys::RedisKey};
 use anyhow::Result;
 use serde_json::Value;
 use twilight_model::gateway::payload::incoming::MessageUpdate;
@@ -21,14 +17,6 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
     }
 
     redis.set(&message_key, &event.0, Some(60 * 60 * 2)).await?;
-
-    let embed_fix_response_key =
-        RedisKey::GuildChannelMessageEmbedFixResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
-
-    if let Ok(mut embed_fix_response) = redis.get::<EmbedFixResponse>(&embed_fix_response_key).await {
-        embed_fix_response.content = event.content.clone();
-        redis.set(&embed_fix_response_key, embed_fix_response, Some(60 * 5)).await?;
-    }
 
     Ok(())
 }

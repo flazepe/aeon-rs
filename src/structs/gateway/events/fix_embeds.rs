@@ -60,11 +60,11 @@ impl EventHandler {
             }
         }
 
-        let mut urls = vec![];
+        let mut fixed_urls = vec![];
 
         for discord_url in discord_urls.values() {
             // Discord only embeds up to 5 URLs
-            if urls.len() == 5 {
+            if fixed_urls.len() == 5 {
                 break;
             }
 
@@ -91,7 +91,7 @@ impl EventHandler {
                 }
             }
 
-            let new_domain = match domain {
+            let fixed_domain = match domain {
                 "bilibili.com" => "vxbilibili.com",
                 "instagram.com" => "eeinstagram.com",
                 "pixiv.net" => "phixiv.net",
@@ -103,33 +103,33 @@ impl EventHandler {
             };
             let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
             let path = path.split("?").next().unwrap_or_default(); // Trim query string
-            let new_url = format!("https://{new_domain}/{path}");
+            let fixed_url = format!("https://{fixed_domain}/{path}");
 
-            if urls.contains(&new_url) {
+            if fixed_urls.contains(&fixed_url) {
                 continue;
             }
 
             let has_media_content_type =
-                REQWEST.head(&new_url).header("user-agent", "discordbot").send().await?.headers().get("content-type").is_some_and(
+                REQWEST.head(&fixed_url).header("user-agent", "discordbot").send().await?.headers().get("content-type").is_some_and(
                     |value| value.to_str().unwrap_or_default().contains("image") || value.to_str().unwrap_or_default().contains("video"),
                 );
 
             let has_media_meta_content = !has_media_content_type && {
-                let html = REQWEST.get(&new_url).header("user-agent", "discordbot").send().await?.text().await?;
+                let html = REQWEST.get(&fixed_url).header("user-agent", "discordbot").send().await?.text().await?;
                 !get_meta_contents(html, &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]).is_empty()
             };
 
             // Only fix posts that were supposed to have an image or video
             if has_media_content_type || has_media_meta_content {
                 // The space before the closing spoiler is intentional because Discord (could be the website) sometimes includes the || inside the URL when unfurling, which causes the website to return a 404 and not embed
-                urls.push(if discord_url.spoilered { format!("||{new_url} ||") } else { new_url });
+                fixed_urls.push(if discord_url.spoilered { format!("||{fixed_url} ||") } else { fixed_url });
             }
         }
 
         let response = MessageResponse::from(format!(
             "<@{}> {}",
             message.author.id,
-            if urls.is_empty() { "No embeddable URLs found." } else { &urls.join("\n") },
+            if fixed_urls.is_empty() { "_Message was edited to not contain any fixable URLs._" } else { &fixed_urls.join("\n") },
         ))
         .set_message_reference(MessageReference::new_reply(message.id))
         .set_allowed_mentions(AllowedMentions::new());
@@ -144,7 +144,7 @@ impl EventHandler {
         if let Ok(embed_fix_response) = redis.get::<EmbedFixResponse>(&embed_fix_response_key).await {
             let embed_fix_response_id = embed_fix_response.id;
 
-            if embed_fix_response.content != response.content.as_deref().unwrap_or_default() {
+            if embed_fix_response.discord_urls.keys().ne(discord_urls.keys()) {
                 _ = REST
                     .patch::<(), _>(
                         format!("channels/{channel_id}/messages/{embed_fix_response_id}"),
@@ -156,13 +156,13 @@ impl EventHandler {
             return Ok(());
         }
 
-        if !urls.is_empty()
+        if !fixed_urls.is_empty()
             && let Ok(embed_fix_response_message) = SlashookMessage::create(&REST, channel_id, response).await
         {
             redis
                 .set(
                     &embed_fix_response_key,
-                    EmbedFixResponse { id: embed_fix_response_message.id.unwrap_or_default(), content: embed_fix_response_message.content },
+                    EmbedFixResponse { id: embed_fix_response_message.id.unwrap_or_default(), discord_urls },
                     Some(60 * 5),
                 )
                 .await?;
@@ -192,7 +192,8 @@ fn get_meta_contents(html: String, names: &[&str]) -> HashMap<String, String> {
     contents
 }
 
-struct DiscordURL {
+#[derive(Serialize, Deserialize)]
+pub struct DiscordURL {
     pub url: String,
     pub spoilered: bool,
     pub suppressed: bool,
@@ -201,5 +202,5 @@ struct DiscordURL {
 #[derive(Serialize, Deserialize)]
 pub struct EmbedFixResponse {
     pub id: String,
-    pub content: String,
+    pub discord_urls: HashMap<String, DiscordURL>,
 }
