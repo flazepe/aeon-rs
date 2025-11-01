@@ -158,8 +158,8 @@ impl EventHandler {
         let embed_fix_response_key =
             RedisKey::GuildChannelMessageEmbedFixResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
 
-        if let Ok(embed_fix_response) = redis.get::<EmbedFixResponse>(&embed_fix_response_key).await {
-            let embed_fix_response_id = embed_fix_response.id;
+        if let Ok(mut embed_fix_response) = redis.get::<EmbedFixResponse>(&embed_fix_response_key).await {
+            let embed_fix_response_id = &embed_fix_response.id;
 
             if embed_fix_response.discord_urls.keys().ne(discord_urls.keys()) {
                 _ = REST
@@ -168,6 +168,9 @@ impl EventHandler {
                         json!({ "content": response.content.unwrap_or_default(), "allowed_mentions": { "parse": [] } }),
                     )
                     .await;
+
+                embed_fix_response.discord_urls = discord_urls;
+                redis.set(&embed_fix_response_key, embed_fix_response, Some(60 * 5)).await?;
             }
 
             return Ok(());
