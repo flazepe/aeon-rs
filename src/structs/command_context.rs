@@ -135,7 +135,7 @@ impl AeonCommandContext {
         let emojis = EMOJIS.get().unwrap();
 
         self.respond(
-            MessageResponse::from(format!("{} {}", emojis.get("aeon_error", "❌").mention(), format!("{response:?}").trim_matches('"')))
+            MessageResponse::from(format!("{} {}", emojis.get("aeon_error", "❌").mention(), format!("{response:#?}").trim_matches('"')))
                 .set_components(Components::empty())
                 .clear_embeds()
                 .clear_attachments(),

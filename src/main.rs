@@ -17,26 +17,31 @@ use crate::{
 use anyhow::Result;
 use slashook::main;
 use tokio::spawn;
+use tracing::{error, info, subscriber::set_global_default};
+use tracing_subscriber::FmtSubscriber;
 
 #[main]
 async fn main() -> Result<()> {
+    let subscriber = FmtSubscriber::builder().finish();
+    set_global_default(subscriber)?;
+
     MONGODB.set(AeonClient::connect_to_database().await?).expect("Could not set MongoDB client.");
-    println!("[DATABASE] Connected to MongoDB.");
+    info!(target: "Database", "Connected.");
 
     REDIS.set(Redis::new().await?).expect("Could not set Redis.");
-    println!("[REDIS] Connected to Redis.");
+    info!(target: "Redis", "Connected.");
 
     spawn(Reminders::poll());
-    println!("[REMINDERS] Started polling reminders.");
+    info!(target: "Reminders", "Spawned poller.");
 
     spawn(GatewayClient::new().create_shards());
-    println!("[GATEWAY] Spawned client.");
+    info!(target: "Gateway", "Spawned client.");
 
     let mut emojis = EmojiManager::new();
 
-    match emojis.load().await {
-        Ok(_) => println!("[EMOJIS] Synced emojis."),
-        Err(error) => println!("[EMOJIS] An error occurred while syncing emojis: {error}"),
+    match emojis.sync().await {
+        Ok(_) => info!(target: "Emojis", "Synced."),
+        Err(error) => error!(target: "Emojis", "An error occurred while syncing: {error:#?}"),
     }
 
     EMOJIS.set(emojis).expect("Could not set EmojiManager.");
@@ -44,8 +49,8 @@ async fn main() -> Result<()> {
     let mut client = AeonClient::new();
 
     match client.register_commands().await {
-        Ok(_) => println!("[CLIENT] Registered commands."),
-        Err(error) => println!("[CLIENT] An error occurred while registering commands: {error}"),
+        Ok(_) => info!(target: "Slashook", "Registered commands."),
+        Err(error) => error!(target: "Slashook", "An error occurred while registering commands: {error:#?}"),
     };
 
     client.start().await;

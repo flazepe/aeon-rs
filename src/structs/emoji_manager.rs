@@ -9,6 +9,7 @@ use std::{
     fmt::Display,
     fs::{read, read_dir, read_to_string, write},
 };
+use tracing::info;
 
 static LAST_UPDATED_TIMESTAMP: u32 = 1760020150;
 
@@ -47,13 +48,13 @@ impl EmojiManager {
         }
     }
 
-    pub async fn load(&mut self) -> Result<()> {
+    pub async fn sync(&mut self) -> Result<()> {
         if self.last_updated_timestamp == LAST_UPDATED_TIMESTAMP {
-            println!("[EMOJIS] Emojis are synced. Skipping sync.");
+            info!(target: "Emojis", "Already synced. Skipping sync.");
             return Ok(());
         }
 
-        println!("[EMOJIS] Emojis are not synced. Syncing...");
+        info!(target: "Emojis", "Not synced. Syncing...");
 
         self.emojis.clear();
 
