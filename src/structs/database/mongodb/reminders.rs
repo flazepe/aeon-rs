@@ -1,14 +1,17 @@
 use crate::{
     functions::{add_reminder_select_options, now},
-    statics::{COLLECTIONS, REST, colors::NOTICE_EMBED_COLOR},
+    statics::{REST, colors::NOTICE_EMBED_COLOR},
     structs::{
-        client::AeonClient,
+        database::mongodb::MongoDB,
         duration::{Duration, statics::SECS_PER_MONTH},
     },
 };
 use anyhow::{Result, bail};
 use futures::stream::TryStreamExt;
-use mongodb::bson::{doc, oid::ObjectId};
+use mongodb::{
+    Collection,
+    bson::{doc, oid::ObjectId},
+};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use slashook::{
@@ -37,12 +40,19 @@ pub struct Reminder {
     pub dm: bool,
 }
 
-pub struct Reminders;
+#[derive(Debug)]
+pub struct Reminders {
+    collection: Collection<Reminder>,
+}
 
 impl Reminders {
+    pub fn new(collection: Collection<Reminder>) -> Self {
+        Self { collection }
+    }
+
     pub async fn poll() -> Result<()> {
         // Use a separate client for polling
-        let reminders = AeonClient::connect_to_database().await?.collection("reminders");
+        let reminders = MongoDB::get_database().await?.collection::<Reminder>("reminders");
 
         loop {
             let current_timestamp = now();
@@ -117,9 +127,9 @@ impl Reminders {
         Ok(())
     }
 
-    pub async fn get_many<T: Display>(user_id: T) -> Result<Vec<Reminder>> {
-        let reminders = COLLECTIONS
-            .reminders
+    pub async fn get_many<T: Display>(&self, user_id: T) -> Result<Vec<Reminder>> {
+        let reminders = self
+            .collection
             .find(doc! { "user_id": user_id.to_string() })
             .sort(doc! { "timestamp": 1 })
             .await?
@@ -134,6 +144,7 @@ impl Reminders {
     }
 
     pub async fn set<T: Display, U: Display, V: Display>(
+        &self,
         user_id: T,
         url: U,
         duration: Duration,
@@ -141,7 +152,7 @@ impl Reminders {
         reminder: V,
         dm: bool,
     ) -> Result<String> {
-        if COLLECTIONS.reminders.count_documents(doc! { "user_id": user_id.to_string() }).await? >= 15 {
+        if self.collection.count_documents(doc! { "user_id": user_id.to_string() }).await? >= 15 {
             bail!("You can only have up to 15 reminders.");
         }
 
@@ -162,8 +173,7 @@ impl Reminders {
             bail!("Unsupported message.");
         }
 
-        COLLECTIONS
-            .reminders
+        self.collection
             .insert_one(&Reminder {
                 _id: ObjectId::new(),
                 user_id: user_id.to_string(),
@@ -183,8 +193,8 @@ impl Reminders {
         ))
     }
 
-    pub async fn delete(id: ObjectId) -> Result<()> {
-        COLLECTIONS.reminders.delete_one(doc! { "_id": id }).await?;
+    pub async fn delete(&self, id: ObjectId) -> Result<()> {
+        self.collection.delete_one(doc! { "_id": id }).await?;
         Ok(())
     }
 }

@@ -1,10 +1,7 @@
 use crate::{
     functions::limit_strings,
-    statics::colors::PRIMARY_EMBED_COLOR,
-    structs::{
-        command_context::{AeonCommandContext, AeonCommandInput},
-        database::tags::Tags,
-    },
+    statics::{MONGODB, colors::PRIMARY_EMBED_COLOR},
+    structs::command_context::{AeonCommandContext, AeonCommandInput},
 };
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
@@ -23,7 +20,9 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     };
 
     let Some(guild_id) = guild_id else { return Ok(()) };
-    let tags = Tags::search(guild_id, author.map(|user| &user.id)).await?;
+
+    let mongodb = MONGODB.get().unwrap();
+    let tags = mongodb.tags.search(guild_id, author.map(|user| &user.id)).await?;
 
     let thumbnail = author.map(|author| author.display_avatar_url("png", Some("gif"), 512));
     let title = author.map(|author| format!("{}'s tags", author.username));

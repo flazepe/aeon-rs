@@ -4,10 +4,9 @@ pub mod regex;
 use crate::structs::{
     cache::{Cache, DatabaseCache, DiscordCache},
     config::Config,
-    database::{Collections, guilds::Guild, oauth::OauthToken, redis::Redis, reminders::Reminder, tags::Tag},
+    database::{mongodb::MongoDB, redis::Redis},
     emoji_manager::EmojiManager,
 };
-use mongodb::Database;
 use reqwest::Client as ReqwestClient;
 use slashook::rest::Rest;
 use std::{
@@ -23,17 +22,11 @@ pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
     ordr_rendering_users: RwLock::new(HashMap::new()),
     spotify_access_token: RwLock::new(Default::default()),
 });
-pub static COLLECTIONS: LazyLock<Collections> = LazyLock::new(|| Collections {
-    guilds: MONGODB.get().unwrap().collection::<Guild>("guilds"),
-    oauth: MONGODB.get().unwrap().collection::<OauthToken>("oauth"),
-    reminders: MONGODB.get().unwrap().collection::<Reminder>("reminders"),
-    tags: MONGODB.get().unwrap().collection::<Tag>("tags"),
-});
 pub static CONFIG: LazyLock<Config> = LazyLock::new(|| from_str(&read_to_string("config.toml").unwrap()).unwrap());
 pub static DEFAULT_PREFIXES: LazyLock<[String; 2]> = LazyLock::new(|| [format!("<@{}>", CONFIG.bot.client_id), "aeon".into()]);
 pub static EMOJIS: OnceLock<EmojiManager> = OnceLock::new();
 pub static FLAZEPE_ID: &str = "590455379931037697";
-pub static MONGODB: OnceLock<Database> = OnceLock::new();
+pub static MONGODB: OnceLock<MongoDB> = OnceLock::new();
 pub static REDIS: OnceLock<Redis> = OnceLock::new();
 pub static REQWEST: LazyLock<ReqwestClient> = LazyLock::new(ReqwestClient::new);
 pub static REST: LazyLock<Rest> = LazyLock::new(|| Rest::with_token(CONFIG.bot.token.clone()));

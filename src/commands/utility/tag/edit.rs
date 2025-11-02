@@ -1,6 +1,9 @@
-use crate::structs::{
-    command_context::{AeonCommandContext, AeonCommandInput},
-    database::tags::Tags,
+use crate::{
+    statics::MONGODB,
+    structs::{
+        command_context::{AeonCommandContext, AeonCommandInput},
+        database::mongodb::tags::Tags,
+    },
 };
 use anyhow::Result;
 use slashook::{
@@ -12,6 +15,8 @@ use std::sync::Arc;
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
+    let mongodb = MONGODB.get().unwrap();
+
     if input.is_modal_submit() {
         let name = ctx.get_string_arg("tag", 0, true)?;
         let guild_id = input.guild_id.as_ref().unwrap();
@@ -19,13 +24,13 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         let content = ctx.get_string_arg("content", 0, true)?;
         let modifier = input.member.as_ref().unwrap();
 
-        let response = Tags::edit(name, guild_id, new_name, content, modifier).await?;
+        let response = mongodb.tags.edit(name, guild_id, new_name, content, modifier).await?;
         ctx.respond_success(response, true).await
     } else {
         let name = ctx.get_string_arg("tag", 0, true)?;
         let guild_id = input.guild_id.as_ref().unwrap();
         let member = input.member.as_ref().unwrap();
-        let tag = Tags::get(name, guild_id).await.and_then(|tag| Tags::validate_tag_modifier(tag, member))?;
+        let tag = mongodb.tags.get(name, guild_id).await.and_then(|tag| Tags::validate_tag_modifier(tag, member))?;
         let tag_input = TextInput::new().set_id("tag").set_max_length(32).set_value(tag.name);
         let new_name_input = TextInput::new()
             .set_id("name")

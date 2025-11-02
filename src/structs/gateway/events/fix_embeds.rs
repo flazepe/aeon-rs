@@ -1,12 +1,9 @@
 use crate::{
     statics::{
-        REDIS, REQWEST, REST,
+        MONGODB, REDIS, REQWEST, REST,
         regex::{DISCORD_URL_REGEX, SPOILER_REGEX},
     },
-    structs::{
-        database::{guilds::Guilds, redis::keys::RedisKey},
-        gateway::events::EventHandler,
-    },
+    structs::{database::redis::keys::RedisKey, gateway::events::EventHandler},
 };
 use anyhow::Result;
 use nipper::Document;
@@ -24,7 +21,9 @@ use twilight_model::channel::message::Message;
 impl EventHandler {
     pub async fn handle_fix_embeds(message: &Message) -> Result<()> {
         let Some(guild_id) = &message.guild_id else { return Ok(()) };
-        let guild = Guilds::get(guild_id).await?;
+
+        let mongodb = MONGODB.get().unwrap();
+        let guild = mongodb.guilds.get(guild_id).await?;
 
         if !guild.fix_embeds.enabled || message.author.bot {
             return Ok(());

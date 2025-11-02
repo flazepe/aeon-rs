@@ -1,14 +1,15 @@
 use crate::{
     functions::format_timestamp,
-    statics::colors::PRIMARY_EMBED_COLOR,
-    structs::{command_context::AeonCommandContext, database::reminders::Reminders, duration::Duration},
+    statics::{MONGODB, colors::PRIMARY_EMBED_COLOR},
+    structs::{command_context::AeonCommandContext, duration::Duration},
 };
 use anyhow::Result;
 use slashook::structs::embeds::Embed;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
-    let reminders = Reminders::get_many(ctx.get_user_id()).await?;
+    let mongodb = MONGODB.get().unwrap();
+    let reminders = mongodb.reminders.get_many(ctx.get_user_id()).await?;
     let description = reminders
         .iter()
         .enumerate()

@@ -1,9 +1,6 @@
 use crate::{
-    statics::{REDIS, colors::NOTICE_EMBED_COLOR},
-    structs::{
-        database::{guilds::Guilds, redis::keys::RedisKey},
-        simple_message::SimpleMessage,
-    },
+    statics::{MONGODB, REDIS, colors::NOTICE_EMBED_COLOR},
+    structs::{database::redis::keys::RedisKey, simple_message::SimpleMessage},
     traits::{UserAvatarExt, UserExt},
 };
 use anyhow::Result;
@@ -59,5 +56,6 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
         .set_footer(event.author.label(), Some(event.author.display_avatar_url("gif", 4096)))
         .set_timestamp(Utc::now());
 
-    Guilds::send_log(guild_id, embed, event.author.bot).await
+    let mongodb = MONGODB.get().unwrap();
+    mongodb.guilds.send_log(guild_id, embed, event.author.bot).await
 }

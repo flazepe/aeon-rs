@@ -1,4 +1,4 @@
-use crate::{statics::colors::NOTICE_EMBED_COLOR, structs::database::guilds::Guilds};
+use crate::statics::{MONGODB, colors::NOTICE_EMBED_COLOR};
 use anyhow::Result;
 use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::ChannelUpdate;
@@ -14,5 +14,6 @@ pub async fn handle(event: &ChannelUpdate) -> Result<()> {
         .add_field("Name", format!("#{}", event.name.as_deref().unwrap_or("unknown")), false)
         .set_timestamp(Utc::now());
 
-    Guilds::send_log(guild_id, embed, false).await
+    let mongodb = MONGODB.get().unwrap();
+    mongodb.guilds.send_log(guild_id, embed, false).await
 }

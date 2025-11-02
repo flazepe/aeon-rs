@@ -7,7 +7,10 @@ mod toggle_alias;
 mod toggle_nsfw;
 mod view;
 
-use crate::structs::{command::AeonCommand, command_context::AeonCommandInput, database::tags::Tags};
+use crate::{
+    statics::MONGODB,
+    structs::{command::AeonCommand, command_context::AeonCommandInput},
+};
 use anyhow::Context;
 use slashook::{
     command,
@@ -157,9 +160,13 @@ pub fn get_slashook_command() -> SlashookCommand {
                 .context("Could not convert focused arg to String.")?
                 .to_lowercase();
 
+            let mongodb = MONGODB.get().unwrap();
+
             return res
                 .autocomplete(
-                    Tags::search(input.guild_id.unwrap(), None::<String>)
+                    mongodb
+                        .tags
+                        .search(input.guild_id.unwrap(), None::<String>)
                         .await
                         .unwrap_or_else(|_| vec![])
                         .iter()

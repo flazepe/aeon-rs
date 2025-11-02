@@ -1,7 +1,6 @@
 use crate::{
     functions::format_timestamp,
-    statics::colors::SUCCESS_EMBED_COLOR,
-    structs::database::guilds::Guilds,
+    statics::{MONGODB, colors::SUCCESS_EMBED_COLOR},
     traits::{UserAvatarExt, UserExt},
 };
 use anyhow::Result;
@@ -41,5 +40,6 @@ pub async fn handle(event: &InviteCreate) -> Result<()> {
 
     embed = embed.set_timestamp(Utc::now());
 
-    Guilds::send_log(event.guild_id, embed, false).await
+    let mongodb = MONGODB.get().unwrap();
+    mongodb.guilds.send_log(event.guild_id, embed, false).await
 }

@@ -1,11 +1,7 @@
 use crate::{
     functions::format_timestamp,
-    statics::{REDIS, colors::ERROR_EMBED_COLOR},
-    structs::{
-        database::{guilds::Guilds, redis::keys::RedisKey},
-        simple_message::SimpleMessage,
-        snowflake::Snowflake,
-    },
+    statics::{MONGODB, REDIS, colors::ERROR_EMBED_COLOR},
+    structs::{database::redis::keys::RedisKey, simple_message::SimpleMessage, snowflake::Snowflake},
     traits::{UserAvatarExt, UserExt},
 };
 use anyhow::Result;
@@ -39,5 +35,6 @@ pub async fn handle(event: &MessageDelete) -> Result<()> {
 
     embed = embed.set_timestamp(Utc::now());
 
-    Guilds::send_log(guild_id, embed, old_message.is_ok_and(|old_message| old_message.author.bot)).await
+    let mongodb = MONGODB.get().unwrap();
+    mongodb.guilds.send_log(guild_id, embed, old_message.is_ok_and(|old_message| old_message.author.bot)).await
 }

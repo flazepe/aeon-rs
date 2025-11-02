@@ -1,8 +1,10 @@
 use crate::{
     functions::format_timestamp,
     macros::yes_no,
-    statics::colors::{ERROR_EMBED_COLOR, NOTICE_EMBED_COLOR},
-    structs::database::guilds::Guilds,
+    statics::{
+        MONGODB,
+        colors::{ERROR_EMBED_COLOR, NOTICE_EMBED_COLOR},
+    },
     traits::{UserAvatarExt, UserExt},
 };
 use anyhow::Result;
@@ -41,5 +43,6 @@ pub async fn handle(event: &VoiceStateUpdate) -> Result<()> {
 
     embed = embed.set_timestamp(Utc::now());
 
-    Guilds::send_log(guild_id, embed, false).await
+    let mongodb = MONGODB.get().unwrap();
+    mongodb.guilds.send_log(guild_id, embed, false).await
 }
