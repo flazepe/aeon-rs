@@ -10,6 +10,7 @@ use anyhow::Result;
 use futures::{Future, future::BoxFuture};
 use serde_json::Value;
 use std::{fmt::Display, sync::Arc};
+use tracing::error;
 
 pub trait AeonCommandFn: Send + Sync {
     fn call(&self, ctx: Arc<AeonCommandContext>) -> BoxFuture<'static, Result<()>>;
@@ -144,6 +145,8 @@ impl AeonCommand {
         let ctx_arc = Arc::new(ctx);
 
         if let Err(error) = func.call(ctx_arc.clone()).await {
+            let command_name = &self.name;
+            error!(target: "Command", "An error occurred while running command {command_name}: {error:#?}");
             return ctx_arc.respond_error(error, true).await;
         }
 

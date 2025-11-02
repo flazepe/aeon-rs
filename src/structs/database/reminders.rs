@@ -21,6 +21,10 @@ use slashook::{
     },
 };
 use std::{fmt::Display, thread::sleep, time::Duration as TimeDuration};
+use tracing::{error, warn};
+
+static FATAL_ERRORS: [&str; 5] =
+    ["Cannot send messages to this user", "Invalid Recipient(s)", "Missing Access", "Missing Permissions", "Unknown Channel"];
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Reminder {
@@ -60,22 +64,14 @@ impl Reminders {
                         }
                     },
                     Err(error) => {
+                        let reminder_id = reminder._id;
                         let error = error.to_string();
 
-                        println!("[REMINDERS] An error occurred while handling reminder {}: {error}", reminder._id);
+                        error!(target: "Reminders", "An error occurred while handling reminder {reminder_id}: {error}");
 
-                        if let Some(fatal_error) = [
-                            "Cannot send messages to this user",
-                            "Invalid Recipient(s)",
-                            "Missing Access",
-                            "Missing Permissions",
-                            "Unknown Channel",
-                        ]
-                        .iter()
-                        .find(|message| error.contains(&message.to_string()))
-                        {
-                            reminders.delete_one(doc! { "_id": reminder._id }).await?;
-                            println!(r#"[REMINDERS] Deleted reminder {} due to fatal error "{fatal_error}"."#, reminder._id);
+                        if let Some(fatal_error) = FATAL_ERRORS.iter().find(|message| error.contains(&message.to_string())) {
+                            reminders.delete_one(doc! { "_id": reminder_id }).await?;
+                            warn!(target: "Reminders", r#"Deleted reminder {reminder_id} due to fatal error "{fatal_error}"."#);
                         }
                     },
                 }
@@ -86,13 +82,15 @@ impl Reminders {
     }
 
     async fn handle(reminder: &Reminder) -> Result<()> {
-        let mention = if reminder.dm { "".into() } else { format!("<@{}>", reminder.user_id) };
+        let user_id = &reminder.user_id;
+        let user_mention = if reminder.dm { "".into() } else { format!("<@{user_id}>") };
+        let url = &reminder.url;
 
-        let mut response = MessageResponse::from(mention).add_embed(
+        let mut response = MessageResponse::from(user_mention).add_embed(
             Embed::new()
                 .set_color(NOTICE_EMBED_COLOR)?
                 .set_title("Reminder")
-                .set_url(format!("https://discord.com/channels/{}", reminder.url))
+                .set_url(format!("https://discord.com/channels/{url}"))
                 .set_description(&reminder.reminder),
         );
 
@@ -100,7 +98,7 @@ impl Reminders {
             response = response.set_components(
                 Components::new().add_select_menu(
                     add_reminder_select_options(SelectMenu::new(SelectMenuType::STRING))
-                        .set_id("reminder", reminder.url.clone())
+                        .set_id("reminder", url.clone())
                         .set_placeholder("Snooze"),
                 ),
             );
@@ -108,7 +106,7 @@ impl Reminders {
 
         let channel_id = if reminder.dm {
             // If the reminder should be DM'd, we have to create a new DM channel
-            REST.post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": reminder.user_id })).await?.id
+            REST.post::<Channel, _>("users/@me/channels".into(), json!({ "recipient_id": user_id })).await?.id
         } else {
             // Else, just grab channel ID from the URL
             reminder.url.split('/').nth(1).unwrap().to_string()

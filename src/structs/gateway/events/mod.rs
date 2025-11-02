@@ -8,6 +8,7 @@ use crate::{
     structs::{database::redis::keys::RedisKey, gateway::events::fix_embeds::EmbedFixResponse},
 };
 use serde_json::Value;
+use tracing::error;
 use twilight_gateway::{Event, MessageSender};
 
 pub struct EventHandler;
@@ -17,16 +18,16 @@ impl EventHandler {
         let event_name = format!("{:?}", event.kind());
 
         if let Err(error) = Self::handle_logs(&event).await {
-            println!("[GATEWAY] An error occurred while handling log event {event_name}: {error:?}");
+            error!(target: "Gateway", "An error occurred while handling log event {event_name}: {error:#?}");
         }
 
         if let Event::MessageCreate(message) = &event {
             if let Err(error) = Self::handle_commands(message, &sender).await {
-                println!("[GATEWAY] An error occurred while handling commands: {error:?}");
+                error!(target: "Gateway", "An error occurred while handling commands: {error:#?}");
             }
 
             if let Err(error) = Self::handle_fix_embeds(message).await {
-                println!("[GATEWAY] An error occurred while handling fix embeds: {error:?}");
+                error!(target: "Gateway", "An error occurred while handling fix embeds: {error:#?}");
             }
         }
 
@@ -40,14 +41,14 @@ impl EventHandler {
             let has_response = redis.get::<Value>(&key).await.is_ok();
 
             if has_response && let Err(error) = Self::handle_commands(message, &sender).await {
-                println!("[GATEWAY] An error occurred while handling edited commands: {error:?}");
+                error!(target: "Gateway", "An error occurred while handling edited commands: {error:#?}");
             }
 
             let key = RedisKey::GuildChannelMessageEmbedFixResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
             let has_response = redis.get::<Value>(&key).await.is_ok();
 
             if has_response && let Err(error) = Self::handle_fix_embeds(message).await {
-                println!("[GATEWAY] An error occurred while handling edited fix embeds: {error:?}");
+                error!(target: "Gateway", "An error occurred while handling edited fix embeds: {error:#?}");
             }
         }
 
@@ -72,7 +73,7 @@ impl EventHandler {
         }
 
         if let Err(error) = Self::handle_core(&event).await {
-            println!("[GATEWAY] An error occurred while handling core event {event_name}: {error:?}");
+            error!(target: "Gateway", "An error occurred while handling core event {event_name}: {error:#?}");
         }
     }
 }
