@@ -71,11 +71,6 @@ pub fn get_slashook_command() -> SlashookCommand {
                             ChannelType::GUILD_STAGE_VOICE,
                         ],
                     },
-                    {
-                        name = "list",
-                        description = "Whether to send reaction snipes as a file",
-                        option_type = InteractionOptionType::BOOLEAN,
-                    },
                 ],
             },
         ],
