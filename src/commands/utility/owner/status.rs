@@ -58,7 +58,7 @@ async fn get_redis_cache_list() -> Result<[String; 9]> {
     let messages = redis.scan_match(RedisKey::GuildChannelMessage("*".into(), "*".into(), "*[0-9]".into())).await?;
     let snipes = redis.scan_match(RedisKey::GuildChannelSnipes("*".into(), "*".into())).await?;
     let edit_snipes = redis.scan_match(RedisKey::GuildChannelEditSnipes("*".into(), "*".into())).await?;
-    let reaction_snipes = redis.scan_match(RedisKey::GuildChannelMessageReactionSnipes("*".into(), "*".into(), "*".into())).await?;
+    let reaction_snipes = redis.scan_match(RedisKey::GuildChannelReactionSnipes("*".into(), "*".into())).await?;
     let cooldowns = redis.scan_match(RedisKey::UserCooldown("*".into())).await?;
     let command_responses = redis.scan_match(RedisKey::GuildChannelMessageCommandResponse("*".into(), "*".into(), "*".into())).await?;
     let embed_fix_responses = redis.scan_match(RedisKey::GuildChannelMessageEmbedFixResponse("*".into(), "*".into(), "*".into())).await?;

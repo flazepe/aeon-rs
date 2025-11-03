@@ -58,10 +58,23 @@ pub fn get_slashook_command() -> SlashookCommand {
                 description = "Snipes a messages's reactions.",
                 options = [
                     {
-                        name = "message",
-                        description = "The message URL or ID",
-                        option_type = InteractionOptionType::STRING,
-                        required = true,
+                        name = "channel",
+                        description = "The channel",
+                        option_type = InteractionOptionType::CHANNEL,
+                        channel_types = [
+                            ChannelType::GUILD_TEXT,
+                            ChannelType::GUILD_VOICE,
+                            ChannelType::GUILD_ANNOUNCEMENT,
+                            ChannelType::ANNOUNCEMENT_THREAD,
+                            ChannelType::PUBLIC_THREAD,
+                            ChannelType::PRIVATE_THREAD,
+                            ChannelType::GUILD_STAGE_VOICE,
+                        ],
+                    },
+                    {
+                        name = "list",
+                        description = "Whether to send reaction snipes as a file",
+                        option_type = InteractionOptionType::BOOLEAN,
                     },
                 ],
             },

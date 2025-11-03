@@ -39,13 +39,6 @@ impl AeonCommandContext {
         }
     }
 
-    pub fn get_channel_id(&self) -> String {
-        match &self.command_input {
-            AeonCommandInput::ApplicationCommand(input, _) => input.channel_id.clone().unwrap(),
-            AeonCommandInput::MessageCommand(message, ..) => message.channel_id.to_string(),
-        }
-    }
-
     pub fn get_guild_id(&self) -> Option<String> {
         match &self.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => input.guild_id.clone(),
