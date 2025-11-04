@@ -68,30 +68,27 @@ impl Reminders {
                     },
                 };
 
-                match Self::handle(&reminder).await {
-                    Ok(_) => {
-                        collection.delete_one(doc! { "_id": reminder._id }).await?;
+                if let Err(error) = Self::handle(&reminder).await {
+                    let reminder_id = reminder._id;
+                    let error = format!("{error:#?}");
 
-                        if reminder.interval > 0 {
-                            // To prevent spam and keeping precision, while loop is needed to ensure that the new timestamp isn't behind the current timestamp
-                            while reminder.timestamp <= current_timestamp {
-                                reminder.timestamp += reminder.interval;
-                            }
+                    error!(target: "Reminders", "An error occurred while handling reminder {reminder_id}: {error}");
 
-                            collection.insert_one(&reminder).await?;
+                    if let Some(message) = DISCORD_API_FATAL_ERRORS.iter().find(|message| error.contains(&message.to_string())) {
+                        collection.delete_one(doc! { "_id": reminder_id }).await?;
+                        warn!(target: "Reminders", r#"Deleted reminder {reminder_id} due to fatal error "{message}"."#);
+                    }
+                } else {
+                    collection.delete_one(doc! { "_id": reminder._id }).await?;
+
+                    if reminder.interval > 0 {
+                        // To prevent spam and keeping precision, while loop is needed to ensure that the new timestamp isn't behind the current timestamp
+                        while reminder.timestamp <= current_timestamp {
+                            reminder.timestamp += reminder.interval;
                         }
-                    },
-                    Err(error) => {
-                        let reminder_id = reminder._id;
-                        let error = format!("{error:#?}");
 
-                        error!(target: "Reminders", "An error occurred while handling reminder {reminder_id}: {error}");
-
-                        if let Some(message) = DISCORD_API_FATAL_ERRORS.iter().find(|message| error.contains(&message.to_string())) {
-                            collection.delete_one(doc! { "_id": reminder_id }).await?;
-                            warn!(target: "Reminders", r#"Deleted reminder {reminder_id} due to fatal error "{message}"."#);
-                        }
-                    },
+                        collection.insert_one(&reminder).await?;
+                    }
                 }
             }
 
