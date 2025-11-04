@@ -1,4 +1,4 @@
-use crate::{statics::colors::ERROR_EMBED_COLOR, structs::database::guilds::Guilds};
+use crate::{statics::colors::ERROR_EMBED_COLOR, structs::database::Database};
 use anyhow::Result;
 use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::ThreadDelete;
@@ -13,5 +13,6 @@ pub async fn handle(event: &ThreadDelete) -> Result<()> {
         .add_field("Parent", format!("<#{parent_id}> ({parent_id})", parent_id = event.parent_id), false)
         .set_timestamp(Utc::now());
 
-    Guilds::send_log(event.guild_id, embed, false).await
+    let mongodb = Database::get_mongodb()?;
+    mongodb.guilds.send_log(event.guild_id, embed, false).await
 }

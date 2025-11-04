@@ -1,4 +1,4 @@
-use crate::structs::{command_context::AeonCommandContext, database::tags::Tags};
+use crate::structs::{command_context::AeonCommandContext, database::Database};
 use anyhow::Result;
 use slashook::{commands::MessageResponse, structs::messages::AllowedMentions};
 use std::sync::Arc;
@@ -6,7 +6,9 @@ use std::sync::Arc;
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let Some(guild_id) = ctx.get_guild_id() else { return Ok(()) };
     let name = ctx.get_string_arg("tag", 0, true)?;
-    let tag = Tags::get(name, guild_id).await?;
+
+    let mongodb = Database::get_mongodb()?;
+    let tag = mongodb.tags.get(name, guild_id).await?;
 
     if tag.nsfw {
         ctx.ensure_nsfw_channel().await?;

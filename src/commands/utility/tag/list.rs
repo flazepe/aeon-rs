@@ -3,7 +3,7 @@ use crate::{
     statics::colors::PRIMARY_EMBED_COLOR,
     structs::{
         command_context::{AeonCommandContext, AeonCommandInput},
-        database::tags::Tags,
+        database::Database,
     },
 };
 use anyhow::Result;
@@ -23,7 +23,9 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     };
 
     let Some(guild_id) = guild_id else { return Ok(()) };
-    let tags = Tags::search(guild_id, author.map(|user| &user.id)).await?;
+
+    let mongodb = Database::get_mongodb()?;
+    let tags = mongodb.tags.search(guild_id, author.map(|user| &user.id)).await?;
 
     let thumbnail = author.map(|author| author.display_avatar_url("png", Some("gif"), 512));
     let title = author.map(|author| format!("{}'s tags", author.username));

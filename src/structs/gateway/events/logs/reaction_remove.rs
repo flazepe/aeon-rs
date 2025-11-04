@@ -1,4 +1,4 @@
-use crate::{macros::yes_no, statics::colors::ERROR_EMBED_COLOR, structs::database::guilds::Guilds, traits::EmojiReactionExt};
+use crate::{macros::yes_no, statics::colors::ERROR_EMBED_COLOR, structs::database::Database, traits::EmojiReactionExt};
 use anyhow::Result;
 use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::ReactionRemove;
@@ -35,5 +35,6 @@ pub async fn handle(event: &ReactionRemove) -> Result<()> {
         )
         .set_timestamp(Utc::now());
 
-    Guilds::send_log(guild_id, embed, false).await
+    let mongodb = Database::get_mongodb()?;
+    mongodb.guilds.send_log(guild_id, embed, false).await
 }

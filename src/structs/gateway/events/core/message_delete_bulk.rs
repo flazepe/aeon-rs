@@ -1,13 +1,14 @@
-use crate::{functions::now, statics::REDIS, structs::database::redis::keys::RedisKey};
+use crate::structs::database::{Database, redis::keys::RedisKey};
 use anyhow::Result;
 use serde_json::to_string;
+use slashook::chrono::Utc;
 use twilight_model::{channel::Message as TwilightMessage, gateway::payload::incoming::MessageDeleteBulk};
 
 pub async fn handle(event: &MessageDeleteBulk) -> Result<()> {
     let Some(guild_id) = event.guild_id else { return Ok(()) };
     let channel_id = event.channel_id;
 
-    let redis = REDIS.get().unwrap();
+    let redis = Database::get_redis()?;
     let deleted_messages = redis
         .get_many::<TwilightMessage>(
             event
@@ -22,7 +23,7 @@ pub async fn handle(event: &MessageDeleteBulk) -> Result<()> {
     let mut fields_values = vec![];
 
     for message in deleted_messages {
-        let field = now();
+        let field = Utc::now().timestamp();
         let Ok(value) = to_string(&message) else { continue };
         fields_values.push((field, value));
     }

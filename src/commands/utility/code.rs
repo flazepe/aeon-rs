@@ -26,7 +26,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     return ctx.autocomplete(PISTON_RUNTIMES.iter().map(|runtime| (&runtime.language, runtime.label()))).await;
                 }
 
-                let redis = REDIS.get().unwrap();
+                let redis = REDIS.get().context("Could not get Redis.")?;
                 let key = RedisKey::UserLastPistonProgrammingLanguage(ctx.get_user_id());
                 let programming_language = ctx
                     .get_string_arg("programming-language", 0, true)

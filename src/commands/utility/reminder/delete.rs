@@ -1,13 +1,15 @@
 use crate::structs::{
     command_context::{AeonCommandContext, AeonCommandInput},
-    database::reminders::Reminders,
+    database::Database,
 };
 use anyhow::{Context, Result};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
-    let reminders = Reminders::get_many(&input.user.id).await.unwrap_or_else(|_| vec![]);
+
+    let mongodb = Database::get_mongodb()?;
+    let reminders = mongodb.reminders.get_many(&input.user.id).await.unwrap_or_else(|_| vec![]);
 
     if input.is_autocomplete() {
         let options = reminders.iter().enumerate().map(|(index, reminder)| {
@@ -20,6 +22,6 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let index = ctx.get_string_arg("reminder", 0, true)?.parse::<usize>().context("Please enter a valid number.")? - 1;
     let reminder = reminders.get(index).context("Invalid reminder.")?;
 
-    Reminders::delete(reminder._id).await?;
+    mongodb.reminders.delete(reminder._id).await?;
     ctx.respond_success("Gone.", true).await
 }

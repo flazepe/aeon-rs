@@ -1,14 +1,15 @@
 use crate::structs::{
     command_context::{AeonCommandContext, AeonCommandInput},
-    database::guilds::Guilds,
+    database::Database,
 };
 use anyhow::{Result, bail};
-use std::cmp::Reverse;
-use std::sync::Arc;
+use std::{cmp::Reverse, sync::Arc};
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
-    let mut guild = Guilds::get(input.guild_id.as_ref().unwrap()).await?;
+
+    let mongodb = Database::get_mongodb()?;
+    let mut guild = mongodb.guilds.get(input.guild_id.as_ref().unwrap()).await?;
 
     if input.is_autocomplete() {
         return ctx.autocomplete(guild.prefixes.iter().map(|prefix| (prefix, prefix))).await;
@@ -39,6 +40,6 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         guild.prefixes.sort_by_key(|entry| Reverse(entry.len()));
     }
 
-    Guilds::update(guild).await?;
+    mongodb.guilds.update(guild).await?;
     ctx.respond_success(message, true).await
 }

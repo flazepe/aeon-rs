@@ -1,5 +1,5 @@
 use crate::{
-    functions::{limit_strings, now},
+    functions::limit_strings,
     structs::api::anilist::{
         AniList,
         components::{
@@ -108,7 +108,7 @@ impl AniListAnime {
             .nodes
             .iter()
             .find(|node| node.time_until_airing.is_some_and(|time| time > 0))
-            .map(|node| format!("\nNext episode airs <t:{}:R>", now() + node.time_until_airing.unwrap() as u64));
+            .map(|node| format!("\nNext episode airs <t:{}:R>", Utc::now().timestamp() + node.time_until_airing.unwrap_or(0)));
         let aired = format!(
             "{season}{airing_date} ({status}){airing_in}",
             season = season.as_deref().unwrap_or_default(),

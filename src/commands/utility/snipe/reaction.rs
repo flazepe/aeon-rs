@@ -3,21 +3,14 @@ use crate::structs::{
     snipes::ReactionSnipes,
 };
 use anyhow::Result;
-use slashook::structs::Permissions;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
+    let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
     let Some(guild_id) = ctx.get_guild_id() else { return Ok(()) };
-    let channel_id = ctx.get_channel_id();
+    let channel_id = ctx.get_channel_arg("channel").map_or(input.channel_id.as_ref().unwrap(), |channel| &channel.id);
+    let permissions = input.app_permissions;
+    let response = ReactionSnipes::new(guild_id, channel_id, permissions).await.to_response().await?;
 
-    let message = ctx.get_string_arg("message", 0, true)?;
-    let mut split = message.split('/').rev();
-    let (message_id, channel_id) = (split.next().unwrap(), split.next().unwrap_or(&channel_id));
-    let permissions = match &ctx.command_input {
-        AeonCommandInput::ApplicationCommand(input, _) => input.app_permissions,
-        AeonCommandInput::MessageCommand(..) => Permissions::empty(),
-    };
-
-    let response = ReactionSnipes::new(guild_id, channel_id, message_id, permissions).await.to_response()?;
     ctx.respond(response, false).await
 }

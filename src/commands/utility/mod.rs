@@ -17,7 +17,6 @@ mod reminder_set_context;
 mod server_config;
 mod shorten_url;
 mod snipe;
-mod snipe_reaction_context;
 mod snowflake;
 mod tag;
 mod timeout;
@@ -50,7 +49,6 @@ pub fn get_aeon_commands() -> Vec<&'static LazyLock<AeonCommand>> {
         &server_config::COMMAND,
         &shorten_url::COMMAND,
         &snipe::COMMAND,
-        &snipe_reaction_context::COMMAND,
         &snowflake::COMMAND,
         &tag::COMMAND,
         &timeout::COMMAND,
@@ -81,7 +79,6 @@ pub fn get_slashook_commands() -> Vec<SlashookCommand> {
         server_config::get_slashook_command(),
         shorten_url::get_slashook_command(),
         snipe::get_slashook_command(),
-        snipe_reaction_context::get_slashook_command(),
         snowflake::get_slashook_command(),
         tag::get_slashook_command(),
         timeout::get_slashook_command(),

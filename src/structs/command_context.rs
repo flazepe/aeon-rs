@@ -1,6 +1,9 @@
 use crate::{
-    statics::{EMOJIS, REDIS, REST},
-    structs::{command_args::CommandArgs, database::redis::keys::RedisKey},
+    statics::{EMOJIS, REST},
+    structs::{
+        command_args::CommandArgs,
+        database::{Database, redis::keys::RedisKey},
+    },
 };
 use anyhow::{Context, Error, Result, bail};
 use slashook::{
@@ -36,13 +39,6 @@ impl AeonCommandContext {
         match &self.command_input {
             AeonCommandInput::ApplicationCommand(input, _) => input.user.id.clone(),
             AeonCommandInput::MessageCommand(message, ..) => message.author.id.to_string(),
-        }
-    }
-
-    pub fn get_channel_id(&self) -> String {
-        match &self.command_input {
-            AeonCommandInput::ApplicationCommand(input, _) => input.channel_id.clone().unwrap(),
-            AeonCommandInput::MessageCommand(message, ..) => message.channel_id.to_string(),
         }
     }
 
@@ -108,7 +104,7 @@ impl AeonCommandContext {
                 response =
                     response.set_message_reference(MessageReference::new_reply(message.id)).set_allowed_mentions(AllowedMentions::new());
 
-                let redis = REDIS.get().unwrap();
+                let redis = Database::get_redis()?;
                 let key = RedisKey::GuildChannelMessageCommandResponse(
                     message.guild_id.map(|guild_id| guild_id.to_string()).unwrap_or_default(),
                     message.channel_id.to_string(),

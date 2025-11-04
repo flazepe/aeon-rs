@@ -1,6 +1,6 @@
 use crate::structs::{
     command_context::{AeonCommandContext, AeonCommandInput},
-    database::tags::Tags,
+    database::Database,
 };
 use anyhow::Result;
 use slashook::{
@@ -18,7 +18,9 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         let author_id = &input.user.id;
         let content = ctx.get_string_arg("content", 0, true)?;
         let modifier = input.member.as_ref().unwrap();
-        let response = Tags::create(name, guild_id, author_id, content, modifier).await?;
+
+        let mongodb = Database::get_mongodb()?;
+        let response = mongodb.tags.create(name, guild_id, author_id, content, modifier).await?;
 
         ctx.respond_success(response, true).await
     } else {

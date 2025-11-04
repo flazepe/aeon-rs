@@ -1,6 +1,6 @@
 use crate::structs::{
     command_context::{AeonCommandContext, AeonCommandInput},
-    database::reminders::Reminders,
+    database::Database,
     duration::Duration,
 };
 use anyhow::Result;
@@ -56,7 +56,9 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         || input.guild_id.is_none()
         || input.message.as_ref().is_some_and(|message| message.interaction_metadata.is_some()) // DM if select menu's message was from an interaction
         || !input.app_permissions.contains(Permissions::VIEW_CHANNEL | Permissions::SEND_MESSAGES);
-    let response = Reminders::set(user_id, url, time, interval, reminder, dm).await?;
+
+    let mongodb = Database::get_mongodb()?;
+    let response = mongodb.reminders.set(user_id, url, time, interval, reminder, dm).await?;
 
     ctx.respond_success(response, false).await
 }

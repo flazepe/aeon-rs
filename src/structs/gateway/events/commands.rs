@@ -1,7 +1,7 @@
 use crate::{
     commands,
     statics::DEFAULT_PREFIXES,
-    structs::{database::guilds::Guilds, gateway::events::EventHandler},
+    structs::{database::Database, gateway::events::EventHandler},
 };
 use anyhow::Result;
 use twilight_gateway::MessageSender;
@@ -11,7 +11,10 @@ impl EventHandler {
     pub async fn handle_commands(message: &Message, sender: &MessageSender) -> Result<()> {
         let lowercased_content = message.content.to_lowercase();
         let prefixes = match &message.guild_id {
-            Some(guild_id) => Guilds::get(guild_id).await?.prefixes,
+            Some(guild_id) => {
+                let mongodb = Database::get_mongodb()?;
+                mongodb.guilds.get(guild_id).await?.prefixes
+            },
             None => vec![],
         };
         let Some(prefix) = prefixes

@@ -1,4 +1,4 @@
-use crate::structs::{database::guilds::Guild, gateway::song_activity::SongActivity};
+use crate::structs::{database::mongodb::guilds::Guild, gateway::song_activity::SongActivity};
 use std::{collections::HashMap, sync::RwLock};
 use twilight_model::guild::Guild as DiscordGuild;
 

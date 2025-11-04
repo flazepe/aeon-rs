@@ -1,17 +1,21 @@
 use crate::{
-    functions::{add_reminder_select_options, now},
-    statics::{COLLECTIONS, REST, colors::NOTICE_EMBED_COLOR},
+    functions::add_reminder_select_options,
+    statics::{REST, colors::NOTICE_EMBED_COLOR},
     structs::{
-        client::AeonClient,
+        database::mongodb::MongoDB,
         duration::{Duration, statics::SECS_PER_MONTH},
     },
 };
 use anyhow::{Result, bail};
-use futures::stream::TryStreamExt;
-use mongodb::bson::{doc, oid::ObjectId};
+use futures::{StreamExt, stream::TryStreamExt};
+use mongodb::{
+    Collection,
+    bson::{doc, oid::ObjectId},
+};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use slashook::{
+    chrono::Utc,
     commands::MessageResponse,
     structs::{
         channels::Channel,
@@ -23,7 +27,7 @@ use slashook::{
 use std::{fmt::Display, thread::sleep, time::Duration as TimeDuration};
 use tracing::{error, warn};
 
-static FATAL_ERRORS: [&str; 5] =
+static DISCORD_API_FATAL_ERRORS: [&str; 5] =
     ["Cannot send messages to this user", "Invalid Recipient(s)", "Missing Access", "Missing Permissions", "Unknown Channel"];
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -31,49 +35,60 @@ pub struct Reminder {
     pub _id: ObjectId,
     pub user_id: String,
     pub url: String,
-    pub timestamp: u64,
-    pub interval: u64,
+    pub timestamp: i64,
+    pub interval: i64,
     pub reminder: String,
     pub dm: bool,
 }
 
-pub struct Reminders;
+#[derive(Debug)]
+pub struct Reminders {
+    collection: Collection<Reminder>,
+}
 
 impl Reminders {
+    pub fn new(collection: Collection<Reminder>) -> Self {
+        Self { collection }
+    }
+
     pub async fn poll() -> Result<()> {
-        // Use a separate client for polling
-        let reminders = AeonClient::connect_to_database().await?.collection("reminders");
+        // Use a separate connection for polling
+        let collection = MongoDB::get_database().await?.collection::<Reminder>("reminders");
 
         loop {
-            let current_timestamp = now();
+            let current_timestamp = Utc::now().timestamp();
+            let mut reminders = collection.find(doc! { "timestamp": { "$lte": current_timestamp } }).await?;
 
-            for mut reminder in
-                reminders.find(doc! { "timestamp": { "$lte": current_timestamp as i64 } }).await?.try_collect::<Vec<Reminder>>().await?
-            {
-                match Self::handle(&reminder).await {
-                    Ok(_) => {
-                        reminders.delete_one(doc! { "_id": reminder._id }).await?;
-
-                        if reminder.interval > 0 {
-                            // To prevent spam and keeping precision, while loop is needed to ensure that the new timestamp isn't behind the current timestamp
-                            while reminder.timestamp <= current_timestamp {
-                                reminder.timestamp += reminder.interval;
-                            }
-
-                            reminders.insert_one(&reminder).await?;
-                        }
-                    },
+            while let Some(result) = reminders.next().await {
+                let mut reminder = match result {
+                    Ok(reminder) => reminder,
                     Err(error) => {
-                        let reminder_id = reminder._id;
-                        let error = error.to_string();
-
-                        error!(target: "Reminders", "An error occurred while handling reminder {reminder_id}: {error}");
-
-                        if let Some(fatal_error) = FATAL_ERRORS.iter().find(|message| error.contains(&message.to_string())) {
-                            reminders.delete_one(doc! { "_id": reminder_id }).await?;
-                            warn!(target: "Reminders", r#"Deleted reminder {reminder_id} due to fatal error "{fatal_error}"."#);
-                        }
+                        error!(target = "Reminders", "An error occurred while parsing reminder: {error:#?}");
+                        continue;
                     },
+                };
+
+                if let Err(error) = Self::handle(&reminder).await {
+                    let reminder_id = reminder._id;
+                    let error = format!("{error:#?}");
+
+                    error!(target: "Reminders", "An error occurred while handling reminder {reminder_id}: {error}");
+
+                    if let Some(message) = DISCORD_API_FATAL_ERRORS.iter().find(|message| error.contains(&message.to_string())) {
+                        collection.delete_one(doc! { "_id": reminder_id }).await?;
+                        warn!(target: "Reminders", r#"Deleted reminder {reminder_id} due to fatal error "{message}"."#);
+                    }
+                } else {
+                    collection.delete_one(doc! { "_id": reminder._id }).await?;
+
+                    if reminder.interval > 0 {
+                        // To prevent spam and keeping precision, while loop is needed to ensure that the new timestamp isn't behind the current timestamp
+                        while reminder.timestamp <= current_timestamp {
+                            reminder.timestamp += reminder.interval;
+                        }
+
+                        collection.insert_one(&reminder).await?;
+                    }
                 }
             }
 
@@ -117,9 +132,9 @@ impl Reminders {
         Ok(())
     }
 
-    pub async fn get_many<T: Display>(user_id: T) -> Result<Vec<Reminder>> {
-        let reminders = COLLECTIONS
-            .reminders
+    pub async fn get_many<T: Display>(&self, user_id: T) -> Result<Vec<Reminder>> {
+        let reminders = self
+            .collection
             .find(doc! { "user_id": user_id.to_string() })
             .sort(doc! { "timestamp": 1 })
             .await?
@@ -134,6 +149,7 @@ impl Reminders {
     }
 
     pub async fn set<T: Display, U: Display, V: Display>(
+        &self,
         user_id: T,
         url: U,
         duration: Duration,
@@ -141,7 +157,7 @@ impl Reminders {
         reminder: V,
         dm: bool,
     ) -> Result<String> {
-        if COLLECTIONS.reminders.count_documents(doc! { "user_id": user_id.to_string() }).await? >= 15 {
+        if self.collection.count_documents(doc! { "user_id": user_id.to_string() }).await? >= 15 {
             bail!("You can only have up to 15 reminders.");
         }
 
@@ -162,14 +178,13 @@ impl Reminders {
             bail!("Unsupported message.");
         }
 
-        COLLECTIONS
-            .reminders
+        self.collection
             .insert_one(&Reminder {
                 _id: ObjectId::new(),
                 user_id: user_id.to_string(),
                 url: url.to_string(),
-                timestamp: now() + duration.total_secs,
-                interval: interval.total_secs,
+                timestamp: Utc::now().timestamp() + duration.total_secs as i64,
+                interval: interval.total_secs as i64,
                 reminder: reminder.to_string(),
                 dm,
             })
@@ -183,8 +198,8 @@ impl Reminders {
         ))
     }
 
-    pub async fn delete(id: ObjectId) -> Result<()> {
-        COLLECTIONS.reminders.delete_one(doc! { "_id": id }).await?;
+    pub async fn delete(&self, id: ObjectId) -> Result<()> {
+        self.collection.delete_one(doc! { "_id": id }).await?;
         Ok(())
     }
 }

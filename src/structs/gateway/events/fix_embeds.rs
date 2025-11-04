@@ -1,10 +1,10 @@
 use crate::{
     statics::{
-        REDIS, REQWEST, REST,
+        REQWEST, REST,
         regex::{DISCORD_URL_REGEX, SPOILER_REGEX},
     },
     structs::{
-        database::{guilds::Guilds, redis::keys::RedisKey},
+        database::{Database, redis::keys::RedisKey},
         gateway::events::EventHandler,
     },
 };
@@ -24,7 +24,9 @@ use twilight_model::channel::message::Message;
 impl EventHandler {
     pub async fn handle_fix_embeds(message: &Message) -> Result<()> {
         let Some(guild_id) = &message.guild_id else { return Ok(()) };
-        let guild = Guilds::get(guild_id).await?;
+
+        let mongodb = Database::get_mongodb()?;
+        let guild = mongodb.guilds.get(guild_id).await?;
 
         if !guild.fix_embeds.enabled || message.author.bot {
             return Ok(());
@@ -151,7 +153,7 @@ impl EventHandler {
         .set_message_reference(MessageReference::new_reply(message.id))
         .set_allowed_mentions(AllowedMentions::new());
 
-        let redis = REDIS.get().unwrap();
+        let redis = Database::get_redis()?;
         let Some(guild_id) = message.guild_id else { return Ok(()) };
         let channel_id = message.channel_id;
         let message_id = message.id;

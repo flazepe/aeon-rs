@@ -1,7 +1,6 @@
 pub mod statics;
 
 use crate::{
-    functions::now,
     statics::{CACHE, CONFIG, REQWEST},
     structs::{
         api::ordr::statics::ORDR_SKINS,
@@ -11,6 +10,7 @@ use crate::{
 use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use serde_json::{from_str, json};
+use slashook::chrono::Utc;
 use std::{fmt::Display, sync::Arc, time::Duration};
 use tokio::time::sleep;
 
@@ -93,9 +93,9 @@ impl OrdrRender {
         let poll = async || -> Result<()> {
             sleep(Duration::from_secs(5)).await;
 
-            let start_time = now();
+            let start_time = Utc::now().timestamp();
 
-            while now() - start_time < 480 {
+            while Utc::now().timestamp() - start_time < 480 {
                 let render = Self::get_render(self.render_id).await?;
 
                 if render.error_code != 0 {

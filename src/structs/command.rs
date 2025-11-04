@@ -1,14 +1,14 @@
 use crate::{
-    functions::now,
-    statics::{FLAZEPE_ID, REDIS},
+    statics::FLAZEPE_ID,
     structs::{
         command_context::{AeonCommandContext, AeonCommandInput},
-        database::redis::keys::RedisKey,
+        database::{Database, redis::keys::RedisKey},
     },
 };
 use anyhow::Result;
 use futures::{Future, future::BoxFuture};
 use serde_json::Value;
+use slashook::chrono::Utc;
 use std::{fmt::Display, sync::Arc};
 use tracing::error;
 
@@ -124,7 +124,7 @@ impl AeonCommand {
 
         let Some(func) = func else { return Ok(()) };
 
-        let redis = REDIS.get().unwrap();
+        let redis = Database::get_redis()?;
         let cooldown_key = RedisKey::UserCooldown(ctx.get_user_id());
 
         if redis.get::<Value>(&cooldown_key).await.is_ok() {
@@ -139,7 +139,7 @@ impl AeonCommand {
         };
 
         if add_cooldown {
-            redis.set(&cooldown_key, now(), Some(3)).await?;
+            redis.set(&cooldown_key, Utc::now().timestamp(), Some(3)).await?;
         }
 
         let ctx_arc = Arc::new(ctx);
