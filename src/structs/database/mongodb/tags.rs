@@ -1,4 +1,4 @@
-use crate::{functions::now, statics::FLAZEPE_ID};
+use crate::statics::FLAZEPE_ID;
 use anyhow::{Context, Result, bail};
 use futures::stream::TryStreamExt;
 use mongodb::{
@@ -6,7 +6,10 @@ use mongodb::{
     bson::{doc, oid::ObjectId},
 };
 use serde::{Deserialize, Serialize};
-use slashook::structs::{Permissions, guilds::GuildMember};
+use slashook::{
+    chrono::Utc,
+    structs::{Permissions, guilds::GuildMember},
+};
 use std::fmt::Display;
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -18,8 +21,8 @@ pub struct Tag {
     pub aliases: Vec<String>,
     pub nsfw: bool,
     pub content: String,
-    pub created_timestamp: u64,
-    pub updated_timestamp: u64,
+    pub created_timestamp: i64,
+    pub updated_timestamp: i64,
 }
 
 #[derive(Debug)]
@@ -92,7 +95,7 @@ impl Tags {
             bail!("I'm sure 100 tags are enough for your server.");
         }
 
-        let timestamp = now();
+        let timestamp = Utc::now().timestamp();
 
         self.collection
             .insert_one(Tag {
@@ -201,7 +204,7 @@ impl Tags {
                 doc! {
                     "$set": {
                         "aliases": tag.aliases,
-                        "updated_timestamp": now() as i64,
+                        "updated_timestamp": Utc::now().timestamp(),
                     },
                 },
             )
@@ -227,7 +230,7 @@ impl Tags {
                 doc! {
                     "$set": {
                         "nsfw": nsfw,
-                        "updated_timestamp": now() as i64,
+                        "updated_timestamp": Utc::now().timestamp(),
                     },
                 },
             )

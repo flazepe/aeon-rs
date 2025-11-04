@@ -1,8 +1,6 @@
-use crate::{
-    functions::now,
-    structs::database::{Database, redis::keys::RedisKey},
-};
+use crate::structs::database::{Database, redis::keys::RedisKey};
 use anyhow::Result;
+use slashook::chrono::Utc;
 use twilight_model::gateway::payload::incoming::ReactionRemove;
 
 pub async fn handle(event: &ReactionRemove) -> Result<()> {
@@ -11,7 +9,7 @@ pub async fn handle(event: &ReactionRemove) -> Result<()> {
 
     let redis = Database::get_redis()?;
     let key = RedisKey::GuildChannelReactionSnipes(guild_id.to_string(), channel_id.to_string());
-    redis.hset(&key, now(), &event.0, Some(60 * 30)).await?;
+    redis.hset(&key, Utc::now().timestamp(), &event.0, Some(60 * 30)).await?;
 
     Ok(())
 }

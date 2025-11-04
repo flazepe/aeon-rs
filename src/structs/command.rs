@@ -1,5 +1,4 @@
 use crate::{
-    functions::now,
     statics::FLAZEPE_ID,
     structs::{
         command_context::{AeonCommandContext, AeonCommandInput},
@@ -9,6 +8,7 @@ use crate::{
 use anyhow::Result;
 use futures::{Future, future::BoxFuture};
 use serde_json::Value;
+use slashook::chrono::Utc;
 use std::{fmt::Display, sync::Arc};
 use tracing::error;
 
@@ -139,7 +139,7 @@ impl AeonCommand {
         };
 
         if add_cooldown {
-            redis.set(&cooldown_key, now(), Some(3)).await?;
+            redis.set(&cooldown_key, Utc::now().timestamp(), Some(3)).await?;
         }
 
         let ctx_arc = Arc::new(ctx);

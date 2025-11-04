@@ -1,9 +1,7 @@
-use crate::{
-    functions::now,
-    structs::database::{Database, redis::keys::RedisKey},
-};
+use crate::structs::database::{Database, redis::keys::RedisKey};
 use anyhow::Result;
 use serde_json::to_string;
+use slashook::chrono::Utc;
 use twilight_model::{channel::Message as TwilightMessage, gateway::payload::incoming::MessageDeleteBulk};
 
 pub async fn handle(event: &MessageDeleteBulk) -> Result<()> {
@@ -25,7 +23,7 @@ pub async fn handle(event: &MessageDeleteBulk) -> Result<()> {
     let mut fields_values = vec![];
 
     for message in deleted_messages {
-        let field = now();
+        let field = Utc::now().timestamp();
         let Ok(value) = to_string(&message) else { continue };
         fields_values.push((field, value));
     }

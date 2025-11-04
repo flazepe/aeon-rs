@@ -1,7 +1,4 @@
-use crate::{
-    functions::now,
-    statics::{CONFIG, REQWEST},
-};
+use crate::statics::{CONFIG, REQWEST};
 use anyhow::{Context, Result};
 use mongodb::{
     Collection,
@@ -9,20 +6,21 @@ use mongodb::{
 };
 use reqwest::RequestBuilder;
 use serde::{Deserialize, Serialize};
+use slashook::chrono::Utc;
 use std::fmt::Display;
 
 #[derive(Deserialize, Debug)]
 struct RawOAuthToken {
     access_token: String,
     token_type: String,
-    expires_in: u64,
+    expires_in: i64,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct OAuthToken {
     pub _id: String,
     pub token: String,
-    pub expires_at: u64,
+    pub expires_at: i64,
 }
 
 #[derive(Debug)]
@@ -30,12 +28,12 @@ pub struct RefreshableOAuthToken {
     collection: Collection<OAuthToken>,
     name: String,
     request: RequestBuilder,
-    timestamp: u64,
+    timestamp: i64,
 }
 
 impl RefreshableOAuthToken {
     pub fn new<T: Display>(collection: Collection<OAuthToken>, name: T, request: RequestBuilder) -> Self {
-        Self { collection, name: name.to_string(), request, timestamp: now() }
+        Self { collection, name: name.to_string(), request, timestamp: Utc::now().timestamp() }
     }
 
     async fn generate_token(&self) -> Result<OAuthToken> {

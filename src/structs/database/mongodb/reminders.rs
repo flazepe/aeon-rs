@@ -1,5 +1,5 @@
 use crate::{
-    functions::{add_reminder_select_options, now},
+    functions::add_reminder_select_options,
     statics::{REST, colors::NOTICE_EMBED_COLOR},
     structs::{
         database::mongodb::MongoDB,
@@ -15,6 +15,7 @@ use mongodb::{
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use slashook::{
+    chrono::Utc,
     commands::MessageResponse,
     structs::{
         channels::Channel,
@@ -34,8 +35,8 @@ pub struct Reminder {
     pub _id: ObjectId,
     pub user_id: String,
     pub url: String,
-    pub timestamp: u64,
-    pub interval: u64,
+    pub timestamp: i64,
+    pub interval: i64,
     pub reminder: String,
     pub dm: bool,
 }
@@ -55,10 +56,10 @@ impl Reminders {
         let reminders = MongoDB::get_database().await?.collection::<Reminder>("reminders");
 
         loop {
-            let current_timestamp = now();
+            let current_timestamp = Utc::now().timestamp();
 
             for mut reminder in
-                reminders.find(doc! { "timestamp": { "$lte": current_timestamp as i64 } }).await?.try_collect::<Vec<Reminder>>().await?
+                reminders.find(doc! { "timestamp": { "$lte": current_timestamp } }).await?.try_collect::<Vec<Reminder>>().await?
             {
                 match Self::handle(&reminder).await {
                     Ok(_) => {
@@ -178,8 +179,8 @@ impl Reminders {
                 _id: ObjectId::new(),
                 user_id: user_id.to_string(),
                 url: url.to_string(),
-                timestamp: now() + duration.total_secs,
-                interval: interval.total_secs,
+                timestamp: Utc::now().timestamp() + duration.total_secs as i64,
+                interval: interval.total_secs as i64,
                 reminder: reminder.to_string(),
                 dm,
             })
