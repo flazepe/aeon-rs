@@ -7,7 +7,7 @@ use crate::{
     },
 };
 use anyhow::{Result, bail};
-use futures::stream::TryStreamExt;
+use futures::{StreamExt, stream::TryStreamExt};
 use mongodb::{
     Collection,
     bson::{doc, oid::ObjectId},
@@ -27,7 +27,7 @@ use slashook::{
 use std::{fmt::Display, thread::sleep, time::Duration as TimeDuration};
 use tracing::{error, warn};
 
-static FATAL_ERRORS: [&str; 5] =
+static DISCORD_API_FATAL_ERRORS: [&str; 5] =
     ["Cannot send messages to this user", "Invalid Recipient(s)", "Missing Access", "Missing Permissions", "Unknown Channel"];
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -52,18 +52,25 @@ impl Reminders {
     }
 
     pub async fn poll() -> Result<()> {
-        // Use a separate client for polling
-        let reminders = MongoDB::get_database().await?.collection::<Reminder>("reminders");
+        // Use a separate connection for polling
+        let collection = MongoDB::get_database().await?.collection::<Reminder>("reminders");
 
         loop {
             let current_timestamp = Utc::now().timestamp();
+            let mut reminders = collection.find(doc! { "timestamp": { "$lte": current_timestamp } }).await?;
 
-            for mut reminder in
-                reminders.find(doc! { "timestamp": { "$lte": current_timestamp } }).await?.try_collect::<Vec<Reminder>>().await?
-            {
+            while let Some(result) = reminders.next().await {
+                let mut reminder = match result {
+                    Ok(reminder) => reminder,
+                    Err(error) => {
+                        error!(target = "Reminders", "An error occurred while parsing reminder: {error:#?}");
+                        continue;
+                    },
+                };
+
                 match Self::handle(&reminder).await {
                     Ok(_) => {
-                        reminders.delete_one(doc! { "_id": reminder._id }).await?;
+                        collection.delete_one(doc! { "_id": reminder._id }).await?;
 
                         if reminder.interval > 0 {
                             // To prevent spam and keeping precision, while loop is needed to ensure that the new timestamp isn't behind the current timestamp
@@ -71,18 +78,18 @@ impl Reminders {
                                 reminder.timestamp += reminder.interval;
                             }
 
-                            reminders.insert_one(&reminder).await?;
+                            collection.insert_one(&reminder).await?;
                         }
                     },
                     Err(error) => {
                         let reminder_id = reminder._id;
-                        let error = error.to_string();
+                        let error = format!("{error:#?}");
 
                         error!(target: "Reminders", "An error occurred while handling reminder {reminder_id}: {error}");
 
-                        if let Some(fatal_error) = FATAL_ERRORS.iter().find(|message| error.contains(&message.to_string())) {
-                            reminders.delete_one(doc! { "_id": reminder_id }).await?;
-                            warn!(target: "Reminders", r#"Deleted reminder {reminder_id} due to fatal error "{fatal_error}"."#);
+                        if let Some(message) = DISCORD_API_FATAL_ERRORS.iter().find(|message| error.contains(&message.to_string())) {
+                            collection.delete_one(doc! { "_id": reminder_id }).await?;
+                            warn!(target: "Reminders", r#"Deleted reminder {reminder_id} due to fatal error "{message}"."#);
                         }
                     },
                 }
