@@ -1,6 +1,6 @@
 use crate::{
-    functions::{format_timestamp, label_num},
-    statics::{CACHE, REDIS, colors::PRIMARY_EMBED_COLOR},
+    functions::{format_timestamp, get_redis, label_num},
+    statics::{CACHE, colors::PRIMARY_EMBED_COLOR},
     structs::{command_context::AeonCommandContext, database::redis::keys::RedisKey},
 };
 use anyhow::{Context, Error, Result};
@@ -16,8 +16,8 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let process = system.process(pid).context("Could not get process.")?;
     let process_started = format_timestamp(process.start_time(), true);
 
-    let memory = bytes_to_mb(process.memory());
-    let virtual_memory = bytes_to_mb(process.virtual_memory());
+    let memory = bytes_to_mib(process.memory());
+    let virtual_memory = bytes_to_mib(process.virtual_memory());
 
     let discord_cache_list = get_discord_cache_list().join("\n");
     let db_cache_list = get_db_cache_list().join("\n");
@@ -37,8 +37,9 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     ctx.respond(embed, false).await
 }
 
-fn bytes_to_mb(bytes: u64) -> String {
-    format!("{} MB", bytes / 1024 / 1024)
+fn bytes_to_mib(bytes: u64) -> String {
+    let mebibytes = bytes / 1024 / 1024;
+    format!("{mebibytes} MiB")
 }
 
 fn get_discord_cache_list() -> [String; 2] {
@@ -53,7 +54,7 @@ fn get_db_cache_list() -> [String; 1] {
 }
 
 async fn get_redis_cache_list() -> Result<[String; 9]> {
-    let redis = REDIS.get().unwrap();
+    let redis = get_redis()?;
 
     let messages = redis.scan_match(RedisKey::GuildChannelMessage("*".into(), "*".into(), "*[0-9]".into())).await?;
     let snipes = redis.scan_match(RedisKey::GuildChannelSnipes("*".into(), "*".into())).await?;
