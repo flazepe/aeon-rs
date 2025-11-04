@@ -1,6 +1,9 @@
 use crate::{
-    statics::{MONGODB, REDIS, colors::NOTICE_EMBED_COLOR},
-    structs::{database::redis::keys::RedisKey, simple_message::SimpleMessage},
+    statics::colors::NOTICE_EMBED_COLOR,
+    structs::{
+        database::{Database, redis::keys::RedisKey},
+        simple_message::SimpleMessage,
+    },
     traits::{UserAvatarExt, UserExt},
 };
 use anyhow::Result;
@@ -13,7 +16,7 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
     let channel_id = event.channel_id;
     let message_id = event.id;
 
-    let redis = REDIS.get().unwrap();
+    let redis = Database::get_redis()?;
     let key = RedisKey::GuildChannelMessage(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
     let Ok(old_message) = redis.get::<TwilightMessage>(&key).await else { return Ok(()) };
 
@@ -56,6 +59,6 @@ pub async fn handle(event: &MessageUpdate) -> Result<()> {
         .set_footer(event.author.label(), Some(event.author.display_avatar_url("gif", 4096)))
         .set_timestamp(Utc::now());
 
-    let mongodb = MONGODB.get().unwrap();
+    let mongodb = Database::get_mongodb()?;
     mongodb.guilds.send_log(guild_id, embed, event.author.bot).await
 }

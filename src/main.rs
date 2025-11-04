@@ -6,13 +6,10 @@ mod structs;
 mod traits;
 
 use crate::{
-    statics::{EMOJIS, MONGODB, REDIS},
+    statics::EMOJIS,
     structs::{
         client::AeonClient,
-        database::{
-            mongodb::{MongoDB, reminders::Reminders},
-            redis::Redis,
-        },
+        database::{Database, mongodb::reminders::Reminders},
         emoji_manager::EmojiManager,
         gateway::client::GatewayClient,
     },
@@ -28,11 +25,7 @@ async fn main() -> Result<()> {
     let subscriber = FmtSubscriber::builder().finish();
     set_global_default(subscriber)?;
 
-    MONGODB.set(MongoDB::new().await?).expect("Could not set MongoDB client.");
-    info!(target: "Database", "Connected to MongoDB.");
-
-    REDIS.set(Redis::new().await?).expect("Could not set Redis.");
-    info!(target: "Database", "Connected to Redis.");
+    Database::init().await?;
 
     spawn(Reminders::poll());
     info!(target: "Reminders", "Spawned poller.");

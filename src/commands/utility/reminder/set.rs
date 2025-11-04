@@ -1,9 +1,7 @@
-use crate::{
-    statics::MONGODB,
-    structs::{
-        command_context::{AeonCommandContext, AeonCommandInput},
-        duration::Duration,
-    },
+use crate::structs::{
+    command_context::{AeonCommandContext, AeonCommandInput},
+    database::Database,
+    duration::Duration,
 };
 use anyhow::Result;
 use slashook::structs::Permissions;
@@ -59,7 +57,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         || input.message.as_ref().is_some_and(|message| message.interaction_metadata.is_some()) // DM if select menu's message was from an interaction
         || !input.app_permissions.contains(Permissions::VIEW_CHANNEL | Permissions::SEND_MESSAGES);
 
-    let mongodb = MONGODB.get().unwrap();
+    let mongodb = Database::get_mongodb()?;
     let response = mongodb.reminders.set(user_id, url, time, interval, reminder, dm).await?;
 
     ctx.respond_success(response, false).await

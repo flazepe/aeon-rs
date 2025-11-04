@@ -1,7 +1,11 @@
 use crate::{
     functions::format_timestamp,
-    statics::{MONGODB, REDIS, colors::ERROR_EMBED_COLOR},
-    structs::{database::redis::keys::RedisKey, simple_message::SimpleMessage, snowflake::Snowflake},
+    statics::colors::ERROR_EMBED_COLOR,
+    structs::{
+        database::{Database, redis::keys::RedisKey},
+        simple_message::SimpleMessage,
+        snowflake::Snowflake,
+    },
     traits::{UserAvatarExt, UserExt},
 };
 use anyhow::Result;
@@ -23,7 +27,7 @@ pub async fn handle(event: &MessageDelete) -> Result<()> {
         .add_field("Channel", format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id), false)
         .add_field("Created", format_timestamp(snowflake.timestamp.timestamp(), true), false);
 
-    let redis = REDIS.get().unwrap();
+    let redis = Database::get_redis()?;
     let key = RedisKey::GuildChannelMessage(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
     let old_message = redis.get::<TwilightMessage>(&key).await;
 
@@ -35,6 +39,6 @@ pub async fn handle(event: &MessageDelete) -> Result<()> {
 
     embed = embed.set_timestamp(Utc::now());
 
-    let mongodb = MONGODB.get().unwrap();
+    let mongodb = Database::get_mongodb()?;
     mongodb.guilds.send_log(guild_id, embed, old_message.is_ok_and(|old_message| old_message.author.bot)).await
 }

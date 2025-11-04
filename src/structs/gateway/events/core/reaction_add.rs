@@ -1,6 +1,6 @@
 use crate::{
-    statics::{CONFIG, FLAZEPE_ID, REDIS, REST},
-    structs::database::redis::keys::RedisKey,
+    statics::{CONFIG, FLAZEPE_ID, REST},
+    structs::database::{Database, redis::keys::RedisKey},
 };
 use anyhow::Result;
 use slashook::structs::messages::Message as SlashookMessage;
@@ -25,7 +25,7 @@ pub async fn handle(event: &ReactionAdd) -> Result<()> {
     let mut author_id = None;
     let mut user_id = None;
 
-    let redis = REDIS.get().unwrap();
+    let redis = Database::get_redis()?;
     let key = RedisKey::GuildChannelMessage(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
 
     if let Ok(message) = redis.get::<TwilightMessage>(&key).await {

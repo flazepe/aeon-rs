@@ -1,15 +1,14 @@
-use crate::{
-    statics::MONGODB,
-    structs::command_context::{AeonCommandContext, AeonCommandInput},
+use crate::structs::{
+    command_context::{AeonCommandContext, AeonCommandInput},
+    database::Database,
 };
 use anyhow::{Result, bail};
-use std::cmp::Reverse;
-use std::sync::Arc;
+use std::{cmp::Reverse, sync::Arc};
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
 
-    let mongodb = MONGODB.get().unwrap();
+    let mongodb = Database::get_mongodb()?;
     let mut guild = mongodb.guilds.get(input.guild_id.as_ref().unwrap()).await?;
 
     if input.is_autocomplete() {

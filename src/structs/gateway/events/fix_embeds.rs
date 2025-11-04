@@ -1,9 +1,12 @@
 use crate::{
     statics::{
-        MONGODB, REDIS, REQWEST, REST,
+        REQWEST, REST,
         regex::{DISCORD_URL_REGEX, SPOILER_REGEX},
     },
-    structs::{database::redis::keys::RedisKey, gateway::events::EventHandler},
+    structs::{
+        database::{Database, redis::keys::RedisKey},
+        gateway::events::EventHandler,
+    },
 };
 use anyhow::Result;
 use nipper::Document;
@@ -22,7 +25,7 @@ impl EventHandler {
     pub async fn handle_fix_embeds(message: &Message) -> Result<()> {
         let Some(guild_id) = &message.guild_id else { return Ok(()) };
 
-        let mongodb = MONGODB.get().unwrap();
+        let mongodb = Database::get_mongodb()?;
         let guild = mongodb.guilds.get(guild_id).await?;
 
         if !guild.fix_embeds.enabled || message.author.bot {
@@ -150,7 +153,7 @@ impl EventHandler {
         .set_message_reference(MessageReference::new_reply(message.id))
         .set_allowed_mentions(AllowedMentions::new());
 
-        let redis = REDIS.get().unwrap();
+        let redis = Database::get_redis()?;
         let Some(guild_id) = message.guild_id else { return Ok(()) };
         let channel_id = message.channel_id;
         let message_id = message.id;

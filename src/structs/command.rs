@@ -1,9 +1,9 @@
 use crate::{
     functions::now,
-    statics::{FLAZEPE_ID, REDIS},
+    statics::FLAZEPE_ID,
     structs::{
         command_context::{AeonCommandContext, AeonCommandInput},
-        database::redis::keys::RedisKey,
+        database::{Database, redis::keys::RedisKey},
     },
 };
 use anyhow::Result;
@@ -124,7 +124,7 @@ impl AeonCommand {
 
         let Some(func) = func else { return Ok(()) };
 
-        let redis = REDIS.get().unwrap();
+        let redis = Database::get_redis()?;
         let cooldown_key = RedisKey::UserCooldown(ctx.get_user_id());
 
         if redis.get::<Value>(&cooldown_key).await.is_ok() {

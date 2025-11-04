@@ -1,7 +1,4 @@
-use crate::{
-    functions::label_num,
-    statics::{MONGODB, colors::ERROR_EMBED_COLOR},
-};
+use crate::{functions::label_num, statics::colors::ERROR_EMBED_COLOR, structs::database::Database};
 use anyhow::Result;
 use slashook::{
     chrono::Utc,
@@ -32,6 +29,6 @@ pub async fn handle(event: &MessageDeleteBulk) -> Result<()> {
 
     let response: MessageResponse = MessageResponse::from(embed).add_file(file);
 
-    let mongodb = MONGODB.get().unwrap();
+    let mongodb = Database::get_mongodb()?;
     mongodb.guilds.send_log(guild_id, response, false).await
 }

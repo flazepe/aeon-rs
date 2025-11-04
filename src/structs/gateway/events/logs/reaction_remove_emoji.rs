@@ -1,7 +1,4 @@
-use crate::{
-    statics::{MONGODB, colors::ERROR_EMBED_COLOR},
-    traits::EmojiReactionExt,
-};
+use crate::{statics::colors::ERROR_EMBED_COLOR, structs::database::Database, traits::EmojiReactionExt};
 use anyhow::Result;
 use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::ReactionRemoveEmoji;
@@ -17,6 +14,6 @@ pub async fn handle(event: &ReactionRemoveEmoji) -> Result<()> {
         .add_field("Channel", format!("<#{channel_id}> ({channel_id})", channel_id = event.channel_id), false)
         .set_timestamp(Utc::now());
 
-    let mongodb = MONGODB.get().unwrap();
+    let mongodb = Database::get_mongodb()?;
     mongodb.guilds.send_log(event.guild_id, embed, false).await
 }

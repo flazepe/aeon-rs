@@ -4,8 +4,11 @@ mod fix_embeds;
 mod logs;
 
 use crate::{
-    statics::{REDIS, REST},
-    structs::{database::redis::keys::RedisKey, gateway::events::fix_embeds::EmbedFixResponse},
+    statics::REST,
+    structs::{
+        database::{Database, redis::keys::RedisKey},
+        gateway::events::fix_embeds::EmbedFixResponse,
+    },
 };
 use serde_json::Value;
 use tracing::error;
@@ -36,7 +39,7 @@ impl EventHandler {
             let channel_id = message.channel_id;
             let message_id = message.id;
 
-            let redis = REDIS.get().unwrap();
+            let Ok(redis) = Database::get_redis() else { return };
             let key = RedisKey::GuildChannelMessageCommandResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
             let has_response = redis.get::<Value>(&key).await.is_ok();
 
@@ -57,7 +60,7 @@ impl EventHandler {
             let channel_id = message.channel_id;
             let message_id = message.id;
 
-            let redis = REDIS.get().unwrap();
+            let Ok(redis) = Database::get_redis() else { return };
             let key = RedisKey::GuildChannelMessageCommandResponse(guild_id.to_string(), channel_id.to_string(), message_id.to_string());
 
             if let Ok(command_response) = redis.get::<String>(&key).await {

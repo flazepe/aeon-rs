@@ -4,8 +4,8 @@ pub mod statics;
 mod track;
 
 use crate::{
-    statics::{MONGODB, REQWEST},
-    structs::api::spotify::statics::SPOTIFY_EMBED_COLOR,
+    statics::REQWEST,
+    structs::{api::spotify::statics::SPOTIFY_EMBED_COLOR, database::Database},
 };
 use anyhow::Result;
 use serde::de::DeserializeOwned;
@@ -15,7 +15,7 @@ pub struct Spotify;
 
 impl Spotify {
     pub async fn query<T: Display, U: DeserializeOwned>(endpoint: T) -> Result<U> {
-        let mongodb = MONGODB.get().unwrap();
+        let mongodb = Database::get_mongodb()?;
 
         Ok(REQWEST
             .get(format!("https://api.spotify.com/v1/{endpoint}"))

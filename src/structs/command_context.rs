@@ -1,6 +1,9 @@
 use crate::{
-    statics::{EMOJIS, REDIS, REST},
-    structs::{command_args::CommandArgs, database::redis::keys::RedisKey},
+    statics::{EMOJIS, REST},
+    structs::{
+        command_args::CommandArgs,
+        database::{Database, redis::keys::RedisKey},
+    },
 };
 use anyhow::{Context, Error, Result, bail};
 use slashook::{
@@ -101,7 +104,7 @@ impl AeonCommandContext {
                 response =
                     response.set_message_reference(MessageReference::new_reply(message.id)).set_allowed_mentions(AllowedMentions::new());
 
-                let redis = REDIS.get().unwrap();
+                let redis = Database::get_redis()?;
                 let key = RedisKey::GuildChannelMessageCommandResponse(
                     message.guild_id.map(|guild_id| guild_id.to_string()).unwrap_or_default(),
                     message.channel_id.to_string(),

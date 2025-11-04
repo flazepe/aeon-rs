@@ -1,7 +1,4 @@
-use crate::{
-    statics::{MONGODB, colors::SUCCESS_EMBED_COLOR},
-    traits::UserExt,
-};
+use crate::{statics::colors::SUCCESS_EMBED_COLOR, structs::database::Database, traits::UserExt};
 use anyhow::Result;
 use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::MemberAdd;
@@ -15,6 +12,6 @@ pub async fn handle(event: &MemberAdd) -> Result<()> {
         .add_field("Username", event.user.label(), false)
         .set_timestamp(Utc::now());
 
-    let mongodb = MONGODB.get().unwrap();
+    let mongodb = Database::get_mongodb()?;
     mongodb.guilds.send_log(event.guild_id, embed, false).await
 }

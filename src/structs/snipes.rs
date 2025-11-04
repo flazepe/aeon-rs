@@ -1,7 +1,10 @@
 use crate::{
     functions::{format_timestamp, limit_strings},
-    statics::{REDIS, colors::PRIMARY_EMBED_COLOR},
-    structs::{database::redis::keys::RedisKey, simple_message::SimpleMessage},
+    statics::colors::PRIMARY_EMBED_COLOR,
+    structs::{
+        database::{Database, redis::keys::RedisKey},
+        simple_message::SimpleMessage,
+    },
     traits::{EmojiReactionExt, UserAvatarExt, UserExt},
 };
 use anyhow::{Context, Result, bail};
@@ -24,14 +27,17 @@ impl Snipes {
     pub async fn new<T: Display, U: Display>(guild_id: T, channel_id: U, is_edit: bool, send_list: bool, permissions: Permissions) -> Self {
         let guild_id = guild_id.to_string();
         let channel_id = channel_id.to_string();
-
-        let redis = REDIS.get().unwrap();
         let key = if is_edit {
             RedisKey::GuildChannelEditSnipes(guild_id, channel_id)
         } else {
             RedisKey::GuildChannelSnipes(guild_id, channel_id)
         };
-        let snipes = redis.hget_many::<u64, TwilightMessage>(&key).await.unwrap_or_default();
+
+        let snipes = if let Ok(redis) = Database::get_redis() {
+            redis.hget_many::<u64, TwilightMessage>(&key).await.unwrap_or_default()
+        } else {
+            BTreeMap::new()
+        };
 
         Self { is_edit, send_list, permissions, snipes }
     }
@@ -90,10 +96,13 @@ impl ReactionSnipes {
     pub async fn new<T: Display, U: Display>(guild_id: T, channel_id: U, permissions: Permissions) -> Self {
         let guild_id = guild_id.to_string();
         let channel_id = channel_id.to_string();
-
-        let redis = REDIS.get().unwrap();
         let key = RedisKey::GuildChannelReactionSnipes(guild_id.clone(), channel_id.clone());
-        let reaction_snipes = redis.hget_many::<u64, GatewayReaction>(&key).await.unwrap_or_default().into_iter().collect();
+
+        let reaction_snipes = if let Ok(redis) = Database::get_redis() {
+            redis.hget_many::<u64, GatewayReaction>(&key).await.unwrap_or_default()
+        } else {
+            BTreeMap::new()
+        };
 
         Self { permissions, reaction_snipes }
     }

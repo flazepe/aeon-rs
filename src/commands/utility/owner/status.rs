@@ -1,7 +1,10 @@
 use crate::{
-    functions::{format_timestamp, get_redis, label_num},
+    functions::{format_timestamp, label_num},
     statics::{CACHE, colors::PRIMARY_EMBED_COLOR},
-    structs::{command_context::AeonCommandContext, database::redis::keys::RedisKey},
+    structs::{
+        command_context::AeonCommandContext,
+        database::{Database, redis::keys::RedisKey},
+    },
 };
 use anyhow::{Context, Error, Result};
 use slashook::structs::embeds::Embed;
@@ -54,7 +57,7 @@ fn get_db_cache_list() -> [String; 1] {
 }
 
 async fn get_redis_cache_list() -> Result<[String; 9]> {
-    let redis = get_redis()?;
+    let redis = Database::get_redis()?;
 
     let messages = redis.scan_match(RedisKey::GuildChannelMessage("*".into(), "*".into(), "*[0-9]".into())).await?;
     let snipes = redis.scan_match(RedisKey::GuildChannelSnipes("*".into(), "*".into())).await?;

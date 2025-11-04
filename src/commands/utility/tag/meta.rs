@@ -1,8 +1,8 @@
 use crate::{
     functions::format_timestamp,
     macros::yes_no,
-    statics::{MONGODB, REST},
-    structs::command_context::AeonCommandContext,
+    statics::REST,
+    structs::{command_context::AeonCommandContext, database::Database},
 };
 use anyhow::Result;
 use slashook::structs::users::User;
@@ -11,7 +11,7 @@ use std::sync::Arc;
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let Some(guild_id) = ctx.get_guild_id() else { return Ok(()) };
 
-    let mongodb = MONGODB.get().unwrap();
+    let mongodb = Database::get_mongodb()?;
     let tag = mongodb.tags.get(ctx.get_string_arg("tag", 0, true)?, guild_id).await?;
 
     let name = tag.name;

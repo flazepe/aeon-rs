@@ -1,9 +1,6 @@
-use crate::{
-    statics::MONGODB,
-    structs::{
-        command_context::{AeonCommandContext, AeonCommandInput},
-        database::mongodb::tags::Tags,
-    },
+use crate::structs::{
+    command_context::{AeonCommandContext, AeonCommandInput},
+    database::{Database, mongodb::tags::Tags},
 };
 use anyhow::Result;
 use slashook::{
@@ -15,7 +12,7 @@ use std::sync::Arc;
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input else { return Ok(()) };
 
-    let mongodb = MONGODB.get().unwrap();
+    let mongodb = Database::get_mongodb()?;
 
     if input.is_modal_submit() {
         let name = ctx.get_string_arg("tag", 0, true)?;

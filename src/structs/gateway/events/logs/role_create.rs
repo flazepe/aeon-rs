@@ -1,4 +1,4 @@
-use crate::statics::{MONGODB, colors::SUCCESS_EMBED_COLOR};
+use crate::{statics::colors::SUCCESS_EMBED_COLOR, structs::database::Database};
 use anyhow::Result;
 use slashook::{chrono::Utc, structs::embeds::Embed};
 use twilight_model::gateway::payload::incoming::RoleCreate;
@@ -12,6 +12,6 @@ pub async fn handle(event: &RoleCreate) -> Result<()> {
         .add_field("Name", format!("@{}", event.role.name), false)
         .set_timestamp(Utc::now());
 
-    let mongodb = MONGODB.get().unwrap();
+    let mongodb = Database::get_mongodb()?;
     mongodb.guilds.send_log(event.guild_id, embed, false).await
 }

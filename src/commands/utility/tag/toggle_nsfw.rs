@@ -1,6 +1,6 @@
-use crate::{
-    statics::MONGODB,
-    structs::command_context::{AeonCommandContext, AeonCommandInput},
+use crate::structs::{
+    command_context::{AeonCommandContext, AeonCommandInput},
+    database::Database,
 };
 use anyhow::Result;
 use std::sync::Arc;
@@ -11,7 +11,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let guild_id = input.guild_id.as_ref().unwrap();
     let modifier = input.member.as_ref().unwrap();
 
-    let mongodb = MONGODB.get().unwrap();
+    let mongodb = Database::get_mongodb()?;
     let response = mongodb.tags.toggle_nsfw(name, guild_id, modifier).await?;
 
     ctx.respond_success(response, true).await

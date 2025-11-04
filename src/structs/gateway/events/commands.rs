@@ -1,7 +1,7 @@
 use crate::{
     commands,
-    statics::{DEFAULT_PREFIXES, MONGODB},
-    structs::gateway::events::EventHandler,
+    statics::DEFAULT_PREFIXES,
+    structs::{database::Database, gateway::events::EventHandler},
 };
 use anyhow::Result;
 use twilight_gateway::MessageSender;
@@ -12,7 +12,7 @@ impl EventHandler {
         let lowercased_content = message.content.to_lowercase();
         let prefixes = match &message.guild_id {
             Some(guild_id) => {
-                let mongodb = MONGODB.get().unwrap();
+                let mongodb = Database::get_mongodb()?;
                 mongodb.guilds.get(guild_id).await?.prefixes
             },
             None => vec![],
