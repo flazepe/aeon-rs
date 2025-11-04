@@ -12,8 +12,7 @@ pub struct Database;
 
 impl Database {
     pub async fn init() -> Result<()> {
-        let mongodb = MongoDB::new().await?;
-        MONGODB.set(mongodb).expect("Could not set MongoDB.");
+        MONGODB.set(MongoDB::new().await?).expect("Could not set MongoDB.");
         info!(target: "Database", "Connected to MongoDB.");
 
         REDIS.set(Redis::new().await?).expect("Could not set Redis.");
