@@ -11,7 +11,7 @@ use slashook::{
 };
 use std::sync::LazyLock;
 
-pub static HELIOHOST_SERVERS: [&str; 5] = ["Tommy", "Ricky", "Johnny", "Morty", "Lily"];
+pub static HELIOHOST_SERVERS: [&str; 4] = ["Tommy", "Johnny", "Morty", "Lily"];
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("heliohost", &["hh"])
         .add_subcommand("load", &[], load::run)
