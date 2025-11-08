@@ -141,12 +141,8 @@ impl AniListAnime {
             self.mean_score.map(|mean_score| format!("Mean {mean_score}%")),
         ]
         .into_iter()
-        .fold(vec![], |mut acc, cur| {
-            if let Some(cur) = cur {
-                acc.push(cur);
-            }
-            acc
-        });
+        .flatten()
+        .collect::<Vec<String>>();
         let score = if scores.is_empty() { "N/A".into() } else { scores.join("\n") };
         let timestamp = Utc.timestamp_opt(self.updated_at as i64, 0).unwrap();
 

@@ -120,8 +120,7 @@ impl EventHandler {
                 "x.com" | "twitter.com" => "fixupx.com",
                 _ => continue,
             };
-            let path = url.split('/').skip(3).map(|str| str.to_string()).collect::<Vec<String>>().join("/");
-            let path = path.split("?").next().unwrap_or_default();
+            let path = url.split("?").next().unwrap_or_default().split('/').skip(3).collect::<Vec<&str>>().join("/");
             let fixed_url = format!("https://{fixed_domain}/{path}");
 
             if fixed_urls.contains(&fixed_url) {

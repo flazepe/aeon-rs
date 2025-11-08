@@ -33,7 +33,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
             service: SongActivityService::Spotify,
             style: style.into(),
             title: track.name,
-            artist: track.artists.into_iter().map(|artist| artist.name).collect::<Vec<String>>().join(", "),
+            artist: track.artists.iter().map(|artist| artist.name.as_str()).collect::<Vec<&str>>().join(", "),
             album: track.album.name,
             album_cover: track
                 .album

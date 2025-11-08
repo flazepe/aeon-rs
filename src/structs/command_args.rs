@@ -19,7 +19,7 @@ impl CommandArgs {
 
     pub fn get_pos_arg(&self, pos: usize, get_rest: bool) -> Option<String> {
         if get_rest {
-            let arg = self.args.iter().skip(pos).map(|entry| entry.to_string()).collect::<Vec<String>>().join(" ");
+            let arg = self.args.iter().skip(pos).map(|entry| entry.as_str()).collect::<Vec<&str>>().join(" ");
             if arg.is_empty() { None } else { Some(arg) }
         } else {
             self.args.get(pos).cloned()
