@@ -117,6 +117,7 @@ impl EventHandler {
                 "instagram.com" => "eeinstagram.com",
                 "pixiv.net" => "phixiv.net",
                 "reddit.com" | "old.reddit.com" => "rxddit.com",
+                "weibo.com" | "weibo.cn" | "m.weibo.com" | "m.weibo.cn" => "fxweibo.apex2504.workers.dev",
                 "x.com" | "twitter.com" => "fixupx.com",
                 _ => continue,
             };
