@@ -56,7 +56,7 @@ fn get_db_cache_list() -> [String; 1] {
     [label_num(CACHE.db.guilds.read().unwrap().len(), "server", "servers")]
 }
 
-async fn get_redis_cache_list() -> Result<[String; 9]> {
+async fn get_redis_cache_list() -> Result<[String; 10]> {
     let redis = Database::get_redis()?;
 
     let messages = redis.scan_match(RedisKey::GuildChannelMessage("*".into(), "*".into(), "*[0-9]".into())).await?;
@@ -67,6 +67,7 @@ async fn get_redis_cache_list() -> Result<[String; 9]> {
     let command_responses = redis.scan_match(RedisKey::GuildChannelMessageCommandResponse("*".into(), "*".into(), "*".into())).await?;
     let embed_fix_responses = redis.scan_match(RedisKey::GuildChannelMessageEmbedFixResponse("*".into(), "*".into(), "*".into())).await?;
     let last_piston_programming_languages = redis.scan_match(RedisKey::UserLastPistonProgrammingLanguage("*".into())).await?;
+    let custom_status = redis.scan_match(RedisKey::CustomStatus).await?;
     let total_keys = redis.scan_match("*").await?;
 
     Ok([
@@ -78,6 +79,7 @@ async fn get_redis_cache_list() -> Result<[String; 9]> {
         label_num(command_responses, "command response", "command responses"),
         label_num(embed_fix_responses, "embed fix response", "embed fix responses"),
         label_num(last_piston_programming_languages, "last piston programming language", "last piston programming languages"),
+        label_num(custom_status, "custom status", "custom statuses"),
         label_num(total_keys, "total key", "total keys"),
     ])
 }

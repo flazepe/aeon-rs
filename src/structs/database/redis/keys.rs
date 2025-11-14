@@ -9,6 +9,7 @@ pub enum RedisKey {
     GuildChannelMessageEmbedFixResponse(String, String, String),
     UserCooldown(String),
     UserLastPistonProgrammingLanguage(String),
+    CustomStatus,
 }
 
 impl Display for RedisKey {
@@ -37,6 +38,9 @@ impl Display for RedisKey {
             },
             Self::UserLastPistonProgrammingLanguage(user_id) => {
                 write!(f, "users_{user_id}_last-piston-programming-language")
+            },
+            Self::CustomStatus => {
+                write!(f, "custom-status")
             },
         }
     }
