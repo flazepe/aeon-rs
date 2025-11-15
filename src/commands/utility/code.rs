@@ -23,11 +23,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         match &ctx.command_input {
             AeonCommandInput::ApplicationCommand(input, res) => {
                 if input.is_autocomplete() {
-                    return ctx
-                        .autocomplete(
-                            PISTON_RUNTIMES.iter().map(|runtime| (runtime.runtime.as_ref().unwrap_or(&runtime.language), runtime.label())),
-                        )
-                        .await;
+                    return ctx.autocomplete(PISTON_RUNTIMES.iter().map(|(key, runtime)| (key.clone(), runtime.label()))).await;
                 }
 
                 let redis = REDIS.get().context("Could not get Redis.")?;

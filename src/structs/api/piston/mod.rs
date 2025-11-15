@@ -47,12 +47,8 @@ impl Piston {
 
     pub async fn run(mut self) -> Result<Self> {
         let runtime = PISTON_RUNTIMES
-            .iter()
-            .find(|runtime| {
-                runtime.language == self.programming_language
-                    || runtime.aliases.contains(&self.programming_language)
-                    || runtime.runtime.as_deref().is_some_and(|str| str == self.programming_language)
-            })
+            .get(&self.programming_language)
+            .or_else(|| PISTON_RUNTIMES.values().find(|runtime| runtime.aliases.contains(&self.programming_language)))
             .context("Invalid programming language.")?;
 
         self.programming_language = runtime.label();
