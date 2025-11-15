@@ -31,7 +31,7 @@ pub struct PistonExecuteRun {
     pub stdout: String,
     pub stderr: String,
     pub output: String,
-    pub code: u64,
+    pub code: Option<u64>,
 }
 
 impl Piston {
@@ -67,7 +67,7 @@ impl Piston {
             .await?;
 
         if let Ok(result) = from_str::<PistonExecute>(&body) {
-            let output = format!("{}\n\nexit code: {}", result.run.output.trim(), result.run.code).trim().to_string();
+            let output = format!("{}\n\nexit code: {}", result.run.output.trim(), result.run.code.unwrap_or(1)).trim().to_string();
 
             self.output = Some(output.clone());
 
