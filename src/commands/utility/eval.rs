@@ -14,7 +14,7 @@ use slashook::{
 use std::{sync::Arc, sync::LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("eval", &["e", "ev", "evak"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
+    AeonCommand::new("eval", &["e", "evak"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let code = ctx.get_string_arg("code", 0, true)?;
         let piston = Piston::new("javascript", code).run().await?;
         let output = piston.output.as_deref().unwrap_or("No output.");
