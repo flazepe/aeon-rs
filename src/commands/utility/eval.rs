@@ -16,7 +16,7 @@ use std::{sync::Arc, sync::LazyLock};
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("eval", &["e", "evak"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let code = ctx.get_string_arg("code", 0, true)?;
-        let piston = Piston::new("javascript", code).run().await?;
+        let piston = Piston::new("node", code).run().await?;
         let output = piston.output.as_deref().unwrap_or("No output.");
         let response = if output.len() > 1993 {
             MessageResponse::from(File::new("output.txt", output))
