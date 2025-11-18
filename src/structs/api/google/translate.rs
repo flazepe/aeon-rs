@@ -62,20 +62,17 @@ impl Google {
             .body(json!([[[text], origin_language.0, target_language.0], "wt_lib"]).to_string())
             .send()
             .await?
-            .json::<(Vec<String>, Vec<String>)>()
+            .json::<((String,), (String,))>()
             .await?;
-
-        let Some(translation) = google_translate_response.0.first() else { bail!("Could not get translation.") };
-        let Some(detected_language) = google_translate_response.1.first() else { bail!("Could not get detected language.") };
 
         Ok(GoogleTranslateTranslation {
             origin_language: format!(
                 "{}{}",
-                GOOGLE_TRANSLATE_LANGUAGES.get(detected_language.as_str()).context("Unexpected language code from API.")?,
+                GOOGLE_TRANSLATE_LANGUAGES.get(google_translate_response.1.0.as_str()).context("Unexpected language code from API.")?,
                 if *origin_language.0 == "auto" { " (detected)" } else { "" },
             ),
             target_language: target_language.1.to_string(),
-            translation: translation.clone(),
+            translation: google_translate_response.0.0,
         })
     }
 }
