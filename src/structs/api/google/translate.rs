@@ -6,20 +6,9 @@ use crate::{
     },
 };
 use anyhow::{Context, Result, bail};
-use serde::Deserialize;
+use serde_json::json;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
-
-#[derive(Deserialize, Debug)]
-struct GoogleTranslateSentences {
-    trans: String,
-}
-
-#[derive(Deserialize, Debug)]
-struct GoogleTranslateResponse {
-    sentences: Vec<GoogleTranslateSentences>,
-    src: String,
-}
 
 #[derive(Debug)]
 pub struct GoogleTranslateTranslation {
@@ -67,33 +56,26 @@ impl Google {
             .context("Invalid target language.")?;
 
         let google_translate_response = REQWEST
-            .get("https://translate.googleapis.com/translate_a/single")
-            .query(&[
-                ("client", "gtx"),
-                ("dj", "1"),
-                ("dt", "t"),
-                ("sl", origin_language.0),
-                ("tl", target_language.0),
-                ("q", text.as_str()),
-            ])
+            .post("https://translate-pa.googleapis.com/v1/translateHtml")
+            .header("content-type", "application/json+protobuf")
+            .header("x-goog-api-key", "AIzaSyATBXajvzQLTDHEQbcpq0Ihe0vWDHmO520")
+            .body(json!([[[text], origin_language.0, target_language.0], "wt_lib"]).to_string())
             .send()
             .await?
-            .json::<GoogleTranslateResponse>()
+            .json::<(Vec<String>, Vec<String>)>()
             .await?;
+
+        let Some(translation) = google_translate_response.0.first() else { bail!("Could not get translation.") };
+        let Some(detected_language) = google_translate_response.1.first() else { bail!("Could not get detected language.") };
 
         Ok(GoogleTranslateTranslation {
             origin_language: format!(
                 "{}{}",
-                GOOGLE_TRANSLATE_LANGUAGES.get(&google_translate_response.src.as_str()).context("Unexpected language code from API.")?,
+                GOOGLE_TRANSLATE_LANGUAGES.get(detected_language.as_str()).context("Unexpected language code from API.")?,
                 if *origin_language.0 == "auto" { " (detected)" } else { "" },
             ),
             target_language: target_language.1.to_string(),
-            translation: google_translate_response
-                .sentences
-                .into_iter()
-                .map(|sentence| sentence.trans) // 🏳️‍⚧️
-                .collect::<Vec<String>>()
-                .join(""),
+            translation: translation.clone(),
         })
     }
 }
