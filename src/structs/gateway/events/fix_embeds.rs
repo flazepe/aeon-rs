@@ -163,7 +163,7 @@ impl EventHandler {
         if let Ok(mut embed_fix_response) = redis.get::<EmbedFixResponse>(&embed_fix_response_key).await {
             let embed_fix_response_id = &embed_fix_response.id;
 
-            if embed_fix_response.discord_urls.keys().ne(discord_urls.keys()) {
+            if embed_fix_response.discord_urls.iter().ne(discord_urls.iter()) {
                 _ = REST
                     .patch::<(), _>(
                         format!("channels/{channel_id}/messages/{embed_fix_response_id}"),
@@ -214,7 +214,7 @@ fn get_meta_contents(html: String, names: &[&str]) -> HashMap<String, String> {
     contents
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub struct DiscordURL {
     pub url: String,
     pub spoilered: bool,
