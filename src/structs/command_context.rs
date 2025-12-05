@@ -214,9 +214,11 @@ impl AeonCommandContext {
                 .context(format!("Please provide the `{arg}` argument."))?
                 .as_i64()
                 .context(format!("Could not get the `{arg}` argument as `i64`.")),
-            AeonCommandInput::MessageCommand(..) => {
-                self.get_string_arg(&arg, pos, false)?.parse::<i64>().context(format!("Could not get the `{arg}` argument as `i64`."))
-            },
+            AeonCommandInput::MessageCommand(..) => self
+                .get_string_arg(&arg, pos, false)?
+                .replace(',', "")
+                .parse::<i64>()
+                .context(format!("Could not get the `{arg}` argument as `i64`.")),
         }
     }
 
@@ -228,9 +230,11 @@ impl AeonCommandContext {
                 .context(format!("Please provide the `{arg}` argument."))?
                 .as_f64()
                 .context(format!("Could not get the `{arg}` argument as `f64`.")),
-            AeonCommandInput::MessageCommand(..) => {
-                self.get_string_arg(&arg, pos, false)?.parse::<f64>().context(format!("Could not get the `{arg}` argument as `f64`."))
-            },
+            AeonCommandInput::MessageCommand(..) => self
+                .get_string_arg(&arg, pos, false)?
+                .replace(',', "")
+                .parse::<f64>()
+                .context(format!("Could not get the `{arg}` argument as `f64`.")),
         }
     }
 
