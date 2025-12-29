@@ -148,7 +148,7 @@ impl EventHandler {
         let response = MessageResponse::from(format!(
             "<@{}> {}",
             message.author.id,
-            if fixed_urls.is_empty() { "_Message was edited to not contain any fixable URLs._" } else { &fixed_urls.join("\n") },
+            if fixed_urls.is_empty() { "_Message was edited to not contain any fixable URLs._".into() } else { fixed_urls.join("\n") },
         ))
         .set_message_reference(MessageReference::new_reply(message.id))
         .set_allowed_mentions(AllowedMentions::new());
