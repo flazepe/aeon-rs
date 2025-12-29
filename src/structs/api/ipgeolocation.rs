@@ -18,8 +18,8 @@ pub struct IPGeolocationTimeZoneLocation {
 
 #[derive(Deserialize, Debug)]
 pub struct IPGeolocationTimeZoneTz {
-    pub offset: i64,
-    pub offset_with_dst: i64,
+    pub offset: f64,
+    pub offset_with_dst: f64,
     pub date_time_txt: String,
     pub time_24: String,
     pub is_dst: bool,
@@ -43,8 +43,15 @@ impl IPGeolocationTimeZone {
         let min = time_split.next().unwrap_or_default();
         let offset = if self.time_zone.is_dst { self.time_zone.offset_with_dst } else { self.time_zone.offset };
 
+        let formatted_offset = format!(
+            "UTC{}{:02}:{:02}",
+            if offset >= 0.0 { "+" } else { "-" },
+            offset.abs().trunc() as i32,
+            (offset.abs().fract() * 60.0).round() as i32
+        );
+
         format!(
-            "It is `{}:{min} {}` or `{hour}:{min}` in {} (`{} / UTC{}`).",
+            "It is `{}:{min} {}` or `{hour}:{min}` in {} (`{} / {}`).",
             if hour == 0 || hour == 12 { 12 } else { hour % 12 },
             if hour < 12 { "AM" } else { "PM" },
             &[self.location.city.as_str(), self.location.state_prov.as_str(), self.location.country_name.as_str(),]
@@ -53,7 +60,7 @@ impl IPGeolocationTimeZone {
                 .collect::<Vec<&str>>()
                 .join(", "),
             self.time_zone.date_time_txt.split(" ").take(4).collect::<Vec<&str>>().join(" "),
-            if offset >= 0 { format!("+{offset}") } else { offset.to_string() },
+            formatted_offset,
         )
     }
 }
