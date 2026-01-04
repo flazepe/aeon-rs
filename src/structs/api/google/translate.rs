@@ -6,6 +6,7 @@ use crate::{
     },
 };
 use anyhow::{Context, Result, bail};
+use nipper::Document;
 use serde_json::json;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
@@ -72,7 +73,7 @@ impl Google {
                 if *origin_language.0 == "auto" { " (detected)" } else { "" },
             ),
             target_language: target_language.1.to_string(),
-            translation: google_translate_response.0.0,
+            translation: Document::from(&google_translate_response.0.0).select("body").text().to_string(),
         })
     }
 }
