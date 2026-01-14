@@ -113,7 +113,7 @@ impl EventHandler {
             }
 
             let fixed_domain = match domain {
-                "bilibili.com" => "vxbilibili.com",
+                "bilibili.com" | "m.bilibili.com" => "vxbilibili.com",
                 "instagram.com" => "eeinstagram.com",
                 "pixiv.net" => "phixiv.net",
                 "reddit.com" | "old.reddit.com" => "rxddit.com",
