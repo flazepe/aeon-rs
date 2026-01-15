@@ -107,11 +107,13 @@ pub fn get_slashook_command() -> SlashookCommand {
                         name = "nickname",
                         description = "The nickname to set",
                         option_type = InteractionOptionType::STRING,
+                        max_length = 32,
                     },
                     {
                         name = "about-me",
                         description = "The about me to set",
                         option_type = InteractionOptionType::STRING,
+                        max_length = 190,
                     },
 					{
                         name = "reset",
