@@ -19,7 +19,7 @@ use slashook::{
     structs::messages::{AllowedMentions, Message as SlashookMessage, MessageReference},
 };
 use std::collections::HashMap;
-use twilight_model::channel::message::Message;
+use twilight_model::channel::message::{Message, MessageFlags};
 
 impl EventHandler {
     pub async fn handle_fix_embeds(message: &Message) -> Result<()> {
@@ -62,6 +62,9 @@ impl EventHandler {
             }
         }
 
+        // If the message has embeds suppressed, we really have to fix all URLs
+        let force_fix_all = message.flags.is_some_and(|flags| flags.contains(MessageFlags::SUPPRESS_EMBEDS));
+
         let mut fixed_urls = vec![];
 
         for discord_url in discord_urls.values() {
@@ -70,8 +73,7 @@ impl EventHandler {
                 break;
             }
 
-            // Skip suppressed URLs
-            if discord_url.suppressed {
+            if discord_url.suppressed && !force_fix_all {
                 continue;
             }
 
@@ -79,7 +81,7 @@ impl EventHandler {
             let Some(domain) = url.split('/').nth(2).map(|domain| domain.trim_start_matches("www.")) else { continue };
 
             // Skip X posts that have a valid image
-            if ["x.com", "twitter.com"].contains(&domain) {
+            if ["x.com", "twitter.com"].contains(&domain) && !force_fix_all {
                 let html = REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await?;
                 let image_url = get_meta_contents(html, &["og:image"]).into_values().next().unwrap_or_default();
 
@@ -94,7 +96,7 @@ impl EventHandler {
             }
 
             // Skip TikTok posts that have a valid iframe player embed
-            if domain.ends_with("tiktok.com") {
+            if domain.ends_with("tiktok.com") && !force_fix_all {
                 let res = REQWEST.get(url).header("user-agent", "discordbot").send().await?;
                 let redirected_url = res.url().to_string();
                 let html = res.text().await?;
@@ -128,8 +130,8 @@ impl EventHandler {
                 continue;
             }
 
-            let has_media_content_type =
-                REQWEST.head(&fixed_url).header("user-agent", "discordbot").send().await?.headers().get("content-type").is_some_and(
+            let has_media_content_type = !force_fix_all
+                && REQWEST.head(&fixed_url).header("user-agent", "discordbot").send().await?.headers().get("content-type").is_some_and(
                     |value| value.to_str().unwrap_or_default().contains("image") || value.to_str().unwrap_or_default().contains("video"),
                 );
 
@@ -139,7 +141,7 @@ impl EventHandler {
             };
 
             // Only fix posts that were supposed to have an image or video
-            if has_media_content_type || has_media_meta_content {
+            if force_fix_all || has_media_content_type || has_media_meta_content {
                 // The space before the closing spoiler is intentional because Discord (could be the website) sometimes includes the || inside the URL when unfurling, which causes the website to return a 404 and not embed
                 fixed_urls.push(if discord_url.spoilered { format!("||{fixed_url} ||") } else { fixed_url });
             }
@@ -181,6 +183,10 @@ impl EventHandler {
         if !fixed_urls.is_empty()
             && let Ok(embed_fix_response_message) = SlashookMessage::create(&REST, channel_id, response).await
         {
+            _ = REST
+                .patch::<(), _>(format!("channels/{channel_id}/messages/{message_id}"), json!({ "flags": MessageFlags::SUPPRESS_EMBEDS }))
+                .await;
+
             redis
                 .set(
                     &embed_fix_response_key,
