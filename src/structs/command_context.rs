@@ -17,7 +17,10 @@ use slashook::{
         users::User,
     },
 };
-use std::fmt::{Debug, Display};
+use std::{
+    fmt::{Debug, Display},
+    fs::read_to_string,
+};
 use twilight_gateway::MessageSender;
 use twilight_model::channel::Message as TwilightMessage;
 
@@ -85,6 +88,21 @@ impl AeonCommandContext {
 
     pub async fn respond<T: Into<MessageResponse>>(&self, response: T, ephemeral: bool) -> Result<()> {
         let mut response = response.into().set_ephemeral(ephemeral);
+
+        response.content = response.content.map(|mut content| {
+            // Let it panic if it can't read the config file
+            let config_string = read_to_string("config.toml").unwrap();
+
+            for line in config_string.split('\n') {
+                if !line.contains('=') {
+                    continue;
+                }
+                let Some((_, value)) = line.split_once('=') else { continue };
+                content = content.replace(value.trim().trim_matches(['"', '\'']), "");
+            }
+
+            content
+        });
 
         if response.content.is_some() {
             response = response.set_components(Components::empty());
