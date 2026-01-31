@@ -1,10 +1,10 @@
 use crate::structs::api::steam::country::SteamCountry;
 use std::{collections::HashMap, sync::LazyLock};
 
-pub static STEAM_EMBED_COLOR: &str = "#377096";
-pub static STEAM_EMBED_AUTHOR_URL: &str = "https://store.steampowered.com";
-pub static STEAM_EMBED_AUTHOR_ICON_URL: &str = "https://i.ibb.co/9qbQDwP/steam.png";
-pub static STEAM_USER_STATES: [&str; 7] = ["Offline", "Online", "Busy", "Away", "Snooze", "Looking to trade", "Looking to play"];
+pub const STEAM_EMBED_COLOR: &str = "#377096";
+pub const STEAM_EMBED_AUTHOR_URL: &str = "https://store.steampowered.com";
+pub const STEAM_EMBED_AUTHOR_ICON_URL: &str = "https://i.ibb.co/9qbQDwP/steam.png";
+pub const STEAM_USER_STATES: [&str; 7] = ["Offline", "Online", "Busy", "Away", "Snooze", "Looking to trade", "Looking to play"];
 pub static STEAM_COUNTRIES: LazyLock<HashMap<&str, SteamCountry>> = LazyLock::new(|| {
     HashMap::from([
         (

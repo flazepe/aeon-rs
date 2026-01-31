@@ -4,9 +4,9 @@ use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::{collections::HashMap, fmt::Display};
 
-static JISHO_EMBED_COLOR: &str = "#3edd00";
-static JISHO_EMBED_AUTHOR_URL: &str = "https://jisho.org";
-static JISHO_EMBED_AUTHOR_ICON_URL: &str = "https://i.ibb.co/StJJz61/jisho.png";
+const JISHO_EMBED_COLOR: &str = "#3edd00";
+const JISHO_EMBED_AUTHOR_URL: &str = "https://jisho.org";
+const JISHO_EMBED_AUTHOR_ICON_URL: &str = "https://i.ibb.co/StJJz61/jisho.png";
 
 #[derive(Deserialize, Debug)]
 pub struct JishoJapanese {

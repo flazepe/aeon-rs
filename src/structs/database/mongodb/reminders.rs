@@ -27,7 +27,7 @@ use slashook::{
 use std::{fmt::Display, thread::sleep, time::Duration as TimeDuration};
 use tracing::{error, warn};
 
-static DISCORD_API_FATAL_ERRORS: [&str; 5] =
+const DISCORD_API_FATAL_ERRORS: [&str; 5] =
     ["Cannot send messages to this user", "Invalid Recipient(s)", "Missing Access", "Missing Permissions", "Unknown Channel"];
 
 #[derive(Deserialize, Serialize, Debug)]

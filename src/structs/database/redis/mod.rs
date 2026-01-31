@@ -9,7 +9,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use serde_json::{from_str, to_string};
 use std::{collections::BTreeMap, fmt::Display};
 
-static KEY_PREFIX: &str = "aeon_";
+const KEY_PREFIX: &str = "aeon_";
 
 #[derive(Debug)]
 pub struct Redis {

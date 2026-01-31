@@ -6,9 +6,9 @@ use nipper::Document;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
-static DISTROWATCH_URL: &str = "https://distrowatch.com";
-static DISTROWATCH_EMBED_COLOR: &str = "#f6edc8";
-static DISTROWATCH_EMBED_AUTHOR_ICON_URL: &str = "https://i.ibb.co/1Sz6TKh/distrowatch.png";
+const DISTROWATCH_URL: &str = "https://distrowatch.com";
+const DISTROWATCH_EMBED_COLOR: &str = "#f6edc8";
+const DISTROWATCH_EMBED_AUTHOR_ICON_URL: &str = "https://i.ibb.co/1Sz6TKh/distrowatch.png";
 
 #[derive(Debug)]
 pub struct DistroWatch {

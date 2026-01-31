@@ -11,7 +11,7 @@ use std::{
 };
 use tracing::info;
 
-static LAST_UPDATED_TIMESTAMP: u32 = 1760020150;
+const LAST_UPDATED_TIMESTAMP: u32 = 1760020150;
 
 #[derive(Default, Debug)]
 pub struct EmojiManager {

@@ -1,7 +1,7 @@
-pub static ANILIST_EMBED_COLOR: &str = "#00aaff";
-pub static ANILIST_EMBED_AUTHOR_URL: &str = "https://anilist.co";
-pub static ANILIST_EMBED_AUTHOR_ICON_URL: &str = "https://i.ibb.co/vYBvP34/anilist.png";
-pub static ANILIST_ANIME_FIELDS: &str = "
+pub const ANILIST_EMBED_COLOR: &str = "#00aaff";
+pub const ANILIST_EMBED_AUTHOR_URL: &str = "https://anilist.co";
+pub const ANILIST_EMBED_AUTHOR_ICON_URL: &str = "https://i.ibb.co/vYBvP34/anilist.png";
+pub const ANILIST_ANIME_FIELDS: &str = "
 	id siteUrl coverImage { extraLarge } bannerImage
 	countryOfOrigin title { romaji native english } format synonyms isAdult
 	startDate { year month day }
@@ -31,7 +31,7 @@ pub static ANILIST_ANIME_FIELDS: &str = "
 	}
 	updatedAt
 ";
-pub static ANILIST_MANGA_FIELDS: &str = "
+pub const ANILIST_MANGA_FIELDS: &str = "
 	id siteUrl coverImage { extraLarge } bannerImage
 	countryOfOrigin title { romaji native english } format synonyms isAdult
 	startDate { year month day }
@@ -57,7 +57,7 @@ pub static ANILIST_MANGA_FIELDS: &str = "
 	}
 	updatedAt
 ";
-pub static ANILIST_USER_FIELDS: &str = "
+pub const ANILIST_USER_FIELDS: &str = "
 	id siteUrl avatar { large } name createdAt updatedAt about
 	statistics {
 		anime { episodesWatched minutesWatched meanScore }
