@@ -15,6 +15,7 @@ use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use slashook::{
+    chrono::Utc,
     commands::MessageResponse,
     structs::messages::{AllowedMentions, Message as SlashookMessage, MessageReference},
 };
@@ -79,6 +80,7 @@ impl EventHandler {
 
             let url = &discord_url.url;
             let Some(domain) = url.split('/').nth(2).map(|domain| domain.trim_start_matches("www.")) else { continue };
+            let path = url.split("?").next().unwrap_or_default().split('/').skip(3).collect::<Vec<&str>>().join("/");
 
             // Skip X posts that have a valid image
             if ["x.com", "twitter.com"].contains(&domain) && !force_fix_all {
@@ -114,34 +116,34 @@ impl EventHandler {
                 }
             }
 
+            // Fix Instagram posts (this is separated because all Instagram embed fixers are ASS so we have to find a working one from a list)
+            if domain == "instagram.com" {
+                for fixed_domain in ["eeinstagram.com", "kkinstagram.com"] {
+                    // kkinstagram sometimes needs the igsh. Giving a random one every time, because sometimes Discord caches an errored response
+                    let fixed_url = format!("https://{fixed_domain}/{path}?igsh={}", Utc::now().timestamp());
+
+                    if check_valid_fixer_response(&fixed_url, force_fix_all).await? {
+                        fixed_urls.push(if discord_url.spoilered { format!("||{fixed_url} ||") } else { fixed_url });
+                        continue;
+                    }
+                }
+            }
+
             let fixed_domain = match domain {
                 "bilibili.com" | "m.bilibili.com" => "vxbilibili.com",
-                "instagram.com" => "eeinstagram.com",
                 "pixiv.net" => "phixiv.net",
                 "reddit.com" | "old.reddit.com" => "rxddit.com",
                 "weibo.com" | "m.weibo.com" | "weibo.cn" | "m.weibo.cn" => "fxweibo.com",
                 "x.com" | "twitter.com" => "fixupx.com",
                 _ => continue,
             };
-            let path = url.split("?").next().unwrap_or_default().split('/').skip(3).collect::<Vec<&str>>().join("/");
             let fixed_url = format!("https://{fixed_domain}/{path}");
 
             if fixed_urls.contains(&fixed_url) {
                 continue;
             }
 
-            let has_media_content_type = !force_fix_all
-                && REQWEST.head(&fixed_url).header("user-agent", "discordbot").send().await?.headers().get("content-type").is_some_and(
-                    |value| value.to_str().unwrap_or_default().contains("image") || value.to_str().unwrap_or_default().contains("video"),
-                );
-
-            let has_media_meta_content = !has_media_content_type && {
-                let html = REQWEST.get(&fixed_url).header("user-agent", "discordbot").send().await?.text().await?;
-                !get_meta_contents(html, &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]).is_empty()
-            };
-
-            // Only fix posts that were supposed to have an image or video
-            if force_fix_all || has_media_content_type || has_media_meta_content {
+            if check_valid_fixer_response(&fixed_url, force_fix_all).await? {
                 // The space before the closing spoiler is intentional because Discord (could be the website) sometimes includes the || inside the URL when unfurling, which causes the website to return a 404 and not embed
                 fixed_urls.push(if discord_url.spoilered { format!("||{fixed_url} ||") } else { fixed_url });
             }
@@ -218,6 +220,28 @@ fn get_meta_contents(html: String, names: &[&str]) -> HashMap<String, String> {
     }
 
     contents
+}
+
+async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool> {
+    if force_valid {
+        return Ok(true);
+    }
+
+    let res = REQWEST.head(url).header("user-agent", "discordbot").send().await?;
+    let content_type = res.headers().get("content-type").map(|value| value.to_str().unwrap_or_default()).unwrap_or_default();
+
+    // Only fix posts that were supposed to have an image or video
+    if content_type.contains("image") || content_type.contains("video") {
+        return Ok(true);
+    }
+
+    // If the response was in HTML, make sure it has the related meta contents
+    if content_type == "text/html" {
+        let html = REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await?;
+        return Ok(!get_meta_contents(html, &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]).is_empty());
+    }
+
+    Ok(false)
 }
 
 #[derive(Serialize, Deserialize, PartialEq)]
