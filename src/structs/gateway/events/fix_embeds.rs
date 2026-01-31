@@ -124,7 +124,7 @@ impl EventHandler {
 
                     if check_valid_fixer_response(&fixed_url, force_fix_all).await? {
                         fixed_urls.push(if discord_url.spoilered { format!("||{fixed_url} ||") } else { fixed_url });
-                        continue;
+                        break;
                     }
                 }
             }
