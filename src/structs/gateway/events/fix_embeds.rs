@@ -96,7 +96,7 @@ impl EventHandler {
             }
 
             // Skip TikTok posts that have a valid iframe player embed
-            if domain.ends_with("tiktok.com") && !force_fix_all {
+            if domain == "tiktok.com" || domain.ends_with(".tiktok.com") && !force_fix_all {
                 let res = REQWEST.get(url).header("user-agent", "discordbot").send().await?;
                 let redirected_url = res.url().to_string();
                 let html = res.text().await?;
