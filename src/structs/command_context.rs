@@ -179,10 +179,19 @@ impl AeonCommandContext {
             AeonCommandInput::ApplicationCommand(input, _) => {
                 if input.is_string_select() {
                     let mut split = input.values.as_ref().unwrap()[0].split('/');
-                    Ok((split.next().unwrap().into(), split.next().unwrap_or_default().into()))
-                } else {
-                    Ok((self.get_string_arg(option_name, 0, true)?, "".into()))
+                    let query = split.next().unwrap_or_default().into();
+                    let section = split.next().unwrap_or_default().into();
+                    return Ok((query, section));
                 }
+
+                if input.is_button() {
+                    let mut split = input.custom_id.as_deref().unwrap_or_default().split('/');
+                    let query = split.next_back().unwrap_or_default().into();
+                    let section = "".into();
+                    return Ok((query, section));
+                }
+
+                Ok((self.get_string_arg(option_name, 0, true)?, "".into()))
             },
             AeonCommandInput::MessageCommand(..) => Ok((self.get_string_arg(option_name, 0, true)?, "".into())),
         }

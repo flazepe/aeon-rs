@@ -110,10 +110,13 @@ impl AeonCommand {
                     }
                 },
                 AeonCommandInput::ApplicationCommand(input, _) => {
-                    let subcommand = self
-                        .subcommands
-                        .iter()
-                        .find(|entry| entry.name == input.subcommand.as_ref().or(input.custom_id.as_ref()).cloned().unwrap_or_default());
+                    let subcommand = self.subcommands.iter().find(|entry| {
+                        let subcommand_input = input.subcommand.as_deref().unwrap_or_default();
+                        let custom_id_subcommand_input =
+                            input.custom_id.as_deref().unwrap_or_default().split('/').next().unwrap_or_default();
+
+                        entry.name == subcommand_input || entry.name == custom_id_subcommand_input
+                    });
 
                     if let Some(subcommand) = subcommand {
                         func = Some(&subcommand.func);
