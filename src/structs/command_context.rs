@@ -1,5 +1,5 @@
 use crate::{
-    statics::{EMOJIS, REST},
+    statics::{CONFIG_PATH, EMOJIS, REST},
     structs::{
         command_args::CommandArgs,
         database::{Database, redis::keys::RedisKey},
@@ -91,7 +91,7 @@ impl AeonCommandContext {
 
         response.content = response.content.map(|mut content| {
             // Let it panic if it can't read the config file
-            let config_string = read_to_string("config.toml").unwrap();
+            let config_string = read_to_string(CONFIG_PATH).unwrap();
 
             for line in config_string.split('\n') {
                 if !line.contains('=') {

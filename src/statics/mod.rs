@@ -22,7 +22,8 @@ pub static CACHE: LazyLock<Cache> = LazyLock::new(|| Cache {
     ordr_rendering_users: RwLock::new(HashMap::new()),
     spotify_access_token: RwLock::new(Default::default()),
 });
-pub static CONFIG: LazyLock<Config> = LazyLock::new(|| from_str(&read_to_string("config.toml").unwrap()).unwrap());
+pub static CONFIG_PATH: &str = "config.toml";
+pub static CONFIG: LazyLock<Config> = LazyLock::new(|| from_str(&read_to_string(CONFIG_PATH).unwrap()).unwrap());
 pub static DEFAULT_PREFIXES: LazyLock<[String; 2]> = LazyLock::new(|| [format!("<@{}>", CONFIG.bot.client_id), "aeon".into()]);
 pub static EMOJIS: OnceLock<EmojiManager> = OnceLock::new();
 pub static FLAZEPE_ID: &str = "590455379931037697";
