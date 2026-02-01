@@ -99,7 +99,7 @@ impl EventHandler {
             // Skip X posts that have a valid image
             if ["x.com", "twitter.com"].contains(&domain) && !force_fix_all {
                 let html = REQWEST.get(url).header("user-agent", DISCORD_USER_AGENT).send().await?.text().await?;
-                let image_url = get_meta_contents(html, &["og:image"]).into_values().next().unwrap_or_default();
+                let image_url = get_meta_contents(&html, &["og:image"]).into_values().next().unwrap_or_default();
 
                 // Make sure the URL contains the "media" path. Otherwise, it is most likely a thumbnail for a video, which should be fixed
                 // Also make sure that it's a valid media (status code OK). Sometimes it likes to return a placeholder URL that leads to a 404
@@ -193,8 +193,8 @@ impl EventHandler {
     }
 }
 
-fn get_meta_contents(html: String, names: &[&str]) -> HashMap<String, String> {
-    let document = Document::from(&html);
+fn get_meta_contents(html: &str, names: &[&str]) -> HashMap<String, String> {
+    let document = Document::from(html);
     let mut contents = HashMap::new();
 
     for name in names {
@@ -234,15 +234,13 @@ async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool
     }
 
     if content_type.starts_with("text/html") {
-        let meta_contents = get_meta_contents(
-            if has_body {
-                res.text().await?
-            } else {
-                REQWEST.get(url).header("user-agent", DISCORD_USER_AGENT).send().await?.text().await?
-            },
-            &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"],
-        );
+        let html = if has_body {
+            res.text().await?
+        } else {
+            REQWEST.get(url).header("user-agent", DISCORD_USER_AGENT).send().await?.text().await?
+        };
 
+        let meta_contents = get_meta_contents(&html, &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]);
         return Ok(!meta_contents.is_empty());
     }
 
