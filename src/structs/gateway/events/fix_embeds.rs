@@ -18,8 +18,21 @@ use slashook::{
     commands::MessageResponse,
     structs::messages::{AllowedMentions, Message as SlashookMessage, MessageReference},
 };
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::LazyLock};
 use twilight_model::channel::message::{Message, MessageFlags};
+
+static EMBED_FIXER_MAPPINGS: LazyLock<Vec<(Vec<&str>, Vec<&str>)>> = LazyLock::new(|| {
+    vec![
+        (vec!["bilibili.com"], vec!["vxbilibili.com"]),
+        (vec!["facebook.com"], vec!["facebed.com"]),
+        (vec!["instagram.com"], vec!["eeinstagram.com", "kkinstagram.com"]),
+        (vec!["pixiv.net"], vec!["phixiv.net"]),
+        (vec!["reddit.com"], vec!["rxddit.com"]),
+        (vec!["tiktok.com"], vec!["a.tnktok.com", "kktiktok.com"]),
+        (vec!["weibo.com", "weibo.cn"], vec!["fxweibo.com"]),
+        (vec!["x.com", "twitter.com"], vec!["fixupx.com"]),
+    ]
+});
 
 impl EventHandler {
     pub async fn handle_fix_embeds(message: &Message) -> Result<()> {
@@ -96,46 +109,32 @@ impl EventHandler {
                 }
             }
 
-            if domain == "instagram.com" {
-                for fixed_domain in ["eeinstagram.com", "kkinstagram.com"] {
-                    let fixed_url = format!("https://{fixed_domain}/{path}");
-
-                    if check_valid_fixer_response(&fixed_url, force_fix_all).await? {
-                        fixed_urls.push(if discord_url.spoilered { format!("||{fixed_url} ||") } else { fixed_url });
-                        break;
-                    }
-                }
-            }
-
-            if domain == "tiktok.com" || domain.ends_with(".tiktok.com") {
-                for fixed_domain in ["a.tnktok.com", "kktiktok.com"] {
-                    let fixed_url = format!("https://{fixed_domain}/{path}");
-
-                    if check_valid_fixer_response(&fixed_url, force_fix_all).await? {
-                        fixed_urls.push(if discord_url.spoilered { format!("||{fixed_url} ||") } else { fixed_url });
-                        break;
-                    }
-                }
-            }
-
-            let fixed_domain = match domain {
-                "bilibili.com" | "m.bilibili.com" => "vxbilibili.com",
-                "facebook.com" => "facebed.com",
-                "pixiv.net" => "phixiv.net",
-                "reddit.com" | "old.reddit.com" => "rxddit.com",
-                "weibo.com" | "m.weibo.com" | "weibo.cn" | "m.weibo.cn" => "fxweibo.com",
-                "x.com" | "twitter.com" => "fixupx.com",
-                _ => continue,
-            };
-            let fixed_url = format!("https://{fixed_domain}/{path}");
-
-            if fixed_urls.contains(&fixed_url) {
+            let Some((_, fixed_domains)) = EMBED_FIXER_MAPPINGS.iter().find(|(original_domains, _)| {
+                original_domains
+                    .iter()
+                    .any(|original_domain| *original_domain == domain || domain.ends_with(&format!(".{original_domain}")))
+            }) else {
                 continue;
+            };
+
+            let mut fixed_url = None;
+
+            for fixed_domain in fixed_domains {
+                let new_fixed_url = format!("https://{fixed_domain}/{path}");
+
+                if check_valid_fixer_response(&new_fixed_url, force_fix_all).await? {
+                    fixed_url = Some(new_fixed_url);
+                    break;
+                }
             }
 
-            if check_valid_fixer_response(&fixed_url, force_fix_all).await? {
-                // The space before the closing spoiler is intentional because Discord sometimes includes the || inside the URL when unfurling, which causes the website to return a 404 and not embed
-                fixed_urls.push(if discord_url.spoilered { format!("||{fixed_url} ||") } else { fixed_url });
+            let Some(fixed_url) = fixed_url else { continue };
+
+            // The space before the closing spoiler is intentional because Discord sometimes includes the || inside the URL when unfurling, which causes the website to return a 404 and not embed
+            let formatted_fixed_url = if discord_url.spoilered { format!("||{fixed_url} ||") } else { fixed_url };
+
+            if !fixed_urls.contains(&formatted_fixed_url) {
+                fixed_urls.push(formatted_fixed_url);
             }
         }
 
