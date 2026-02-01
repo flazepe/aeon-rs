@@ -97,7 +97,8 @@ impl EventHandler {
             let path = url.split("?").next().unwrap_or_default().split('/').skip(3).collect::<Vec<&str>>().join("/");
 
             // Skip X posts that have a valid image
-            if ["x.com", "twitter.com"].contains(&domain) && !force_fix_all {
+            // Discord does not follow photo indices (it always only shows the first photo), so we don't skip fixing those
+            if ["x.com", "twitter.com"].contains(&domain) && (!path.contains("/photo/") || path.contains("/photo/1")) && !force_fix_all {
                 let html = REQWEST.get(url).header("user-agent", DISCORD_USER_AGENT).send().await?.text().await?;
                 let image_url = get_meta_contents(&html, &["og:image"]).into_values().next().unwrap_or_default();
 
