@@ -236,7 +236,7 @@ async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool
     }
 
     // If the response was in HTML, make sure it has the related meta contents
-    if content_type == "text/html" {
+    if content_type.contains("text/html") {
         let html = REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await?;
         return Ok(!get_meta_contents(html, &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]).is_empty());
     }
