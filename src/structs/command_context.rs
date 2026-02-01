@@ -1,5 +1,5 @@
 use crate::{
-    statics::{CONFIG_PATH, EMOJIS, REST},
+    statics::{CONFIG_STRING, EMOJIS, REST},
     structs::{
         command_args::CommandArgs,
         database::{Database, redis::keys::RedisKey},
@@ -17,10 +17,7 @@ use slashook::{
         users::User,
     },
 };
-use std::{
-    fmt::{Debug, Display},
-    fs::read_to_string,
-};
+use std::fmt::{Debug, Display};
 use twilight_gateway::MessageSender;
 use twilight_model::channel::Message as TwilightMessage;
 
@@ -90,10 +87,7 @@ impl AeonCommandContext {
         let mut response = response.into().set_ephemeral(ephemeral);
 
         response.content = response.content.map(|mut content| {
-            // Let it panic if it can't read the config file
-            let config_string = read_to_string(CONFIG_PATH).unwrap();
-
-            for line in config_string.split('\n') {
+            for line in CONFIG_STRING.split('\n') {
                 if !line.contains('=') {
                     continue;
                 }
