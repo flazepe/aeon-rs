@@ -227,7 +227,14 @@ async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool
         return Ok(true);
     }
 
-    let res = REQWEST.head(url).header("user-agent", "discordbot").send().await?;
+    let mut res = REQWEST.head(url).header("user-agent", "discordbot").send().await?;
+    let mut has_body = false;
+
+    if res.status() == StatusCode::METHOD_NOT_ALLOWED {
+        res = REQWEST.get(url).header("user-agent", "discordbot").send().await?;
+        has_body = true;
+    }
+
     let content_type = res.headers().get("content-type").map(|value| value.to_str().unwrap_or_default()).unwrap_or_default();
 
     // Only fix posts that were supposed to have an image or video
@@ -237,7 +244,8 @@ async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool
 
     // If the response was in HTML, make sure it has the related meta contents
     if content_type.contains("text/html") {
-        let html = REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await?;
+        let html =
+            if has_body { res.text().await? } else { REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await? };
         return Ok(!get_meta_contents(html, &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]).is_empty());
     }
 
