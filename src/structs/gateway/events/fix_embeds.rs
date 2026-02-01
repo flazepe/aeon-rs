@@ -21,6 +21,8 @@ use slashook::{
 use std::{collections::HashMap, sync::LazyLock};
 use twilight_model::channel::message::{Message, MessageFlags};
 
+const DISCORD_USER_AGENT: &str = "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)";
+
 static EMBED_FIXER_MAPPINGS: LazyLock<Vec<(Vec<&str>, Vec<&str>)>> = LazyLock::new(|| {
     vec![
         (vec!["bilibili.com"], vec!["vxbilibili.com"]),
@@ -96,7 +98,7 @@ impl EventHandler {
 
             // Skip X posts that have a valid image
             if ["x.com", "twitter.com"].contains(&domain) && !force_fix_all {
-                let html = REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await?;
+                let html = REQWEST.get(url).header("user-agent", DISCORD_USER_AGENT).send().await?.text().await?;
                 let image_url = get_meta_contents(html, &["og:image"]).into_values().next().unwrap_or_default();
 
                 // Make sure the URL contains the "media" path. Otherwise, it is most likely a thumbnail for a video, which should be fixed
@@ -216,11 +218,11 @@ async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool
         return Ok(true);
     }
 
-    let mut res = REQWEST.head(url).header("user-agent", "discordbot").send().await?;
+    let mut res = REQWEST.head(url).header("user-agent", DISCORD_USER_AGENT).send().await?;
     let mut has_body = false;
 
     if res.status() == StatusCode::METHOD_NOT_ALLOWED {
-        res = REQWEST.get(url).header("user-agent", "discordbot").send().await?;
+        res = REQWEST.get(url).header("user-agent", DISCORD_USER_AGENT).send().await?;
         has_body = true;
     }
 
@@ -233,7 +235,11 @@ async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool
 
     if content_type.starts_with("text/html") {
         let meta_contents = get_meta_contents(
-            if has_body { res.text().await? } else { REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await? },
+            if has_body {
+                res.text().await?
+            } else {
+                REQWEST.get(url).header("user-agent", DISCORD_USER_AGENT).send().await?.text().await?
+            },
             &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"],
         );
 
