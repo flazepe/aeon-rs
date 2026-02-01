@@ -32,7 +32,7 @@ static EMBED_FIXER_MAPPINGS: LazyLock<Vec<(Vec<&str>, Vec<&str>)>> = LazyLock::n
         (vec!["reddit.com"], vec!["rxddit.com"]),
         (vec!["tiktok.com"], vec!["a.tnktok.com", "kktiktok.com"]),
         (vec!["weibo.com", "weibo.cn"], vec!["fxweibo.com"]),
-        (vec!["x.com", "twitter.com"], vec!["fixupx.com"]),
+        (vec!["x.com", "twitter.com"], vec!["fixupx.com", "fixvx.com"]),
     ]
 });
 
@@ -213,6 +213,23 @@ fn get_meta_contents(html: &str, names: &[&str]) -> HashMap<String, String> {
     contents
 }
 
+fn get_oembed_activity_url(html: &str) -> Option<String> {
+    let document = Document::from(html);
+    document.select("link[type='application/activity+json']").attr("href").map(|url| url.to_string())
+}
+
+async fn check_valid_mastodon_status(oembed_activity_url: &str) -> Result<bool> {
+    let mut split = oembed_activity_url.split('/');
+    let domain = split.by_ref().take(3).collect::<String>();
+    let snowcode = split.by_ref().next_back().unwrap_or_default();
+    let api_url = format!("{domain}/api/v1/statuses/{snowcode}");
+    let status = REQWEST.get(api_url).header("user-agent", DISCORD_USER_AGENT).send().await?.json::<MastodonStatus>().await?;
+
+    Ok(status.media_attachments.iter().any(|media_attachment| {
+        [MastodonStatusMediaAttachmentType::Image, MastodonStatusMediaAttachmentType::Video].contains(&media_attachment.attachment_type)
+    }))
+}
+
 async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool> {
     if force_valid {
         return Ok(true);
@@ -228,7 +245,6 @@ async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool
 
     let content_type = res.headers().get("content-type").map(|value| value.to_str().unwrap_or_default()).unwrap_or_default();
 
-    // Only fix posts that were supposed to have an image or video
     if content_type.starts_with("image/") || content_type.starts_with("video/") {
         return Ok(true);
     }
@@ -240,6 +256,10 @@ async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool
             REQWEST.get(url).header("user-agent", DISCORD_USER_AGENT).send().await?.text().await?
         };
 
+        if let Some(oembed_activity_url) = get_oembed_activity_url(&html) {
+            return check_valid_mastodon_status(&oembed_activity_url).await;
+        }
+
         let meta_contents = get_meta_contents(&html, &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]);
         return Ok(!meta_contents.is_empty());
     }
@@ -247,15 +267,38 @@ async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool
     Ok(false)
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct DiscordURL {
     pub url: String,
     pub spoilered: bool,
     pub suppressed: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct EmbedFixResponse {
     pub id: String,
     pub discord_urls: HashMap<String, DiscordURL>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct MastodonStatus {
+    media_attachments: Vec<MastodonStatusMediaAttachment>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct MastodonStatusMediaAttachment {
+    #[serde(rename = "type")]
+    attachment_type: MastodonStatusMediaAttachmentType,
+}
+
+#[derive(Deserialize, PartialEq, Debug)]
+#[serde(rename_all = "lowercase")]
+pub enum MastodonStatusMediaAttachmentType {
+    Image,
+    Video,
+    Gifv,
+    Audio,
+
+    #[serde(other)]
+    Unknown,
 }
