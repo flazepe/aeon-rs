@@ -227,11 +227,11 @@ async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool
     let content_type = res.headers().get("content-type").map(|value| value.to_str().unwrap_or_default()).unwrap_or_default();
 
     // Only fix posts that were supposed to have an image or video
-    if content_type.contains("image") || content_type.contains("video") {
+    if content_type.starts_with("image/") || content_type.starts_with("video/") {
         return Ok(true);
     }
 
-    if content_type.contains("text/html") {
+    if content_type.starts_with("text/html") {
         let meta_contents = get_meta_contents(
             if has_body { res.text().await? } else { REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await? },
             &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"],
