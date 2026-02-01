@@ -73,7 +73,7 @@ impl EventHandler {
                 break;
             }
 
-            if discord_url.suppressed && !force_fix_all {
+            if discord_url.suppressed {
                 continue;
             }
 
@@ -96,7 +96,6 @@ impl EventHandler {
                 }
             }
 
-            // Fix Instagram posts (separated because all fixers are ASS so we have to find a working one from a list)
             if domain == "instagram.com" {
                 for fixed_domain in ["eeinstagram.com", "kkinstagram.com"] {
                     let fixed_url = format!("https://{fixed_domain}/{path}");
@@ -108,7 +107,6 @@ impl EventHandler {
                 }
             }
 
-            // Fix TikTok posts (separated because all fixers are ASS so we have to find a working one from a list)
             if domain == "tiktok.com" || domain.ends_with(".tiktok.com") {
                 for fixed_domain in ["a.tnktok.com", "kktiktok.com"] {
                     let fixed_url = format!("https://{fixed_domain}/{path}");
@@ -136,7 +134,7 @@ impl EventHandler {
             }
 
             if check_valid_fixer_response(&fixed_url, force_fix_all).await? {
-                // The space before the closing spoiler is intentional because Discord (could be the website) sometimes includes the || inside the URL when unfurling, which causes the website to return a 404 and not embed
+                // The space before the closing spoiler is intentional because Discord sometimes includes the || inside the URL when unfurling, which causes the website to return a 404 and not embed
                 fixed_urls.push(if discord_url.spoilered { format!("||{fixed_url} ||") } else { fixed_url });
             }
         }
@@ -234,11 +232,13 @@ async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool
         return Ok(true);
     }
 
-    // If the response was in HTML, make sure it has the related meta contents
     if content_type.contains("text/html") {
-        let html =
-            if has_body { res.text().await? } else { REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await? };
-        return Ok(!get_meta_contents(html, &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"]).is_empty());
+        let meta_contents = get_meta_contents(
+            if has_body { res.text().await? } else { REQWEST.get(url).header("user-agent", "discordbot").send().await?.text().await? },
+            &["og:image", "og:video", "twitter:card", "twitter:image", "twitter:video"],
+        );
+
+        return Ok(!meta_contents.is_empty());
     }
 
     Ok(false)
