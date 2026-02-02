@@ -19,6 +19,7 @@ use slashook::{
     structs::messages::{AllowedMentions, Message as SlashookMessage, MessageReference},
 };
 use std::{collections::HashMap, sync::LazyLock};
+use tracing::warn;
 use twilight_model::channel::message::{Message, MessageFlags};
 
 const DISCORD_USER_AGENT: &str = "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)";
@@ -104,10 +105,7 @@ impl EventHandler {
 
                 // Make sure the URL contains the "media" path. Otherwise, it is most likely a thumbnail for a video, which should be fixed
                 // Also make sure that it's a valid media (status code OK). Sometimes it likes to return a placeholder URL that leads to a 404
-                if !image_url.is_empty()
-                    && image_url.contains("/media/")
-                    && REQWEST.head(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK)
-                {
+                if image_url.contains("/media/") && REQWEST.head(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK) {
                     continue;
                 }
             }
@@ -125,9 +123,16 @@ impl EventHandler {
             for fixed_domain in fixed_domains {
                 let new_fixed_url = format!("https://{fixed_domain}/{path}");
 
-                if check_valid_fixer_response(&new_fixed_url, force_fix_all).await? {
-                    fixed_url = Some(new_fixed_url);
-                    break;
+                match check_valid_fixer_response(&new_fixed_url, force_fix_all).await {
+                    Ok(is_valid) => {
+                        if is_valid {
+                            fixed_url = Some(new_fixed_url);
+                            break;
+                        }
+                    },
+                    Err(error) => {
+                        warn!(target: "FixEmbeds", r#"An error occurred while checking fixer {fixed_domain} for "{url}": {error:?}"#);
+                    },
                 }
             }
 
@@ -224,11 +229,14 @@ async fn check_valid_mastodon_status(oembed_activity_url: &str) -> Result<bool> 
     let domain = split.by_ref().take(3).collect::<String>();
     let snowcode = split.by_ref().next_back().unwrap_or_default();
     let api_url = format!("{domain}/api/v1/statuses/{snowcode}");
-    let status = REQWEST.get(api_url).header("user-agent", DISCORD_USER_AGENT).send().await?.json::<MastodonStatus>().await?;
 
-    Ok(status.media_attachments.iter().any(|media_attachment| {
+    let res = REQWEST.get(api_url).header("user-agent", DISCORD_USER_AGENT).send().await?;
+    let mastodon_status = res.json::<MastodonStatus>().await?;
+    let has_image_or_video = mastodon_status.media_attachments.iter().any(|media_attachment| {
         [MastodonStatusMediaAttachmentType::Image, MastodonStatusMediaAttachmentType::Video].contains(&media_attachment.attachment_type)
-    }))
+    });
+
+    Ok(has_image_or_video)
 }
 
 async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool> {
