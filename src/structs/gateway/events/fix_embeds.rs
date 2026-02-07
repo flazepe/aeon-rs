@@ -27,7 +27,7 @@ const DISCORD_USER_AGENT: &str = "Mozilla/5.0 (compatible; Discordbot/2.0; +http
 static EMBED_FIXER_MAPPINGS: LazyLock<Vec<(Vec<&str>, Vec<&str>)>> = LazyLock::new(|| {
     vec![
         (vec!["bilibili.com"], vec!["vxbilibili.com"]),
-        (vec!["facebook.com"], vec!["facebed.com"]),
+        (vec!["facebook.com", "m.facebook.com", "web.facebook.com"], vec!["facebed.com"]),
         (vec!["instagram.com"], vec!["eeinstagram.com", "kkinstagram.com"]),
         (vec!["pixiv.net"], vec!["phixiv.net"]),
         (vec!["reddit.com"], vec!["rxddit.com"]),
