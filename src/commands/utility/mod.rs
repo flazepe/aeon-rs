@@ -2,6 +2,7 @@ mod calculate;
 mod code;
 mod convert_currency;
 mod define;
+mod delete_response_context;
 mod edited;
 mod eval;
 mod google;
@@ -35,6 +36,7 @@ pub fn get_aeon_commands() -> Vec<&'static LazyLock<AeonCommand>> {
         &convert_currency::COMMAND,
         &code::COMMAND,
         &define::COMMAND,
+        &delete_response_context::COMMAND,
         &edited::COMMAND,
         &eval::COMMAND,
         &google::COMMAND,
@@ -66,6 +68,7 @@ pub fn get_slashook_commands() -> Vec<SlashookCommand> {
         convert_currency::get_slashook_command(),
         code::get_slashook_command(),
         define::get_slashook_command(),
+        delete_response_context::get_slashook_command(),
         edited::get_slashook_command(),
         eval::get_slashook_command(),
         google::get_slashook_command(),
