@@ -17,11 +17,6 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("calculate", &["calc", "count", "math", "meth"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let expression = ctx.get_string_arg("expression", 0, true)?;
 
-        if expression.chars().all(|char| char.is_numeric()) {
-            let fact = REQWEST.get(format!("http://numbersapi.com/{expression}")).send().await?.text().await?;
-            return ctx.respond(fact, false).await;
-        }
-
         let body = REQWEST
             .get("https://api.mathjs.org/v4/")
             .query(&[("expr", expression)])
