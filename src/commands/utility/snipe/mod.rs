@@ -25,7 +25,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         subcommands = [
             {
                 name = "message",
-                description = "Snipes channel's messages.",
+                description = "Snipes a channel's recent messages.",
                 options = [
                     {
                         name = "channel",
@@ -55,7 +55,7 @@ pub fn get_slashook_command() -> SlashookCommand {
             },
             {
                 name = "reaction",
-                description = "Snipes a messages's reactions.",
+                description = "Snipes a channel's recent reactions.",
                 options = [
                     {
                         name = "channel",
