@@ -28,7 +28,7 @@ static EMBED_FIXER_MAPPINGS: LazyLock<Vec<(Vec<&str>, Vec<&str>)>> = LazyLock::n
     vec![
         (vec!["bilibili.com"], vec!["vxbilibili.com"]),
         (vec!["facebook.com", "m.facebook.com", "web.facebook.com"], vec!["facebed.com"]),
-        (vec!["instagram.com"], vec!["eeinstagram.com", "kkinstagram.com"]),
+        (vec!["instagram.com"], vec!["kkinstagram.com", "eeinstagram.com"]),
         (vec!["pixiv.net"], vec!["phixiv.net"]),
         (vec!["reddit.com", "redd.it"], vec!["rxddit.com"]),
         (vec!["tiktok.com"], vec!["a.tnktok.com", "kktiktok.com"]),
