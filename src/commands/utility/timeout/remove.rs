@@ -1,7 +1,7 @@
 use crate::structs::command_context::{AeonCommandContext, AeonCommandInput};
 use anyhow::Result;
 use serde_json::json;
-use slashook::structs::guilds::GuildMember;
+use slashook::structs::members::GuildMember;
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {

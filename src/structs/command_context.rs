@@ -11,9 +11,9 @@ use slashook::{
     structs::{
         channels::Channel,
         components::Components,
-        guilds::Role,
         interactions::ApplicationCommandOptionChoice,
         messages::{AllowedMentions, Attachment, Message as SlashookMessage, MessageReference},
+        roles::Role,
         users::User,
     },
 };

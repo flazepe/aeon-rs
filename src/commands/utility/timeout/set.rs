@@ -6,7 +6,7 @@ use anyhow::{Result, bail};
 use serde_json::json;
 use slashook::{
     chrono::{Duration as ChronoDuration, Utc},
-    structs::guilds::GuildMember,
+    structs::members::GuildMember,
 };
 use std::sync::Arc;
 

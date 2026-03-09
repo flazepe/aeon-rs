@@ -8,7 +8,7 @@ use mongodb::{
 use serde::{Deserialize, Serialize};
 use slashook::{
     chrono::Utc,
-    structs::{Permissions, guilds::GuildMember},
+    structs::{Permissions, members::GuildMember},
 };
 use std::fmt::Display;
 
