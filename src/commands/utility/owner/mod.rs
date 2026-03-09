@@ -110,8 +110,8 @@ pub fn get_slashook_command() -> SlashookCommand {
                         max_length = 32,
                     },
                     {
-                        name = "about-me",
-                        description = "The about me to set",
+                        name = "bio",
+                        description = "The bio to set",
                         option_type = InteractionOptionType::STRING,
                         max_length = 190,
                     },
@@ -123,7 +123,7 @@ pub fn get_slashook_command() -> SlashookCommand {
 							ApplicationCommandOptionChoice::new("Avatar", "avatar"),
 							ApplicationCommandOptionChoice::new("Banner", "banner"),
 							ApplicationCommandOptionChoice::new("Nickname", "nickname"),
-                            ApplicationCommandOptionChoice::new("About Me", "about-me"),
+                            ApplicationCommandOptionChoice::new("Bio", "bio"),
 						],
                     },
                     {
