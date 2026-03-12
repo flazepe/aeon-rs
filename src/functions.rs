@@ -60,11 +60,21 @@ pub fn limit_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(iterable
     let delimiter = delimiter.to_string();
     let mut strings = iterable.into_iter().map(|to_string| to_string.to_string()).collect::<Vec<String>>();
 
-    while strings.join(&delimiter).len() > limit {
-        strings.pop();
+    let join_full = strings.join(&delimiter);
+
+    if join_full.len() > limit {
+        while strings.join(&delimiter).len() > limit - delimiter.len() - 1 {
+            strings.pop();
+        }
     }
 
-    strings.join(&delimiter)
+    let mut join_limited = strings.join(&delimiter);
+
+    if join_full.len() != join_limited.len() {
+        join_limited += &format!("{delimiter}…");
+    }
+
+    join_limited
 }
 
 pub fn label_num<T: Display, U: Display, V: Display>(amount: T, singular: U, plural: V) -> String {
