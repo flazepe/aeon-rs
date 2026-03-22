@@ -35,11 +35,11 @@ pub fn get_slashook_command() -> SlashookCommand {
         integration_types = [IntegrationType::GUILD_INSTALL],
         contexts = [InteractionContextType::GUILD],
         subcommands = [
-			{
+            {
                 name = "create",
                 description = "Creates a new tag.",
             },
-			{
+            {
                 name = "delete",
                 description = "Deletes a tag.",
                 options = [
@@ -48,12 +48,12 @@ pub fn get_slashook_command() -> SlashookCommand {
                         description = "The tag",
                         option_type = InteractionOptionType::STRING,
                         max_length = 32,
-						autocomplete = true,
-						required = true,
+                        autocomplete = true,
+                        required = true,
                     },
                 ],
             },
-			{
+            {
                 name = "edit",
                 description = "Edits a tag.",
                 options = [
@@ -62,8 +62,8 @@ pub fn get_slashook_command() -> SlashookCommand {
                         description = "The tag",
                         option_type = InteractionOptionType::STRING,
                         max_length = 32,
-						autocomplete = true,
-						required = true,
+                        autocomplete = true,
+                        required = true,
                     },
                 ],
             },
@@ -83,7 +83,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                     },
                 ],
             },
-			{
+            {
                 name = "meta",
                 description = "Sends tag information.",
                 options = [
@@ -92,8 +92,8 @@ pub fn get_slashook_command() -> SlashookCommand {
                         description = "The tag",
                         option_type = InteractionOptionType::STRING,
                         max_length = 32,
-						autocomplete = true,
-						required = true,
+                        autocomplete = true,
+                        required = true,
                     },
                 ],
             },
@@ -106,14 +106,14 @@ pub fn get_slashook_command() -> SlashookCommand {
                         description = "The tag",
                         option_type = InteractionOptionType::STRING,
                         max_length = 32,
-						required = true,
+                        required = true,
                     },
-					{
+                    {
                         name = "alias",
                         description = "The tag alias to add or remove",
                         option_type = InteractionOptionType::STRING,
                         max_length = 32,
-						required = true,
+                        required = true,
                     },
                 ],
             },
@@ -126,8 +126,8 @@ pub fn get_slashook_command() -> SlashookCommand {
                         description = "The tag",
                         option_type = InteractionOptionType::STRING,
                         max_length = 32,
-						autocomplete = true,
-						required = true,
+                        autocomplete = true,
+                        required = true,
                     },
                 ],
             },
@@ -140,8 +140,8 @@ pub fn get_slashook_command() -> SlashookCommand {
                         description = "The tag",
                         option_type = InteractionOptionType::STRING,
                         max_length = 32,
-						autocomplete = true,
-						required = true,
+                        autocomplete = true,
+                        required = true,
                     },
                 ],
             },

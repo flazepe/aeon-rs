@@ -44,12 +44,12 @@ pub fn get_slashook_command() -> SlashookCommand {
                 option_type = InteractionOptionType::STRING,
                 required = true,
             },
-			{
+            {
                 name = "right-text",
                 description = "The right text",
                 option_type = InteractionOptionType::STRING,
             },
-			{
+            {
                 name = "codeblock",
                 description = "Whether to send the edited text in a codeblock",
                 option_type = InteractionOptionType::BOOLEAN,

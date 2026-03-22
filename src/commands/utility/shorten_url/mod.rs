@@ -24,7 +24,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
         subcommands = [
-			{
+            {
                 name = "cleanurl",
                 description = "Shortens a URL using cleanuri.com.",
                 options = [
@@ -32,11 +32,11 @@ pub fn get_slashook_command() -> SlashookCommand {
                         name = "url",
                         description = "The URL",
                         option_type = InteractionOptionType::STRING,
-						required = true,
+                        required = true,
                     },
                 ],
             },
-			{
+            {
                 name = "waaai",
                 description = "Shortens a URL using waa.ai.",
                 options = [
@@ -44,9 +44,9 @@ pub fn get_slashook_command() -> SlashookCommand {
                         name = "url",
                         description = "The URL",
                         option_type = InteractionOptionType::STRING,
-						required = true,
+                        required = true,
                     },
-					{
+                    {
                         name = "custom-id",
                         description = "The custom ID",
                         option_type = InteractionOptionType::STRING,
@@ -58,7 +58,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                     },
                 ],
             },
-			{
+            {
                 name = "zws",
                 description = "Shortens a URL using zws.im.",
                 options = [
@@ -66,7 +66,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                         name = "url",
                         description = "The URL",
                         option_type = InteractionOptionType::STRING,
-						required = true,
+                        required = true,
                     },
                 ],
             },

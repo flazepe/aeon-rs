@@ -36,64 +36,64 @@ pub fn get_slashook_command() -> SlashookCommand {
             {
                 name = "eien",
                 description = "For testing Eien.",
-				options = [
-					{
+                options = [
+                    {
                         name = "command",
                         description = "The command",
                         option_type = InteractionOptionType::STRING,
-						required = true,
+                        required = true,
                     },
-					{
+                    {
                         name = "args",
                         description = "The args",
                         option_type = InteractionOptionType::STRING,
                         required = true,
                     },
-				],
+                ],
             },
-			{
+            {
                 name = "request",
                 description = "Creates a request to the Discord API.",
-				options = [
-					{
+                options = [
+                    {
                         name = "endpoint",
                         description = "The endpoint",
                         option_type = InteractionOptionType::STRING,
-						required = true,
+                        required = true,
                     },
-					{
+                    {
                         name = "body",
                         description = "The body",
                         option_type = InteractionOptionType::STRING,
                     },
-					{
+                    {
                         name = "method",
                         description = "The HTTP method",
                         option_type = InteractionOptionType::STRING,
-						choices = [
-							ApplicationCommandOptionChoice::new("GET", "GET"),
-							ApplicationCommandOptionChoice::new("POST", "POST"),
-							ApplicationCommandOptionChoice::new("PUT", "PUT"),
-							ApplicationCommandOptionChoice::new("DELETE", "DELETE"),
-							ApplicationCommandOptionChoice::new("HEAD", "HEAD"),
-							ApplicationCommandOptionChoice::new("OPTIONS", "OPTIONS"),
-							ApplicationCommandOptionChoice::new("CONNECT", "CONNECT"),
-							ApplicationCommandOptionChoice::new("PATCH", "PATCH"),
-							ApplicationCommandOptionChoice::new("TRACE", "TRACE"),
-						],
+                        choices = [
+                            ApplicationCommandOptionChoice::new("GET", "GET"),
+                            ApplicationCommandOptionChoice::new("POST", "POST"),
+                            ApplicationCommandOptionChoice::new("PUT", "PUT"),
+                            ApplicationCommandOptionChoice::new("DELETE", "DELETE"),
+                            ApplicationCommandOptionChoice::new("HEAD", "HEAD"),
+                            ApplicationCommandOptionChoice::new("OPTIONS", "OPTIONS"),
+                            ApplicationCommandOptionChoice::new("CONNECT", "CONNECT"),
+                            ApplicationCommandOptionChoice::new("PATCH", "PATCH"),
+                            ApplicationCommandOptionChoice::new("TRACE", "TRACE"),
+                        ],
                     },
-				],
+                ],
             },
             {
                 name = "edit-server-profile",
                 description = "Edits the bot's server profile.",
-				options = [
+                options = [
                     {
                         name = "server-id",
                         description = "The server ID. Defaults to the current server",
                         option_type = InteractionOptionType::STRING,
                     },
-					{
+                    {
                         name = "avatar",
                         description = "The avatar to set",
                         option_type = InteractionOptionType::ATTACHMENT,
@@ -103,7 +103,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                         description = "The banner to set",
                         option_type = InteractionOptionType::ATTACHMENT,
                     },
-					{
+                    {
                         name = "nickname",
                         description = "The nickname to set",
                         option_type = InteractionOptionType::STRING,
@@ -115,23 +115,23 @@ pub fn get_slashook_command() -> SlashookCommand {
                         option_type = InteractionOptionType::STRING,
                         max_length = 190,
                     },
-					{
+                    {
                         name = "reset",
                         description = "The property to reset",
                         option_type = InteractionOptionType::STRING,
-						choices = [
-							ApplicationCommandOptionChoice::new("Avatar", "avatar"),
-							ApplicationCommandOptionChoice::new("Banner", "banner"),
-							ApplicationCommandOptionChoice::new("Nickname", "nickname"),
+                        choices = [
+                            ApplicationCommandOptionChoice::new("Avatar", "avatar"),
+                            ApplicationCommandOptionChoice::new("Banner", "banner"),
+                            ApplicationCommandOptionChoice::new("Nickname", "nickname"),
                             ApplicationCommandOptionChoice::new("Bio", "bio"),
-						],
+                        ],
                     },
                     {
                         name = "reset-all",
                         description = "Whether to reset all properties",
                         option_type = InteractionOptionType::BOOLEAN,
                     },
-				],
+                ],
             },
             {
                 name = "status",

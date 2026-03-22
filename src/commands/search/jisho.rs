@@ -31,18 +31,18 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 pub fn get_slashook_command() -> SlashookCommand {
     #[command(
         name = COMMAND.name.clone(),
-		description = "Searches Jisho.",
+        description = "Searches Jisho.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
-		options = [
-			{
-				name = "query",
-				description = "The query",
-				option_type = InteractionOptionType::STRING,
-				required = true,
-			},
-		],
-	)]
+        options = [
+            {
+                name = "query",
+                description = "The query",
+                option_type = InteractionOptionType::STRING,
+                required = true,
+            },
+        ],
+    )]
     async fn func(input: CommandInput, res: CommandResponder) {
         COMMAND.run(AeonCommandInput::ApplicationCommand(Box::new(input), res)).await?;
     }

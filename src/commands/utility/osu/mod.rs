@@ -24,7 +24,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
         subcommands = [
-			{
+            {
                 name = "render-replay",
                 description = "Renders an osu! replay.",
                 options = [
@@ -33,12 +33,12 @@ pub fn get_slashook_command() -> SlashookCommand {
                         description = "The URL to the replay file",
                         option_type = InteractionOptionType::STRING,
                     },
-					{
+                    {
                         name = "replay-file",
                         description = "The replay file",
                         option_type = InteractionOptionType::ATTACHMENT,
                     },
-					{
+                    {
                         name = "skin",
                         description = "The skin to use",
                         option_type = InteractionOptionType::STRING,

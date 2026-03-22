@@ -25,7 +25,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
         subcommands = [
-			{
+            {
                 name = "anime",
                 description = "Fetches an anime from AniList.",
                 options = [
@@ -42,7 +42,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                     },
                 ],
             },
-			{
+            {
                 name = "manga",
                 description = "Fetches a manga from AniList.",
                 options = [

@@ -170,10 +170,10 @@ impl AniList {
         Self::query::<_, AniListResponse<AniListUserResponse>>(
             format!(
                 "query($search: String) {{
-					User(name: $search) {{
-						{ANILIST_USER_FIELDS}
-					}}
-				}}",
+                    User(name: $search) {{
+                        {ANILIST_USER_FIELDS}
+                    }}
+                }}",
             ),
             json!({ "search": name.to_string() }),
         )

@@ -20,10 +20,10 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 pub fn get_slashook_command() -> SlashookCommand {
     #[command(
         name = COMMAND.name.clone(),
-		description = "Fetches the anime from a song title or lyrics.",
+        description = "Fetches the anime from a song title or lyrics.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
-		options = [
+        options = [
             {
                 name = "song",
                 description = "The song title or partial lyrics",
@@ -31,7 +31,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                 required = true,
             },
         ],
-	)]
+    )]
     async fn func(input: CommandInput, res: CommandResponder) {
         COMMAND.run(AeonCommandInput::ApplicationCommand(Box::new(input), res)).await?;
     }

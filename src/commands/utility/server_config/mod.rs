@@ -28,17 +28,17 @@ pub fn get_slashook_command() -> SlashookCommand {
         name = COMMAND.name.clone(),
         description = "Server config commands.",
         default_member_permissions = Permissions::MANAGE_GUILD,
-		integration_types = [IntegrationType::GUILD_INSTALL],
+        integration_types = [IntegrationType::GUILD_INSTALL],
         contexts = [InteractionContextType::GUILD],
         subcommands = [
-			{
+            {
                 name = "fix-embeds",
                 description = "Config for fix embeds.",
                 options = [
-					{
-						name = "enabled",
-						description = "Whether to enable fix embeds",
-						option_type = InteractionOptionType::BOOLEAN,
+                    {
+                        name = "enabled",
+                        description = "Whether to enable fix embeds",
+                        option_type = InteractionOptionType::BOOLEAN,
                     },
                 ],
             },
@@ -47,20 +47,20 @@ pub fn get_slashook_command() -> SlashookCommand {
                 description = "Config for logs.",
                 options = [
                     {
-						name = "enabled",
-						description = "Whether to enable logs",
-						option_type = InteractionOptionType::BOOLEAN,
+                        name = "enabled",
+                        description = "Whether to enable logs",
+                        option_type = InteractionOptionType::BOOLEAN,
                     },
-					{
-						name = "channel",
-						description = "The channel to send logs to",
-						option_type = InteractionOptionType::CHANNEL,
+                    {
+                        name = "channel",
+                        description = "The channel to send logs to",
+                        option_type = InteractionOptionType::CHANNEL,
                         channel_types = [ChannelType::GUILD_TEXT],
                     },
                     {
-						name = "ignore-bots",
-						description = "Whether to ignore bots' messages",
-						option_type = InteractionOptionType::BOOLEAN,
+                        name = "ignore-bots",
+                        description = "Whether to ignore bots' messages",
+                        option_type = InteractionOptionType::BOOLEAN,
                     },
                 ],
             },
@@ -68,10 +68,10 @@ pub fn get_slashook_command() -> SlashookCommand {
                 name = "prefix",
                 description = "Adds or removes a prefix.",
                 options = [
-					{
-						name = "prefix",
-						description = "The prefix to add or remove",
-						option_type = InteractionOptionType::STRING,
+                    {
+                        name = "prefix",
+                        description = "The prefix to add or remove",
+                        option_type = InteractionOptionType::STRING,
                         max_length = 32,
                         required = true,
                         autocomplete = true,

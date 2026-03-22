@@ -32,10 +32,10 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 pub fn get_slashook_command() -> SlashookCommand {
     #[command(
         name = COMMAND.name.clone(),
-		command_type = ApplicationCommandType::MESSAGE,
+        command_type = ApplicationCommandType::MESSAGE,
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
-	)]
+    )]
     async fn func(input: CommandInput, res: CommandResponder) {
         COMMAND.run(AeonCommandInput::ApplicationCommand(Box::new(input), res)).await?;
     }

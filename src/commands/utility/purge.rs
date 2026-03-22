@@ -143,7 +143,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                 min_value = 1.0,
                 max_value = 100.0,
             },
-			{
+            {
                 name = "user",
                 description = "The user's messages to purge",
                 option_type = InteractionOptionType::USER,
@@ -168,7 +168,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                 description = "Whether to only delete messages that have embeds",
                 option_type = InteractionOptionType::BOOLEAN,
             },
-			{
+            {
                 name = "channel",
                 description = "The channel to purge",
                 option_type = InteractionOptionType::CHANNEL,

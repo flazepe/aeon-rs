@@ -19,43 +19,43 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 pub fn get_slashook_command() -> SlashookCommand {
     #[command(
         name = COMMAND.name.clone(),
-		description = "Manages members' timeout.",
-		default_member_permissions = Permissions::MODERATE_MEMBERS,
-		integration_types = [IntegrationType::GUILD_INSTALL],
+        description = "Manages members' timeout.",
+        default_member_permissions = Permissions::MODERATE_MEMBERS,
+        integration_types = [IntegrationType::GUILD_INSTALL],
         contexts = [InteractionContextType::GUILD],
-		subcommands = [
-			{
-				name = "remove",
-				description = "Removes a member's timeout.",
-				options = [
-					{
-						name = "member",
-						description = "The member",
-						option_type = InteractionOptionType::USER,
-						required = true,
-					},
-				],
-			},
-			{
-				name = "set",
-				description = "Sets a member's timeout.",
-				options = [
-					{
-						name = "member",
-						description = "The member",
-						option_type = InteractionOptionType::USER,
-						required = true,
-					},
-					{
-						name = "duration",
-						description = "The duration to timeout, e.g. 1h",
-						option_type = InteractionOptionType::STRING,
-						required = true,
-					},
-				],
-			},
-		],
-	)]
+        subcommands = [
+            {
+                name = "remove",
+                description = "Removes a member's timeout.",
+                options = [
+                    {
+                        name = "member",
+                        description = "The member",
+                        option_type = InteractionOptionType::USER,
+                        required = true,
+                    },
+                ],
+            },
+            {
+                name = "set",
+                description = "Sets a member's timeout.",
+                options = [
+                    {
+                        name = "member",
+                        description = "The member",
+                        option_type = InteractionOptionType::USER,
+                        required = true,
+                    },
+                    {
+                        name = "duration",
+                        description = "The duration to timeout, e.g. 1h",
+                        option_type = InteractionOptionType::STRING,
+                        required = true,
+                    },
+                ],
+            },
+        ],
+    )]
     async fn func(input: CommandInput, res: CommandResponder) {
         COMMAND.run(AeonCommandInput::ApplicationCommand(Box::new(input), res)).await?;
     }

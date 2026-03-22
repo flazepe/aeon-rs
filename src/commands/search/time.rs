@@ -20,18 +20,18 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 pub fn get_slashook_command() -> SlashookCommand {
     #[command(
         name = COMMAND.name.clone(),
-		description = "Fetches time and date based on the given location.",
+        description = "Fetches time and date based on the given location.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
-		options = [
-			{
-				name = "location",
-				description = "The location",
-				option_type = InteractionOptionType::STRING,
-				required = true,
-			},
-		],
-	)]
+        options = [
+            {
+                name = "location",
+                description = "The location",
+                option_type = InteractionOptionType::STRING,
+                required = true,
+            },
+        ],
+    )]
     async fn func(input: CommandInput, res: CommandResponder) {
         COMMAND.run(AeonCommandInput::ApplicationCommand(Box::new(input), res)).await?;
     }

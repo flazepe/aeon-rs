@@ -26,7 +26,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
         subcommands = [
-			{
+            {
                 name = "delete",
                 description = "Deletes a reminder.",
                 options = [
@@ -57,14 +57,14 @@ pub fn get_slashook_command() -> SlashookCommand {
                         name = "reminder",
                         description = "The reminder",
                         option_type = InteractionOptionType::STRING,
-						max_length = 200,
+                        max_length = 200,
                     },
                     {
                         name = "interval",
                         description = "The interval time to remind, e.g. 1h",
-                        option_type = InteractionOptionType::STRING
+                        option_type = InteractionOptionType::STRING,
                     },
-					{
+                    {
                         name = "dm",
                         description = "Whether to DM instead",
                         option_type = InteractionOptionType::BOOLEAN,

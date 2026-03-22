@@ -27,7 +27,7 @@ pub fn get_slashook_command() -> SlashookCommand {
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
         subcommands = [
-			{
+            {
                 name = "load",
                 description = "Sends HelioHost server load.",
                 options = [
@@ -35,10 +35,10 @@ pub fn get_slashook_command() -> SlashookCommand {
                         name = "server",
                         description = "The server",
                         option_type = InteractionOptionType::STRING,
-						choices = HELIOHOST_SERVERS
-						    .iter()
-						    .map(|entry| ApplicationCommandOptionChoice::new(entry, entry.to_string()))
-							.collect::<Vec<ApplicationCommandOptionChoice>>(),
+                        choices = HELIOHOST_SERVERS
+                            .iter()
+                            .map(|entry| ApplicationCommandOptionChoice::new(entry, entry.to_string()))
+                            .collect::<Vec<ApplicationCommandOptionChoice>>(),
                         required = true,
                     },
                 ],
@@ -59,7 +59,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                     },
                 ],
             },
-			{
+            {
                 name = "uptime",
                 description = "Sends HelioHost server uptime.",
                 options = [
@@ -67,10 +67,10 @@ pub fn get_slashook_command() -> SlashookCommand {
                         name = "server",
                         description = "The server",
                         option_type = InteractionOptionType::STRING,
-						choices = HELIOHOST_SERVERS
-						    .iter()
-						    .map(|entry| ApplicationCommandOptionChoice::new(entry, entry.to_string()))
-							.collect::<Vec<ApplicationCommandOptionChoice>>(),
+                        choices = HELIOHOST_SERVERS
+                            .iter()
+                            .map(|entry| ApplicationCommandOptionChoice::new(entry, entry.to_string()))
+                            .collect::<Vec<ApplicationCommandOptionChoice>>(),
                         required = true,
                     },
                 ],

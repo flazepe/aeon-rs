@@ -20,44 +20,44 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 pub fn get_slashook_command() -> SlashookCommand {
     #[command(
         name = COMMAND.name.clone(),
-		description = "Defines a word.",
+        description = "Defines a word.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
         subcommands = [
-			{
-				name = "dictionary",
-				description = "Defines a word from the dictionary.",
-				options = [
-					{
-						name = "word",
-						description = "The word",
-						option_type = InteractionOptionType::STRING,
-						required = true,
-					},
-					{
-						name = "show",
-						description = "Whether to publicly show the response",
-						option_type = InteractionOptionType::BOOLEAN,
-					},
-				],
-			},
             {
-				name = "urban-dictionary",
-				description = "Defines a word from the Urban Dictionary.",
-				options = [
-					{
-						name = "word",
-						description = "The word",
-						option_type = InteractionOptionType::STRING,
-						required = true,
-					},
-					{
-						name = "show",
-						description = "Whether to publicly show the response",
-						option_type = InteractionOptionType::BOOLEAN,
-					},
-				],
-			}
+                name = "dictionary",
+                description = "Defines a word from the dictionary.",
+                options = [
+                    {
+                        name = "word",
+                        description = "The word",
+                        option_type = InteractionOptionType::STRING,
+                        required = true,
+                    },
+                    {
+                        name = "show",
+                        description = "Whether to publicly show the response",
+                        option_type = InteractionOptionType::BOOLEAN,
+                    },
+                ],
+            },
+            {
+                name = "urban-dictionary",
+                description = "Defines a word from the Urban Dictionary.",
+                options = [
+                    {
+                        name = "word",
+                        description = "The word",
+                        option_type = InteractionOptionType::STRING,
+                        required = true,
+                    },
+                    {
+                        name = "show",
+                        description = "Whether to publicly show the response",
+                        option_type = InteractionOptionType::BOOLEAN,
+                    },
+                ],
+            }
         ],
     )]
     async fn func(input: CommandInput, res: CommandResponder) {

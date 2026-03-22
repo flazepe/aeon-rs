@@ -85,28 +85,28 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 pub fn get_slashook_command() -> SlashookCommand {
     #[command(
         name = COMMAND.name.clone(),
-		description = "Fetches song lyrics based on query or user's Spotify status.",
+        description = "Fetches song lyrics based on query or user's Spotify status.",
         integration_types = [IntegrationType::GUILD_INSTALL, IntegrationType::USER_INSTALL],
         contexts = [InteractionContextType::GUILD, InteractionContextType::BOT_DM, InteractionContextType::PRIVATE_CHANNEL],
-		options = [
+        options = [
             {
-				name = "song",
-				description = r#"The song. Artist can be specified by using the "Artist - Title" format"#,
-				option_type = InteractionOptionType::STRING,
-			},
+                name = "song",
+                description = r#"The song. Artist can be specified by using the "Artist - Title" format"#,
+                option_type = InteractionOptionType::STRING,
+            },
             {
-				name = "lyrics",
-				description = "The song lyrics",
-				option_type = InteractionOptionType::STRING,
-			},
+                name = "lyrics",
+                description = "The song lyrics",
+                option_type = InteractionOptionType::STRING,
+            },
             {
                 name = "translate",
                 description = "Translate the lyrics to a language",
                 option_type = InteractionOptionType::STRING,
                 autocomplete = true,
             },
-		],
-	)]
+        ],
+    )]
     async fn func(input: CommandInput, res: CommandResponder) {
         COMMAND.run(AeonCommandInput::ApplicationCommand(Box::new(input), res)).await?;
     }
