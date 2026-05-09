@@ -43,7 +43,6 @@ pub fn get_slashook_command() -> SlashookCommand {
                         name = "user",
                         description = "The user",
                         option_type = InteractionOptionType::USER,
-                        required = true,
                     },
                     {
                         name = "force-main-banner",

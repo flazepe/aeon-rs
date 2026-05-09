@@ -28,17 +28,18 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     /*
         The only realistic way to get the member banner is by using the resolved object from the application command data.
         We can't directly fetch the guild member object from the API anyway if the bot isn't in the server, so this method is better.
-
-        It's also why the `user` option for this subcommand is required and not optional, in case the slash command author has a member banner set.
-        Again, the banner value in the member object would be unpopulated, so we need to use the resolved values, forcing the option to be required.
     */
     let member_banner_url = input.guild_id.as_ref().and_then(|guild_id| {
-        input.as_ref().resolved.as_ref().and_then(|resolved| {
-            resolved
-                .members
-                .as_ref()
-                .and_then(|members| members.get(user_id).and_then(|member| member.banner_url(guild_id, user_id, "png", Some("gif"), 4096)))
-        })
+        input
+            .as_ref()
+            .resolved
+            .as_ref()
+            .and_then(|resolved| {
+                resolved.members.as_ref().and_then(|members| {
+                    members.get(user_id).and_then(|member| member.banner_url(guild_id, user_id, "png", Some("gif"), 4096))
+                })
+            })
+            .or_else(|| input.member.as_ref().and_then(|member| member.banner_url(guild_id, user_id, "png", Some("gif"), 4096)))
     });
 
     let banner_url =

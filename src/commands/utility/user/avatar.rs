@@ -16,12 +16,16 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
 
     let user_avatar_url = user.display_avatar_url("png", Some("gif"), 4096);
     let member_avatar_url = input.guild_id.as_ref().and_then(|guild_id| {
-        input.as_ref().resolved.as_ref().and_then(|resolved| {
-            resolved
-                .members
-                .as_ref()
-                .and_then(|members| members.get(user_id).and_then(|member| member.avatar_url(guild_id, user_id, "png", Some("gif"), 4096)))
-        })
+        input
+            .as_ref()
+            .resolved
+            .as_ref()
+            .and_then(|resolved| {
+                resolved.members.as_ref().and_then(|members| {
+                    members.get(user_id).and_then(|member| member.avatar_url(guild_id, user_id, "png", Some("gif"), 4096))
+                })
+            })
+            .or_else(|| input.member.as_ref().and_then(|member| member.avatar_url(guild_id, user_id, "png", Some("gif"), 4096)))
     });
 
     let avatar_url =
