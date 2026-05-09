@@ -18,10 +18,14 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let user_id = &user.id;
 
     let user_banner_url = user.banner_url("png", Some("gif"), 4096);
-    let guild_banner_url = input
-        .guild_id
-        .as_ref()
-        .and_then(|guild_id| input.member.as_ref().and_then(|member| member.banner_url(guild_id, user_id, "png", Some("gif"), 4096)));
+    let guild_banner_url = input.guild_id.as_ref().and_then(|guild_id| {
+        input.as_ref().resolved.as_ref().and_then(|resolved| {
+            resolved
+                .members
+                .as_ref()
+                .and_then(|members| members.get(user_id).and_then(|member| member.banner_url(guild_id, user_id, "png", Some("gif"), 4096)))
+        })
+    });
 
     let banner_url =
         if ctx.get_bool_arg("force-user-banner").unwrap_or(false) { user_banner_url } else { guild_banner_url.or(user_banner_url) }
