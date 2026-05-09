@@ -29,8 +29,8 @@ pub fn get_slashook_command() -> SlashookCommand {
                         option_type = InteractionOptionType::USER,
                     },
                     {
-                        name = "force-user-avatar",
-                        description = "Whether to force showing user avatar instead of server avatar",
+                        name = "force-main-avatar",
+                        description = "Whether to force showing user's main avatar instead of per-server avatar",
                         option_type = InteractionOptionType::BOOLEAN,
                     },
                 ],
@@ -46,8 +46,8 @@ pub fn get_slashook_command() -> SlashookCommand {
                         required = true,
                     },
                     {
-                        name = "force-user-banner",
-                        description = "Whether to force showing user banner instead of server banner",
+                        name = "force-main-banner",
+                        description = "Whether to force showing user's main banner instead of per-server banner",
                         option_type = InteractionOptionType::BOOLEAN,
                     },
                 ],

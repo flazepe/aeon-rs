@@ -15,7 +15,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let user_id = &user.id;
 
     let user_avatar_url = user.display_avatar_url("png", Some("gif"), 4096);
-    let guild_avatar_url = input.guild_id.as_ref().and_then(|guild_id| {
+    let member_avatar_url = input.guild_id.as_ref().and_then(|guild_id| {
         input.as_ref().resolved.as_ref().and_then(|resolved| {
             resolved
                 .members
@@ -25,13 +25,13 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     });
 
     let avatar_url =
-        if ctx.get_bool_arg("force-user-avatar").unwrap_or(false) { user_avatar_url } else { guild_avatar_url.unwrap_or(user_avatar_url) };
+        if ctx.get_bool_arg("force-main-avatar").unwrap_or(false) { user_avatar_url } else { member_avatar_url.unwrap_or(user_avatar_url) };
 
     ctx.respond(
         MessageResponse::from(format!(
             "{}<{avatar_url}>",
             if avatar_url.contains("guild") {
-                "-# **Showing member's server avatar**. To view member's user avatar, set `force-user-avatar` to `true`.\n"
+                "-# **Showing user's per-server avatar**. To view user's main avatar, set `force-main-avatar` to `true`.\n"
             } else {
                 ""
             },
