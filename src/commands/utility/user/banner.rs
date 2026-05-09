@@ -14,10 +14,24 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
 
     ctx.defer(false).await?;
 
-    let user = User::fetch(&REST, &ctx.get_user_arg("user").unwrap_or(&input.user).id).await?; // Fetch the user again to make sure banner exists
+    /*
+        We have to fetch the user directly from the API to make sure that the banner value is populated.
+
+        Weirdly enough, the resolved object from the application command data still does not have the
+        user banner populated (it does for guild banners though...), so we can't use that.
+    */
+    let user = User::fetch(&REST, &ctx.get_user_arg("user").unwrap_or(&input.user).id).await?;
     let user_id = &user.id;
 
     let user_banner_url = user.banner_url("png", Some("gif"), 4096);
+
+    /*
+        The only realistic way to get the guild banner is by using the resolved object from the application command data.
+        We can't directly fetch the guild member object from the API anyway if the bot isn't in the server, so this method is better.
+
+        It's also why the `user` option for this subcommand is required and not optional, in case the slash command author has a guild banner set.
+        Again, the banner value in the member object would be unpopulated, so we need to use the resolved values, forcing the option to be required.
+    */
     let guild_banner_url = input.guild_id.as_ref().and_then(|guild_id| {
         input.as_ref().resolved.as_ref().and_then(|resolved| {
             resolved
