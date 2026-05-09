@@ -48,14 +48,14 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     ctx.respond(
         MessageResponse::from(format!(
             "{}<{banner_url}>",
-            if banner_url.contains("guild") {
+            if banner_url.contains("/guilds/") {
                 "-# **Showing user's per-server banner**. To view user's main banner, set `force-main-banner` to `true`.\n"
             } else {
                 ""
             },
         ))
         .add_file(File::new(
-            format!("image.{}", if banner_url.contains("a_") { "gif" } else { "png" }),
+            format!("image.{}", if banner_url.contains("/a_") { "gif" } else { "png" }),
             REQWEST.get(banner_url).send().await?.bytes().await?,
         )),
         false,

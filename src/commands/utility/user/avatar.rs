@@ -30,14 +30,14 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     ctx.respond(
         MessageResponse::from(format!(
             "{}<{avatar_url}>",
-            if avatar_url.contains("guild") {
+            if avatar_url.contains("/guilds/") {
                 "-# **Showing user's per-server avatar**. To view user's main avatar, set `force-main-avatar` to `true`.\n"
             } else {
                 ""
             },
         ))
         .add_file(File::new(
-            format!("image.{}", if avatar_url.contains("a_") { "gif" } else { "png" }),
+            format!("image.{}", if avatar_url.contains("/a_") { "gif" } else { "png" }),
             REQWEST.get(avatar_url).send().await?.bytes().await?,
         )),
         false,
