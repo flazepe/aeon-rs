@@ -112,9 +112,11 @@ impl EmojiReactionExt for EmojiReactionType {
             Self::Unicode { name } => {
                 let mut hexcodes = name.chars().map(|entry| format!("{:x}", entry as u32)).collect::<Vec<String>>();
 
-                // Trim fe0f (variant selector) if total hexcodes is just 2 (for emojis like :heart: and :heart_exclamation:)
-                // The length is limited to 2 because a hexcode like :face_in_clouds: with 4 codepoints (:no_mouth: + zero width joiner + :cloud: + fe0f) exists and it's valid
-                // Not sure if this is reliable. I seriously don't want to hardcode all valid Twemojis just for an asset URL
+                /*
+                    Trim fe0f (variant selector) if total hexcodes is just 2 (for emojis like :heart: and :heart_exclamation:).
+                    The length is limited to 2 because a hexcode like :face_in_clouds: with 4 codepoints (:no_mouth: + zero width joiner + :cloud: + fe0f) exists and it's valid.
+                    Not sure if this is reliable. I seriously don't want to hardcode all valid Twemojis just for an asset URL...
+                */
                 if hexcodes.len() == 2 && hexcodes[1] == "fe0f" {
                     hexcodes.pop();
                 }

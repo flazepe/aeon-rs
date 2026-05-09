@@ -32,11 +32,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         guild.prefixes = guild.prefixes.into_iter().filter(|entry| entry != &prefix).collect::<Vec<String>>();
     } else {
         guild.prefixes.push(prefix);
-
-        // Sort alphabetically
         guild.prefixes.sort();
-
-        // Sort by longest to shortest for accuracy
         guild.prefixes.sort_by_key(|entry| Reverse(entry.len()));
     }
 

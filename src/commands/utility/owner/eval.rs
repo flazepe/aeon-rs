@@ -16,7 +16,6 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         flags.clear();
     }
 
-    // Codeblock trim
     if code.starts_with("```") {
         code = code.trim_end_matches("```").chars().skip(if code.starts_with("```js") { 5 } else { 3 }).collect::<String>();
     }

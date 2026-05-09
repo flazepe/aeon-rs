@@ -97,14 +97,18 @@ impl EventHandler {
             let Some(domain) = url.split('/').nth(2).map(|domain| domain.trim_start_matches("www.")) else { continue };
             let path = url.split("?").next().unwrap_or_default().split('/').skip(3).collect::<Vec<&str>>().join("/");
 
-            // Skip X posts that have a valid image
-            // Discord does not follow photo indices (it always only shows the first photo), so we don't skip fixing those
+            /*
+                Skip X posts that have a valid image.
+                Discord does not follow photo indexes (it always only shows the first photo), so we don't skip fixing those.
+            */
             if ["x.com", "twitter.com"].contains(&domain) && (!path.contains("/photo/") || path.contains("/photo/1")) && !force_fix_all {
                 let html = REQWEST.get(url).header("user-agent", DISCORD_USER_AGENT).send().await?.text().await?;
                 let image_url = get_meta_contents(&html, &["og:image"]).into_values().next().unwrap_or_default();
 
-                // Make sure the URL contains the "media" path. Otherwise, it is most likely a thumbnail for a video, which should be fixed
-                // Also make sure that it's a valid media (status code OK). Sometimes it likes to return a placeholder URL that leads to a 404
+                /*
+                    Make sure the URL contains the "media" path. Otherwise, it is most likely a thumbnail for a video, which should be fixed.
+                    Also make sure that it's a valid media (status code OK). Sometimes it likes to return a placeholder URL that leads to a 404.
+                */
                 if image_url.contains("/media/") && REQWEST.head(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK) {
                     continue;
                 }

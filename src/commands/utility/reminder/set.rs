@@ -13,7 +13,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     // Must defer to not update original message
     res.defer(input.is_string_select()).await?;
 
-    // Delete snoozed reminder
+    // Delete snoozed reminder (we know it's a reminder message since it's a message that has no interaction metadata on it)
     if let Some(message) = input.message.as_ref()
         && message.interaction_metadata.is_none()
     {
