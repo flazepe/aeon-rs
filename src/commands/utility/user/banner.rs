@@ -35,7 +35,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         MessageResponse::from(format!(
             "{}<{banner_url}>",
             if banner_url.contains("guild") {
-                "**Showing member's server banner**. To view member's user banner, set `force-user-banner` to `true`.\n"
+                "-# **Showing member's server banner**. To view member's user banner, set `force-user-banner` to `true`.\n"
             } else {
                 ""
             },

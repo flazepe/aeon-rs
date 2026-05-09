@@ -31,7 +31,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         MessageResponse::from(format!(
             "{}<{avatar_url}>",
             if avatar_url.contains("guild") {
-                "**Showing member's server avatar**. To view member's user avatar, set `force-user-avatar` to `true`.\n"
+                "-# **Showing member's server avatar**. To view member's user avatar, set `force-user-avatar` to `true`.\n"
             } else {
                 ""
             },
