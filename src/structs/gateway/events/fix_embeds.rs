@@ -110,7 +110,7 @@ impl EventHandler {
                     Sometimes it likes to return a placeholder URL that leads to a 404.
                 */
                 if image_url.contains("/media-preview/")
-                    && REQWEST.head(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK)
+                    && REQWEST.get(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK)
                 {
                     continue;
                 }
