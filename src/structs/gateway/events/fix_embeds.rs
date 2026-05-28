@@ -106,10 +106,10 @@ impl EventHandler {
                 let image_url = get_meta_contents(&html, &["og:image"]).into_values().next().unwrap_or_default();
 
                 /*
-                    Make sure the URL contains the "media-preview" path and that it's a valid media (status code OK).
+                    Make sure the URL contains the "media" or "media-preview" path and that it's a valid media (status code OK).
                     Sometimes it likes to return a placeholder URL that leads to a 404.
                 */
-                if image_url.contains("/media-preview/")
+                if (image_url.contains("/media/") || image_url.contains("/media-preview/"))
                     && REQWEST.get(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK)
                 {
                     continue;
