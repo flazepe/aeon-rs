@@ -109,9 +109,14 @@ impl EventHandler {
                     Make sure the URL contains the "media" or "media-preview" path and that it's a valid media (status code OK).
                     Sometimes it likes to return a placeholder URL that leads to a 404.
                 */
-                if (image_url.contains("/media/") || image_url.contains("/media-preview/"))
-                    && REQWEST.get(image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK)
-                {
+                let has_media_path =
+                    image_url.contains("/media/") && REQWEST.head(&image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK);
+
+                // HEAD seems to be heavily rate-limited here? GET is fine every time
+                let has_media_preview_path = image_url.contains("/media-preview/")
+                    && REQWEST.get(&image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK);
+
+                if has_media_path || has_media_preview_path {
                     continue;
                 }
             }
