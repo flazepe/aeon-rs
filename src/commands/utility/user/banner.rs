@@ -39,7 +39,13 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
                     members.get(user_id).and_then(|member| member.banner_url(guild_id, user_id, "png", Some("gif"), 4096))
                 })
             })
-            .or_else(|| input.member.as_ref().and_then(|member| member.banner_url(guild_id, user_id, "png", Some("gif"), 4096)))
+            .or_else(|| {
+                if &input.user.id == user_id {
+                    input.member.as_ref().and_then(|member| member.banner_url(guild_id, user_id, "png", Some("gif"), 4096))
+                } else {
+                    None
+                }
+            })
     });
 
     let banner_url =
