@@ -44,7 +44,7 @@ impl UrbanDictionary {
         let word = self.list[0].word.to_lowercase();
 
         let mut list = self.list.clone();
-        list.sort_by(|a, b| b.thumbs_up.cmp(&a.thumbs_up));
+        list.sort_by_key(|entry| entry.thumbs_up);
 
         format!(
             "# [{word}](<https://www.urbandictionary.com/define.php?term={}>)\n[urban]\n{}",
