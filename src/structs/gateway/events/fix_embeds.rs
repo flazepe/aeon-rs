@@ -116,7 +116,10 @@ impl EventHandler {
                 let has_media_preview_path = image_url.contains("/media-preview/")
                     && REQWEST.get(&image_url).send().await.is_ok_and(|res| res.status() == StatusCode::OK);
 
-                if has_media_path || has_media_preview_path {
+                // Check if the post has a video. We need to fix posts that have videos, since they only show a thumbnail with a fake play button
+                let has_video = check_valid_twitter_video(url).await;
+
+                if (has_media_path || has_media_preview_path) && !has_video {
                     continue;
                 }
             }
@@ -250,6 +253,15 @@ async fn check_valid_mastodon_status(oembed_activity_url: &str) -> Result<bool> 
     Ok(has_image_or_video)
 }
 
+async fn check_valid_twitter_video(url: &str) -> bool {
+    let Some(id) = url.split('/').nth(5).and_then(|id| id.split('?').next()) else { return false };
+
+    match REQWEST.get(format!("https://api.fxtwitter.com/status/{id}")).header("user-agent", "yes").send().await {
+        Ok(res) => res.json::<FixupResponse>().await.is_ok_and(|res| !res.tweet.media.videos.is_empty()),
+        Err(_) => false,
+    }
+}
+
 async fn check_valid_fixer_response(url: &str, force_valid: bool) -> Result<bool> {
     if force_valid {
         return Ok(true);
@@ -322,3 +334,21 @@ pub enum MastodonStatusMediaAttachmentType {
     #[serde(other)]
     Unknown,
 }
+
+#[derive(Deserialize, PartialEq, Debug)]
+pub struct FixupResponse {
+    pub tweet: FixupResponseTweet,
+}
+
+#[derive(Deserialize, PartialEq, Debug)]
+pub struct FixupResponseTweet {
+    pub media: FixupResponseTweetMedia,
+}
+
+#[derive(Deserialize, PartialEq, Debug)]
+pub struct FixupResponseTweetMedia {
+    pub videos: Vec<FixupResponseTweetMediaVideo>,
+}
+
+#[derive(Deserialize, PartialEq, Debug)]
+pub struct FixupResponseTweetMediaVideo {}
