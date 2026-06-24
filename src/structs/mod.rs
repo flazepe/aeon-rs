@@ -4,6 +4,7 @@ pub mod client;
 pub mod command;
 pub mod command_args;
 pub mod command_context;
+pub mod components_v2;
 pub mod config;
 pub mod database;
 pub mod duration;

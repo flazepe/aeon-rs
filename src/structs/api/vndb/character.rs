@@ -1,9 +1,12 @@
 use crate::{
     functions::limit_strings,
-    structs::api::vndb::{
-        Vndb,
-        statics::{VNDB_CHARACTER_FIELDS, VNDB_EMBED_AUTHOR_ICON_URL, VNDB_EMBED_AUTHOR_URL, VNDB_EMBED_COLOR},
-        visual_novel::VndbImage,
+    structs::{
+        api::vndb::{
+            Vndb,
+            statics::{VNDB_CHARACTER_FIELDS, VNDB_EMBED_COLOR},
+            visual_novel::VndbImage,
+        },
+        components_v2::ComponentsV2Embed,
     },
     traits::Commas,
 };
@@ -11,7 +14,7 @@ use anyhow::{Result, bail};
 use serde::Deserialize;
 use serde_json::json;
 use serde_repr::Deserialize_repr;
-use slashook::structs::embeds::Embed;
+use slashook::structs::components::{Components, Separator, TextDisplay};
 use std::{
     collections::HashMap,
     fmt::{Display, Formatter, Result as FmtResult},
@@ -117,53 +120,94 @@ pub struct VndbCharacter {
 }
 
 impl VndbCharacter {
-    fn _format(&self) -> Embed {
+    fn _format(&self) -> ComponentsV2Embed {
         let thumbnail = self.image.as_ref().map_or("", |image| if image.sexual > 1.0 { "" } else { image.url.as_str() });
         let title = self.name.chars().take(256).collect::<String>();
         let url = format!("https://vndb.org/{}", self.id);
+        let aliases = self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>();
 
-        Embed::new()
-            .set_color(VNDB_EMBED_COLOR)
-            .unwrap_or_default()
-            .set_thumbnail(thumbnail)
-            .set_author("vndb  •  Character", Some(VNDB_EMBED_AUTHOR_URL), Some(VNDB_EMBED_AUTHOR_ICON_URL))
-            .set_title(title)
-            .set_url(url)
+        let mut embed = ComponentsV2Embed::new().set_color(VNDB_EMBED_COLOR).set_thumbnail(thumbnail).set_title(title).set_url(url);
+
+        if !aliases.is_empty() {
+            embed = embed.set_description(aliases.join("\n"));
+        }
+
+        embed
     }
 
-    pub fn format(&self) -> Embed {
-        let aliases = self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n");
-        let sex = self.sex.as_ref().map(|(sex, spoiler_sex)| {
-            format!(
-                "{}{}",
+    pub fn format(&self) -> ComponentsV2Embed {
+        let mut text_displays = vec![];
+
+        let mut group = vec![];
+        if let Some((sex, spoiler_sex)) = &self.sex {
+            group.push(format!(
+                "**Sex**: {}{}",
                 sex.as_ref().map(|sex| format!("{sex:?}")).as_deref().unwrap_or("N/A"),
                 spoiler_sex.as_ref().map(|spoiler_sex| format!(" (||actually {spoiler_sex:?}||)")).as_deref().unwrap_or_default(),
-            )
-        });
-        let age = self.age.map(|age| age.commas());
-        let birthday = self.birthday.map(|birthday| format!("{}/{}", birthday.0, birthday.1));
-        let blood_type = self.blood_type.as_ref().map(|blood_type| format!("{blood_type:?}"));
-        let height = self.height.map(|height| format!("{} cm", height.commas()));
-        let weight = self.weight.map(|weight| format!("{} kg", weight.commas()));
-        let bust =
-            self.bust.map(|bust| format!("{bust} cm{}", self.cup.as_ref().map(|cup| format!(" - Cup Size {cup}")).unwrap_or_default()));
-        let waist = self.waist.map(|waist| format!("{waist} cm"));
-        let hips = self.hips.map(|hips| format!("{hips} cm"));
+            ));
+        }
+        if let Some(blood_type) = &self.blood_type {
+            group.push(format!("**Blood Type**: {blood_type:?}"));
+        }
+        if !group.is_empty() {
+            text_displays.push(TextDisplay::new(group.join("\n")));
+        }
 
-        self._format()
-            .set_description(aliases)
-            .add_field("Sex", sex.as_deref().unwrap_or("N/A"), true)
-            .add_field("Age", age.as_deref().unwrap_or("N/A"), true)
-            .add_field("Birthday", birthday.as_deref().unwrap_or("N/A"), true)
-            .add_field("Blood Type", blood_type.as_deref().unwrap_or("N/A"), true)
-            .add_field("Height", height.as_deref().unwrap_or("N/A"), true)
-            .add_field("Weight", weight.as_deref().unwrap_or("N/A"), true)
-            .add_field("Bust", bust.as_deref().unwrap_or("N/A"), true)
-            .add_field("Waist", waist.as_deref().unwrap_or("N/A"), true)
-            .add_field("Hips", hips.as_deref().unwrap_or("N/A"), true)
+        let mut group = vec![];
+        if let Some(age) = self.age {
+            group.push(format!("**Age**: {}", age.commas()));
+        }
+        if let Some(birthday) = self.birthday {
+            group.push(format!("**Birthday**: {}/{}", birthday.0, birthday.1));
+        }
+        if !group.is_empty() {
+            text_displays.push(TextDisplay::new(group.join("\n")));
+        }
+
+        let mut group = vec![];
+        if let Some(height) = self.height {
+            group.push(format!("**Height**: {} cm", height.commas()));
+        }
+        if let Some(weight) = self.weight {
+            group.push(format!("**Weight**: {} kg", weight.commas()));
+        }
+        if !group.is_empty() {
+            text_displays.push(TextDisplay::new(group.join("\n")));
+        }
+
+        let mut group = vec![];
+        if let Some(bust) = &self.bust {
+            group.push(format!("**Bust**: {bust} cm"));
+        }
+        if let Some(waist) = self.waist {
+            group.push(format!("**Waist**: {waist} cm"));
+        }
+        if let Some(hips) = self.hips {
+            group.push(format!("**Hips**: {hips} cm"));
+        }
+        if let Some(cup_size) = &self.cup {
+            group.push(format!("**Cup Size**: {cup_size}"));
+        }
+        if !group.is_empty() {
+            text_displays.push(TextDisplay::new(group.join("\n")));
+        }
+
+        let total = text_displays.len();
+        let mut components = Components::empty();
+
+        for (i, text_display) in text_displays.into_iter().enumerate() {
+            components = components.add_component(text_display);
+
+            if i != total - 1 {
+                let separator = Separator::new();
+                components = components.add_component(separator);
+            }
+        }
+
+        self._format().set_components(components)
     }
 
-    pub fn format_traits(&self) -> Embed {
+    pub fn format_traits(&self) -> ComponentsV2Embed {
         let mut groups = HashMap::new();
 
         for character_trait in &self.traits {
@@ -177,26 +221,43 @@ impl VndbCharacter {
                 text = format!("||{text}||");
             }
 
-            groups.get_mut(&character_trait.group_name).unwrap().push(text);
+            if let Some(traits) = groups.get_mut(&character_trait.group_name) {
+                traits.push(text);
+            }
         }
 
-        let mut embed = self._format();
+        let mut components = Components::empty();
 
-        for (group_name, traits) in groups {
-            embed = embed.add_field(group_name, limit_strings(traits, ", ", 1024), false);
+        for (i, (group_name, traits)) in groups.iter().enumerate() {
+            let text_display = TextDisplay::new(format!("### {group_name}\n{}", limit_strings(traits, ", ", 512)));
+            components = components.add_component(text_display);
+
+            if i != groups.len() - 1 {
+                let separator = Separator::new();
+                components = components.add_component(separator);
+            }
         }
 
-        embed
+        self._format().set_components(components)
     }
 
-    pub fn format_visual_novels(&self) -> Embed {
-        self._format().set_description(limit_strings(
-            self.vns
-                .iter()
-                .map(|visual_novel| format!("[{}](https://vndb.org/{}) ({})", visual_novel.title, visual_novel.id, visual_novel.role)),
-            "\n",
-            4096,
-        ))
+    pub fn format_visual_novels(&self) -> ComponentsV2Embed {
+        let mut components = Components::empty();
+
+        let iter = self.vns.iter().take(20);
+        let total = iter.len();
+
+        for (i, vn) in iter.enumerate() {
+            let text_display = TextDisplay::new(format!("### [{}](https://vndb.org/{})\n-# {}", vn.title, vn.id, vn.role));
+            components = components.add_component(text_display);
+
+            if i != total - 1 {
+                let separator = Separator::new();
+                components = components.add_component(separator);
+            }
+        }
+
+        self._format().set_components(components)
     }
 }
 
