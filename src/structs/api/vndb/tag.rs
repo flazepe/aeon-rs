@@ -1,16 +1,19 @@
 use crate::{
     functions::limit_strings,
     macros::yes_no,
-    structs::api::vndb::{
-        Vndb,
-        statics::{VNDB_EMBED_AUTHOR_ICON_URL, VNDB_EMBED_AUTHOR_URL, VNDB_EMBED_COLOR, VNDB_TAG_FIELDS},
+    structs::{
+        api::vndb::{
+            Vndb,
+            statics::{VNDB_EMBED_COLOR, VNDB_TAG_FIELDS},
+        },
+        components_v2::ComponentsV2Embed,
     },
     traits::Commas,
 };
 use anyhow::{Result, bail};
 use serde::Deserialize;
 use serde_json::json;
-use slashook::structs::embeds::Embed;
+use slashook::structs::components::{Components, TextDisplay};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 #[derive(Deserialize, Debug)]
@@ -51,7 +54,7 @@ pub struct VndbTag {
 }
 
 impl VndbTag {
-    pub fn format(&self) -> Embed {
+    pub fn format(&self) -> ComponentsV2Embed {
         let title = format!("{} ({})", self.name, self.category);
         let url = format!("https://vndb.org/{}", self.id);
         let aliases = self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n");
@@ -59,18 +62,15 @@ impl VndbTag {
         let searchable = yes_no!(self.searchable);
         let applicable = yes_no!(self.applicable);
         let vn_count = self.vn_count.commas();
+        let footer = format!("Visual Novel Count: {vn_count}  •  Applicable: {applicable}  •  Searchable: {searchable}");
 
-        Embed::new()
+        ComponentsV2Embed::new()
             .set_color(VNDB_EMBED_COLOR)
-            .unwrap_or_default()
-            .set_author("vndb  •  Tag", Some(VNDB_EMBED_AUTHOR_URL), Some(VNDB_EMBED_AUTHOR_ICON_URL))
             .set_title(title)
             .set_url(url)
             .set_description(aliases)
-            .add_field("Description", description, false)
-            .add_field("Searchable", searchable, true)
-            .add_field("Applicable", applicable, true)
-            .add_field("Visual Novel Count", vn_count, true)
+            .set_components(Components::empty().add_component(TextDisplay::new(description)))
+            .set_footer(footer)
     }
 }
 

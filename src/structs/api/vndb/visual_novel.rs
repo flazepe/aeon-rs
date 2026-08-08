@@ -1,15 +1,18 @@
 use crate::{
     functions::{label_num, limit_strings},
-    structs::api::vndb::{
-        Vndb,
-        statics::{VNDB_EMBED_AUTHOR_ICON_URL, VNDB_EMBED_AUTHOR_URL, VNDB_EMBED_COLOR, VNDB_VISUAL_NOVEL_FIELDS},
+    structs::{
+        api::vndb::{
+            Vndb,
+            statics::{VNDB_EMBED_COLOR, VNDB_VISUAL_NOVEL_FIELDS},
+        },
+        components_v2::ComponentsV2Embed,
     },
 };
 use anyhow::{Result, bail};
 use serde::Deserialize;
 use serde_json::json;
 use serde_repr::Deserialize_repr;
-use slashook::structs::embeds::Embed;
+use slashook::structs::components::{Components, TextDisplay};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 // Enum reference: https://code.blicky.net/yorhel/vndb/src/branch/master/lib/VNDB/Types.pm
@@ -522,61 +525,64 @@ pub struct VndbVisualNovel {
 }
 
 impl VndbVisualNovel {
-    fn _format(&self) -> Embed {
-        let thumbnail = self.image.as_ref().map_or("", |image| if image.sexual > 1.0 { "" } else { image.url.as_str() });
-        let title = format!(
-            "{} ({})",
-            if self.title.len() > 230 {
-                format!("{}…", self.title.chars().take(229).collect::<String>().trim())
-            } else {
-                self.title.clone()
-            },
-            self.dev_status,
-        );
+    fn _format(&self) -> ComponentsV2Embed {
+        let thumbnail = self.image.as_ref().map_or("", |image| if image.sexual > 1. { "" } else { image.url.as_str() });
+        let title = format!("{} ({})", limit_strings(self.title.split(""), "", 230), self.dev_status);
         let url = format!("https://vndb.org/{}", self.id);
-
-        Embed::new()
-            .set_color(VNDB_EMBED_COLOR)
-            .unwrap_or_default()
-            .set_thumbnail(thumbnail)
-            .set_author("vndb  •  Visual Novel", Some(VNDB_EMBED_AUTHOR_URL), Some(VNDB_EMBED_AUTHOR_ICON_URL))
-            .set_title(title)
-            .set_url(url)
-    }
-
-    pub fn format(&self) -> Embed {
-        let aliases = self.aliases.iter().map(|alias| format!("_{alias}_")).collect::<Vec<String>>().join("\n");
-        let popularity = format!("{:.0}%", self.popularity);
-        let rating = format!(
-            "{} ({})",
+        let footer = format!(
+            "Released: {}  •  Rating: {} ({})  •  Popularity: {:.0}%",
+            self.released.as_deref().unwrap_or("TBA"),
             self.rating.map(|rating| format!("{rating:.0}%")).as_deref().unwrap_or("N/A"),
             label_num(self.vote_count, "vote", "votes"),
+            self.popularity,
         );
-        let length = format!(
-            "{} ({})",
-            self.length.as_ref().map(|length| length.to_string()).as_deref().unwrap_or("N/A"),
-            label_num(self.length_votes, "vote", "votes"),
-        );
-        let languages = self.languages.iter().map(|language| language.to_string()).collect::<Vec<String>>().join(", ");
-        let platforms = self.platforms.iter().map(|platform| platform.to_string()).collect::<Vec<String>>().join(", ");
-        let release_date = self.released.as_ref().map(|released| format!("Released {released}"));
 
-        self._format()
-            .set_description(aliases)
-            .add_field("Popularity", popularity, true)
-            .add_field("Rating", rating, true)
-            .add_field("Length", length, true)
-            .add_field("Languages", languages, false)
-            .add_field("Platforms", platforms, false)
-            .set_footer(release_date.as_deref().unwrap_or_default(), None::<String>)
+        ComponentsV2Embed::new().set_color(VNDB_EMBED_COLOR).set_thumbnail(thumbnail).set_title(title).set_url(url).set_footer(footer)
     }
 
-    pub fn format_description(&self) -> Embed {
-        let description = limit_strings(Vndb::clean_bbcode(self.description.as_deref().unwrap_or("N/A")).split('\n'), "\n", 4096);
+    pub fn format(&self) -> ComponentsV2Embed {
+        let mut aliases = vec![];
+        if let Some(alt_title) = &self.alt_title {
+            aliases.push(format!("_{alt_title}_"));
+        }
+        for alias in &self.aliases {
+            aliases.push(format!("_{alias}_"));
+        }
+        let languages = self.languages.iter().map(|language| language.to_string()).collect::<Vec<String>>().join(", ");
+        let platforms = self.platforms.iter().map(|platform| platform.to_string()).collect::<Vec<String>>().join(", ");
+
+        let mut embed = self._format();
+
+        if !aliases.is_empty() {
+            embed = embed.set_description(aliases.join("\n"))
+        }
+
+        let mut components = Components::empty();
+
+        if !languages.is_empty() {
+            let text_display = TextDisplay::new(format!("### Languages\n{languages}"));
+            components = components.add_component(text_display);
+        }
+
+        if !platforms.is_empty() {
+            let text_display = TextDisplay::new(format!("### Platforms\n{platforms}"));
+            components = components.add_component(text_display);
+        }
+
+        if let Some(length) = &self.length {
+            let text_display = TextDisplay::new(format!("### Length\n{length} ({})", label_num(self.length_votes, "vote", "votes")));
+            components = components.add_component(text_display);
+        }
+
+        embed.set_components(components)
+    }
+
+    pub fn format_description(&self) -> ComponentsV2Embed {
+        let description = limit_strings(Vndb::clean_bbcode(self.description.as_deref().unwrap_or("N/A")).split('\n'), "\n", 3000);
         self._format().set_description(description)
     }
 
-    pub fn format_tags(&self) -> Embed {
+    pub fn format_tags(&self) -> ComponentsV2Embed {
         let tags = limit_strings(
             self.tags.iter().map(|tag| {
                 let mut text = format!("[{}](https://vndb.org/{})", tag.name, tag.id);
@@ -588,7 +594,7 @@ impl VndbVisualNovel {
                 text
             }),
             ", ",
-            4096,
+            3000,
         );
         self._format().set_description(tags)
     }

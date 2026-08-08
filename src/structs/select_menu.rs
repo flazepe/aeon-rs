@@ -55,7 +55,7 @@ impl SelectMenu {
     }
 }
 
-impl From<SelectMenu> for Components {
+impl From<SelectMenu> for SlashookSelectMenu {
     fn from(value: SelectMenu) -> Self {
         let mut select_menu = SlashookSelectMenu::new(SelectMenuType::STRING)
             .set_id(value.command.to_string(), value.id.to_string())
@@ -75,7 +75,13 @@ impl From<SelectMenu> for Components {
             select_menu = select_menu.add_option(option);
         }
 
-        Self::new().add_select_menu(select_menu)
+        select_menu
+    }
+}
+
+impl From<SelectMenu> for Components {
+    fn from(value: SelectMenu) -> Self {
+        Self::new().add_select_menu(SlashookSelectMenu::from(value))
     }
 }
 
