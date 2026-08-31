@@ -1,6 +1,10 @@
+
+
 # [Aeon](https://aeon.js.org)
 
 A Discord bot written in Rust using [Slashook](https://github.com/tonkku107/slashook).
+
+It uses MongoDB and Redis.
 
 ## Features
 
