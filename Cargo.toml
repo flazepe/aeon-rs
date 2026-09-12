@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1"
-base64 = "0.22"
+base64 = "0.23"
 futures = "0.3"
 gouth = "0.2"
 headless_chrome = "1"
@@ -35,7 +35,7 @@ tracing-subscriber = "0.3"
 twilight-gateway = "0.17"
 twilight-http = "0.17"
 twilight-model = "0.17"
-unicode_names2 = "3"
+unicode_names2 = "4"
 
 [build-dependencies]
 tonic-prost-build = "0.14"
