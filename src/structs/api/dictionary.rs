@@ -2,12 +2,12 @@ use crate::{
     functions::limit_strings,
     statics::{REQWEST, colors::PRIMARY_EMBED_COLOR},
 };
-use anyhow::{Error, Result};
+use anyhow::{Result, bail};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Default, Debug)]
 pub struct Dictionary {
     word: String,
     entries: Vec<DictionaryEntry>,
@@ -27,13 +27,19 @@ pub struct DictionarySense {
 
 impl Dictionary {
     pub async fn search<T: Display>(word: T) -> Result<Self> {
-        REQWEST
+        let result = REQWEST
             .get(format!("https://freedictionaryapi.com/api/v1/entries/en/{word}"))
             .send()
             .await?
-            .json()
+            .json::<Self>()
             .await
-            .map_err(|_| Error::msg("Word not found."))
+            .unwrap_or_default();
+
+        if result.entries.is_empty() {
+            bail!("Word not found.");
+        }
+
+        Ok(result)
     }
 
     pub fn format(&self) -> Embed {
