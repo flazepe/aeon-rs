@@ -27,7 +27,7 @@ impl Dictionary {
             .get(format!("https://freedictionaryapi.com/api/v1/entries/en/{word}"))
             .send()
             .await?
-            .json::<Self>()
+            .json()
             .await
             .map_err(|_| Error::msg("Word not found."))
     }
