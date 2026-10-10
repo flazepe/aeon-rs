@@ -43,7 +43,11 @@ impl WolframAlpha {
         for (index, pod) in pods.iter().enumerate() {
             let Some(subpod) = pod.subpods.first() else { continue };
 
-            if !show_all && index > 1 {
+            /*
+                40 is the maximum amount of components a components v2 message can have,
+                and we take 3 components per result (container + text display + media gallery)
+            */
+            if (!show_all && index > 1) || components.0.len() * 3 + 3 > 40 {
                 break;
             }
 
