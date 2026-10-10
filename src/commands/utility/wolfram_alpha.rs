@@ -11,7 +11,7 @@ use slashook::{
 use std::{sync::Arc, sync::LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
-    AeonCommand::new("wolfram-alpha", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
+    AeonCommand::new("wolfram-alpha", &["wa", "wolfram"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         ctx.defer(false).await?;
 
         let query = ctx.get_string_arg("query", 0, true)?;
