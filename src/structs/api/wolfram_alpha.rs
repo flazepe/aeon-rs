@@ -28,7 +28,7 @@ impl WolframAlpha {
         Ok(result)
     }
 
-    pub fn format_response(&self) -> MessageResponse {
+    pub fn format_response(&self, show_all: bool) -> MessageResponse {
         let Some(pods) = &self.query_result.pods else {
             let components = Components::empty().add_component(TextDisplay::new("No results found."));
             let response = MessageResponse::from(components).set_components_v2(true);
@@ -48,6 +48,10 @@ impl WolframAlpha {
             let media_gallery = MediaGallery::new().add_item(MediaGalleryItem::new(&subpod.img.src));
 
             components = components.add_component(text_display).add_component(media_gallery);
+
+            if !show_all {
+                break;
+            }
         }
 
         MessageResponse::from(components).set_components_v2(true)

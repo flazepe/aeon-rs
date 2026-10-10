@@ -16,8 +16,9 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 
         let query = ctx.get_string_arg("query", 0, true)?;
         let result = WolframAlpha::query(query).await?;
+        let show_all = ctx.get_bool_arg("show-all").unwrap_or_default();
 
-        ctx.respond(result.format_response(), false).await
+        ctx.respond(result.format_response(show_all), false).await
     })
 });
 
@@ -33,6 +34,11 @@ pub fn get_slashook_command() -> SlashookCommand {
                 description = "The query",
                 option_type = InteractionOptionType::STRING,
                 required = true,
+            },
+            {
+                name = "show-all",
+                description = "Whether to show all results",
+                option_type = InteractionOptionType::BOOLEAN,
             },
         ],
     )]
