@@ -1,9 +1,12 @@
-use crate::statics::{CONFIG, REQWEST};
+use crate::statics::{
+    CONFIG, REQWEST,
+    colors::{PRIMARY_EMBED_COLOR, SUCCESS_EMBED_COLOR},
+};
 use anyhow::Result;
 use serde::Deserialize;
 use slashook::{
     commands::MessageResponse,
-    structs::components::{Components, MediaGallery, MediaGalleryItem, TextDisplay},
+    structs::components::{Components, Container, MediaGallery, MediaGalleryItem, TextDisplay},
 };
 use std::fmt::Display;
 
@@ -37,8 +40,12 @@ impl WolframAlpha {
 
         let mut components = Components::empty();
 
-        for pod in pods {
+        for (index, pod) in pods.iter().enumerate() {
             let Some(subpod) = pod.subpods.first() else { continue };
+
+            if !show_all && index > 1 {
+                break;
+            }
 
             let text_display = TextDisplay::new(format!(
                 "# {}{}",
@@ -47,11 +54,13 @@ impl WolframAlpha {
             ));
             let media_gallery = MediaGallery::new().add_item(MediaGalleryItem::new(&subpod.img.src));
 
-            components = components.add_component(text_display).add_component(media_gallery);
+            let container = Container::new()
+                .set_accent_color(if index == 0 { PRIMARY_EMBED_COLOR } else { SUCCESS_EMBED_COLOR })
+                .unwrap_or_default()
+                .add_component(text_display)
+                .add_component(media_gallery);
 
-            if !show_all {
-                break;
-            }
+            components = components.add_component(container);
         }
 
         MessageResponse::from(components).set_components_v2(true)
