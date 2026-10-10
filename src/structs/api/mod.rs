@@ -11,4 +11,5 @@ pub mod spotify;
 pub mod steam;
 pub mod urban_dictionary;
 pub mod vndb;
+pub mod wolfram_alpha;
 pub mod xe;

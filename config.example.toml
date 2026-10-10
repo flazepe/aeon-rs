@@ -16,6 +16,7 @@ spotify_dc = "spotify_dc"
 spotify_token = "spotify_token"
 steam_key = "steam_key"
 waaai_key = "waaai_key"
+wolfram_alpha_app_id = ""
 
 [api.google_assistant]
 client_id = "client_id"

@@ -32,6 +32,7 @@ pub struct APIConfig {
     pub spotify_token: String,
     pub steam_key: String,
     pub waaai_key: String,
+    pub wolfram_alpha_app_id: String,
 }
 
 #[derive(Deserialize, Debug)]

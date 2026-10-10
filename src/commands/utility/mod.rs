@@ -25,6 +25,7 @@ mod timeout;
 mod unicode;
 mod unicode_list_context;
 mod user;
+mod wolfram_alpha;
 
 use crate::structs::command::AeonCommand;
 use slashook::commands::Command as SlashookCommand;
@@ -59,6 +60,7 @@ pub fn get_aeon_commands() -> Vec<&'static LazyLock<AeonCommand>> {
         &unicode::COMMAND,
         &unicode_list_context::COMMAND,
         &user::COMMAND,
+        &wolfram_alpha::COMMAND,
     ]
 }
 
@@ -91,5 +93,6 @@ pub fn get_slashook_commands() -> Vec<SlashookCommand> {
         unicode::get_slashook_command(),
         unicode_list_context::get_slashook_command(),
         user::get_slashook_command(),
+        wolfram_alpha::get_slashook_command(),
     ]
 }
