@@ -142,9 +142,11 @@ impl AeonCommandContext {
 
     pub async fn respond_error<T: Debug>(&self, response: T, ephemeral: bool) -> Result<()> {
         let emojis = EMOJIS.get().unwrap();
+        let error_message = format!("{response:#?}");
+        let message = if error_message.contains("reqwest::Error") { "A request error occurred." } else { error_message.trim_matches('"') };
 
         self.respond(
-            MessageResponse::from(format!("{} {}", emojis.get("aeon_error", "❌").mention(), format!("{response:#?}").trim_matches('"')))
+            MessageResponse::from(format!("{} {}", emojis.get("aeon_error", "❌").mention(), message))
                 .set_components(Components::empty())
                 .clear_embeds()
                 .clear_attachments(),
