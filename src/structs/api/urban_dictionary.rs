@@ -1,6 +1,10 @@
-use crate::{functions::limit_strings, statics::REQWEST};
+use crate::{
+    statics::{REQWEST, colors::PRIMARY_EMBED_COLOR},
+    structs::pagination::{Pagination, PaginationPages},
+};
 use anyhow::{Result, bail};
 use serde::Deserialize;
+use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
 #[derive(Deserialize, Clone, Debug)]
@@ -40,20 +44,26 @@ impl UrbanDictionary {
         Ok(result)
     }
 
-    pub fn format(&self) -> String {
+    pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
         let word = self.list[0].word.to_lowercase();
 
         let mut list = self.list.clone();
         list.sort_by_key(|entry| entry.thumbs_up);
 
-        format!(
-            "# [{word}](<https://www.urbandictionary.com/define.php?term={}>)\n[urban]\n{}",
-            word.replace(' ', "+"),
-            limit_strings(
-                list.iter().map(|meaning| format!("- {}", meaning.definition.split('\n').next().unwrap().replace(['[', ']'], ""))),
-                "\n",
-                1900,
-            ),
-        )
+        let pages = list
+            .iter()
+            .map(|meaning| {
+                vec![
+                    Embed::new()
+                        .set_color(PRIMARY_EMBED_COLOR)
+                        .unwrap_or_default()
+                        .set_title(&word)
+                        .set_url(format!("https://www.urbandictionary.com/define.php?term={}", word.replace(' ', "+")))
+                        .set_description(meaning.definition.split('\n').next().unwrap().replace(['[', ']'], "")),
+                ]
+            })
+            .collect::<Vec<Vec<Embed>>>();
+
+        Pagination::new(command, PaginationPages::Embeds(pages))
     }
 }

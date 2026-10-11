@@ -1,6 +1,6 @@
 use crate::{
-    functions::limit_strings,
     statics::{REQWEST, colors::PRIMARY_EMBED_COLOR},
+    structs::pagination::{Pagination, PaginationPages},
 };
 use anyhow::{Result, bail};
 use serde::Deserialize;
@@ -42,17 +42,19 @@ impl Dictionary {
         Ok(result)
     }
 
-    pub fn format(&self) -> Embed {
-        Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_title(&self.word).set_description(limit_strings(
-            self.entries.iter().map(|entry| {
-                format!(
+    pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
+        let pages = self
+            .entries
+            .iter()
+            .map(|entry| {
+                vec![Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_title(&self.word).set_description(format!(
                     "-# {}\n{}",
                     entry.part_of_speech,
                     entry.senses.iter().map(|sense| format!("- {}", sense.definition)).collect::<Vec<String>>().join("\n"),
-                )
-            }),
-            "\n",
-            4096,
-        ))
+                ))]
+            })
+            .collect::<Vec<Vec<Embed>>>();
+
+        Pagination::new(command.to_string(), PaginationPages::Embeds(pages))
     }
 }
