@@ -9,11 +9,7 @@ use crate::{
 use anyhow::Result;
 use futures::{Future, future::BoxFuture};
 use serde_json::Value;
-use slashook::{
-    chrono::Utc,
-    commands::Modal,
-    structs::components::{Components, Label, TextInput},
-};
+use slashook::chrono::Utc;
 use std::{fmt::Display, sync::Arc};
 use tracing::error;
 
@@ -74,6 +70,7 @@ impl AeonCommand {
     pub async fn run(&self, command_input: AeonCommandInput) -> Result<()> {
         let mut ctx = AeonCommandContext::new(command_input);
 
+        // Only reply to interactions that match the original interaction's user ID (if applicable)
         if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input
             && let Some(interaction_metadata) = input.message.as_ref().and_then(|message| message.interaction_metadata.as_ref())
             && input.user.id != interaction_metadata.user.id
@@ -81,12 +78,14 @@ impl AeonCommand {
             return ctx.respond_error("This isn't your interaction.", true).await;
         }
 
+        // Handle owner-only commands
         if self.owner_only && ctx.get_user_id() != FLAZEPE_ID {
             return ctx.respond_error("This command is owner-only.", true).await;
         }
 
         let mut func = self.func.as_ref();
 
+        // If there are subcommands, try to find one that matches the input so that we can run its function
         if !self.subcommands.is_empty() {
             match &mut ctx.command_input {
                 AeonCommandInput::MessageCommand(_, args, _) => {
@@ -129,6 +128,7 @@ impl AeonCommand {
 
         let Some(func) = func else { return Ok(()) };
 
+        // Handle existing cooldowns
         let redis = Database::get_redis()?;
         let cooldown_key = RedisKey::UserCooldown(ctx.get_user_id());
 
@@ -136,26 +136,26 @@ impl AeonCommand {
             return ctx.respond_error("You are under a cooldown. Try again later.", true).await;
         }
 
-        // Only add cooldown if the input was a command without search option
-        let add_cooldown = if let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input {
-            input.is_command() && !ctx.get_bool_arg("search").unwrap_or(false)
-        } else {
-            true
+        // Handle new cooldowns. For application commands, only add them if the input has no `search` option. For message commands, always add them
+        let add_cooldown = match &ctx.command_input {
+            AeonCommandInput::ApplicationCommand(input, _) => input.is_command() && !ctx.get_bool_arg("search").unwrap_or(false),
+            AeonCommandInput::MessageCommand(_, _, _) => true,
         };
 
         if add_cooldown {
             redis.set(&cooldown_key, Utc::now().timestamp(), Some(3)).await?;
         }
 
+        // Handle pagination (if applicable)
         if let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input
             && let Some(custom_id) = &input.custom_id
             && custom_id.starts_with("pagination/")
         {
             let trimmed_custom_id = custom_id.replace("pagination/", "");
             let (id, action) = trimmed_custom_id.split_once('/').unwrap_or_default();
-            let key = RedisKey::Paginations(id.to_string());
+            let pagination_key = RedisKey::Paginations(id.to_string());
 
-            let Ok(mut pagination) = redis.get::<Pagination>(&key).await else {
+            let Ok(mut pagination) = redis.get::<Pagination>(&pagination_key).await else {
                 return ctx.respond_error("This pagination is expired.", true).await;
             };
 
@@ -163,19 +163,14 @@ impl AeonCommand {
                 "first" => pagination.go_to_first_page(),
                 "previous" => pagination.go_to_previous_page(),
                 "counter" => {
-                    let label = Label::new("Type page number");
-                    let text_input = TextInput::new().set_id("page").set_required(true);
-                    let components = Components::new_label(label).add_text_input(text_input);
-
-                    let modal_custom_id = custom_id.replace("counter", "go-to");
-                    let modal = Modal::new(&pagination.command, modal_custom_id, "Go to page").set_components(components);
+                    let modal = pagination.generate_counter_modal();
                     res.open_modal(modal).await?;
-
                     return Ok(());
                 },
                 "go-to" => {
                     let page = ctx.get_string_arg("page", 0, false)?;
 
+                    // Make sure that the parsed page is over 0, since we will be subtracting 1 to match the actual index
                     if let Ok(parsed_page) = page.parse::<usize>()
                         && parsed_page > 0
                     {
@@ -186,10 +181,10 @@ impl AeonCommand {
                 },
                 "next" => pagination.go_to_next_page(),
                 "last" => pagination.go_to_last_page(),
-                _ => {},
+                _ => return Ok(()),
             }
 
-            redis.set(&key, &pagination, Some(60 * 5)).await?;
+            redis.set(&pagination_key, &pagination, Some(60 * 5)).await?;
             res.update_message(pagination.get_message_response()).await?;
             return Ok(());
         }
