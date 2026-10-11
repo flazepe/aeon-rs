@@ -38,14 +38,31 @@ impl WolframAlpha {
             return response;
         };
 
-        let mut components = Components::empty();
+        // Sort pods by input interpretation and primary result first (if exists)
+        let mut sorted_pods = vec![];
 
         for (index, pod) in pods.iter().enumerate() {
+            // 0th index should usually be the input interpretation
+            if index == 0 {
+                sorted_pods.push(pod);
+            }
+
+            // Always put the result after the input interpretation. The rest should be appended normally
+            if index > 0 && pod.title == "Result" {
+                sorted_pods.insert(1, pod);
+            } else {
+                sorted_pods.push(pod);
+            }
+        }
+
+        let mut components = Components::empty();
+
+        for (index, pod) in sorted_pods.iter().enumerate() {
             let Some(subpod) = pod.subpods.first() else { continue };
 
             /*
                 40 is the maximum amount of components a components v2 message can have,
-                and we take 3 components per result (container + text display + media gallery)
+                and we take 3 components per result (container + text display + media gallery).
             */
             if (!show_all && index > 1) || components.0.len() * 3 + 3 > 40 {
                 break;
