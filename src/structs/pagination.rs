@@ -1,3 +1,4 @@
+use crate::statics::EMOJIS;
 use serde::{Deserialize, Serialize};
 use slashook::{
     chrono::Utc,
@@ -8,8 +9,6 @@ use slashook::{
     },
 };
 use std::fmt::Display;
-
-use crate::statics::EMOJIS;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Pagination {
