@@ -1,13 +1,13 @@
-use crate::statics::{
-    CONFIG, REQWEST,
-    colors::{PRIMARY_EMBED_COLOR, SUCCESS_EMBED_COLOR},
+use crate::{
+    statics::{
+        CONFIG, REQWEST,
+        colors::{PRIMARY_EMBED_COLOR, SUCCESS_EMBED_COLOR},
+    },
+    structs::pagination::{Pagination, PaginationPages},
 };
 use anyhow::Result;
 use serde::Deserialize;
-use slashook::{
-    commands::MessageResponse,
-    structs::components::{Components, Container, MediaGallery, MediaGalleryItem, TextDisplay},
-};
+use slashook::structs::components::{Components, Container, MediaGallery, MediaGalleryItem, TextDisplay};
 use std::fmt::Display;
 
 #[derive(Deserialize, Debug)]
@@ -31,11 +31,11 @@ impl WolframAlpha {
         Ok(result)
     }
 
-    pub fn format_response(&self, show_all: bool) -> MessageResponse {
+    pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
         let Some(pods) = &self.query_result.pods else {
             let components = Components::empty().add_component(TextDisplay::new("No results found."));
-            let response = MessageResponse::from(components).set_components_v2(true);
-            return response;
+            let pages = vec![components.0];
+            return Pagination::new(command.to_string(), PaginationPages::ComponentsV2(pages));
         };
 
         // Sort pods by input interpretation and primary result first (if exists)
@@ -45,28 +45,22 @@ impl WolframAlpha {
             // 0th index should usually be the input interpretation
             if index == 0 {
                 sorted_pods.push(pod);
+                continue;
             }
 
             // Always put the result after the input interpretation. The rest should be appended normally
-            if index > 0 && pod.title == "Result" {
+            if pod.title == "Result" {
                 sorted_pods.insert(1, pod);
             } else {
                 sorted_pods.push(pod);
             }
         }
 
-        let mut components = Components::empty();
+        let mut pages = vec![];
+        let mut input_interpretation_container = None::<Container>;
 
         for (index, pod) in sorted_pods.iter().enumerate() {
             let Some(subpod) = pod.subpods.first() else { continue };
-
-            /*
-                40 is the maximum amount of components a components v2 message can have,
-                and we take 3 components per result (container + text display + media gallery).
-            */
-            if (!show_all && index > 1) || components.0.len() * 3 + 3 > 40 {
-                break;
-            }
 
             let text_display = TextDisplay::new(format!(
                 "# {}{}",
@@ -81,10 +75,16 @@ impl WolframAlpha {
                 .add_component(text_display)
                 .add_component(media_gallery);
 
-            components = components.add_component(container);
+            if let Some(input_interpretation_container) = &input_interpretation_container {
+                let page = Components::empty().add_component(input_interpretation_container.clone()).add_component(container);
+                pages.push(page.0);
+            } else {
+                input_interpretation_container = Some(container.clone());
+                continue;
+            }
         }
 
-        MessageResponse::from(components).set_components_v2(true)
+        Pagination::new("wolfram-alpha", PaginationPages::ComponentsV2(pages))
     }
 }
 
