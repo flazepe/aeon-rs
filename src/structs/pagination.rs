@@ -71,7 +71,7 @@ impl Pagination {
                     Components::empty()
                 };
 
-                MessageResponse::from(page.clone()).set_components(components).clear_embeds().clear_attachments()
+                MessageResponse::from(page.clone()).set_components(components).clear_attachments()
             },
             PaginationPages::ComponentsV2(pages) => {
                 let Some(page) = pages.get(self.current_page) else {
