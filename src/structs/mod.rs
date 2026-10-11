@@ -9,6 +9,7 @@ pub mod database;
 pub mod duration;
 pub mod emoji_manager;
 pub mod gateway;
+pub mod pagination;
 pub mod scraping;
 pub mod select_menu;
 pub mod simple_message;

@@ -1,8 +1,9 @@
 use crate::{
-    statics::{CONFIG_STRING, EMOJIS, REST},
+    statics::{CONFIG_STRING, EMOJIS, REDIS, REST},
     structs::{
         command_args::CommandArgs,
         database::{Database, redis::keys::RedisKey},
+        pagination::Pagination,
     },
 };
 use anyhow::{Context, Error, Result, bail};
@@ -163,6 +164,14 @@ impl AeonCommandContext {
             ephemeral,
         )
         .await
+    }
+
+    pub async fn respond_pagination(&self, pagination: Pagination) -> Result<()> {
+        let redis = REDIS.get().context("Could not get Redis.")?;
+        let key = RedisKey::Paginations(pagination.id.clone());
+        redis.set(&key, &pagination, Some(60 * 5)).await?;
+
+        self.respond(pagination.get_message_response(), false).await
     }
 
     pub async fn autocomplete<T: Iterator<Item = (K, V)>, K: Display, V: Display>(&self, iter: T) -> Result<()> {
