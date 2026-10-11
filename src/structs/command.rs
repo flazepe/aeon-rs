@@ -3,12 +3,17 @@ use crate::{
     structs::{
         command_context::{AeonCommandContext, AeonCommandInput},
         database::{Database, redis::keys::RedisKey},
+        pagination::Pagination,
     },
 };
 use anyhow::Result;
 use futures::{Future, future::BoxFuture};
 use serde_json::Value;
-use slashook::chrono::Utc;
+use slashook::{
+    chrono::Utc,
+    commands::Modal,
+    structs::components::{Components, Label, TextInput},
+};
 use std::{fmt::Display, sync::Arc};
 use tracing::error;
 
@@ -140,6 +145,53 @@ impl AeonCommand {
 
         if add_cooldown {
             redis.set(&cooldown_key, Utc::now().timestamp(), Some(3)).await?;
+        }
+
+        if let AeonCommandInput::ApplicationCommand(input, res) = &ctx.command_input
+            && let Some(custom_id) = &input.custom_id
+            && custom_id.starts_with("pagination/")
+        {
+            let trimmed_custom_id = custom_id.replace("pagination/", "");
+            let (id, action) = trimmed_custom_id.split_once('/').unwrap_or_default();
+            let key = RedisKey::Paginations(id.to_string());
+
+            let Ok(mut pagination) = redis.get::<Pagination>(&key).await else {
+                return ctx.respond_error("This pagination is expired.", true).await;
+            };
+
+            match action {
+                "first" => pagination.go_to_first_page(),
+                "previous" => pagination.go_to_previous_page(),
+                "counter" => {
+                    let label = Label::new("Type page number");
+                    let text_input = TextInput::new().set_id("page").set_required(true);
+                    let components = Components::new_label(label).add_text_input(text_input);
+
+                    let modal_custom_id = custom_id.replace("counter", "go-to");
+                    let modal = Modal::new(&pagination.command, modal_custom_id, "Go to page").set_components(components);
+                    res.open_modal(modal).await?;
+
+                    return Ok(());
+                },
+                "go-to" => {
+                    let page = ctx.get_string_arg("page", 0, false)?;
+
+                    if let Ok(parsed_page) = page.parse::<usize>()
+                        && parsed_page > 0
+                    {
+                        pagination.go_to_page(parsed_page - 1);
+                    }
+
+                    res.defer_update().await?;
+                },
+                "next" => pagination.go_to_next_page(),
+                "last" => pagination.go_to_last_page(),
+                _ => {},
+            }
+
+            redis.set(&key, &pagination, Some(60 * 5)).await?;
+            res.update_message(pagination.get_message_response()).await?;
+            return Ok(());
         }
 
         let ctx_arc = Arc::new(ctx);
