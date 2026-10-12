@@ -88,6 +88,10 @@ pub fn paginate_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(itera
         pages.push(page.join(&separator));
     }
 
+    if pages.is_empty() {
+        pages.push("-".into());
+    }
+
     pages
 }
 
