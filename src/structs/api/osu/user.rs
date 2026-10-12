@@ -2,7 +2,11 @@ use crate::{
     functions::format_timestamp,
     macros::yes_no,
     statics::EMOJIS,
-    structs::{api::osu::Osu, duration::Duration},
+    structs::{
+        api::osu::Osu,
+        duration::Duration,
+        pagination::{Pagination, PaginationPages, PaginationSection},
+    },
     traits::Commas,
 };
 use anyhow::{Context, Result};
@@ -281,12 +285,14 @@ impl OsuUser {
         Embed::new().set_color("#ff69b4").unwrap_or_default().set_thumbnail(thumbnail).set_title(title).set_url(url)
     }
 
-    pub fn format(&self) -> Embed {
+    pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
+        let mut sections = vec![];
+
         let mode = self.rank_history.as_ref().map_or(&OsuMode::Osu, |rank_history| &rank_history.mode);
         let rank = format!(
             "#{}{}",
             self.statistics.global_rank.map(|global_rank| global_rank.commas()).as_deref().unwrap_or("-"),
-            self.rank_highest.as_ref().map(|rank_highest| format!(" (#{} peak)", rank_highest.rank.commas())).as_deref().unwrap_or(""),
+            self.rank_highest.as_ref().map(|rank_highest| format!(" (peaked at #{})", rank_highest.rank.commas())).as_deref().unwrap_or(""),
         );
         let id = self.id;
         let followers = self.follower_count;
@@ -300,29 +306,29 @@ impl OsuUser {
             self.playstyle.as_ref().map(|playstyle| playstyle.iter().map(|entry| format!("{entry:?}")).collect::<Vec<String>>().join(", "));
         let created = format_timestamp(DateTime::parse_from_rfc3339(self.join_date.as_str()).unwrap().timestamp(), true);
 
-        self._format()
+        let overview_embed = self
+            ._format()
             .add_field("Mode", mode, true)
             .add_field("Rank", rank, true)
             .add_field("ID", id, true)
             .add_field("Followers", followers, true)
             .add_field("Country", country, true)
             .add_field("Playstyle", playstyle.as_deref().unwrap_or("N/A"), true)
-            .add_field("Created", created, false)
-    }
+            .add_field("Created", created, false);
+        sections.push(PaginationSection::new("Overview", PaginationPages::Embeds(vec![vec![overview_embed]])));
 
-    pub fn format_about(&self) -> Embed {
         let twitter = self.twitter.as_ref().map(|twitter| format!("[@{twitter}](https://x.com/{twitter})"));
 
-        self._format()
+        let about_embed = self
+            ._format()
             .add_field("Location", self.location.as_deref().unwrap_or("N/A"), true)
             .add_field("Interests", self.interests.as_deref().unwrap_or("N/A"), true)
             .add_field("Occupation", self.occupation.as_deref().unwrap_or("N/A"), true)
             .add_field("Website", self.website.as_deref().unwrap_or("N/A"), true)
             .add_field("X", twitter.as_deref().unwrap_or("N/A"), true)
-            .add_field("Discord", self.discord.as_deref().unwrap_or("N/A"), true)
-    }
+            .add_field("Discord", self.discord.as_deref().unwrap_or("N/A"), true);
+        sections.push(PaginationSection::new("About", PaginationPages::Embeds(vec![vec![about_embed]])));
 
-    pub fn format_statistics(&self) -> Embed {
         let emojis = EMOJIS.get().unwrap();
         let pp = format!("{}pp", format!("{:.2}", self.statistics.pp).commas());
         let accuracy = format!("{:.2}%", self.statistics.hit_accuracy);
@@ -371,7 +377,8 @@ impl OsuUser {
         ]
         .join("\n");
 
-        self._format()
+        let statistics_embed = self
+            ._format()
             .add_field("PP", pp, true)
             .add_field("Accuracy", accuracy, true)
             .add_field("Level", level, true)
@@ -381,10 +388,9 @@ impl OsuUser {
             .add_field("Score", scores, false)
             .add_field("Play Count", play_count, false)
             .add_field("Replays Watched by Others", replays_watched_by_others, false)
-            .add_field("Grades", grades, false)
-    }
+            .add_field("Grades", grades, false);
+        sections.push(PaginationSection::new("Statistics", PaginationPages::Embeds(vec![vec![statistics_embed]])));
 
-    pub fn format_website_statistics(&self) -> Embed {
         let previous_usernames = if self.previous_usernames.is_empty() { "-".into() } else { self.previous_usernames.join(", ") };
         let supporter = if self.is_supporter {
             format!("Yes (level {})", self.support_level)
@@ -410,14 +416,18 @@ impl OsuUser {
         ]
         .join("\n");
 
-        self._format()
+        let website_statistics_embed = self
+            ._format()
             .add_field("Previous Username", previous_usernames, false)
             .add_field("Supporter", supporter, false)
             .add_field("Bot", bot, true)
             .add_field("Forum Posts", forum_posts, true)
             .add_field("Comments", comments, true)
             .add_field("Kudosu!", kudosu, false)
-            .add_field("Beatmaps", beatmaps, false)
+            .add_field("Beatmaps", beatmaps, false);
+        sections.push(PaginationSection::new("Website Statistics", PaginationPages::Embeds(vec![vec![website_statistics_embed]])));
+
+        Pagination::new(command, sections)
     }
 }
 

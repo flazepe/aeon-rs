@@ -1,9 +1,12 @@
 use crate::{
     functions::{format_timestamp, limit_strings},
-    structs::api::anilist::{
-        AniList,
-        components::{AniListCharacterNode, AniListFormat, AniListImage, AniListNodes, AniListResponse, AniListTitle},
-        statics::{ANILIST_EMBED_AUTHOR_ICON_URL, ANILIST_EMBED_AUTHOR_URL, ANILIST_EMBED_COLOR, ANILIST_USER_FIELDS},
+    structs::{
+        api::anilist::{
+            AniList,
+            components::{AniListCharacterNode, AniListFormat, AniListImage, AniListNodes, AniListResponse, AniListTitle},
+            statics::{ANILIST_EMBED_AUTHOR_ICON_URL, ANILIST_EMBED_AUTHOR_URL, ANILIST_EMBED_COLOR, ANILIST_USER_FIELDS},
+        },
+        pagination::{Pagination, PaginationPages, PaginationSection},
     },
 };
 use anyhow::{Context, Result};
@@ -90,7 +93,9 @@ impl AniListUser {
             .set_url(url)
     }
 
-    pub fn format(&self) -> Embed {
+    pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
+        let mut sections = vec![];
+
         let image = format!("https://img.anili.st/user/{}", self.id);
         let created = format_timestamp(self.created_at, true);
         let anime_statistics = format!(
@@ -103,21 +108,20 @@ impl AniListUser {
         );
         let timestamp = Utc.timestamp_opt(self.updated_at as i64, 0).unwrap();
 
-        self._format()
+        let overview_embed = self
+            ._format()
             .set_image(image)
             .add_field("Created", created, false)
             .add_field("Anime Statistics", anime_statistics, true)
             .add_field("Manga Statistics", manga_statistics, true)
             .set_footer("Last updated", None::<String>)
-            .set_timestamp(timestamp)
-    }
+            .set_timestamp(timestamp);
+        sections.push(PaginationSection::new("Overview", PaginationPages::Embeds(vec![vec![overview_embed]])));
 
-    pub fn format_about(&self) -> Embed {
         let about = limit_strings(self.about.as_deref().unwrap_or_default().split('\n'), "\n", 4096);
-        self._format().set_description(about)
-    }
+        let about_embed = self._format().set_description(about);
+        sections.push(PaginationSection::new("About", PaginationPages::Embeds(vec![vec![about_embed]])));
 
-    pub fn format_favorite_anime(&self) -> Embed {
         let favorite_anime = limit_strings(
             self.favorites.anime.nodes.iter().map(|anime| {
                 format!(
@@ -130,10 +134,9 @@ impl AniListUser {
             "\n",
             4096,
         );
-        self._format().set_description(favorite_anime)
-    }
+        let favorite_anime_embed = self._format().set_description(favorite_anime);
+        sections.push(PaginationSection::new("Favorite Anime", PaginationPages::Embeds(vec![vec![favorite_anime_embed]])));
 
-    pub fn format_favorite_manga(&self) -> Embed {
         let favorite_manga = limit_strings(
             self.favorites.manga.nodes.iter().map(|manga| {
                 format!(
@@ -146,22 +149,23 @@ impl AniListUser {
             "\n",
             4096,
         );
-        self._format().set_description(favorite_manga)
-    }
+        let favorite_manga_embed = self._format().set_description(favorite_manga);
+        sections.push(PaginationSection::new("Favorite Manga", PaginationPages::Embeds(vec![vec![favorite_manga_embed]])));
 
-    pub fn format_favorite_characters(&self) -> Embed {
         let favorite_characters = limit_strings(
             self.favorites.characters.nodes.iter().map(|character| format!("[{}]({})", character.name.full, character.site_url)),
             "\n",
             4096,
         );
-        self._format().set_description(favorite_characters)
-    }
+        let favorite_characters_embed = self._format().set_description(favorite_characters);
+        sections.push(PaginationSection::new("Favorite Characters", PaginationPages::Embeds(vec![vec![favorite_characters_embed]])));
 
-    pub fn format_favorite_staff(&self) -> Embed {
         let favorite_staff =
             limit_strings(self.favorites.staff.nodes.iter().map(|staff| format!("[{}]({})", staff.name.full, staff.site_url)), "\n", 4096);
-        self._format().set_description(favorite_staff)
+        let favorite_staff_embed = self._format().set_description(favorite_staff);
+        sections.push(PaginationSection::new("Favorite Staff", PaginationPages::Embeds(vec![vec![favorite_staff_embed]])));
+
+        Pagination::new(command, sections)
     }
 }
 

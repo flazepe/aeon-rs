@@ -1,4 +1,7 @@
-use crate::statics::REQWEST;
+use crate::{
+    statics::REQWEST,
+    structs::pagination::{Pagination, PaginationPages, PaginationSection},
+};
 use anyhow::{Result, bail};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
@@ -49,7 +52,7 @@ pub struct JishoAttribution {
 }
 
 #[derive(Deserialize, Debug)]
-struct JishoSearchResult {
+pub struct JishoSearchResult {
     data: Vec<JishoSearch>,
 }
 
@@ -66,34 +69,16 @@ pub struct JishoSearch {
 }
 
 impl JishoSearch {
-    pub async fn get<T: Display>(slug: T) -> Result<Self> {
-        let mut results = REQWEST
-            .get("https://jisho.org/api/v1/search/words")
-            .query(&[("slug", slug.to_string())])
-            .send()
-            .await?
-            .json::<JishoSearchResult>()
-            .await?
-            .data;
-
-        if results.is_empty() {
-            bail!("No results found.");
-        }
-
-        Ok(results.remove(0))
-    }
-
-    pub async fn search<T: Display>(query: T) -> Result<Vec<Self>> {
+    pub async fn search<T: Display>(query: T) -> Result<JishoSearchResult> {
         let results = REQWEST
             .get("https://jisho.org/api/v1/search/words")
             .query(&[("keyword", query.to_string())])
             .send()
             .await?
             .json::<JishoSearchResult>()
-            .await?
-            .data;
+            .await?;
 
-        if results.is_empty() {
+        if results.data.is_empty() {
             bail!("No results found.");
         }
 
@@ -106,37 +91,48 @@ impl JishoSearch {
 
         if title == reading || reading.is_empty() { title } else { format!("{title} （{reading}）") }
     }
+}
 
-    pub fn format(&self) -> Embed {
-        let title = self.format_title();
-        let url = format!("https://jisho.org/word/{}", self.slug);
-        let description = {
-            let mut parts_of_speech = HashMap::new();
+impl JishoSearchResult {
+    pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
+        let mut sections = vec![];
 
-            for sense in &self.senses {
-                let part_of_speech =
-                    if sense.parts_of_speech.is_empty() { "others".into() } else { sense.parts_of_speech.join(", ").to_lowercase() };
+        for result in &self.data {
+            let title = result.format_title();
+            let url = format!("https://jisho.org/word/{}", result.slug);
+            let description = {
+                let mut parts_of_speech = HashMap::new();
 
-                if !parts_of_speech.contains_key(&part_of_speech) {
-                    parts_of_speech.insert(part_of_speech.clone(), vec![]);
+                for sense in &result.senses {
+                    let part_of_speech =
+                        if sense.parts_of_speech.is_empty() { "others".into() } else { sense.parts_of_speech.join(", ").to_lowercase() };
+
+                    if !parts_of_speech.contains_key(&part_of_speech) {
+                        parts_of_speech.insert(part_of_speech.clone(), vec![]);
+                    }
+
+                    parts_of_speech.get_mut(&part_of_speech).unwrap().push(sense.english_definitions.join(", "));
                 }
 
-                parts_of_speech.get_mut(&part_of_speech).unwrap().push(sense.english_definitions.join(", "));
+                parts_of_speech
             }
+            .iter()
+            .map(|(k, v)| format!("-# {k}\n{}", v.iter().map(|entry| format!("- {entry}")).collect::<Vec<String>>().join("\n")))
+            .collect::<Vec<String>>()
+            .join("\n\n");
 
-            parts_of_speech
+            let embed = Embed::new()
+                .set_color(JISHO_EMBED_COLOR)
+                .unwrap_or_default()
+                .set_author("Jisho", Some(JISHO_EMBED_AUTHOR_URL), Some(JISHO_EMBED_AUTHOR_ICON_URL))
+                .set_title(&title)
+                .set_url(url)
+                .set_description(description);
+
+            let section = PaginationSection::new(title, PaginationPages::Embeds(vec![vec![embed]]));
+            sections.push(section);
         }
-        .iter()
-        .map(|(k, v)| format!("{k}\n{}", v.iter().map(|entry| format!(" - {entry}")).collect::<Vec<String>>().join("\n")))
-        .collect::<Vec<String>>()
-        .join("\n\n");
 
-        Embed::new()
-            .set_color(JISHO_EMBED_COLOR)
-            .unwrap_or_default()
-            .set_author("Jisho", Some(JISHO_EMBED_AUTHOR_URL), Some(JISHO_EMBED_AUTHOR_ICON_URL))
-            .set_title(title)
-            .set_url(url)
-            .set_description(description)
+        Pagination::new(command, sections)
     }
 }

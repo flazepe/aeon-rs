@@ -1,16 +1,19 @@
 use crate::{
     functions::limit_strings,
-    structs::api::anilist::{
-        AniList,
-        components::{
-            AniListAiringSchedule, AniListAnimeCharacter, AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat,
-            AniListFuzzyDate, AniListMediaPageResponse, AniListMediaResponse, AniListNodes, AniListRanking, AniListRelation,
-            AniListResponse, AniListSeason, AniListSource, AniListStatus, AniListStudio, AniListTitle, AniListTrailer,
+    structs::{
+        api::anilist::{
+            AniList,
+            components::{
+                AniListAiringSchedule, AniListAnimeCharacter, AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat,
+                AniListFuzzyDate, AniListMediaPageResponse, AniListNodes, AniListRanking, AniListRelation, AniListResponse, AniListSeason,
+                AniListSource, AniListStatus, AniListStudio, AniListTitle, AniListTrailer,
+            },
+            statics::{ANILIST_ANIME_FIELDS, ANILIST_EMBED_AUTHOR_ICON_URL, ANILIST_EMBED_AUTHOR_URL, ANILIST_EMBED_COLOR},
         },
-        statics::{ANILIST_ANIME_FIELDS, ANILIST_EMBED_AUTHOR_ICON_URL, ANILIST_EMBED_AUTHOR_URL, ANILIST_EMBED_COLOR},
+        pagination::{Pagination, PaginationPages, PaginationSection},
     },
 };
-use anyhow::{Context, Result, bail};
+use anyhow::{Result, bail};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::{
@@ -83,7 +86,9 @@ impl AniListAnime {
             .set_url(url)
     }
 
-    pub fn format(&self) -> Embed {
+    pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
+        let mut sections = vec![];
+
         let synonyms = self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n");
 
         let trailer = self.trailer.as_ref().map(|trailer| {
@@ -146,7 +151,8 @@ impl AniListAnime {
         let score = if scores.is_empty() { "N/A".into() } else { scores.join("\n") };
         let timestamp = Utc.timestamp_opt(self.updated_at as i64, 0).unwrap();
 
-        self._format()
+        let overview_embed = self
+            ._format()
             .set_description(synonyms)
             .add_field("Aired", aired, false)
             .add_field("Studio", studios, true)
@@ -156,14 +162,12 @@ impl AniListAnime {
             .add_field("Source", source.as_deref().unwrap_or("N/A"), true)
             .add_field("Score", score, true)
             .set_footer("Last updated", None::<String>)
-            .set_timestamp(timestamp)
-    }
+            .set_timestamp(timestamp);
+        sections.push(PaginationSection::new("Overview", PaginationPages::Embeds(vec![vec![overview_embed]])));
 
-    pub fn format_description(&self) -> Embed {
-        AniList::format_embed_description(self._format(), self.description.as_ref())
-    }
+        let description_embed = AniList::format_embed_description(self._format(), self.description.as_ref());
+        sections.push(PaginationSection::new("Description", PaginationPages::Embeds(vec![vec![description_embed]])));
 
-    pub fn format_characters(&self) -> Embed {
         let characters = limit_strings(
             self.characters.edges.iter().map(|character| {
                 let voice_actor = character
@@ -182,32 +186,17 @@ impl AniListAnime {
             "\n\n",
             4096,
         );
-        self._format().set_description(characters)
-    }
+        let characters_embed = self._format().set_description(characters);
+        sections.push(PaginationSection::new("Characters", PaginationPages::Embeds(vec![vec![characters_embed]])));
 
-    pub fn format_relations(&self) -> Embed {
-        AniList::format_embed_relations(self._format(), &self.relations.edges)
+        let relations_embed = AniList::format_embed_relations(self._format(), &self.relations.edges);
+        sections.push(PaginationSection::new("Relations", PaginationPages::Embeds(vec![vec![relations_embed]])));
+
+        Pagination::new(command, sections)
     }
 }
 
 impl AniList {
-    pub async fn get_anime(id: u64) -> Result<AniListAnime> {
-        Self::query::<_, AniListResponse<AniListMediaResponse<AniListAnime>>>(
-            format!(
-                "query($id: Int) {{
-                    Media(id: $id) {{
-                        {ANILIST_ANIME_FIELDS}
-                    }}
-                }}",
-            ),
-            json!({ "id": id }),
-        )
-        .await?
-        .data
-        .media
-        .context("Anime not found.")
-    }
-
     pub async fn search_anime<T: Display>(search: T) -> Result<Vec<AniListAnime>> {
         let result: AniListResponse<AniListMediaPageResponse<AniListAnime>> = Self::query(
             format!(

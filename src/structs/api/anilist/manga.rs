@@ -1,17 +1,19 @@
 use crate::{
     functions::limit_strings,
     macros::yes_no,
-    structs::api::anilist::{
-        AniList,
-        components::{
-            AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat, AniListFuzzyDate, AniListMangaCharacter,
-            AniListMediaPageResponse, AniListMediaResponse, AniListRanking, AniListRelation, AniListResponse, AniListSource, AniListStatus,
-            AniListTitle,
+    structs::{
+        api::anilist::{
+            AniList,
+            components::{
+                AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat, AniListFuzzyDate, AniListMangaCharacter,
+                AniListMediaPageResponse, AniListRanking, AniListRelation, AniListResponse, AniListSource, AniListStatus, AniListTitle,
+            },
+            statics::{ANILIST_EMBED_AUTHOR_ICON_URL, ANILIST_EMBED_AUTHOR_URL, ANILIST_EMBED_COLOR, ANILIST_MANGA_FIELDS},
         },
-        statics::{ANILIST_EMBED_AUTHOR_ICON_URL, ANILIST_EMBED_AUTHOR_URL, ANILIST_EMBED_COLOR, ANILIST_MANGA_FIELDS},
+        pagination::{Pagination, PaginationPages, PaginationSection},
     },
 };
-use anyhow::{Context, Result, bail};
+use anyhow::{Result, bail};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::{
@@ -79,7 +81,9 @@ impl AniListManga {
             .set_url(url)
     }
 
-    pub fn format(&self) -> Embed {
+    pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
+        let mut sections = vec![];
+
         let synonyms = self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n");
         let published = format!("{} ({})", AniList::format_airing_date(&self.start_date, &self.end_date), &self.status);
         let chapters = self.chapters.map(|chapters| chapters.to_string()).unwrap_or("TBA".into());
@@ -102,7 +106,8 @@ impl AniListManga {
         let score = if scores.is_empty() { "N/A".into() } else { scores.join("\n") };
         let timestamp = Utc.timestamp_opt(self.updated_at as i64, 0).unwrap();
 
-        self._format()
+        let overview_embed = self
+            ._format()
             .set_description(synonyms)
             .add_field("Published", published, false)
             .add_field("Chapters", chapters, true)
@@ -112,14 +117,12 @@ impl AniListManga {
             .add_field("Source", source.as_deref().unwrap_or("N/A"), true)
             .add_field("Score", score, true)
             .set_footer("Last updated", None::<String>)
-            .set_timestamp(timestamp)
-    }
+            .set_timestamp(timestamp);
+        sections.push(PaginationSection::new("Overview", PaginationPages::Embeds(vec![vec![overview_embed]])));
 
-    pub fn format_description(&self) -> Embed {
-        AniList::format_embed_description(self._format(), self.description.as_ref())
-    }
+        let description_embed = AniList::format_embed_description(self._format(), self.description.as_ref());
+        sections.push(PaginationSection::new("Description", PaginationPages::Embeds(vec![vec![description_embed]])));
 
-    pub fn format_characters(&self) -> Embed {
         let characters = limit_strings(
             self.characters
                 .edges
@@ -128,32 +131,17 @@ impl AniListManga {
             "\n",
             4096,
         );
-        self._format().set_description(characters)
-    }
+        let characters_embed = self._format().set_description(characters);
+        sections.push(PaginationSection::new("Characters", PaginationPages::Embeds(vec![vec![characters_embed]])));
 
-    pub fn format_relations(&self) -> Embed {
-        AniList::format_embed_relations(self._format(), &self.relations.edges)
+        let relations_embed = AniList::format_embed_relations(self._format(), &self.relations.edges);
+        sections.push(PaginationSection::new("Relations", PaginationPages::Embeds(vec![vec![relations_embed]])));
+
+        Pagination::new(command, sections)
     }
 }
 
 impl AniList {
-    pub async fn get_manga(id: u64) -> Result<AniListManga> {
-        Self::query::<_, AniListResponse<AniListMediaResponse<AniListManga>>>(
-            format!(
-                "query($id: Int) {{
-                    Media(id: $id) {{
-                        {ANILIST_MANGA_FIELDS}
-                    }}
-                }}",
-            ),
-            json!({ "id": id }),
-        )
-        .await?
-        .data
-        .media
-        .context("Manga not found.")
-    }
-
     pub async fn search_manga<T: Display>(search: T) -> Result<Vec<AniListManga>> {
         let result: AniListResponse<AniListMediaPageResponse<AniListManga>> = Self::query(
             format!(

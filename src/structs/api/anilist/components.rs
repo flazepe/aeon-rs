@@ -18,13 +18,6 @@ pub struct AniListMediaPage<T> {
     pub media: Vec<T>,
 }
 
-// ID queries
-#[derive(Deserialize, Debug)]
-pub struct AniListMediaResponse<T> {
-    #[serde(rename = "Media")]
-    pub media: Option<T>,
-}
-
 // Edges and nodes
 #[derive(Deserialize, Debug)]
 pub struct AniListEdges<T> {
