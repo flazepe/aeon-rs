@@ -56,27 +56,27 @@ pub async fn hastebin<T: Display>(string: T) -> Result<String> {
     Ok(format!("{domain}/raw/{}", json["key"].as_str().unwrap_or_default()))
 }
 
-pub fn limit_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(iterable: T, delimiter: V, limit: usize) -> String {
-    let delimiter = delimiter.to_string();
+pub fn limit_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(iterable: T, separator: V, limit: usize) -> String {
+    let separator = separator.to_string();
     let mut strings = iterable.into_iter().map(|to_string| to_string.to_string()).collect::<Vec<String>>();
 
-    while strings.join(&delimiter).len() > limit {
+    while strings.join(&separator).len() > limit {
         strings.pop();
     }
 
-    strings.join(&delimiter)
+    strings.join(&separator)
 }
 
-pub fn paginate_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(iterable: T, delimiter: V, limit: usize) -> Vec<String> {
-    let delimiter = delimiter.to_string();
+pub fn paginate_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(iterable: T, separator: V, limit: usize) -> Vec<String> {
+    let separator = separator.to_string();
     let strings = iterable.into_iter().map(|to_string| to_string.to_string()).collect::<Vec<String>>();
     let mut pages: Vec<String> = vec![];
     let mut page: Vec<String> = vec![];
 
     for string in strings {
-        let joined = page.join(&delimiter);
+        let joined = page.join(&separator);
 
-        if format!("{joined}{delimiter}{string}").len() > limit {
+        if format!("{joined}{separator}{string}").len() > limit {
             pages.push(joined);
             page = vec![];
         }
@@ -85,7 +85,7 @@ pub fn paginate_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(itera
     }
 
     if !page.is_empty() {
-        pages.push(page.join(&delimiter));
+        pages.push(page.join(&separator));
     }
 
     pages

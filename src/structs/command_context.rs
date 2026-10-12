@@ -114,8 +114,9 @@ impl AeonCommandContext {
                 }
             },
             AeonCommandInput::MessageCommand(message, ..) => {
-                response =
-                    response.set_message_reference(MessageReference::new_reply(message.id)).set_allowed_mentions(AllowedMentions::new());
+                let message_reference = MessageReference::new_reply(message.id);
+                let allowed_mentions = AllowedMentions::new();
+                response = response.set_message_reference(message_reference).set_allowed_mentions(allowed_mentions);
 
                 let redis = Database::get_redis()?;
                 let key = RedisKey::GuildChannelMessageCommandResponse(
@@ -140,32 +141,24 @@ impl AeonCommandContext {
         Ok(())
     }
 
-    pub async fn respond_error<T: Debug>(&self, response: T, ephemeral: bool) -> Result<()> {
+    pub async fn respond_error<T: Debug>(&self, message: T, ephemeral: bool) -> Result<()> {
+        let formatted = format!("{message:#?}");
+        let message = if formatted.contains("reqwest::Error") { "A request error occurred." } else { formatted.trim_matches('"') };
         let emojis = EMOJIS.get().unwrap();
-        let error_message = format!("{response:#?}");
-        let message = if error_message.contains("reqwest::Error") { "A request error occurred." } else { error_message.trim_matches('"') };
+        let response = MessageResponse::from(format!("{} {}", emojis.get("aeon_error", "❌").mention(), message))
+            .set_components(Components::empty())
+            .clear_embeds()
+            .clear_attachments();
 
-        self.respond(
-            MessageResponse::from(format!("{} {}", emojis.get("aeon_error", "❌").mention(), message))
-                .set_components(Components::empty())
-                .clear_embeds()
-                .clear_attachments(),
-            ephemeral,
-        )
-        .await
+        self.respond(response, ephemeral).await
     }
 
-    pub async fn respond_success<T: Display>(&self, response: T, ephemeral: bool) -> Result<()> {
+    pub async fn respond_success<T: Display>(&self, message: T, ephemeral: bool) -> Result<()> {
         let emojis = EMOJIS.get().unwrap();
+        let message = format!("{} {message}", emojis.get("aeon_success", "✅").mention());
+        let response = MessageResponse::from(message).set_components(Components::empty()).clear_embeds().clear_attachments();
 
-        self.respond(
-            MessageResponse::from(format!("{} {response}", emojis.get("aeon_success", "✅").mention()))
-                .set_components(Components::empty())
-                .clear_embeds()
-                .clear_attachments(),
-            ephemeral,
-        )
-        .await
+        self.respond(response, ephemeral).await
     }
 
     pub async fn respond_pagination(&self, pagination: Pagination, ephemeral: bool) -> Result<()> {
