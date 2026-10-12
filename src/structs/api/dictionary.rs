@@ -1,6 +1,6 @@
 use crate::{
     statics::{REQWEST, colors::PRIMARY_EMBED_COLOR},
-    structs::pagination::{Pagination, PaginationPages},
+    structs::pagination::{Pagination, PaginationPages, PaginationSection},
 };
 use anyhow::{Result, bail};
 use serde::Deserialize;
@@ -55,6 +55,6 @@ impl Dictionary {
             })
             .collect::<Vec<Vec<Embed>>>();
 
-        Pagination::new(command.to_string(), PaginationPages::Embeds(pages))
+        Pagination::new(command.to_string(), vec![PaginationSection::new("Main", PaginationPages::Embeds(pages))])
     }
 }

@@ -4,7 +4,7 @@ use crate::{
     functions::paginate_strings,
     statics::colors::PRIMARY_EMBED_COLOR,
     structs::{
-        pagination::{Pagination, PaginationPages},
+        pagination::{Pagination, PaginationPages, PaginationSection},
         unicode::statics::CONTROL_CHARACTERS,
     },
 };
@@ -60,7 +60,7 @@ impl Unicode {
             .map(|entry| vec![Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_description(entry)])
             .collect::<Vec<Vec<Embed>>>();
 
-        Pagination::new(command, PaginationPages::Embeds(pages))
+        Pagination::new(command, vec![PaginationSection::new("Main", PaginationPages::Embeds(pages))])
     }
 }
 

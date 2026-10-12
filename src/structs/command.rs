@@ -115,6 +115,10 @@ impl AeonCommand {
             };
 
             match action {
+                "section" => {
+                    let section = input.values.as_ref().and_then(|values| values.first().cloned()).unwrap_or_default();
+                    pagination.go_to_section(section);
+                },
                 "first" => pagination.go_to_first_page(),
                 "previous" => pagination.go_to_previous_page(),
                 "counter" => {

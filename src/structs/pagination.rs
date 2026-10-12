@@ -4,7 +4,7 @@ use slashook::{
     chrono::Utc,
     commands::{MessageResponse, Modal},
     structs::{
-        components::{ActionRow, Button, ButtonStyle, Component, Components, Label, TextInput},
+        components::{ActionRow, Button, ButtonStyle, Component, Components, Label, SelectMenu, SelectMenuType, SelectOption, TextInput},
         embeds::Embed,
     },
 };
@@ -14,17 +14,22 @@ use std::fmt::Display;
 pub struct Pagination {
     pub id: String,
     pub command: String,
-    pub pages: PaginationPages,
+    pub sections: Vec<PaginationSection>,
+    pub current_section: usize,
     pub current_page: usize,
 }
 
 impl Pagination {
-    pub fn new<T: Display>(command: T, pages: PaginationPages) -> Self {
-        Self { id: Utc::now().timestamp().to_string(), command: command.to_string(), pages, current_page: 0 }
+    pub fn new<T: Display>(command: T, sections: Vec<PaginationSection>) -> Self {
+        Self { id: Utc::now().timestamp().to_string(), command: command.to_string(), sections, current_section: 0, current_page: 0 }
+    }
+
+    pub fn get_pages(&self) -> &PaginationPages {
+        &self.sections[self.current_section].pages
     }
 
     fn get_total_pages(&self) -> usize {
-        match &self.pages {
+        match self.get_pages() {
             PaginationPages::Embeds(pages) => pages.len(),
             PaginationPages::ComponentsV2(pages) => pages.len(),
         }
@@ -56,8 +61,36 @@ impl Pagination {
         }
     }
 
+    pub fn go_to_section<T: Display>(&mut self, section_name: T) {
+        let section_name = section_name.to_string();
+
+        for (index, section) in self.sections.iter().enumerate() {
+            if section.name == section_name {
+                self.current_section = index;
+                self.current_page = 0;
+            }
+        }
+    }
+
     fn generate_custom_id<T: Display>(&self, custom_id: T) -> String {
         format!("pagination/{}/{}", self.id, custom_id)
+    }
+
+    pub fn generate_section_action_row(&self) -> Option<ActionRow> {
+        if self.sections.len() < 2 {
+            return None;
+        }
+
+        let mut select_menu = SelectMenu::new(SelectMenuType::STRING).set_id(&self.command, self.generate_custom_id("section"));
+
+        for (index, section) in self.sections.iter().enumerate() {
+            let select_option = SelectOption::new(&section.name, &section.name).set_default(index == self.current_section);
+            select_menu = select_menu.add_option(select_option)
+        }
+
+        let action_row = ActionRow::new().add_component(select_menu);
+
+        Some(action_row)
     }
 
     fn generate_control_action_row(&self, page: usize) -> Option<ActionRow> {
@@ -105,19 +138,24 @@ impl Pagination {
     }
 
     pub fn get_message_response(&self) -> MessageResponse {
+        let section_action_row = self.generate_section_action_row();
         let control_action_row = self.generate_control_action_row(self.current_page);
 
-        match &self.pages {
+        match self.get_pages() {
             PaginationPages::Embeds(pages) => {
                 let Some(page) = pages.get(self.current_page) else {
                     return MessageResponse::from("Page not found.").set_components(Components::empty()).clear_embeds().clear_attachments();
                 };
 
-                let components = if let Some(control_action_row) = control_action_row {
-                    Components::empty().add_component(control_action_row)
-                } else {
-                    Components::empty()
-                };
+                let mut components = Components::empty();
+
+                if let Some(section_action_row) = section_action_row {
+                    components = components.add_component(section_action_row)
+                }
+
+                if let Some(control_action_row) = control_action_row {
+                    components = components.add_component(control_action_row)
+                }
 
                 MessageResponse::from(page.clone()).set_components(components).clear_attachments()
             },
@@ -128,8 +166,12 @@ impl Pagination {
 
                 let mut components = Components(page.clone());
 
+                if let Some(section_action_row) = section_action_row {
+                    components = components.add_component(section_action_row)
+                }
+
                 if let Some(control_action_row) = control_action_row {
-                    components = components.add_component(control_action_row);
+                    components = components.add_component(control_action_row)
                 }
 
                 MessageResponse::from(components).set_components_v2(true).clear_embeds().clear_attachments()
@@ -144,6 +186,18 @@ impl Pagination {
 
         let custom_id = self.generate_custom_id("go-to");
         Modal::new(&self.command, custom_id, "Go to page").set_components(components)
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct PaginationSection {
+    pub name: String,
+    pub pages: PaginationPages,
+}
+
+impl PaginationSection {
+    pub fn new<T: Display>(name: T, pages: PaginationPages) -> Self {
+        Self { name: name.to_string(), pages }
     }
 }
 

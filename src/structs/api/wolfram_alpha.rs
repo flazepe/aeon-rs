@@ -3,7 +3,7 @@ use crate::{
         CONFIG, REQWEST,
         colors::{PRIMARY_EMBED_COLOR, SUCCESS_EMBED_COLOR},
     },
-    structs::pagination::{Pagination, PaginationPages},
+    structs::pagination::{Pagination, PaginationPages, PaginationSection},
 };
 use anyhow::Result;
 use serde::Deserialize;
@@ -35,7 +35,7 @@ impl WolframAlpha {
         let Some(pods) = &self.query_result.pods else {
             let components = Components::empty().add_component(TextDisplay::new("No results found."));
             let pages = vec![components.0];
-            return Pagination::new(command.to_string(), PaginationPages::ComponentsV2(pages));
+            return Pagination::new(command.to_string(), vec![PaginationSection::new("Main", PaginationPages::ComponentsV2(pages))]);
         };
 
         // Sort pods by input interpretation and primary result first (if exists)
@@ -84,7 +84,7 @@ impl WolframAlpha {
             }
         }
 
-        Pagination::new("wolfram-alpha", PaginationPages::ComponentsV2(pages))
+        Pagination::new("wolfram-alpha", vec![PaginationSection::new("Main", PaginationPages::ComponentsV2(pages))])
     }
 }
 
