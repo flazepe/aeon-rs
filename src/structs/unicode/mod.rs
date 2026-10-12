@@ -53,7 +53,7 @@ impl Unicode {
     }
 
     pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
-        let paginated = paginate_strings(self.0.iter().map(|character| character.format()), "\n", 4000);
+        let paginated = paginate_strings(self.0.iter().map(|character| character.format()), "\n", 4096);
 
         let pages = paginated
             .iter()
