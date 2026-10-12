@@ -1,8 +1,8 @@
 mod calculate;
 mod code;
 mod convert_currency;
+mod define;
 mod delete_response_context;
-mod dictionary;
 mod edited;
 mod eval;
 mod google;
@@ -24,7 +24,6 @@ mod tag;
 mod timeout;
 mod unicode;
 mod unicode_list_context;
-mod urban_dictionary;
 mod user;
 mod wolfram_alpha;
 
@@ -37,8 +36,8 @@ pub fn get_aeon_commands() -> Vec<&'static LazyLock<AeonCommand>> {
         &calculate::COMMAND,
         &convert_currency::COMMAND,
         &code::COMMAND,
+        &define::COMMAND,
         &delete_response_context::COMMAND,
-        &dictionary::COMMAND,
         &edited::COMMAND,
         &eval::COMMAND,
         &google::COMMAND,
@@ -60,7 +59,6 @@ pub fn get_aeon_commands() -> Vec<&'static LazyLock<AeonCommand>> {
         &timeout::COMMAND,
         &unicode::COMMAND,
         &unicode_list_context::COMMAND,
-        &urban_dictionary::COMMAND,
         &user::COMMAND,
         &wolfram_alpha::COMMAND,
     ]
@@ -71,8 +69,8 @@ pub fn get_slashook_commands() -> Vec<SlashookCommand> {
         calculate::get_slashook_command(),
         convert_currency::get_slashook_command(),
         code::get_slashook_command(),
+        define::get_slashook_command(),
         delete_response_context::get_slashook_command(),
-        dictionary::get_slashook_command(),
         edited::get_slashook_command(),
         eval::get_slashook_command(),
         google::get_slashook_command(),
@@ -94,7 +92,6 @@ pub fn get_slashook_commands() -> Vec<SlashookCommand> {
         timeout::get_slashook_command(),
         unicode::get_slashook_command(),
         unicode_list_context::get_slashook_command(),
-        urban_dictionary::get_slashook_command(),
         user::get_slashook_command(),
         wolfram_alpha::get_slashook_command(),
     ]
