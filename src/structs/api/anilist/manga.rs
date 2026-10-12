@@ -1,5 +1,5 @@
 use crate::{
-    functions::limit_strings,
+    functions::paginate_strings,
     macros::yes_no,
     structs::{
         api::anilist::{
@@ -123,7 +123,7 @@ impl AniListManga {
         let description_embed = AniList::format_embed_description(self._format(), self.description.as_ref());
         sections.push(PaginationSection::new("Description", PaginationPages::Embeds(vec![vec![description_embed]])));
 
-        let characters = limit_strings(
+        let characters = paginate_strings(
             self.characters
                 .edges
                 .iter()
@@ -131,8 +131,8 @@ impl AniListManga {
             "\n",
             4096,
         );
-        let characters_embed = self._format().set_description(characters);
-        sections.push(PaginationSection::new("Characters", PaginationPages::Embeds(vec![vec![characters_embed]])));
+        let characters_embeds = characters.iter().map(|entry| vec![self._format().set_description(entry)]).collect();
+        sections.push(PaginationSection::new("Characters", PaginationPages::Embeds(characters_embeds)));
 
         let relations_embed = AniList::format_embed_relations(self._format(), &self.relations.edges);
         sections.push(PaginationSection::new("Relations", PaginationPages::Embeds(vec![vec![relations_embed]])));

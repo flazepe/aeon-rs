@@ -1,5 +1,5 @@
 use crate::{
-    functions::{format_timestamp, limit_strings},
+    functions::{format_timestamp, paginate_strings},
     structs::{
         api::anilist::{
             AniList,
@@ -118,11 +118,11 @@ impl AniListUser {
             .set_timestamp(timestamp);
         sections.push(PaginationSection::new("Overview", PaginationPages::Embeds(vec![vec![overview_embed]])));
 
-        let about = limit_strings(self.about.as_deref().unwrap_or_default().split('\n'), "\n", 4096);
-        let about_embed = self._format().set_description(about);
-        sections.push(PaginationSection::new("About", PaginationPages::Embeds(vec![vec![about_embed]])));
+        let about = paginate_strings(self.about.as_deref().unwrap_or_default().split('\n'), "\n", 4096);
+        let about_embeds = about.iter().map(|entry| vec![self._format().set_description(entry)]).collect();
+        sections.push(PaginationSection::new("About", PaginationPages::Embeds(about_embeds)));
 
-        let favorite_anime = limit_strings(
+        let favorite_anime = paginate_strings(
             self.favorites.anime.nodes.iter().map(|anime| {
                 format!(
                     "[{}]({}){}",
@@ -134,10 +134,10 @@ impl AniListUser {
             "\n",
             4096,
         );
-        let favorite_anime_embed = self._format().set_description(favorite_anime);
-        sections.push(PaginationSection::new("Favorite Anime", PaginationPages::Embeds(vec![vec![favorite_anime_embed]])));
+        let favorite_anime_embeds = favorite_anime.iter().map(|entry| vec![self._format().set_description(entry)]).collect();
+        sections.push(PaginationSection::new("Favorite Anime", PaginationPages::Embeds(favorite_anime_embeds)));
 
-        let favorite_manga = limit_strings(
+        let favorite_manga = paginate_strings(
             self.favorites.manga.nodes.iter().map(|manga| {
                 format!(
                     "[{}]({}){}",
@@ -149,21 +149,24 @@ impl AniListUser {
             "\n",
             4096,
         );
-        let favorite_manga_embed = self._format().set_description(favorite_manga);
-        sections.push(PaginationSection::new("Favorite Manga", PaginationPages::Embeds(vec![vec![favorite_manga_embed]])));
+        let favorite_manga_embeds = favorite_manga.iter().map(|entry| vec![self._format().set_description(entry)]).collect();
+        sections.push(PaginationSection::new("Favorite Manga", PaginationPages::Embeds(favorite_manga_embeds)));
 
-        let favorite_characters = limit_strings(
+        let favorite_characters = paginate_strings(
             self.favorites.characters.nodes.iter().map(|character| format!("[{}]({})", character.name.full, character.site_url)),
             "\n",
             4096,
         );
-        let favorite_characters_embed = self._format().set_description(favorite_characters);
-        sections.push(PaginationSection::new("Favorite Characters", PaginationPages::Embeds(vec![vec![favorite_characters_embed]])));
+        let favorite_characters_embeds = favorite_characters.iter().map(|entry| vec![self._format().set_description(entry)]).collect();
+        sections.push(PaginationSection::new("Favorite Characters", PaginationPages::Embeds(favorite_characters_embeds)));
 
-        let favorite_staff =
-            limit_strings(self.favorites.staff.nodes.iter().map(|staff| format!("[{}]({})", staff.name.full, staff.site_url)), "\n", 4096);
-        let favorite_staff_embed = self._format().set_description(favorite_staff);
-        sections.push(PaginationSection::new("Favorite Staff", PaginationPages::Embeds(vec![vec![favorite_staff_embed]])));
+        let favorite_staff = paginate_strings(
+            self.favorites.staff.nodes.iter().map(|staff| format!("[{}]({})", staff.name.full, staff.site_url)),
+            "\n",
+            4096,
+        );
+        let favorite_staff_embeds = favorite_staff.iter().map(|entry| vec![self._format().set_description(entry)]).collect();
+        sections.push(PaginationSection::new("Favorite Staff", PaginationPages::Embeds(favorite_staff_embeds)));
 
         Pagination::new(command, sections)
     }
