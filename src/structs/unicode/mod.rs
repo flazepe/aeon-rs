@@ -1,9 +1,17 @@
 pub mod statics;
 
-use crate::structs::unicode::statics::CONTROL_CHARACTERS;
+use crate::{
+    functions::paginate_strings,
+    statics::colors::PRIMARY_EMBED_COLOR,
+    structs::{
+        pagination::{Pagination, PaginationPages},
+        unicode::statics::CONTROL_CHARACTERS,
+    },
+};
 use anyhow::{Result, bail};
 use nipper::Document;
 use reqwest::Client;
+use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 use unicode_names2::name as get_unicode_name;
 
@@ -44,8 +52,15 @@ impl Unicode {
         Ok(Self::list(text))
     }
 
-    pub fn format(&self) -> String {
-        self.0.iter().map(|character| character.format()).collect::<Vec<String>>().join("\n")
+    pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
+        let paginated = paginate_strings(self.0.iter().map(|character| character.format()), "\n", 4000);
+
+        let pages = paginated
+            .iter()
+            .map(|entry| vec![Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_description(entry)])
+            .collect::<Vec<Vec<Embed>>>();
+
+        Pagination::new(command, PaginationPages::Embeds(pages))
     }
 }
 

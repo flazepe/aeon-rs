@@ -67,6 +67,30 @@ pub fn limit_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(iterable
     strings.join(&delimiter)
 }
 
+pub fn paginate_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(iterable: T, delimiter: V, limit: usize) -> Vec<String> {
+    let delimiter = delimiter.to_string();
+    let strings = iterable.into_iter().map(|to_string| to_string.to_string()).collect::<Vec<String>>();
+    let mut pages: Vec<String> = vec![];
+    let mut page: Vec<String> = vec![];
+
+    for string in strings {
+        let joined = page.join(&delimiter);
+
+        if format!("{joined}{delimiter}{string}").len() > limit {
+            pages.push(joined);
+            page = vec![];
+        }
+
+        page.push(string);
+    }
+
+    if !page.is_empty() {
+        pages.push(page.join(&delimiter));
+    }
+
+    pages
+}
+
 pub fn label_num<T: Display, U: Display, V: Display>(amount: T, singular: U, plural: V) -> String {
     let amount = amount.to_string().commas();
     format!("{amount} {}", if amount == "1" { singular.to_string() } else { plural.to_string() })

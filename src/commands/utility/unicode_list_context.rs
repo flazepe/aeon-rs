@@ -1,11 +1,8 @@
-use crate::{
-    functions::{hastebin, limit_strings},
-    structs::{
-        command::AeonCommand,
-        command_context::{AeonCommandContext, AeonCommandInput},
-        simple_message::SimpleMessage,
-        unicode::Unicode,
-    },
+use crate::structs::{
+    command::AeonCommand,
+    command_context::{AeonCommandContext, AeonCommandInput},
+    simple_message::SimpleMessage,
+    unicode::Unicode,
 };
 use slashook::{
     command,
@@ -18,14 +15,9 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("List Unicode", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
         let message = SimpleMessage::from(input.target_message.as_ref().unwrap().clone());
-        let mut formatted = Unicode::list(message).format();
+        let unicode = Unicode::list(message);
 
-        if formatted.len() > 2000 {
-            let extra = format!("\n\nFull list: {}", hastebin(&formatted).await?);
-            formatted = limit_strings(formatted.split('\n'), '\n', 2000 - extra.len()) + &extra;
-        }
-
-        ctx.respond(formatted, true).await
+        ctx.respond_pagination(unicode.format_pagination("List Unicode"), true).await
     })
 });
 
