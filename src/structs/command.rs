@@ -83,51 +83,6 @@ impl AeonCommand {
             return ctx.respond_error("This command is owner-only.", true).await;
         }
 
-        let mut func = self.func.as_ref();
-
-        // If there are subcommands, try to find one that matches the input so that we can run its function
-        if !self.subcommands.is_empty() {
-            match &mut ctx.command_input {
-                AeonCommandInput::MessageCommand(_, args, _) => {
-                    let (subcommand, new_args) = args.get_content().split_once(char::is_whitespace).unwrap_or((args.get_content(), ""));
-                    let subcommand = subcommand.to_lowercase();
-                    let subcommand = self.subcommands.iter().find(|entry| entry.name == subcommand || entry.aliases.contains(&subcommand));
-
-                    if let Some(subcommand) = subcommand {
-                        *args = new_args.into();
-                        func = Some(&subcommand.func);
-                    } else {
-                        let subcommands = self
-                            .subcommands
-                            .iter()
-                            .map(|entry| {
-                                format!(
-                                    "`{}{}`",
-                                    entry.name,
-                                    if entry.aliases.is_empty() { "".into() } else { format!("|{}", entry.aliases.join("|")) },
-                                )
-                            })
-                            .collect::<Vec<String>>()
-                            .join(", ");
-
-                        return ctx.respond_error(format!("Invalid subcommand. Valid subcommands: {subcommands}"), false).await;
-                    }
-                },
-                AeonCommandInput::ApplicationCommand(input, _) => {
-                    let subcommand = self
-                        .subcommands
-                        .iter()
-                        .find(|entry| entry.name == input.subcommand.as_ref().or(input.custom_id.as_ref()).cloned().unwrap_or_default());
-
-                    if let Some(subcommand) = subcommand {
-                        func = Some(&subcommand.func);
-                    }
-                },
-            }
-        }
-
-        let Some(func) = func else { return Ok(()) };
-
         // Handle existing cooldowns
         let redis = Database::get_redis()?;
         let cooldown_key = RedisKey::UserCooldown(ctx.get_user_id());
@@ -188,6 +143,51 @@ impl AeonCommand {
             res.update_message(pagination.get_message_response()).await?;
             return Ok(());
         }
+
+        let mut func = self.func.as_ref();
+
+        // If there are subcommands, try to find one that matches the input so that we can run its function
+        if !self.subcommands.is_empty() {
+            match &mut ctx.command_input {
+                AeonCommandInput::MessageCommand(_, args, _) => {
+                    let (subcommand, new_args) = args.get_content().split_once(char::is_whitespace).unwrap_or((args.get_content(), ""));
+                    let subcommand = subcommand.to_lowercase();
+                    let subcommand = self.subcommands.iter().find(|entry| entry.name == subcommand || entry.aliases.contains(&subcommand));
+
+                    if let Some(subcommand) = subcommand {
+                        *args = new_args.into();
+                        func = Some(&subcommand.func);
+                    } else {
+                        let subcommands = self
+                            .subcommands
+                            .iter()
+                            .map(|entry| {
+                                format!(
+                                    "`{}{}`",
+                                    entry.name,
+                                    if entry.aliases.is_empty() { "".into() } else { format!("|{}", entry.aliases.join("|")) },
+                                )
+                            })
+                            .collect::<Vec<String>>()
+                            .join(", ");
+
+                        return ctx.respond_error(format!("Invalid subcommand. Valid subcommands: {subcommands}"), false).await;
+                    }
+                },
+                AeonCommandInput::ApplicationCommand(input, _) => {
+                    let subcommand = self
+                        .subcommands
+                        .iter()
+                        .find(|entry| entry.name == input.subcommand.as_ref().or(input.custom_id.as_ref()).cloned().unwrap_or_default());
+
+                    if let Some(subcommand) = subcommand {
+                        func = Some(&subcommand.func);
+                    }
+                },
+            }
+        }
+
+        let Some(func) = func else { return Ok(()) };
 
         let ctx_arc = Arc::new(ctx);
 
