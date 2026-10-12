@@ -85,7 +85,7 @@ impl Pagination {
 
         for (index, section) in self.sections.iter().enumerate() {
             let select_option = SelectOption::new(&section.name, &section.name).set_default(index == self.current_section);
-            select_menu = select_menu.add_option(select_option)
+            select_menu = select_menu.add_option(select_option);
         }
 
         let action_row = ActionRow::new().add_component(select_menu);
@@ -150,11 +150,11 @@ impl Pagination {
                 let mut components = Components::empty();
 
                 if let Some(section_action_row) = section_action_row {
-                    components = components.add_component(section_action_row)
+                    components = components.add_component(section_action_row);
                 }
 
                 if let Some(control_action_row) = control_action_row {
-                    components = components.add_component(control_action_row)
+                    components = components.add_component(control_action_row);
                 }
 
                 MessageResponse::from(page.clone()).set_components(components).clear_attachments()
@@ -167,11 +167,11 @@ impl Pagination {
                 let mut components = Components(page.clone());
 
                 if let Some(section_action_row) = section_action_row {
-                    components = components.add_component(section_action_row)
+                    components = components.add_component(section_action_row);
                 }
 
                 if let Some(control_action_row) = control_action_row {
-                    components = components.add_component(control_action_row)
+                    components = components.add_component(control_action_row);
                 }
 
                 MessageResponse::from(components).set_components_v2(true).clear_embeds().clear_attachments()
