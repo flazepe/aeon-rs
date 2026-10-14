@@ -5,9 +5,9 @@ pub mod statics;
 mod user;
 
 use crate::{
-    functions::{format_timestamp, limit_strings},
+    functions::{format_timestamp, limit_strings, paginate_strings},
     statics::REQWEST,
-    structs::api::anilist::components::{AniListFuzzyDate, AniListRelation},
+    structs::api::anilist::components::{AniListCharacter, AniListFuzzyDate, AniListRelation},
 };
 use anyhow::Result;
 use nipper::Document;
@@ -47,24 +47,43 @@ impl AniList {
         if dates.is_empty() { "TBA".into() } else { dates.join(" - ") }
     }
 
-    pub fn format_embed_description<T: Display>(embed: Embed, description: Option<&T>) -> Embed {
-        let description = description.map(|description| description.to_string());
+    pub fn format_embed_description<T: Display>(embed: Embed, description: &Option<T>) -> Vec<Vec<Embed>> {
+        let description = description.as_ref().map(|description| description.to_string());
 
-        embed.set_description(limit_strings(
-            Document::from(description.as_deref().unwrap_or("N/A")).select("body").text().split('\n'),
-            "\n",
-            4096,
-        ))
+        paginate_strings(Document::from(description.as_deref().unwrap_or("N/A")).select("body").text().split(' '), " ", 4096)
+            .iter()
+            .map(|entry| vec![embed.clone().set_description(entry)])
+            .collect()
     }
 
-    fn format_embed_relations(mut embed: Embed, relations: &Vec<AniListRelation>) -> Embed {
+    fn format_embed_characters(embed: Embed, characters: &[AniListCharacter]) -> Vec<Vec<Embed>> {
+        characters
+            .iter()
+            .map(|character| {
+                let mut lines =
+                    vec![format!("[**{}**]({})", character.node.name.full, character.node.site_url), format!("-# {}", character.role)];
+
+                let voice_actor = character.voice_actors.as_ref().and_then(|voice_actors| {
+                    voice_actors.first().map(|voice_actor| format!("[{}]({})", voice_actor.name.full, voice_actor.site_url))
+                });
+
+                if let Some(voice_actor) = voice_actor {
+                    lines.push(format!("Voiced by {voice_actor}"));
+                }
+
+                vec![embed.clone().set_thumbnail(&character.node.image.large).set_description(lines.join("\n"))]
+            })
+            .collect()
+    }
+
+    fn format_embed_relations(embed: Embed, relations: &[AniListRelation]) -> Vec<Vec<Embed>> {
         let mut categorized = HashMap::new();
 
         for relation in relations {
             let relation_type = relation.relation_type.to_string();
 
             if !categorized.contains_key(&relation_type) {
-                categorized.insert(relation_type.clone(), vec![]);
+                categorized.insert(relation_type.clone(), vec![format!("**{relation_type}**")]);
             }
 
             categorized.get_mut(&relation_type).unwrap().push(format!(
@@ -75,10 +94,6 @@ impl AniList {
             ));
         }
 
-        for (relation_type, list) in categorized {
-            embed = embed.add_field(relation_type, limit_strings(list, "\n", 1024), false);
-        }
-
-        embed
+        categorized.values().map(|list| vec![embed.clone().set_description(limit_strings(list, "\n", 4096))]).collect()
     }
 }

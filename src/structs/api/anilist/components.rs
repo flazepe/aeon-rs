@@ -32,16 +32,10 @@ pub struct AniListNodes<T> {
 // Character
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct AniListAnimeCharacter {
+pub struct AniListCharacter {
     pub node: AniListCharacterNode,
     pub role: AniListCharacterRole,
-    pub voice_actors: Vec<AniListCharacterVoiceActor>,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct AniListMangaCharacter {
-    pub node: AniListCharacterNode,
-    pub role: AniListCharacterRole,
+    pub voice_actors: Option<Vec<AniListCharacterVoiceActor>>,
 }
 
 #[derive(Deserialize, Debug)]

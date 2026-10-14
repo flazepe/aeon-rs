@@ -1,11 +1,10 @@
 use crate::{
-    functions::paginate_strings,
     macros::yes_no,
     structs::{
         api::anilist::{
             AniList,
             components::{
-                AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat, AniListFuzzyDate, AniListMangaCharacter,
+                AniListCharacter, AniListCoverImage, AniListEdges, AniListExternalLink, AniListFormat, AniListFuzzyDate,
                 AniListMediaPageResponse, AniListRanking, AniListRelation, AniListResponse, AniListSource, AniListStatus, AniListTitle,
             },
             statics::{ANILIST_EMBED_AUTHOR_ICON_URL, ANILIST_EMBED_AUTHOR_URL, ANILIST_EMBED_COLOR, ANILIST_MANGA_FIELDS},
@@ -50,7 +49,7 @@ pub struct AniListManga {
     pub popularity: u64,
     pub favourites: u64,
     pub description: Option<String>,
-    pub characters: AniListEdges<AniListMangaCharacter>,
+    pub characters: AniListEdges<AniListCharacter>,
     pub relations: AniListEdges<AniListRelation>,
     pub updated_at: u64,
 }
@@ -120,22 +119,14 @@ impl AniListManga {
             .set_timestamp(timestamp);
         sections.push(PaginationSection::new("Overview", PaginationPages::Embeds(vec![vec![overview_embed]])));
 
-        let description_embed = AniList::format_embed_description(self._format(), self.description.as_ref());
-        sections.push(PaginationSection::new("Description", PaginationPages::Embeds(vec![vec![description_embed]])));
+        let description_embeds = AniList::format_embed_description(self._format(), &self.description);
+        sections.push(PaginationSection::new("Description", PaginationPages::Embeds(description_embeds)));
 
-        let characters = paginate_strings(
-            self.characters
-                .edges
-                .iter()
-                .map(|character| format!("[{}]({}) ({})", character.node.name.full, character.node.site_url, character.role)),
-            "\n",
-            4096,
-        );
-        let characters_embeds = characters.iter().map(|entry| vec![self._format().set_description(entry)]).collect();
+        let characters_embeds = AniList::format_embed_characters(self._format(), &self.characters.edges);
         sections.push(PaginationSection::new("Characters", PaginationPages::Embeds(characters_embeds)));
 
-        let relations_embed = AniList::format_embed_relations(self._format(), &self.relations.edges);
-        sections.push(PaginationSection::new("Relations", PaginationPages::Embeds(vec![vec![relations_embed]])));
+        let relations_embeds = AniList::format_embed_relations(self._format(), &self.relations.edges);
+        sections.push(PaginationSection::new("Relations", PaginationPages::Embeds(relations_embeds)));
 
         Pagination::new(command, sections)
     }
