@@ -237,7 +237,7 @@ impl From<Embed> for PaginationPages {
 
 impl From<Vec<Embed>> for PaginationPages {
     fn from(value: Vec<Embed>) -> Self {
-        Self::Embeds(vec![value])
+        Self::Embeds(value.into_iter().map(|value| vec![value]).collect())
     }
 }
 
@@ -255,7 +255,7 @@ impl From<Component> for PaginationPages {
 
 impl From<Vec<Component>> for PaginationPages {
     fn from(value: Vec<Component>) -> Self {
-        Self::ComponentsV2(vec![value])
+        Self::ComponentsV2(value.into_iter().map(|value| vec![value]).collect())
     }
 }
 
