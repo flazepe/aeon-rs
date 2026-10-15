@@ -1,7 +1,4 @@
-use crate::{
-    statics::REQWEST,
-    structs::pagination::{Pagination, PaginationPages, PaginationSection},
-};
+use crate::{statics::REQWEST, structs::pagination::Pagination};
 use anyhow::{Result, bail};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
@@ -95,7 +92,7 @@ impl JishoSearch {
 
 impl JishoSearchResult {
     pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
-        let mut sections = vec![];
+        let mut pagination = Pagination::new(command);
 
         for result in &self.data {
             let title = result.format_title();
@@ -119,7 +116,7 @@ impl JishoSearchResult {
             .iter()
             .map(|(k, v)| format!("-# {k}\n{}", v.iter().map(|entry| format!("- {entry}")).collect::<Vec<String>>().join("\n")))
             .collect::<Vec<String>>()
-            .join("\n\n");
+            .join("\n");
 
             let embed = Embed::new()
                 .set_color(JISHO_EMBED_COLOR)
@@ -129,10 +126,9 @@ impl JishoSearchResult {
                 .set_url(url)
                 .set_description(description);
 
-            let section = PaginationSection::new(title, PaginationPages::Embeds(vec![vec![embed]]));
-            sections.push(section);
+            pagination = pagination.add_section(title, embed);
         }
 
-        Pagination::new(command, sections)
+        pagination
     }
 }

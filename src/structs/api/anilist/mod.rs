@@ -47,12 +47,12 @@ impl AniList {
         if dates.is_empty() { "TBA".into() } else { dates.join(" - ") }
     }
 
-    pub fn format_embed_description<T: Display>(embed: Embed, description: &Option<T>) -> Vec<Vec<Embed>> {
+    pub fn format_embed_description<T: Display>(embed: Embed, description: &Option<T>) -> Vec<Embed> {
         let description = description.as_ref().map(|description| description.to_string());
 
         paginate_strings(Document::from(description.as_deref().unwrap_or("N/A")).select("body").text().split(' '), " ", 4096)
             .iter()
-            .map(|entry| vec![embed.clone().set_description(entry)])
+            .map(|entry| embed.clone().set_description(entry))
             .collect()
     }
 

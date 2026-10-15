@@ -6,7 +6,7 @@ use crate::{
             components::{AniListCharacterNode, AniListFormat, AniListImage, AniListNodes, AniListResponse, AniListTitle},
             statics::{ANILIST_EMBED_AUTHOR_ICON_URL, ANILIST_EMBED_AUTHOR_URL, ANILIST_EMBED_COLOR, ANILIST_USER_FIELDS},
         },
-        pagination::{Pagination, PaginationPages, PaginationSection},
+        pagination::Pagination,
     },
 };
 use anyhow::{Context, Result};
@@ -94,8 +94,6 @@ impl AniListUser {
     }
 
     pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
-        let mut sections = vec![];
-
         let image = format!("https://img.anili.st/user/{}", self.id);
         let created = format_timestamp(self.created_at, true);
         let anime_statistics = format!(
@@ -116,11 +114,9 @@ impl AniListUser {
             .add_field("Manga Statistics", manga_statistics, true)
             .set_footer("Last updated", None::<String>)
             .set_timestamp(timestamp);
-        sections.push(PaginationSection::new("Overview", PaginationPages::Embeds(vec![vec![overview_embed]])));
 
         let about = paginate_strings(self.about.as_deref().unwrap_or_default().split('\n'), "\n", 4096);
-        let about_embeds = about.iter().map(|entry| vec![self._format().set_description(entry)]).collect();
-        sections.push(PaginationSection::new("About", PaginationPages::Embeds(about_embeds)));
+        let about_embeds = about.iter().map(|entry| self._format().set_description(entry)).collect::<Vec<Embed>>();
 
         let favorite_anime = paginate_strings(
             self.favorites.anime.nodes.iter().map(|anime| {
@@ -134,8 +130,7 @@ impl AniListUser {
             "\n",
             4096,
         );
-        let favorite_anime_embeds = favorite_anime.iter().map(|entry| vec![self._format().set_description(entry)]).collect();
-        sections.push(PaginationSection::new("Favorite Anime", PaginationPages::Embeds(favorite_anime_embeds)));
+        let favorite_anime_embeds = favorite_anime.iter().map(|entry| self._format().set_description(entry)).collect::<Vec<Embed>>();
 
         let favorite_manga = paginate_strings(
             self.favorites.manga.nodes.iter().map(|manga| {
@@ -149,26 +144,30 @@ impl AniListUser {
             "\n",
             4096,
         );
-        let favorite_manga_embeds = favorite_manga.iter().map(|entry| vec![self._format().set_description(entry)]).collect();
-        sections.push(PaginationSection::new("Favorite Manga", PaginationPages::Embeds(favorite_manga_embeds)));
+        let favorite_manga_embeds = favorite_manga.iter().map(|entry| self._format().set_description(entry)).collect::<Vec<Embed>>();
 
         let favorite_characters = paginate_strings(
             self.favorites.characters.nodes.iter().map(|character| format!("[{}]({})", character.name.full, character.site_url)),
             "\n",
             4096,
         );
-        let favorite_characters_embeds = favorite_characters.iter().map(|entry| vec![self._format().set_description(entry)]).collect();
-        sections.push(PaginationSection::new("Favorite Characters", PaginationPages::Embeds(favorite_characters_embeds)));
+        let favorite_characters_embeds =
+            favorite_characters.iter().map(|entry| self._format().set_description(entry)).collect::<Vec<Embed>>();
 
         let favorite_staff = paginate_strings(
             self.favorites.staff.nodes.iter().map(|staff| format!("[{}]({})", staff.name.full, staff.site_url)),
             "\n",
             4096,
         );
-        let favorite_staff_embeds = favorite_staff.iter().map(|entry| vec![self._format().set_description(entry)]).collect();
-        sections.push(PaginationSection::new("Favorite Staff", PaginationPages::Embeds(favorite_staff_embeds)));
+        let favorite_staff_embeds = favorite_staff.iter().map(|entry| self._format().set_description(entry)).collect::<Vec<Embed>>();
 
-        Pagination::new(command, sections)
+        Pagination::new(command)
+            .add_section("Overview", overview_embed)
+            .add_section("About", about_embeds)
+            .add_section("Favorite Anime", favorite_anime_embeds)
+            .add_section("Favorite Manga", favorite_manga_embeds)
+            .add_section("Favorite Characters", favorite_characters_embeds)
+            .add_section("Favorite Staff", favorite_staff_embeds)
     }
 }
 

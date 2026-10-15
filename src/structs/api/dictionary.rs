@@ -1,6 +1,6 @@
 use crate::{
     statics::{REQWEST, colors::PRIMARY_EMBED_COLOR},
-    structs::pagination::{Pagination, PaginationPages, PaginationSection},
+    structs::pagination::Pagination,
 };
 use anyhow::{Result, bail};
 use serde::Deserialize;
@@ -43,35 +43,29 @@ impl Dictionary {
     }
 
     pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
+        let mut pagination = Pagination::new(command);
+
         let part_of_speeches = self.entries.iter().map(|entry| &entry.part_of_speech).collect::<Vec<&String>>();
 
-        let sections = self
-            .entries
-            .iter()
-            .enumerate()
-            .map(|(index, entry)| {
-                let counter =
-                    part_of_speeches.iter().take(index).filter(|part_of_speech| ***part_of_speech == entry.part_of_speech).count() + 1;
+        for (index, entry) in self.entries.iter().enumerate() {
+            let counter =
+                part_of_speeches.iter().take(index).filter(|part_of_speech| ***part_of_speech == entry.part_of_speech).count() + 1;
 
-                let should_display_counter =
-                    part_of_speeches.iter().filter(|part_of_speech| ***part_of_speech == entry.part_of_speech).count() > 1;
+            let should_display_counter =
+                part_of_speeches.iter().filter(|part_of_speech| ***part_of_speech == entry.part_of_speech).count() > 1;
 
-                let label = format!("{}{}", entry.part_of_speech, if should_display_counter { format!(" ({counter})") } else { "".into() });
+            let label = format!("{}{}", entry.part_of_speech, if should_display_counter { format!(" ({counter})") } else { "".into() });
 
-                let description = format!(
-                    "-# {}\n{}",
-                    label,
-                    entry.senses.iter().map(|sense| format!("- {}", sense.definition)).collect::<Vec<String>>().join("\n"),
-                );
+            let description = format!(
+                "-# {}\n{}",
+                label,
+                entry.senses.iter().map(|sense| format!("- {}", sense.definition)).collect::<Vec<String>>().join("\n"),
+            );
 
-                let pages = vec![vec![
-                    Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_title(&self.word).set_description(description),
-                ]];
+            let embed = Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_title(&self.word).set_description(description);
+            pagination = pagination.add_section(label, embed);
+        }
 
-                PaginationSection::new(label, PaginationPages::Embeds(pages))
-            })
-            .collect();
-
-        Pagination::new(command.to_string(), sections)
+        pagination
     }
 }

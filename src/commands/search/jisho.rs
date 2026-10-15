@@ -13,7 +13,7 @@ use std::sync::{Arc, LazyLock};
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("jisho", &["j"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let results = JishoSearch::search(ctx.get_string_arg("query", 0, true)?).await?;
-        ctx.respond_pagination(results.format_pagination("jisho"), false).await
+        ctx.respond(results.format_pagination("jisho").save().await?, false).await
     })
 });
 

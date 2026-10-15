@@ -9,5 +9,5 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         ctx.ensure_nsfw_channel().await?;
     }
 
-    ctx.respond_pagination(manga.format_pagination("anilist"), false).await
+    ctx.respond(manga.format_pagination("anilist").save().await?, false).await
 }

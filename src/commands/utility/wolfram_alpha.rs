@@ -17,7 +17,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         let query = ctx.get_string_arg("query", 0, true)?;
         let result = WolframAlpha::query(query).await?;
 
-        ctx.respond_pagination(result.format_pagination("wolfram-alpha"), false).await
+        ctx.respond(result.format_pagination("wolfram-alpha").save().await?, false).await
     })
 });
 

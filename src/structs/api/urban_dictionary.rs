@@ -1,6 +1,6 @@
 use crate::{
     statics::{REQWEST, colors::PRIMARY_EMBED_COLOR},
-    structs::pagination::{Pagination, PaginationPages, PaginationSection},
+    structs::pagination::Pagination,
 };
 use anyhow::{Result, bail};
 use serde::Deserialize;
@@ -53,17 +53,15 @@ impl UrbanDictionary {
         let pages = list
             .iter()
             .map(|meaning| {
-                vec![
-                    Embed::new()
-                        .set_color(PRIMARY_EMBED_COLOR)
-                        .unwrap_or_default()
-                        .set_title(&word)
-                        .set_url(format!("https://www.urbandictionary.com/define.php?term={}", word.replace(' ', "+")))
-                        .set_description(meaning.definition.split('\n').next().unwrap().replace(['[', ']'], "")),
-                ]
+                Embed::new()
+                    .set_color(PRIMARY_EMBED_COLOR)
+                    .unwrap_or_default()
+                    .set_title(&word)
+                    .set_url(format!("https://www.urbandictionary.com/define.php?term={}", word.replace(' ', "+")))
+                    .set_description(meaning.definition.split('\n').next().unwrap().replace(['[', ']'], ""))
             })
-            .collect::<Vec<Vec<Embed>>>();
+            .collect::<Vec<Embed>>();
 
-        Pagination::new(command, vec![PaginationSection::new("Main", PaginationPages::Embeds(pages))])
+        Pagination::new(command).add_section("Main", pages)
     }
 }

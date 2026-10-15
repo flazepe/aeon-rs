@@ -2,11 +2,7 @@ use crate::{
     functions::format_timestamp,
     macros::yes_no,
     statics::EMOJIS,
-    structs::{
-        api::osu::Osu,
-        duration::Duration,
-        pagination::{Pagination, PaginationPages, PaginationSection},
-    },
+    structs::{api::osu::Osu, duration::Duration, pagination::Pagination},
     traits::Commas,
 };
 use anyhow::{Context, Result};
@@ -286,8 +282,6 @@ impl OsuUser {
     }
 
     pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
-        let mut sections = vec![];
-
         let mode = self.rank_history.as_ref().map_or(&OsuMode::Osu, |rank_history| &rank_history.mode);
         let rank = format!(
             "#{}{}",
@@ -315,7 +309,6 @@ impl OsuUser {
             .add_field("Country", country, true)
             .add_field("Playstyle", playstyle.as_deref().unwrap_or("N/A"), true)
             .add_field("Created", created, false);
-        sections.push(PaginationSection::new("Overview", PaginationPages::Embeds(vec![vec![overview_embed]])));
 
         let twitter = self.twitter.as_ref().map(|twitter| format!("[@{twitter}](https://x.com/{twitter})"));
 
@@ -327,7 +320,6 @@ impl OsuUser {
             .add_field("Website", self.website.as_deref().unwrap_or("N/A"), true)
             .add_field("X", twitter.as_deref().unwrap_or("N/A"), true)
             .add_field("Discord", self.discord.as_deref().unwrap_or("N/A"), true);
-        sections.push(PaginationSection::new("About", PaginationPages::Embeds(vec![vec![about_embed]])));
 
         let emojis = EMOJIS.get().unwrap();
         let pp = format!("{}pp", format!("{:.2}", self.statistics.pp).commas());
@@ -389,7 +381,6 @@ impl OsuUser {
             .add_field("Play Count", play_count, false)
             .add_field("Replays Watched by Others", replays_watched_by_others, false)
             .add_field("Grades", grades, false);
-        sections.push(PaginationSection::new("Statistics", PaginationPages::Embeds(vec![vec![statistics_embed]])));
 
         let previous_usernames = if self.previous_usernames.is_empty() { "-".into() } else { self.previous_usernames.join(", ") };
         let supporter = if self.is_supporter {
@@ -425,9 +416,12 @@ impl OsuUser {
             .add_field("Comments", comments, true)
             .add_field("Kudosu!", kudosu, false)
             .add_field("Beatmaps", beatmaps, false);
-        sections.push(PaginationSection::new("Website Statistics", PaginationPages::Embeds(vec![vec![website_statistics_embed]])));
 
-        Pagination::new(command, sections)
+        Pagination::new(command)
+            .add_section("Overview", overview_embed)
+            .add_section("About", about_embed)
+            .add_section("Statistics", statistics_embed)
+            .add_section("Website Statistics", website_statistics_embed)
     }
 }
 

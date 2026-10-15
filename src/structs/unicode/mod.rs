@@ -3,10 +3,7 @@ pub mod statics;
 use crate::{
     functions::paginate_strings,
     statics::colors::PRIMARY_EMBED_COLOR,
-    structs::{
-        pagination::{Pagination, PaginationPages, PaginationSection},
-        unicode::statics::CONTROL_CHARACTERS,
-    },
+    structs::{pagination::Pagination, unicode::statics::CONTROL_CHARACTERS},
 };
 use anyhow::{Result, bail};
 use nipper::Document;
@@ -57,10 +54,10 @@ impl Unicode {
 
         let pages = paginated
             .iter()
-            .map(|entry| vec![Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_description(entry)])
-            .collect::<Vec<Vec<Embed>>>();
+            .map(|entry| Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_description(entry))
+            .collect::<Vec<Embed>>();
 
-        Pagination::new(command, vec![PaginationSection::new("Main", PaginationPages::Embeds(pages))])
+        Pagination::new(command).add_section("Main", pages)
     }
 }
 

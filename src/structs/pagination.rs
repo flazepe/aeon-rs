@@ -1,4 +1,8 @@
-use crate::statics::EMOJIS;
+use crate::{
+    statics::{EMOJIS, REDIS},
+    structs::database::redis::keys::RedisKey,
+};
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use slashook::{
     chrono::Utc,
@@ -12,19 +16,31 @@ use std::fmt::Display;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Pagination {
-    pub id: String,
-    pub command: String,
-    pub sections: Vec<PaginationSection>,
-    pub current_section: usize,
-    pub current_page: usize,
+    id: String,
+    command: String,
+    sections: Vec<PaginationSection>,
+    current_section: usize,
+    current_page: usize,
 }
 
 impl Pagination {
-    pub fn new<T: Display>(command: T, sections: Vec<PaginationSection>) -> Self {
-        Self { id: Utc::now().timestamp().to_string(), command: command.to_string(), sections, current_section: 0, current_page: 0 }
+    pub fn new<T: Display>(command: T) -> Self {
+        Self { id: Utc::now().timestamp().to_string(), command: command.to_string(), sections: vec![], current_section: 0, current_page: 0 }
     }
 
-    pub fn get_pages(&self) -> &PaginationPages {
+    pub fn add_section<T: Display, U: Into<PaginationPages>>(mut self, name: T, pages: U) -> Self {
+        self.sections.push(PaginationSection::new(name, pages));
+        self
+    }
+
+    pub async fn save(self) -> Result<Self> {
+        let redis = REDIS.get().context("Could not get Redis.")?;
+        let key = RedisKey::Paginations(self.id.clone());
+        redis.set(&key, &self, Some(60 * 5)).await?;
+        Ok(self)
+    }
+
+    fn get_pages(&self) -> &PaginationPages {
         &self.sections[self.current_section].pages
     }
 
@@ -76,7 +92,7 @@ impl Pagination {
         format!("pagination/{}/{}", self.id, custom_id)
     }
 
-    pub fn generate_section_action_row(&self) -> Option<ActionRow> {
+    fn generate_section_action_row(&self) -> Option<ActionRow> {
         if self.sections.len() < 2 {
             return None;
         }
@@ -189,15 +205,21 @@ impl Pagination {
     }
 }
 
+impl From<Pagination> for MessageResponse {
+    fn from(value: Pagination) -> Self {
+        value.get_message_response()
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug)]
-pub struct PaginationSection {
-    pub name: String,
-    pub pages: PaginationPages,
+struct PaginationSection {
+    name: String,
+    pages: PaginationPages,
 }
 
 impl PaginationSection {
-    pub fn new<T: Display>(name: T, pages: PaginationPages) -> Self {
-        Self { name: name.to_string(), pages }
+    fn new<T: Display, U: Into<PaginationPages>>(name: T, pages: U) -> Self {
+        Self { name: name.to_string(), pages: pages.into() }
     }
 }
 
@@ -205,4 +227,40 @@ impl PaginationSection {
 pub enum PaginationPages {
     Embeds(Vec<Vec<Embed>>),
     ComponentsV2(Vec<Vec<Component>>),
+}
+
+impl From<Embed> for PaginationPages {
+    fn from(value: Embed) -> Self {
+        Self::Embeds(vec![vec![value]])
+    }
+}
+
+impl From<Vec<Embed>> for PaginationPages {
+    fn from(value: Vec<Embed>) -> Self {
+        Self::Embeds(vec![value])
+    }
+}
+
+impl From<Vec<Vec<Embed>>> for PaginationPages {
+    fn from(value: Vec<Vec<Embed>>) -> Self {
+        Self::Embeds(value)
+    }
+}
+
+impl From<Component> for PaginationPages {
+    fn from(value: Component) -> Self {
+        Self::ComponentsV2(vec![vec![value]])
+    }
+}
+
+impl From<Vec<Component>> for PaginationPages {
+    fn from(value: Vec<Component>) -> Self {
+        Self::ComponentsV2(vec![value])
+    }
+}
+
+impl From<Vec<Vec<Component>>> for PaginationPages {
+    fn from(value: Vec<Vec<Component>>) -> Self {
+        Self::ComponentsV2(value)
+    }
 }

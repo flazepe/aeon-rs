@@ -4,5 +4,5 @@ use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     let list = Unicode::list(ctx.get_string_arg("text", 0, true)?);
-    ctx.respond_pagination(list.format_pagination("unicode"), false).await
+    ctx.respond(list.format_pagination("unicode").save().await?, false).await
 }

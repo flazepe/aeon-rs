@@ -143,8 +143,7 @@ impl AeonCommand {
                 _ => return Ok(()),
             }
 
-            redis.set(&pagination_key, &pagination, Some(60 * 5)).await?;
-            res.update_message(pagination.get_message_response()).await?;
+            res.update_message(pagination.save().await?).await?;
             return Ok(());
         }
 

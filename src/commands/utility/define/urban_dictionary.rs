@@ -11,5 +11,5 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     };
 
     let urban_dictionary = UrbanDictionary::search(ctx.get_string_arg("word", 0, true)?).await?;
-    ctx.respond_pagination(urban_dictionary.format_pagination("define"), ephemeral).await
+    ctx.respond(urban_dictionary.format_pagination("define").save().await?, ephemeral).await
 }

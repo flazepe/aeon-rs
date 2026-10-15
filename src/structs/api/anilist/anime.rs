@@ -8,7 +8,7 @@ use crate::structs::{
         },
         statics::{ANILIST_ANIME_FIELDS, ANILIST_EMBED_AUTHOR_ICON_URL, ANILIST_EMBED_AUTHOR_URL, ANILIST_EMBED_COLOR},
     },
-    pagination::{Pagination, PaginationPages, PaginationSection},
+    pagination::Pagination,
 };
 use anyhow::{Result, bail};
 use serde::Deserialize;
@@ -84,8 +84,6 @@ impl AniListAnime {
     }
 
     pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
-        let mut sections = vec![];
-
         let synonyms = self.synonyms.iter().map(|title| format!("_{title}_")).collect::<Vec<String>>().join("\n");
 
         let trailer = self.trailer.as_ref().map(|trailer| {
@@ -160,18 +158,16 @@ impl AniListAnime {
             .add_field("Score", score, true)
             .set_footer("Last updated", None::<String>)
             .set_timestamp(timestamp);
-        sections.push(PaginationSection::new("Overview", PaginationPages::Embeds(vec![vec![overview_embed]])));
 
         let description_embeds = AniList::format_embed_description(self._format(), &self.description);
-        sections.push(PaginationSection::new("Description", PaginationPages::Embeds(description_embeds)));
-
         let characters_embeds = AniList::format_embed_characters(self._format(), &self.characters.edges);
-        sections.push(PaginationSection::new("Characters", PaginationPages::Embeds(characters_embeds)));
-
         let relations_embeds = AniList::format_embed_relations(self._format(), &self.relations.edges);
-        sections.push(PaginationSection::new("Relations", PaginationPages::Embeds(relations_embeds)));
 
-        Pagination::new(command, sections)
+        Pagination::new(command)
+            .add_section("Overview", overview_embed)
+            .add_section("Description", description_embeds)
+            .add_section("Characters", characters_embeds)
+            .add_section("Relations", relations_embeds)
     }
 }
 
