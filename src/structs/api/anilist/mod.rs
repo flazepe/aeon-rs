@@ -5,7 +5,7 @@ pub mod statics;
 mod user;
 
 use crate::{
-    functions::{format_timestamp, limit_strings, paginate_strings},
+    functions::{format_timestamp, paginate_strings},
     statics::REQWEST,
     structs::api::anilist::components::{AniListCharacter, AniListFuzzyDate, AniListRelation},
 };
@@ -56,7 +56,7 @@ impl AniList {
             .collect()
     }
 
-    fn format_embed_characters(embed: Embed, characters: &[AniListCharacter]) -> Vec<Vec<Embed>> {
+    fn format_embed_characters(embed: Embed, characters: &[AniListCharacter]) -> Vec<Embed> {
         characters
             .iter()
             .map(|character| {
@@ -71,29 +71,44 @@ impl AniList {
                     lines.push(format!("Voiced by {voice_actor}"));
                 }
 
-                vec![embed.clone().set_thumbnail(&character.node.image.large).set_description(lines.join("\n"))]
+                embed.clone().set_thumbnail(&character.node.image.large).set_description(lines.join("\n"))
             })
             .collect()
     }
 
-    fn format_embed_relations(embed: Embed, relations: &[AniListRelation]) -> Vec<Vec<Embed>> {
+    fn format_embed_relations(embed: Embed, relations: &[AniListRelation]) -> Vec<Embed> {
         let mut categorized = HashMap::new();
 
         for relation in relations {
             let relation_type = relation.relation_type.to_string();
 
             if !categorized.contains_key(&relation_type) {
-                categorized.insert(relation_type.clone(), vec![format!("**{relation_type}**")]);
+                categorized.insert(relation_type.clone(), vec![]);
             }
 
+            let season_name = relation.node.season.as_ref().map(|season| format!("{season} "));
+            let season =
+                relation.node.season_year.map(|season_year| format!("\n\t- {}{}", season_name.as_deref().unwrap_or_default(), season_year));
+
             categorized.get_mut(&relation_type).unwrap().push(format!(
-                "[{}]({}){}",
+                "- [{}]({}){}{}",
                 relation.node.title.romaji,
                 relation.node.site_url,
                 relation.node.format.as_ref().map(|format| format!(" ({format})")).as_deref().unwrap_or_default(),
+                season.as_deref().unwrap_or_default(),
             ));
         }
 
-        categorized.values().map(|list| vec![embed.clone().set_description(limit_strings(list, "\n", 4096))]).collect()
+        let mut pages = vec![];
+
+        for (relation_type, list) in categorized {
+            let label = format!("**{relation_type}**\n");
+
+            for entry in paginate_strings(&list, "\n", 4096 - label.len()) {
+                pages.push(embed.clone().set_description(format!("{label}{entry}")));
+            }
+        }
+
+        pages
     }
 }

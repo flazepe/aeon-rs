@@ -26,7 +26,7 @@ pub const ANILIST_ANIME_FIELDS: &str = "
     relations {
         edges {
             relationType
-            node { title { romaji native english } format siteUrl }
+            node { title { romaji native english } format siteUrl season seasonYear }
         }
     }
     updatedAt
@@ -52,7 +52,7 @@ pub const ANILIST_MANGA_FIELDS: &str = "
     relations {
         edges {
             relationType
-            node { title { romaji native english } format siteUrl }
+            node { title { romaji native english } format siteUrl season seasonYear }
         }
     }
     updatedAt

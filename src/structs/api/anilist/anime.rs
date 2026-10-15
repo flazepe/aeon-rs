@@ -97,10 +97,10 @@ impl AniListAnime {
                 trailer.id,
             )
         });
-        let season = self
-            .season
-            .as_ref()
-            .map(|season| format!("Premiered {season} {}{}\n", self.season_year.unwrap(), trailer.as_deref().unwrap_or_default()));
+        let season_name = self.season.as_ref().map(|season| format!("{season} "));
+        let season = self.season_year.map(|season_year| {
+            format!("{}{}{}\n", season_name.as_deref().unwrap_or_default(), season_year, trailer.as_deref().unwrap_or_default())
+        });
         let airing_date = AniList::format_airing_date(&self.start_date, &self.end_date);
         let status = &self.status;
         let airing_in = self
