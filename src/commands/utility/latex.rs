@@ -3,8 +3,13 @@ use crate::structs::{
     command_context::{AeonCommandContext, AeonCommandInput},
 };
 use anyhow::Context;
-use image::ImageOutputFormat;
-use mathjax::MathJax;
+use image::{ImageFormat, load_from_memory_with_format};
+use mathjax_svg_rs::{Options as MathjaxOptions, render_tex};
+use resvg::{
+    render,
+    tiny_skia::Pixmap,
+    usvg::{Options as TreeOptions, Transform, Tree},
+};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -22,20 +27,26 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("latex", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let expression = ctx.get_string_arg("expression", 0, true)?;
         let color = match &ctx.command_input {
-            AeonCommandInput::ApplicationCommand(..) => ctx.get_string_arg("color", 0, true).unwrap_or("#fff".into()),
-            AeonCommandInput::MessageCommand(..) => "#fff".into(),
+            AeonCommandInput::ApplicationCommand(..) => ctx.get_string_arg("color", 0, true).unwrap_or("#ffffff".into()),
+            AeonCommandInput::MessageCommand(..) => "#ffffff".into(),
         };
+        let parsed_color = csscolorparser::parse(&color).context("Invalid color.")?;
 
         ctx.defer(false).await?;
 
-        let mathjax = MathJax::new().context("Could not instantiate renderer.")?;
-        let mut render = mathjax.render(expression).context("Could not render expression.")?;
+        let svg = match render_tex(&expression, &MathjaxOptions::default()) {
+            Ok(render) => render,
+            Err(error) => return ctx.respond_error(error, false).await,
+        }
+        .replace(r#"style=""#, &format!(r#"style="font-size: 32px; color: {parsed_color};"#));
 
-        render.set_color(&color);
+        let tree = Tree::from_str(&svg, &TreeOptions::default())?;
+        let mut pixmap = Pixmap::new(tree.size().width() as u32, tree.size().height() as u32).unwrap();
+        render(&tree, Transform::default(), &mut pixmap.as_mut());
 
-        let image = render.into_image(10.).context("Could not convert render into image.")?;
+        let image = load_from_memory_with_format(&pixmap.encode_png()?, ImageFormat::Png)?;
         let mut bytes = Vec::new();
-        image.write_to(&mut Cursor::new(&mut bytes), ImageOutputFormat::Png)?;
+        image.write_to(&mut Cursor::new(&mut bytes), ImageFormat::Png)?;
 
         ctx.respond(File::new("image.png", bytes), false).await
     })
