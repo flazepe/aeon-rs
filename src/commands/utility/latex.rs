@@ -3,7 +3,6 @@ use crate::structs::{
     command_context::{AeonCommandContext, AeonCommandInput},
 };
 use anyhow::Context;
-use image::{ImageFormat, load_from_memory_with_format};
 use mathjax_svg_rs::{Options as MathjaxOptions, render_tex};
 use resvg::{
     render,
@@ -18,10 +17,7 @@ use slashook::{
         utils::File,
     },
 };
-use std::{
-    io::Cursor,
-    sync::{Arc, LazyLock},
-};
+use std::sync::{Arc, LazyLock};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("latex", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
@@ -38,17 +34,13 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             Ok(render) => render,
             Err(error) => return ctx.respond_error(error, false).await,
         }
-        .replace(r#"style=""#, &format!(r#"style="font-size: 32px; color: {parsed_color};"#));
+        .replace(r#"style=""#, &format!(r#"style="color: {parsed_color};"#));
 
-        let tree = Tree::from_str(&svg, &TreeOptions::default())?;
-        let mut pixmap = Pixmap::new(tree.size().width() as u32, tree.size().height() as u32).unwrap();
+        let tree = Tree::from_str(&svg, &TreeOptions { font_size: 32., ..Default::default() })?;
+        let mut pixmap = Pixmap::new(tree.size().width() as u32, tree.size().height() as u32).context("Could not create Pixmap.")?;
         render(&tree, Transform::default(), &mut pixmap.as_mut());
 
-        let image = load_from_memory_with_format(&pixmap.encode_png()?, ImageFormat::Png)?;
-        let mut bytes = Vec::new();
-        image.write_to(&mut Cursor::new(&mut bytes), ImageFormat::Png)?;
-
-        ctx.respond(File::new("image.png", bytes), false).await
+        ctx.respond(File::new("image.png", pixmap.encode_png()?), false).await
     })
 });
 

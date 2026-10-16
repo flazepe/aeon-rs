@@ -11,7 +11,6 @@ futures = "0.3"
 gouth = "0.2"
 headless_chrome = "1"
 http_req = "0.14"
-image = "0.25"
 mathjax-svg-rs = { version = "0.4" }
 mongodb = "3"
 nipper = "0.1"
