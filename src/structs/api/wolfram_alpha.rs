@@ -77,9 +77,11 @@ impl WolframAlpha {
             if let Some(input_interpretation_container) = &input_interpretation_container {
                 let page = Components::empty().add_component(input_interpretation_container.clone()).add_component(container);
                 pages.push(page.0);
-            } else {
+            } else if pod.title.contains("Input") {
                 input_interpretation_container = Some(container.clone());
                 continue;
+            } else {
+                pages.push(Components::empty().add_component(container).0);
             }
         }
 
