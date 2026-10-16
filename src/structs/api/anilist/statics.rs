@@ -2,8 +2,12 @@ pub const ANILIST_EMBED_COLOR: &str = "#00aaff";
 pub const ANILIST_EMBED_AUTHOR_URL: &str = "https://anilist.co";
 pub const ANILIST_EMBED_AUTHOR_ICON_URL: &str = "https://i.ibb.co/vYBvP34/anilist.png";
 pub const ANILIST_ANIME_FIELDS: &str = "
-    id siteUrl coverImage { extraLarge } bannerImage
-    countryOfOrigin title { romaji native english } format synonyms isAdult
+    id siteUrl
+    coverImage { extraLarge }
+    bannerImage
+    countryOfOrigin
+    title { romaji native english }
+    format synonyms isAdult
     startDate { year month day }
     endDate { year month day }
     status
@@ -18,22 +22,38 @@ pub const ANILIST_ANIME_FIELDS: &str = "
     studios { nodes { name siteUrl } }
     characters(perPage: 10, sort: ROLE) {
         edges {
-            node { name { full } image { large } siteUrl }
+            node {
+                name { full }
+                image { large }
+                siteUrl
+            }
             role
-            voiceActors { name { full } languageV2 siteUrl }
+            voiceActors {
+                name { full }
+                languageV2 siteUrl
+            }
         }
     }
     relations {
         edges {
             relationType
-            node { title { romaji native english } format siteUrl season seasonYear }
+            node {
+                title { romaji native english }
+                format siteUrl
+                startDate { year month day }
+                season seasonYear
+            }
         }
     }
     updatedAt
 ";
 pub const ANILIST_MANGA_FIELDS: &str = "
-    id siteUrl coverImage { extraLarge } bannerImage
-    countryOfOrigin title { romaji native english } format synonyms isAdult
+    id siteUrl
+    coverImage { extraLarge }
+    bannerImage
+    countryOfOrigin
+    title { romaji native english }
+    format synonyms isAdult
     startDate { year month day }
     endDate { year month day }
     status
@@ -45,20 +65,29 @@ pub const ANILIST_MANGA_FIELDS: &str = "
     description
     characters(perPage: 10, sort: ROLE) {
         edges {
-            node { name { full } image { large } siteUrl }
+            node {
+                name { full }
+                image { large }
+                siteUrl
+            }
             role
         }
     }
     relations {
         edges {
             relationType
-            node { title { romaji native english } format siteUrl season seasonYear }
+            node {
+                title { romaji native english }
+                format siteUrl season seasonYear
+            }
         }
     }
     updatedAt
 ";
 pub const ANILIST_USER_FIELDS: &str = "
-    id siteUrl avatar { large } name createdAt updatedAt about
+    id siteUrl
+    avatar { large }
+    name createdAt updatedAt about
     statistics {
         anime { episodesWatched minutesWatched meanScore }
         manga { chaptersRead volumesRead meanScore }
@@ -78,12 +107,14 @@ pub const ANILIST_USER_FIELDS: &str = "
         }
         characters {
             nodes {
-                name { full } image { large } siteUrl
+                name { full } image { large }
+                siteUrl
             }
         }
         staff {
             nodes {
-                name { full } image { large } siteUrl
+                name { full } image { large }
+                siteUrl
             }
         }
     }

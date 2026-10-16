@@ -89,13 +89,14 @@ impl AniList {
             let season_name = relation.node.season.as_ref().map(|season| format!("{season} "));
             let season =
                 relation.node.season_year.map(|season_year| format!("\n\t- {}{}", season_name.as_deref().unwrap_or_default(), season_year));
+            let year = relation.node.start_date.year.map(|year| format!("\n\t- {year}"));
 
             categorized.get_mut(&relation_type).unwrap().push(format!(
                 "- [{}]({}){}{}",
                 relation.node.title.romaji,
                 relation.node.site_url,
                 relation.node.format.as_ref().map(|format| format!(" ({format})")).as_deref().unwrap_or_default(),
-                season.as_deref().unwrap_or_default(),
+                season.as_deref().or(year.as_deref()).unwrap_or_default(),
             ));
         }
 

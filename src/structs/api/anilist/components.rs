@@ -84,6 +84,7 @@ pub struct AniListRelationNode {
     pub title: AniListTitle,
     pub format: Option<AniListFormat>,
     pub site_url: String,
+    pub start_date: AniListFuzzyDate,
     pub season: Option<AniListSeason>,
     pub season_year: Option<u64>,
 }
