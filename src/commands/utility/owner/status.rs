@@ -6,7 +6,7 @@ use crate::{
         database::{Database, redis::keys::RedisKey},
     },
 };
-use anyhow::{Context, Error, Result};
+use anyhow::{Context, Result, anyhow};
 use slashook::structs::embeds::Embed;
 use std::sync::Arc;
 use sysinfo::{System, get_current_pid};
@@ -15,7 +15,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     ctx.defer(false).await?;
 
     let system = System::new_all();
-    let pid = get_current_pid().map_err(Error::msg)?;
+    let pid = get_current_pid().map_err(|error| anyhow!(error))?;
     let process = system.process(pid).context("Could not get process.")?;
     let process_started = format_timestamp(process.start_time(), true);
 

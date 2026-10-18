@@ -2,7 +2,7 @@ use crate::{
     statics::{CONFIG, REQWEST, colors::PRIMARY_EMBED_COLOR},
     structs::command_context::{AeonCommandContext, AeonCommandInput},
 };
-use anyhow::{Error, Result};
+use anyhow::{Result, anyhow};
 use reqwest::Method;
 use serde_json::{Value, from_str};
 use slashook::structs::embeds::Embed;
@@ -19,7 +19,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         request = request.header("content-type", content_type).body(body);
     }
 
-    let response = request.send().await.map_err(|error| Error::msg(format!("```{error}```")))?;
+    let response = request.send().await.map_err(|error| anyhow!("```{error}```"))?;
     let response_text = response.text().await;
 
     let plain_text = response_text.as_deref().unwrap_or("An error occurred while encoding text.");

@@ -5,7 +5,7 @@ use crate::{
         database::{Database, redis::keys::RedisKey},
     },
 };
-use anyhow::{Context, Error, Result, bail};
+use anyhow::{Context, Result, anyhow, bail};
 use slashook::{
     commands::{CommandInput, CommandResponder, MessageResponse},
     structs::{
@@ -247,7 +247,7 @@ impl AeonCommandContext {
 
     pub fn get_bool_arg<T: Display>(&self, arg: T) -> Result<bool> {
         let AeonCommandInput::ApplicationCommand(input, _) = &self.command_input else {
-            return Err(Error::msg("Command input is not an application command."));
+            return Err(anyhow!("Command input is not an application command."));
         };
         input
             .args
@@ -259,7 +259,7 @@ impl AeonCommandContext {
 
     pub fn get_user_arg<T: Display>(&self, arg: T) -> Result<&User> {
         let AeonCommandInput::ApplicationCommand(input, _) = &self.command_input else {
-            return Err(Error::msg("Command input is not an application command."));
+            return Err(anyhow!("Command input is not an application command."));
         };
         input
             .args
@@ -271,7 +271,7 @@ impl AeonCommandContext {
 
     pub fn get_channel_arg<T: Display>(&self, arg: T) -> Result<&Channel> {
         let AeonCommandInput::ApplicationCommand(input, _) = &self.command_input else {
-            return Err(Error::msg("Command input is not an application command."));
+            return Err(anyhow!("Command input is not an application command."));
         };
         input
             .args
@@ -284,7 +284,7 @@ impl AeonCommandContext {
     #[allow(dead_code)]
     pub fn get_role_arg<T: Display>(&self, arg: T) -> Result<&Role> {
         let AeonCommandInput::ApplicationCommand(input, _) = &self.command_input else {
-            return Err(Error::msg("Command input is not an application command."));
+            return Err(anyhow!("Command input is not an application command."));
         };
         input
             .args
@@ -296,7 +296,7 @@ impl AeonCommandContext {
 
     pub fn get_attachment_arg<T: Display>(&self, arg: T) -> Result<&Attachment> {
         let AeonCommandInput::ApplicationCommand(input, _) = &self.command_input else {
-            return Err(Error::msg("Command input is not an application command."));
+            return Err(anyhow!("Command input is not an application command."));
         };
         input
             .args
