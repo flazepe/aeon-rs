@@ -2,7 +2,7 @@ use crate::structs::{
     command::AeonCommand,
     command_context::{AeonCommandContext, AeonCommandInput},
 };
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, anyhow};
 use csscolorparser::{Color, parse as parse_color};
 use mathjax_svg_rs::{Options as MathjaxOptions, render_tex};
 use resvg::{
@@ -29,7 +29,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                 AeonCommandInput::ApplicationCommand(..) => ctx.get_string_arg(arg, 0, true).ok(),
                 AeonCommandInput::MessageCommand(..) => None,
             };
-            if let Some(color) = color { Ok(Some(parse_color(&color).context("Invalid color.")?)) } else { Ok(None) }
+            if let Some(color) = color { Ok(Some(parse_color(&color).map_err(|_| anyhow!("Invalid color."))?)) } else { Ok(None) }
         };
         let text_color = parse_color_arg("text-color")?.unwrap_or(Color::from_rgba8(255, 255, 255, 255));
         let background_color = parse_color_arg("background-color")?.unwrap_or(Color::from_rgba8(0, 0, 0, 0));
