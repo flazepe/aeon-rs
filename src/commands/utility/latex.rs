@@ -2,7 +2,8 @@ use crate::structs::{
     command::AeonCommand,
     command_context::{AeonCommandContext, AeonCommandInput},
 };
-use anyhow::Context;
+use anyhow::{Context, Result};
+use csscolorparser::{Color, parse as parse_color};
 use mathjax_svg_rs::{Options as MathjaxOptions, render_tex};
 use resvg::{
     render,
@@ -22,11 +23,16 @@ use std::sync::{Arc, LazyLock};
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("latex", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let expression = ctx.get_string_arg("expression", 0, true)?;
-        let color = match &ctx.command_input {
-            AeonCommandInput::ApplicationCommand(..) => ctx.get_string_arg("color", 0, true).unwrap_or("#ffffff".into()),
-            AeonCommandInput::MessageCommand(..) => "#ffffff".into(),
+
+        let parse_color_arg = |arg| -> Result<Option<Color>> {
+            let color = match &ctx.command_input {
+                AeonCommandInput::ApplicationCommand(..) => ctx.get_string_arg(arg, 0, true).ok(),
+                AeonCommandInput::MessageCommand(..) => None,
+            };
+            if let Some(color) = color { Ok(Some(parse_color(&color).context("Invalid color.")?)) } else { Ok(None) }
         };
-        let parsed_color = csscolorparser::parse(&color).context("Invalid color.")?;
+        let text_color = parse_color_arg("text-color")?.unwrap_or(Color::from_rgba8(255, 255, 255, 255));
+        let background_color = parse_color_arg("background-color")?.unwrap_or(Color::from_rgba8(0, 0, 0, 0));
 
         ctx.defer(false).await?;
 
@@ -34,7 +40,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             Ok(render) => render,
             Err(error) => return ctx.respond_error(error, false).await,
         }
-        .replace(r#"style=""#, &format!(r#"style="color: {parsed_color};"#));
+        .replace(r#"style=""#, &format!(r#"style="color: {text_color}; background-color: {background_color};"#));
 
         let tree = Tree::from_str(&svg, &TreeOptions { font_size: 32., ..Default::default() })?;
         let mut pixmap = Pixmap::new(tree.size().width() as u32, tree.size().height() as u32).context("Could not create Pixmap.")?;
@@ -58,8 +64,13 @@ pub fn get_slashook_command() -> SlashookCommand {
                 required = true,
             },
             {
-                name = "color",
+                name = "text-color",
                 description = "The text color",
+                option_type = InteractionOptionType::STRING,
+            },
+            {
+                name = "background-color",
+                description = "The background color",
                 option_type = InteractionOptionType::STRING,
             },
         ],
