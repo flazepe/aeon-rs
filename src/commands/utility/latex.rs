@@ -37,11 +37,9 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         ctx.defer(false).await?;
 
         let svg = match render_tex(&expression, &MathjaxOptions::default()) {
-            Ok(render) => render,
+            Ok(render) => render.replace(r#"style=""#, &format!(r#"style="color: {text_color}; background-color: {background_color};"#)),
             Err(error) => return ctx.respond_error(error, false).await,
-        }
-        .replace(r#"style=""#, &format!(r#"style="color: {text_color}; background-color: {background_color};"#));
-
+        };
         let tree = Tree::from_str(&svg, &TreeOptions { font_size: 32., ..Default::default() })?;
         let mut pixmap = Pixmap::new(tree.size().width() as u32, tree.size().height() as u32).context("Could not create Pixmap.")?;
         render(&tree, Transform::default(), &mut pixmap.as_mut());
