@@ -18,7 +18,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         ctx.defer(false).await?;
 
         let message = SimpleMessage::from(input.target_message.as_ref().unwrap().clone());
-        let unicode = Unicode::list(message);
+        let unicode = Unicode::list(message, false);
         ctx.respond(unicode.format_pagination("List Unicode").save().await?, true).await
     })
 });

@@ -15,11 +15,11 @@ use unicode_names2::name as get_unicode_name;
 pub struct Unicode(Vec<UnicodeCharacter>);
 
 impl Unicode {
-    pub fn list<T: Display>(string: T) -> Self {
+    pub fn list<T: Display>(string: T, remove_duplicates: bool) -> Self {
         let mut characters: Vec<UnicodeCharacter> = vec![];
 
         for char in string.to_string().chars() {
-            if characters.iter().any(|character| character.0 == char) {
+            if remove_duplicates && characters.iter().any(|character| character.0 == char) {
                 continue;
             }
 
@@ -46,7 +46,7 @@ impl Unicode {
             bail!("Unicode character not found.");
         }
 
-        Ok(Self::list(text))
+        Ok(Self::list(text, true))
     }
 
     pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {

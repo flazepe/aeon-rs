@@ -30,6 +30,11 @@ pub fn get_slashook_command() -> SlashookCommand {
                         option_type = InteractionOptionType::STRING,
                         required = true,
                     },
+                    {
+                        name = "remove-duplicates",
+                        description = "Whether to remove duplicate characters in the list",
+                        option_type = InteractionOptionType::BOOLEAN,
+                    },
                 ],
             },
             {
