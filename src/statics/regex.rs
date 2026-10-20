@@ -20,3 +20,4 @@ pub static SPOILER_REGEX: LazyLock<Regex> =
     LazyLock::new(|| RegexBuilder::new(r"\|\|(.+?)\|\|").dot_matches_new_line(true).build().unwrap());
 pub static BBCODE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| RegexBuilder::new(r"\[/?[bi]\]|\[url=(.+?)\]|\[/url\]").case_insensitive(true).build().unwrap());
+pub static VISIBLE_CHARACTER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^\P{C}+$").unwrap());

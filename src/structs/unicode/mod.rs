@@ -2,7 +2,7 @@ pub mod statics;
 
 use crate::{
     functions::paginate_strings,
-    statics::colors::PRIMARY_EMBED_COLOR,
+    statics::{colors::PRIMARY_EMBED_COLOR, regex::VISIBLE_CHARACTER_REGEX},
     structs::{pagination::Pagination, unicode::statics::CONTROL_CHARACTERS},
 };
 use anyhow::{Result, bail};
@@ -81,7 +81,12 @@ impl UnicodeCharacter {
         let codepoint = format!("U+{:04X}", self.0 as u32);
 
         format!(
-            "`{codepoint}` - [{}](<https://www.fileformat.info/info/unicode/char/{}/index.htm>)",
+            "{} - `{codepoint}` [{}](<https://www.fileformat.info/info/unicode/char/{}/index.htm>)",
+            if self.0 == '`' {
+                format!("`` {} ``", self.0)
+            } else {
+                format!("`{}`", if VISIBLE_CHARACTER_REGEX.is_match(&self.0.to_string()) { self.0 } else { '?' })
+            },
             self.get_name(),
             codepoint.trim_start_matches("U+"),
         )
