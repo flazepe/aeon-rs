@@ -81,7 +81,7 @@ impl UnicodeCharacter {
         let codepoint = format!("U+{:04X}", self.0 as u32);
 
         format!(
-            "{} - `{codepoint}` [{}](<https://www.fileformat.info/info/unicode/char/{}/index.htm>)",
+            "{} - [`{codepoint} {}`](<https://www.fileformat.info/info/unicode/char/{}/index.htm>)",
             if self.0 == '`' {
                 format!("`` {} ``", self.0)
             } else {
