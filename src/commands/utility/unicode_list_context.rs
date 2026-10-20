@@ -14,9 +14,11 @@ use std::sync::{Arc, LazyLock};
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("List Unicode", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
+
+        ctx.defer(false).await?;
+
         let message = SimpleMessage::from(input.target_message.as_ref().unwrap().clone());
         let unicode = Unicode::list(message);
-
         ctx.respond(unicode.format_pagination("List Unicode").save().await?, true).await
     })
 });
