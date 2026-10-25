@@ -1,4 +1,4 @@
-# [Aeon](https://aeon.js.org)
+# [Aeon](https://flaz.ing/aeon)
 
 A Discord bot written in Rust using [Slashook](https://github.com/tonkku107/slashook).
 
@@ -35,4 +35,4 @@ A Discord bot written in Rust using [Slashook](https://github.com/tonkku107/slas
 
 ## Invite
 
-You can invite Aeon to your server [here](https://aeon.js.org/invite).
+You can invite Aeon to your server [here](https://flaz.ing/aeon/invite).
