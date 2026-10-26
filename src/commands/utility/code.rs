@@ -1,7 +1,7 @@
 use crate::{
     statics::{REDIS, REQWEST},
     structs::{
-        api::piston::{Piston, statics::PISTON_RUNTIMES},
+        api::piston::Piston,
         command::AeonCommand,
         command_context::{AeonCommandContext, AeonCommandInput},
         database::redis::keys::RedisKey,
@@ -23,7 +23,8 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         match &ctx.command_input {
             AeonCommandInput::ApplicationCommand(input, res) => {
                 if input.is_autocomplete() {
-                    return ctx.autocomplete(PISTON_RUNTIMES.iter().map(|(key, runtime)| (key.clone(), runtime.label()))).await;
+                    res.autocomplete(Piston::autocomplete_runtime(input)).await?;
+                    return Ok(());
                 }
 
                 let redis = REDIS.get().context("Could not get Redis.")?;
@@ -32,13 +33,14 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     .get_string_arg("programming-language", 0, true)
                     .or(redis.get::<String>(&key).await)
                     .context("Please provide a programming language.")?;
-                redis.set(&key, &programming_language, Some(60 * 60)).await?;
+                let runtime = Piston::get_runtime(&programming_language).context("Programming language not found.")?;
+                redis.set(&key, runtime.to_string(), Some(60 * 60)).await?;
 
                 if input.is_modal_submit() {
                     ctx.defer(false).await?;
 
                     let code = ctx.get_string_arg("code", 0, true).ok();
-                    let mut piston = Piston::new(programming_language, code);
+                    let mut piston = Piston::new(runtime, code);
 
                     let attachments = input
                         .args
@@ -57,15 +59,13 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     piston = piston.run().await?;
                     ctx.respond(piston.format_pagination("code").save().await?, false).await
                 } else {
+                    let code_label = Label::new("Code").set_description(format!("Runtime selected: {runtime}"));
                     let code_input = TextInput::new().set_id("code").set_style(TextInputStyle::PARAGRAPH).set_required(false);
                     let file_upload = FileUpload::new().set_id("files").set_max_values(10).set_required(false);
-                    let components = Components::new_label(
-                        Label::new("Code").set_description(format!("Runtime selected: {}", programming_language.to_lowercase())),
-                    )
-                    .add_text_input(code_input)
-                    .add_label(Label::new("Files"))
-                    .add_file_upload(file_upload);
-
+                    let components = Components::new_label(code_label)
+                        .add_text_input(code_input)
+                        .add_label(Label::new("Files"))
+                        .add_file_upload(file_upload);
                     let modal = Modal::new("code", "modal", "Enter Code").set_components(components);
                     Ok(res.open_modal(modal).await?)
                 }
@@ -77,13 +77,16 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     bail!("Please provide a valid codeblock.");
                 }
 
-                let (programming_language, code) =
-                    codeblock.trim_matches('`').split_once('\n').context("Please provide a codeblock with a valid language.")?;
+                let (programming_language, code) = codeblock
+                    .trim_matches('`')
+                    .split_once('\n')
+                    .context("Please provide a codeblock with a valid programming language.")?;
 
+                let runtime = Piston::get_runtime(programming_language).context("Programming language not found.")?;
                 ctx.defer(false).await?;
 
                 let code = code.trim();
-                let mut piston = Piston::new(programming_language.trim(), Some(code));
+                let mut piston = Piston::new(runtime, Some(code));
 
                 for attachment in &message.attachments {
                     if attachment.size <= 5000000 {

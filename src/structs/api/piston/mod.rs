@@ -5,16 +5,20 @@ use crate::{
     statics::{CONFIG, REQWEST, colors::PRIMARY_EMBED_COLOR},
     structs::{api::piston::statics::PISTON_RUNTIMES, pagination::Pagination},
 };
-use anyhow::{Context, Result, bail};
+use anyhow::{Result, bail};
 use base64::{Engine, prelude::BASE64_STANDARD};
 use serde::{Deserialize, Serialize};
 use serde_json::from_str;
-use slashook::{chrono::Utc, structs::embeds::Embed};
-use std::fmt::Display;
+use slashook::{
+    chrono::Utc,
+    commands::CommandInput,
+    structs::{embeds::Embed, interactions::ApplicationCommandOptionChoice},
+};
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 #[derive(Debug)]
 pub struct Piston {
-    pub programming_language: String,
+    pub runtime: &'static PistonRuntime,
     pub code: Option<String>,
     pub files: Vec<PistonExecuteInputFile>,
     pub output: Option<String>,
@@ -57,14 +61,36 @@ pub struct PistonExecuteOutputRun {
 }
 
 impl Piston {
-    pub fn new<T: Display, U: Display>(programming_language: T, code: Option<U>) -> Self {
-        Self {
-            programming_language: programming_language.to_string().to_lowercase(),
-            code: code.map(|code| code.to_string()),
-            files: vec![],
-            output: None,
-            exit_code: None,
-        }
+    pub fn new<T: Display>(runtime: &'static PistonRuntime, code: Option<T>) -> Self {
+        Self { runtime, code: code.map(|code| code.to_string()), files: vec![], output: None, exit_code: None }
+    }
+
+    pub fn get_runtime<T: Display>(query: T) -> Option<&'static PistonRuntime> {
+        let query = query.to_string().trim().to_lowercase();
+
+        PISTON_RUNTIMES
+            .get(&query)
+            .or_else(|| PISTON_RUNTIMES.values().find(|runtime| runtime.aliases.contains(&query) || runtime.to_string() == query))
+    }
+
+    pub fn get_runtimes<T: Display>(query: T) -> Vec<&'static PistonRuntime> {
+        let query = query.to_string().trim().to_lowercase();
+
+        PISTON_RUNTIMES.values().filter(|runtime| runtime.aliases.contains(&query) || runtime.to_string().contains(&query)).collect()
+    }
+
+    pub fn autocomplete_runtime(input: &CommandInput) -> Vec<ApplicationCommandOptionChoice> {
+        let Some(query) =
+            input.focused.as_ref().and_then(|focused| input.args.get(focused)).and_then(|option_value| option_value.as_string())
+        else {
+            return vec![];
+        };
+
+        Self::get_runtimes(query)
+            .iter()
+            .map(|runtime| ApplicationCommandOptionChoice::new(runtime.to_string(), runtime.to_string()))
+            .take(25)
+            .collect()
     }
 
     pub fn add_file<T: Display, U: AsRef<[u8]>>(mut self, name: T, content: U) -> Self {
@@ -103,13 +129,11 @@ impl Piston {
         // Main file has to be the first file, so we insert from index 0
         self.files.insert(0, main_file);
 
-        let runtime = PISTON_RUNTIMES
-            .get(&self.programming_language)
-            .or_else(|| PISTON_RUNTIMES.values().find(|runtime| runtime.aliases.contains(&self.programming_language)))
-            .context("Invalid programming language.")?;
-        self.programming_language = runtime.label();
-
-        let input = PistonExecuteInput { language: runtime.language.clone(), version: runtime.version.clone(), files: self.files.clone() };
+        let input = PistonExecuteInput {
+            language: self.runtime.language.clone(),
+            version: self.runtime.version.clone(),
+            files: self.files.clone(),
+        };
 
         let body = REQWEST
             .post("https://emkc.org/api/v2/piston/execute")
@@ -137,7 +161,7 @@ impl Piston {
                 let mut embed = Embed::new()
                     .set_color(PRIMARY_EMBED_COLOR)
                     .unwrap_or_default()
-                    .set_title(&self.programming_language)
+                    .set_title(self.runtime)
                     .set_description(format!("```\n{entry}```"));
 
                 if let Some(exit_code) = self.exit_code {
@@ -154,7 +178,7 @@ impl Piston {
                 Embed::new()
                     .set_color(PRIMARY_EMBED_COLOR)
                     .unwrap_or_default()
-                    .set_title(&self.programming_language)
+                    .set_title(self.runtime)
                     .set_description(format!("```\n{entry}```"))
             })
             .collect::<Vec<_>>();
@@ -163,6 +187,7 @@ impl Piston {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct PistonRuntime {
     pub language: String,
     pub version: String,
@@ -179,9 +204,12 @@ impl PistonRuntime {
             runtime: runtime.map(|runtime| runtime.to_string()),
         }
     }
+}
 
-    pub fn label(&self) -> String {
-        format!(
+impl Display for PistonRuntime {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        write!(
+            f,
             "{} ({}v{})",
             self.language,
             self.runtime.as_ref().map(|runtime| format!("{runtime} ")).as_deref().unwrap_or_default(),
