@@ -9,7 +9,7 @@ use anyhow::{Context, Result, bail};
 use base64::{Engine, prelude::BASE64_STANDARD};
 use serde::{Deserialize, Serialize};
 use serde_json::from_str;
-use slashook::structs::embeds::Embed;
+use slashook::{chrono::Utc, structs::embeds::Embed};
 use std::fmt::Display;
 
 #[derive(Debug)]
@@ -82,8 +82,12 @@ impl Piston {
             self.code = None;
         }
 
-        let main_file = if let Some(code) = &self.code {
-            PistonExecuteInputFile { name: "main.code".into(), content: code.clone(), encoding: PistonExecuteInputFileEncoding::Utf8 }
+        let main_file = if let Some(input) = &self.code {
+            PistonExecuteInputFile {
+                name: format!("{}.code", Utc::now().timestamp()),
+                content: input.clone(),
+                encoding: PistonExecuteInputFileEncoding::Utf8,
+            }
         } else if !self.files.is_empty() {
             let first_file = self.files.remove(0);
             let content = BASE64_STANDARD.decode(first_file.content).unwrap_or_default();
@@ -96,7 +100,7 @@ impl Piston {
             bail!("Please provide a code input or file.");
         };
 
-        // Main file as to be the first file, so we insert from index 0
+        // Main file has to be the first file, so we insert from index 0
         self.files.insert(0, main_file);
 
         let runtime = PISTON_RUNTIMES
@@ -144,7 +148,7 @@ impl Piston {
             })
             .collect::<Vec<_>>();
 
-        let input_pages = paginate_strings(self.files.first().map(|file| file.content.as_str()).unwrap_or_default().chars(), "", 4089)
+        let code_pages = paginate_strings(self.files.first().map(|file| file.content.as_str()).unwrap_or_default().chars(), "", 4089)
             .into_iter()
             .map(|entry| {
                 Embed::new()
@@ -155,7 +159,7 @@ impl Piston {
             })
             .collect::<Vec<_>>();
 
-        Pagination::new(command).add_section("Output", output_pages).add_section("Input", input_pages)
+        Pagination::new(command).add_section("Output", output_pages).add_section("Code", code_pages)
     }
 }
 
