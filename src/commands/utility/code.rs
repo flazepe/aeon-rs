@@ -1,5 +1,5 @@
 use crate::{
-    statics::REDIS,
+    statics::{REDIS, REQWEST},
     structs::{
         api::piston::{Piston, statics::PISTON_RUNTIMES},
         command::AeonCommand,
@@ -12,7 +12,7 @@ use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, Modal},
     structs::{
-        components::{Components, Label, TextInput, TextInputStyle},
+        components::{Components, FileUpload, Label, TextInput, TextInputStyle},
         interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
     },
 };
@@ -37,18 +37,40 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                 if input.is_modal_submit() {
                     ctx.defer(false).await?;
 
-                    let piston = Piston::new(programming_language, ctx.get_string_arg("code", 0, true)?).run().await?;
+                    let code = ctx.get_string_arg("code", 0, true).ok();
+                    let mut piston = Piston::new(programming_language, code);
+
+                    let attachments = input
+                        .args
+                        .get("files")
+                        .and_then(|option_value| option_value.as_values())
+                        .map(|option_values| option_values.iter().flat_map(|value| value.as_attachment()));
+
+                    if let Some(attachments) = attachments {
+                        for attachment in attachments {
+                            if attachment.size <= 5000000 {
+                                piston = piston.add_file(&attachment.filename, REQWEST.get(&attachment.url).send().await?.bytes().await?);
+                            }
+                        }
+                    }
+
+                    piston = piston.run().await?;
                     ctx.respond(piston.format_pagination("code").save().await?, false).await
                 } else {
-                    let code_input = TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code");
-                    let components = Components::new_label(Label::new("Code")).add_text_input(code_input);
-                    let modal = Modal::new("code", "modal", format!("Enter Code ({})", programming_language.to_lowercase()))
-                        .set_components(components);
+                    let code_input = TextInput::new().set_id("code").set_style(TextInputStyle::PARAGRAPH).set_required(false);
+                    let file_upload = FileUpload::new().set_id("files").set_max_values(10).set_required(false);
+                    let components = Components::new_label(
+                        Label::new("Code").set_description(format!("Runtime selected: {}", programming_language.to_lowercase())),
+                    )
+                    .add_text_input(code_input)
+                    .add_label(Label::new("Files"))
+                    .add_file_upload(file_upload);
 
+                    let modal = Modal::new("code", "modal", "Enter Code").set_components(components);
                     Ok(res.open_modal(modal).await?)
                 }
             },
-            AeonCommandInput::MessageCommand(_, args, _) => {
+            AeonCommandInput::MessageCommand(message, args, _) => {
                 let codeblock = args.get_content();
 
                 if !codeblock.starts_with("```") || !codeblock.ends_with("```") {
@@ -60,7 +82,16 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
 
                 ctx.defer(false).await?;
 
-                let piston = Piston::new(programming_language.trim(), code.trim()).run().await?;
+                let code = code.trim();
+                let mut piston = Piston::new(programming_language.trim(), Some(code));
+
+                for attachment in &message.attachments {
+                    if attachment.size <= 5000000 {
+                        piston = piston.add_file(&attachment.filename, REQWEST.get(&attachment.url).send().await?.bytes().await?);
+                    }
+                }
+
+                piston = piston.run().await?;
                 ctx.respond(piston.format_pagination("code").save().await?, false).await
             },
         }

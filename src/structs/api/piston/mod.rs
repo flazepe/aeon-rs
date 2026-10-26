@@ -5,28 +5,51 @@ use crate::{
     statics::{CONFIG, REQWEST, colors::PRIMARY_EMBED_COLOR},
     structs::{api::piston::statics::PISTON_RUNTIMES, pagination::Pagination},
 };
-use anyhow::{Context, Result};
-use serde::Deserialize;
-use serde_json::{from_str, json};
+use anyhow::{Context, Result, bail};
+use base64::{Engine, prelude::BASE64_STANDARD};
+use serde::{Deserialize, Serialize};
+use serde_json::from_str;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
 
 #[derive(Debug)]
 pub struct Piston {
     pub programming_language: String,
-    pub input: String,
+    pub code: Option<String>,
+    pub files: Vec<PistonExecuteInputFile>,
     pub output: Option<String>,
     pub exit_code: Option<u64>,
 }
 
+#[derive(Serialize, Debug)]
+pub struct PistonExecuteInput {
+    language: String,
+    version: String,
+    files: Vec<PistonExecuteInputFile>,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct PistonExecuteInputFile {
+    pub name: String,
+    pub content: String,
+    pub encoding: PistonExecuteInputFileEncoding,
+}
+
+#[derive(Serialize, Clone, Debug)]
+#[serde(rename_all = "lowercase")]
+pub enum PistonExecuteInputFileEncoding {
+    Utf8,
+    Base64,
+}
+
 #[derive(Deserialize, Debug)]
-pub struct PistonExecute {
-    pub run: PistonExecuteRun,
+pub struct PistonExecuteOutput {
+    pub run: PistonExecuteOutputRun,
 }
 
 #[derive(Deserialize, Debug)]
 #[allow(dead_code)]
-pub struct PistonExecuteRun {
+pub struct PistonExecuteOutputRun {
     pub stdout: String,
     pub stderr: String,
     pub output: String,
@@ -34,37 +57,66 @@ pub struct PistonExecuteRun {
 }
 
 impl Piston {
-    pub fn new<T: Display, U: Display>(programming_language: T, code: U) -> Self {
+    pub fn new<T: Display, U: Display>(programming_language: T, code: Option<U>) -> Self {
         Self {
             programming_language: programming_language.to_string().to_lowercase(),
-            input: code.to_string(),
+            code: code.map(|code| code.to_string()),
+            files: vec![],
             output: None,
             exit_code: None,
         }
     }
 
+    pub fn add_file<T: Display, U: AsRef<[u8]>>(mut self, name: T, content: U) -> Self {
+        self.files.push(PistonExecuteInputFile {
+            name: name.to_string(),
+            content: BASE64_STANDARD.encode(content),
+            encoding: PistonExecuteInputFileEncoding::Base64,
+        });
+
+        self
+    }
+
     pub async fn run(mut self) -> Result<Self> {
+        if self.code.as_ref().is_some_and(|code| code.trim().is_empty()) {
+            self.code = None;
+        }
+
+        let main_file = if let Some(code) = &self.code {
+            PistonExecuteInputFile { name: "main.code".into(), content: code.clone(), encoding: PistonExecuteInputFileEncoding::Utf8 }
+        } else if !self.files.is_empty() {
+            let first_file = self.files.remove(0);
+            let content = BASE64_STANDARD.decode(first_file.content).unwrap_or_default();
+            PistonExecuteInputFile {
+                name: first_file.name,
+                content: String::from_utf8_lossy(&content).to_string(),
+                encoding: PistonExecuteInputFileEncoding::Utf8,
+            }
+        } else {
+            bail!("Please provide a code input or file.");
+        };
+
+        // Main file as to be the first file, so we insert from index 0
+        self.files.insert(0, main_file);
+
         let runtime = PISTON_RUNTIMES
             .get(&self.programming_language)
             .or_else(|| PISTON_RUNTIMES.values().find(|runtime| runtime.aliases.contains(&self.programming_language)))
             .context("Invalid programming language.")?;
-
         self.programming_language = runtime.label();
+
+        let input = PistonExecuteInput { language: runtime.language.clone(), version: runtime.version.clone(), files: self.files.clone() };
 
         let body = REQWEST
             .post("https://emkc.org/api/v2/piston/execute")
             .header("authorization", &CONFIG.api.piston_key)
-            .json(&json!({
-                "language": runtime.language,
-                "version": runtime.version,
-                "files": [{ "content": self.input }],
-            }))
+            .json(&input)
             .send()
             .await?
             .text()
             .await?;
 
-        if let Ok(result) = from_str::<PistonExecute>(&body) {
+        if let Ok(result) = from_str::<PistonExecuteOutput>(&body) {
             self.exit_code = result.run.code;
             self.output = Some(result.run.output.clone());
         } else {
@@ -92,7 +144,7 @@ impl Piston {
             })
             .collect::<Vec<_>>();
 
-        let input_pages = paginate_strings(self.input.chars(), "", 4089)
+        let input_pages = paginate_strings(self.files.first().map(|file| file.content.as_str()).unwrap_or_default().chars(), "", 4089)
             .into_iter()
             .map(|entry| {
                 Embed::new()
