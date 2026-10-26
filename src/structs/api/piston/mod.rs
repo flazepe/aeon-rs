@@ -38,7 +38,6 @@ impl Piston {
         Self {
             programming_language: programming_language.to_string().to_lowercase(),
             input: code.to_string(),
-
             output: None,
             exit_code: None,
         }
@@ -76,15 +75,13 @@ impl Piston {
     }
 
     pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
-        let title = &self.programming_language;
-
         let output_pages = paginate_strings(self.output.as_deref().unwrap_or_default().chars(), "", 4089)
             .into_iter()
             .map(|entry| {
                 let mut embed = Embed::new()
                     .set_color(PRIMARY_EMBED_COLOR)
                     .unwrap_or_default()
-                    .set_title(title)
+                    .set_title(&self.programming_language)
                     .set_description(format!("```\n{entry}```"));
 
                 if let Some(exit_code) = self.exit_code {
@@ -98,7 +95,11 @@ impl Piston {
         let input_pages = paginate_strings(self.input.chars(), "", 4089)
             .into_iter()
             .map(|entry| {
-                Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_title(title).set_description(format!("```\n{entry}```"))
+                Embed::new()
+                    .set_color(PRIMARY_EMBED_COLOR)
+                    .unwrap_or_default()
+                    .set_title(&self.programming_language)
+                    .set_description(format!("```\n{entry}```"))
             })
             .collect::<Vec<_>>();
 
