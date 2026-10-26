@@ -27,6 +27,7 @@ pub struct APIConfig {
     pub google_assistant: GoogleAssistantConfig,
     pub ordr_key: String,
     pub osu: OsuConfig,
+    pub piston_key: String,
     pub saucenao_key: String,
     pub spotify_dc: String,
     pub spotify_token: String,

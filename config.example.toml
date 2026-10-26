@@ -11,6 +11,7 @@ redis_uri = "redis_uri"
 [api]
 ipgeolocation_key = "ipgeolocation_key"
 ordr_key = "ordr_key"
+piston_key = ""
 saucenao_key = "saucenao_key"
 spotify_dc = "spotify_dc"
 spotify_token = "spotify_token"

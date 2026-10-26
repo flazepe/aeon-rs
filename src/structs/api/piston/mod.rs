@@ -2,7 +2,7 @@ pub mod statics;
 
 use crate::{
     functions::hastebin,
-    statics::{REQWEST, colors::PRIMARY_EMBED_COLOR},
+    statics::{CONFIG, REQWEST, colors::PRIMARY_EMBED_COLOR},
     structs::api::piston::statics::PISTON_RUNTIMES,
 };
 use anyhow::{Context, Result};
@@ -56,6 +56,7 @@ impl Piston {
 
         let body = REQWEST
             .post("https://emkc.org/api/v2/piston/execute")
+            .header("authorization", &CONFIG.api.piston_key)
             .json(&json!({
                 "language": runtime.language,
                 "version": runtime.version,
