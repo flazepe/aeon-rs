@@ -1,10 +1,6 @@
-use crate::{
-    statics::{REQWEST, regex::MARKDOWN_REGEX},
-    traits::Commas,
-};
+use crate::{statics::regex::MARKDOWN_REGEX, traits::Commas};
 use anyhow::Result;
 use regex::Captures;
-use serde_json::Value;
 use slashook::structs::{
     components::{SelectMenu, SelectOption},
     utils::File,
@@ -50,12 +46,6 @@ pub fn escape_markdown<T: Display>(string: T) -> String {
 
 pub fn format_timestamp<T: Display>(timestamp: T, full: bool) -> String {
     if full { format!("<t:{timestamp}:F> (<t:{timestamp}:R>)") } else { format!("<t:{timestamp}:D>") }
-}
-
-pub async fn hastebin<T: Display>(string: T) -> Result<String> {
-    let domain = "https://haste.zneix.eu";
-    let json = REQWEST.post(format!("{domain}/documents")).body(string.to_string()).send().await?.json::<Value>().await?;
-    Ok(format!("{domain}/raw/{}", json["key"].as_str().unwrap_or_default()))
 }
 
 pub fn limit_strings<T: IntoIterator<Item = U>, U: Display, V: Display>(iterable: T, separator: V, limit: usize) -> String {
