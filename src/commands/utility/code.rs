@@ -38,7 +38,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     ctx.defer(false).await?;
 
                     let piston = Piston::new(programming_language, ctx.get_string_arg("code", 0, true)?).run().await?;
-                    ctx.respond(piston.format(), false).await
+                    ctx.respond(piston.format_pagination("code").save().await?, false).await
                 } else {
                     let code_input = TextInput::new().set_style(TextInputStyle::PARAGRAPH).set_id("code");
                     let components = Components::new_label(Label::new("Code")).add_text_input(code_input);
@@ -61,7 +61,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                 ctx.defer(false).await?;
 
                 let piston = Piston::new(programming_language.trim(), code.trim()).run().await?;
-                ctx.respond(piston.format(), false).await
+                ctx.respond(piston.format_pagination("code").save().await?, false).await
             },
         }
     })

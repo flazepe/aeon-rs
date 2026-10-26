@@ -1,9 +1,9 @@
 pub mod statics;
 
 use crate::{
-    functions::hastebin,
+    functions::paginate_strings,
     statics::{CONFIG, REQWEST, colors::PRIMARY_EMBED_COLOR},
-    structs::api::piston::statics::PISTON_RUNTIMES,
+    structs::{api::piston::statics::PISTON_RUNTIMES, pagination::Pagination},
 };
 use anyhow::{Context, Result};
 use serde::Deserialize;
@@ -14,10 +14,9 @@ use std::fmt::Display;
 #[derive(Debug)]
 pub struct Piston {
     pub programming_language: String,
-    pub code: String,
-    pub code_url: Option<String>,
+    pub input: String,
     pub output: Option<String>,
-    pub output_url: Option<String>,
+    pub exit_code: Option<u64>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -38,10 +37,10 @@ impl Piston {
     pub fn new<T: Display, U: Display>(programming_language: T, code: U) -> Self {
         Self {
             programming_language: programming_language.to_string().to_lowercase(),
-            code: code.to_string(),
-            code_url: None,
+            input: code.to_string(),
+
             output: None,
-            output_url: None,
+            exit_code: None,
         }
     }
 
@@ -52,7 +51,6 @@ impl Piston {
             .context("Invalid programming language.")?;
 
         self.programming_language = runtime.label();
-        self.code_url = Some(hastebin(&self.code).await?);
 
         let body = REQWEST
             .post("https://emkc.org/api/v2/piston/execute")
@@ -60,7 +58,7 @@ impl Piston {
             .json(&json!({
                 "language": runtime.language,
                 "version": runtime.version,
-                "files": [{ "content": self.code }],
+                "files": [{ "content": self.input }],
             }))
             .send()
             .await?
@@ -68,13 +66,8 @@ impl Piston {
             .await?;
 
         if let Ok(result) = from_str::<PistonExecute>(&body) {
-            let output = format!("{}\n\nexit code: {}", result.run.output.trim(), result.run.code.unwrap_or(1)).trim().to_string();
-
-            self.output = Some(output.clone());
-
-            if output.len() > 3900 {
-                self.output_url = Some(hastebin(output).await?);
-            }
+            self.exit_code = result.run.code;
+            self.output = Some(result.run.output.clone());
         } else {
             self.output = Some(body.clone());
         }
@@ -82,16 +75,34 @@ impl Piston {
         Ok(self)
     }
 
-    pub fn format(&self) -> Embed {
+    pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
         let title = &self.programming_language;
-        let url = self.code_url.as_deref().unwrap_or_default();
-        let description = format!(
-            "{}```\n{}```",
-            self.output_url.as_ref().map(|output_url| format!("[Full Output]({output_url})")).as_deref().unwrap_or_default(),
-            self.output.as_deref().unwrap_or("No output.").chars().take(3900).collect::<String>(),
-        );
 
-        Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_title(title).set_url(url).set_description(description)
+        let output_pages = paginate_strings(self.output.as_deref().unwrap_or_default().chars(), "", 4089)
+            .into_iter()
+            .map(|entry| {
+                let mut embed = Embed::new()
+                    .set_color(PRIMARY_EMBED_COLOR)
+                    .unwrap_or_default()
+                    .set_title(title)
+                    .set_description(format!("```\n{entry}```"));
+
+                if let Some(exit_code) = self.exit_code {
+                    embed = embed.set_footer(format!("Exit Code: {exit_code}"), None::<String>);
+                }
+
+                embed
+            })
+            .collect::<Vec<_>>();
+
+        let input_pages = paginate_strings(self.input.chars(), "", 4089)
+            .into_iter()
+            .map(|entry| {
+                Embed::new().set_color(PRIMARY_EMBED_COLOR).unwrap_or_default().set_title(title).set_description(format!("```\n{entry}```"))
+            })
+            .collect::<Vec<_>>();
+
+        Pagination::new(command).add_section("Output", output_pages).add_section("Input", input_pages)
     }
 }
 
