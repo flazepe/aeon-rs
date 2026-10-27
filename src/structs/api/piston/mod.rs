@@ -68,10 +68,11 @@ impl Piston {
     pub fn get_runtime<T: Display>(query: T) -> Option<&'static PistonRuntime> {
         let query = query.to_string().trim().to_lowercase();
 
-        PISTON_RUNTIMES
-            .get(&query)
-            .or_else(|| PISTON_RUNTIMES.values().find(|runtime| runtime.to_string() == query || runtime.aliases.contains(&query)))
-            .or_else(|| PISTON_RUNTIMES.values().find(|runtime| runtime.language == query))
+        PISTON_RUNTIMES.get(&query).or_else(|| {
+            PISTON_RUNTIMES.values().find(|runtime| {
+                (runtime.runtime.is_none() && runtime.language == query) || runtime.to_string() == query || runtime.aliases.contains(&query)
+            })
+        })
     }
 
     pub fn get_runtimes<T: Display>(query: T) -> Vec<&'static PistonRuntime> {
@@ -79,7 +80,11 @@ impl Piston {
 
         PISTON_RUNTIMES
             .values()
-            .filter(|runtime| runtime.to_string().contains(&query) || runtime.aliases.iter().any(|alias| alias.contains(&query)))
+            .filter(|runtime| {
+                (runtime.runtime.is_none() && runtime.language.contains(&query))
+                    || runtime.to_string().contains(&query)
+                    || runtime.aliases.iter().any(|alias| alias.contains(&query))
+            })
             .collect()
     }
 
