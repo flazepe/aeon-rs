@@ -70,13 +70,14 @@ impl Piston {
 
         PISTON_RUNTIMES
             .get(&query)
-            .or_else(|| PISTON_RUNTIMES.values().find(|runtime| runtime.aliases.contains(&query) || runtime.to_string() == query))
+            .or_else(|| PISTON_RUNTIMES.values().find(|runtime| runtime.to_string() == query || runtime.aliases.contains(&query)))
+            .or_else(|| PISTON_RUNTIMES.values().find(|runtime| runtime.language == query))
     }
 
     pub fn get_runtimes<T: Display>(query: T) -> Vec<&'static PistonRuntime> {
         let query = query.to_string().trim().to_lowercase();
 
-        PISTON_RUNTIMES.values().filter(|runtime| runtime.aliases.contains(&query) || runtime.to_string().contains(&query)).collect()
+        PISTON_RUNTIMES.values().filter(|runtime| runtime.to_string().contains(&query) || runtime.aliases.contains(&query)).collect()
     }
 
     pub fn autocomplete_runtime(input: &CommandInput) -> Vec<ApplicationCommandOptionChoice> {
