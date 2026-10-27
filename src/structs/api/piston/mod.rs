@@ -217,3 +217,9 @@ impl Display for PistonRuntime {
         )
     }
 }
+
+#[derive(Deserialize, Serialize, Default, Debug)]
+pub struct PistonState {
+    pub runtime: Option<String>,
+    pub code: Option<String>,
+}

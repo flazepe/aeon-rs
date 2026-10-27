@@ -1,7 +1,7 @@
 use crate::{
     statics::{REDIS, REQWEST},
     structs::{
-        api::piston::Piston,
+        api::piston::{Piston, PistonState},
         command::AeonCommand,
         command_context::{AeonCommandContext, AeonCommandInput},
         database::redis::keys::RedisKey,
@@ -28,18 +28,25 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                 }
 
                 let redis = REDIS.get().context("Could not get Redis.")?;
-                let key = RedisKey::UserLastPistonProgrammingLanguage(ctx.get_user_id());
+                let key = RedisKey::PistonStates(ctx.get_user_id());
+                let mut piston_state = redis.get::<PistonState>(&key).await.unwrap_or_default();
+
                 let programming_language = ctx
                     .get_string_arg("programming-language", 0, true)
-                    .or(redis.get::<String>(&key).await)
+                    .ok()
+                    .or(piston_state.runtime)
                     .context("Please provide a programming language.")?;
                 let runtime = Piston::get_runtime(&programming_language).context("Programming language not found.")?;
-                redis.set(&key, runtime.to_string(), Some(60 * 60)).await?;
+                piston_state.runtime = Some(runtime.to_string());
+                redis.set(&key, &piston_state, Some(60 * 60)).await?;
 
                 if input.is_modal_submit() {
                     ctx.defer(false).await?;
 
                     let code = ctx.get_string_arg("code", 0, true).ok();
+                    piston_state.code = code.clone();
+                    redis.set(&key, &piston_state, Some(60 * 60)).await?;
+
                     let mut piston = Piston::new(runtime, code);
 
                     let attachments = input
@@ -59,13 +66,17 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     piston = piston.run().await?;
                     ctx.respond(piston.format_pagination("code").save().await?, false).await
                 } else {
-                    let code_label = Label::new("Code").set_description(format!("Runtime selected: {runtime}"));
-                    let code_input = TextInput::new().set_id("code").set_style(TextInputStyle::PARAGRAPH).set_required(false);
-                    let file_upload = FileUpload::new().set_id("files").set_max_values(10).set_required(false);
-                    let components = Components::new_label(code_label)
-                        .add_text_input(code_input)
+                    let code_component = TextInput::new()
+                        .set_id("code")
+                        .set_style(TextInputStyle::PARAGRAPH)
+                        .set_required(false)
+                        .set_value(piston_state.code.as_deref().unwrap_or_default());
+                    let files_component = FileUpload::new().set_id("files").set_max_values(10).set_required(false);
+                    let components = Components::new_label(Label::new("Code").set_description(runtime.to_string()))
+                        .add_text_input(code_component)
                         .add_label(Label::new("Files"))
-                        .add_file_upload(file_upload);
+                        .add_file_upload(files_component);
+
                     let modal = Modal::new("code", "modal", "Enter Code").set_components(components);
                     Ok(res.open_modal(modal).await?)
                 }

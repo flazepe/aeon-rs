@@ -8,7 +8,7 @@ pub enum RedisKey {
     GuildChannelMessageCommandResponse(String, String, String),
     GuildChannelMessageEmbedFixResponse(String, String, String),
     UserCooldown(String),
-    UserLastPistonProgrammingLanguage(String),
+    PistonStates(String),
     Paginations(String),
     CustomStatus,
 }
@@ -37,8 +37,8 @@ impl Display for RedisKey {
             Self::UserCooldown(user_id) => {
                 write!(f, "users_{user_id}_cooldown")
             },
-            Self::UserLastPistonProgrammingLanguage(user_id) => {
-                write!(f, "users_{user_id}_last-piston-programming-language")
+            Self::PistonStates(user_id) => {
+                write!(f, "users_{user_id}_piston-state")
             },
             Self::Paginations(id) => {
                 write!(f, "paginations_{id}")

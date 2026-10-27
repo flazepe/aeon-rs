@@ -66,7 +66,7 @@ async fn get_redis_cache_list() -> Result<[String; 11]> {
     let cooldowns = redis.scan_match(RedisKey::UserCooldown("*".into())).await?;
     let command_responses = redis.scan_match(RedisKey::GuildChannelMessageCommandResponse("*".into(), "*".into(), "*".into())).await?;
     let embed_fix_responses = redis.scan_match(RedisKey::GuildChannelMessageEmbedFixResponse("*".into(), "*".into(), "*".into())).await?;
-    let last_piston_programming_languages = redis.scan_match(RedisKey::UserLastPistonProgrammingLanguage("*".into())).await?;
+    let piston_states = redis.scan_match(RedisKey::PistonStates("*".into())).await?;
     let paginations = redis.scan_match(RedisKey::Paginations("*".into())).await?;
     let custom_status = redis.scan_match(RedisKey::CustomStatus).await?;
     let total_keys = redis.scan_match("*").await?;
@@ -79,7 +79,7 @@ async fn get_redis_cache_list() -> Result<[String; 11]> {
         label_num(cooldowns, "cooldown", "cooldowns"),
         label_num(command_responses, "command response", "command responses"),
         label_num(embed_fix_responses, "embed fix response", "embed fix responses"),
-        label_num(last_piston_programming_languages, "last piston programming language", "last piston programming languages"),
+        label_num(piston_states, "piston state", "piston states"),
         label_num(paginations, "pagination", "paginations"),
         label_num(custom_status, "custom status", "custom statuses"),
         label_num(total_keys, "total key", "total keys"),
