@@ -48,7 +48,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                     },
                     {
                         name = "duration",
-                        description = "The duration to timeout, e.g. 1h",
+                        description = "The duration to time out, e.g., 1h",
                         option_type = InteractionOptionType::STRING,
                         required = true,
                     },

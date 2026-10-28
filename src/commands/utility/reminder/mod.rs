@@ -49,7 +49,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                 options = [
                     {
                         name = "time",
-                        description = "The duration to remind, e.g. 1h",
+                        description = "The duration to remind, e.g., 1h",
                         option_type = InteractionOptionType::STRING,
                         required = true,
                     },
@@ -61,7 +61,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                     },
                     {
                         name = "interval",
-                        description = "The interval time to remind, e.g. 1h",
+                        description = "The interval time to remind, e.g., 1h",
                         option_type = InteractionOptionType::STRING,
                     },
                     {

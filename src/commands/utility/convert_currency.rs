@@ -42,14 +42,14 @@ pub fn get_slashook_command() -> SlashookCommand {
             },
             {
                 name = "origin-currency",
-                description = "The origin currency, e.g. GBP, NOK, USD",
+                description = "The origin currency, e.g., GBP, NOK, USD",
                 option_type = InteractionOptionType::STRING,
                 autocomplete = true,
                 required = true,
             },
             {
                 name = "target-currency",
-                description = "The currency to convert the amount to, e.g. GBP, NOK, USD",
+                description = "The currency to convert the amount to, e.g., GBP, NOK, USD",
                 option_type = InteractionOptionType::STRING,
                 autocomplete = true,
                 required = true,
