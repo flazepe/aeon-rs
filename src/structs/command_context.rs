@@ -164,11 +164,11 @@ impl AeonCommandContext {
         let AeonCommandInput::ApplicationCommand(input, res) = &self.command_input else { return Ok(()) };
 
         let value = input
-            .args
-            .get(input.focused.as_ref().context("Missing focused argument.")?)
-            .context("Could not get the focused argument.")?
-            .as_string()
-            .context("Could not get the focused argument as `String`.")?
+            .focused
+            .as_ref()
+            .and_then(|focused| input.args.get(focused))
+            .and_then(|option_value| option_value.as_string())
+            .unwrap_or_default()
             .to_lowercase();
 
         Ok(res

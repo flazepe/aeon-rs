@@ -150,11 +150,11 @@ pub fn get_slashook_command() -> SlashookCommand {
     async fn func(input: CommandInput, res: CommandResponder) {
         if input.is_autocomplete() {
             let value = input
-                .args
-                .get(&input.focused.context("Missing focused arg.")?)
-                .context("Could not get focused arg.")?
-                .as_string()
-                .context("Could not convert focused arg to String.")?
+                .focused
+                .as_ref()
+                .and_then(|focused| input.args.get(focused))
+                .and_then(|option_value| option_value.as_string())
+                .unwrap_or_default()
                 .to_lowercase();
 
             let mongodb = Database::get_mongodb()?;
@@ -170,7 +170,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                         .filter(|tag| format!("{}{}", tag.name, tag.content).to_lowercase().contains(&value))
                         .take(25)
                         .map(|tag| ApplicationCommandOptionChoice::new(&tag.name, tag.name.clone()))
-                        .collect::<Vec<ApplicationCommandOptionChoice>>(),
+                        .collect(),
                 )
                 .await?;
         }
