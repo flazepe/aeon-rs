@@ -100,7 +100,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                         .add_text_input(stdin_input)
                         .add_label(Label::new("args").set_description(r#"array of args to provide to the program, e.g., ["foo", "bar"]"#))
                         .add_text_input(args_input)
-                        .add_label(Label::new("Files"))
+                        .add_label(Label::new("Files").set_description("upload files that the program can have access to"))
                         .add_file_upload(files_input);
 
                     let modal = Modal::new("code", "modal", "Enter Code").set_components(components);
