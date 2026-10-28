@@ -8,7 +8,6 @@ mod toggle_nsfw;
 mod view;
 
 use crate::structs::{command::AeonCommand, command_context::AeonCommandInput, database::Database};
-use anyhow::Context;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
