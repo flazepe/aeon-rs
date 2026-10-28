@@ -18,21 +18,21 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("eval", &["e", "evak"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let code = ctx.get_string_arg("code", 0, true)?;
         let runtime = Piston::get_runtime("node-javascript").context("Could not get runtime.")?;
-        let piston = Piston::new(runtime, Some(code)).run().await?;
+        let piston = Piston::new(runtime, Some(code), None::<String>, None::<String>).run().await?;
 
-        let mut output = piston.output.as_deref().unwrap_or_default();
+        if let Some(output) = piston.output
+            && !output.output.is_empty()
+        {
+            let response = if output.output.len() > 1993 {
+                MessageResponse::from(File::new("output.txt", output.output))
+            } else {
+                MessageResponse::from(format!("```\n{}```", output.output))
+            };
 
-        if output.is_empty() {
-            output = "No output.";
-        }
-
-        let response = if output.len() > 1993 {
-            MessageResponse::from(File::new("output.txt", output))
+            ctx.respond(response, false).await
         } else {
-            MessageResponse::from(format!("```\n{output}```"))
-        };
-
-        ctx.respond(response, false).await
+            ctx.respond_error("No output.", false).await
+        }
     })
 });
 

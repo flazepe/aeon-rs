@@ -44,10 +44,14 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     ctx.defer(false).await?;
 
                     let code = ctx.get_string_arg("code", 0, true).ok();
+                    let stdin = ctx.get_string_arg("stdin", 0, true).ok();
+                    let args = ctx.get_string_arg("args", 0, true).ok();
                     piston_state.code = code.clone();
+                    piston_state.stdin = stdin.clone();
+                    piston_state.args = args.clone();
                     redis.set(&key, &piston_state, Some(60 * 60)).await?;
 
-                    let mut piston = Piston::new(runtime, code);
+                    let mut piston = Piston::new(runtime, code, stdin, args);
 
                     let attachments = input
                         .args
@@ -71,9 +75,17 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                         .set_style(TextInputStyle::PARAGRAPH)
                         .set_required(false)
                         .set_value(piston_state.code.as_deref().unwrap_or_default());
+                    let stdin_component =
+                        TextInput::new().set_id("stdin").set_required(false).set_value(piston_state.stdin.as_deref().unwrap_or_default());
+                    let args_component =
+                        TextInput::new().set_id("args").set_required(false).set_value(piston_state.args.as_deref().unwrap_or_default());
                     let files_component = FileUpload::new().set_id("files").set_max_values(10).set_required(false);
                     let components = Components::new_label(Label::new("Code").set_description(runtime.to_string()))
                         .add_text_input(code_component)
+                        .add_label(Label::new("stdin").set_description("stdin text to provide to the program"))
+                        .add_text_input(stdin_component)
+                        .add_label(Label::new("args").set_description(r#"array of args to provide to the program, e.g., ["foo", "bar"]"#))
+                        .add_text_input(args_component)
                         .add_label(Label::new("Files"))
                         .add_file_upload(files_component);
 
@@ -97,7 +109,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                 ctx.defer(false).await?;
 
                 let code = code.trim();
-                let mut piston = Piston::new(runtime, Some(code));
+                let mut piston = Piston::new(runtime, Some(code), None::<String>, None::<String>);
 
                 for attachment in &message.attachments {
                     if attachment.size <= 5000000 {

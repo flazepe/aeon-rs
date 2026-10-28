@@ -5,7 +5,7 @@ use crate::{
     statics::{CONFIG, REQWEST, colors::PRIMARY_EMBED_COLOR},
     structs::{api::piston::statics::PISTON_RUNTIMES, pagination::Pagination},
 };
-use anyhow::{Result, bail};
+use anyhow::{Context, Result, bail};
 use base64::{Engine, prelude::BASE64_STANDARD};
 use serde::{Deserialize, Serialize};
 use serde_json::from_str;
@@ -20,9 +20,10 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 pub struct Piston {
     pub runtime: &'static PistonRuntime,
     pub code: Option<String>,
+    pub stdin: Option<String>,
+    pub args: Option<String>,
     pub files: Vec<PistonExecuteInputFile>,
-    pub output: Option<String>,
-    pub exit_code: Option<u64>,
+    pub output: Option<PistonExecuteOutputRun>,
 }
 
 #[derive(Serialize, Debug)]
@@ -30,6 +31,8 @@ pub struct PistonExecuteInput {
     language: String,
     version: String,
     files: Vec<PistonExecuteInputFile>,
+    stdin: Option<String>,
+    args: Vec<String>,
 }
 
 #[derive(Serialize, Clone, Debug)]
@@ -52,7 +55,6 @@ pub struct PistonExecuteOutput {
 }
 
 #[derive(Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct PistonExecuteOutputRun {
     pub stdout: String,
     pub stderr: String,
@@ -61,8 +63,20 @@ pub struct PistonExecuteOutputRun {
 }
 
 impl Piston {
-    pub fn new<T: Display>(runtime: &'static PistonRuntime, code: Option<T>) -> Self {
-        Self { runtime, code: code.map(|code| code.to_string()), files: vec![], output: None, exit_code: None }
+    pub fn new<T: Display, U: Display, V: Display>(
+        runtime: &'static PistonRuntime,
+        code: Option<T>,
+        stdin: Option<U>,
+        args: Option<V>,
+    ) -> Self {
+        Self {
+            runtime,
+            code: code.map(|code| code.to_string()),
+            stdin: stdin.map(|stdin| stdin.to_string()),
+            args: args.map(|args| args.to_string()),
+            files: vec![],
+            output: None,
+        }
     }
 
     pub fn get_runtime<T: Display>(query: T) -> Option<&'static PistonRuntime> {
@@ -142,6 +156,8 @@ impl Piston {
             language: self.runtime.language.clone(),
             version: self.runtime.version.clone(),
             files: self.files.clone(),
+            stdin: self.stdin.clone(),
+            args: self.args.as_ref().and_then(|args| from_str::<Vec<String>>(args).ok()).unwrap_or_default(),
         };
 
         let body = REQWEST
@@ -153,46 +169,48 @@ impl Piston {
             .text()
             .await?;
 
-        if let Ok(result) = from_str::<PistonExecuteOutput>(&body) {
-            self.exit_code = result.run.code;
-            self.output = Some(result.run.output.clone());
-        } else {
-            self.output = Some(body.clone());
-        }
+        let output = from_str::<PistonExecuteOutput>(&body).context(format!("An error occurred: {body}"))?;
+        self.output = Some(output.run);
 
         Ok(self)
     }
 
     pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
-        let output_pages = paginate_strings(self.output.as_deref().unwrap_or_default().chars(), "", 4089)
-            .into_iter()
-            .map(|entry| {
-                let mut embed = Embed::new()
-                    .set_color(PRIMARY_EMBED_COLOR)
-                    .unwrap_or_default()
-                    .set_title(self.runtime)
-                    .set_description(format!("```\n{entry}```"));
+        let paginate = |chars| {
+            paginate_strings(chars, "", 4089)
+                .into_iter()
+                .map(|entry| {
+                    let mut embed = Embed::new()
+                        .set_color(PRIMARY_EMBED_COLOR)
+                        .unwrap_or_default()
+                        .set_title(self.runtime)
+                        .set_description(format!("```\n{entry}```"));
 
-                if let Some(exit_code) = self.exit_code {
-                    embed = embed.set_footer(format!("Exit Code: {exit_code}"), None::<String>);
-                }
+                    if let Some(exit_code) = self.output.as_ref().and_then(|output| output.code) {
+                        embed = embed.set_footer(format!("Exit Code: {exit_code}"), None::<String>);
+                    }
 
-                embed
-            })
-            .collect::<Vec<_>>();
+                    embed
+                })
+                .collect::<Vec<_>>()
+        };
 
-        let code_pages = paginate_strings(self.files.first().map(|file| file.content.as_str()).unwrap_or_default().chars(), "", 4089)
-            .into_iter()
-            .map(|entry| {
-                Embed::new()
-                    .set_color(PRIMARY_EMBED_COLOR)
-                    .unwrap_or_default()
-                    .set_title(self.runtime)
-                    .set_description(format!("```\n{entry}```"))
-            })
-            .collect::<Vec<_>>();
+        let output = self.output.as_ref().map(|output| output.output.as_str()).unwrap_or_default();
+        let output_pages = paginate(output.chars());
 
-        Pagination::new(command).add_section("Output", output_pages).add_section("Code", code_pages)
+        let stdout = self.output.as_ref().map(|output| output.stdout.as_str()).unwrap_or_default();
+        let stdout_pages = paginate(stdout.chars());
+
+        let stderr = self.output.as_ref().map(|output| output.stderr.as_str()).unwrap_or_default();
+        let stderr_pages = paginate(stderr.chars());
+
+        let code_pages = paginate(self.files.first().map(|file| file.content.as_str()).unwrap_or_default().chars());
+
+        Pagination::new(command)
+            .add_section("Output", output_pages)
+            .add_section("stdout", stdout_pages)
+            .add_section("stderr", stderr_pages)
+            .add_section("Code", code_pages)
     }
 }
 
@@ -231,4 +249,6 @@ impl Display for PistonRuntime {
 pub struct PistonState {
     pub runtime: Option<String>,
     pub code: Option<String>,
+    pub stdin: Option<String>,
+    pub args: Option<String>,
 }
