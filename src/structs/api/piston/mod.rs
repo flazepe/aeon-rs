@@ -251,4 +251,5 @@ pub struct PistonState {
     pub code: Option<String>,
     pub stdin: Option<String>,
     pub args: Option<String>,
+    pub keep_state: bool,
 }

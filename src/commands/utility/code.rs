@@ -12,7 +12,7 @@ use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder, Modal},
     structs::{
-        components::{Components, FileUpload, Label, TextInput, TextInputStyle},
+        components::{Checkbox, Components, FileUpload, Label, TextInput, TextInputStyle},
         interactions::{IntegrationType, InteractionContextType, InteractionOptionType},
     },
 };
@@ -46,9 +46,20 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     let code = ctx.get_string_arg("code", 0, true).ok();
                     let stdin = ctx.get_string_arg("stdin", 0, true).ok();
                     let args = ctx.get_string_arg("args", 0, true).ok();
-                    piston_state.code = code.clone();
-                    piston_state.stdin = stdin.clone();
-                    piston_state.args = args.clone();
+
+                    let keep_state = ctx.get_bool_arg("keep-state").unwrap_or_default();
+                    piston_state.keep_state = keep_state;
+
+                    if keep_state {
+                        piston_state.code = code.clone();
+                        piston_state.stdin = stdin.clone();
+                        piston_state.args = args.clone();
+                    } else {
+                        piston_state.code = None;
+                        piston_state.stdin = None;
+                        piston_state.args = None;
+                    }
+
                     redis.set(&key, &piston_state, Some(60 * 60)).await?;
 
                     let mut piston = Piston::new(runtime, code, stdin, args);
@@ -70,24 +81,27 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
                     piston = piston.run().await?;
                     ctx.respond(piston.format_pagination("code").save().await?, false).await
                 } else {
-                    let code_component = TextInput::new()
+                    let keep_state_checkbox = Checkbox::new().set_id("keep-state").set_default(piston_state.keep_state);
+                    let code_input = TextInput::new()
                         .set_id("code")
                         .set_style(TextInputStyle::PARAGRAPH)
                         .set_required(false)
                         .set_value(piston_state.code.as_deref().unwrap_or_default());
-                    let stdin_component =
+                    let stdin_input =
                         TextInput::new().set_id("stdin").set_required(false).set_value(piston_state.stdin.as_deref().unwrap_or_default());
-                    let args_component =
+                    let args_input =
                         TextInput::new().set_id("args").set_required(false).set_value(piston_state.args.as_deref().unwrap_or_default());
-                    let files_component = FileUpload::new().set_id("files").set_max_values(10).set_required(false);
-                    let components = Components::new_label(Label::new("Code").set_description(runtime.to_string()))
-                        .add_text_input(code_component)
+                    let files_input = FileUpload::new().set_id("files").set_max_values(10).set_required(false);
+                    let components = Components::new_label(Label::new("Keep state for next time"))
+                        .add_checkbox(keep_state_checkbox)
+                        .add_label(Label::new("Code").set_description(runtime.to_string()))
+                        .add_text_input(code_input)
                         .add_label(Label::new("stdin").set_description("stdin text to provide to the program"))
-                        .add_text_input(stdin_component)
+                        .add_text_input(stdin_input)
                         .add_label(Label::new("args").set_description(r#"array of args to provide to the program, e.g., ["foo", "bar"]"#))
-                        .add_text_input(args_component)
+                        .add_text_input(args_input)
                         .add_label(Label::new("Files"))
-                        .add_file_upload(files_component);
+                        .add_file_upload(files_input);
 
                     let modal = Modal::new("code", "modal", "Enter Code").set_components(components);
                     Ok(res.open_modal(modal).await?)
