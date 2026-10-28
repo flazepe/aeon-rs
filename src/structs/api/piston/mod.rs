@@ -176,8 +176,8 @@ impl Piston {
     }
 
     pub fn format_pagination<T: Display>(&self, command: T) -> Pagination {
-        let paginate = |chars| {
-            paginate_strings(chars, "", 4089)
+        let paginate = |str: &str| {
+            paginate_strings(str.chars(), "", 4089)
                 .into_iter()
                 .map(|entry| {
                     let mut embed = Embed::new()
@@ -196,15 +196,15 @@ impl Piston {
         };
 
         let output = self.output.as_ref().map(|output| output.output.as_str()).unwrap_or_default();
-        let output_pages = paginate(output.chars());
+        let output_pages = paginate(output);
 
         let stdout = self.output.as_ref().map(|output| output.stdout.as_str()).unwrap_or_default();
-        let stdout_pages = paginate(stdout.chars());
+        let stdout_pages = paginate(stdout);
 
         let stderr = self.output.as_ref().map(|output| output.stderr.as_str()).unwrap_or_default();
-        let stderr_pages = paginate(stderr.chars());
+        let stderr_pages = paginate(stderr);
 
-        let code_pages = paginate(self.files.first().map(|file| file.content.as_str()).unwrap_or_default().chars());
+        let code_pages = paginate(self.files.first().map(|file| file.content.as_str()).unwrap_or_default());
 
         Pagination::new(command)
             .add_section("Output", output_pages)
