@@ -17,11 +17,6 @@ use std::sync::Arc;
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
     match &ctx.command_input {
         AeonCommandInput::ApplicationCommand(input, res) => {
-            if input.is_autocomplete() {
-                res.autocomplete(Piston::autocomplete_runtime(input)).await?;
-                return Ok(());
-            }
-
             let redis = REDIS.get().context("Could not get Redis.")?;
             let key = RedisKey::PistonStates(ctx.get_user_id());
             let mut piston_state = redis.get::<PistonState>(&key).await.unwrap_or_default();

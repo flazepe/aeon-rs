@@ -11,7 +11,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::from_str;
 use slashook::{
     chrono::Utc,
-    commands::CommandInput,
     structs::{embeds::Embed, interactions::ApplicationCommandOptionChoice},
 };
 use std::fmt::{Display, Formatter, Result as FmtResult};
@@ -102,13 +101,7 @@ impl Piston {
             .collect()
     }
 
-    pub fn autocomplete_runtime(input: &CommandInput) -> Vec<ApplicationCommandOptionChoice> {
-        let Some(query) =
-            input.focused.as_ref().and_then(|focused| input.args.get(focused)).and_then(|option_value| option_value.as_string())
-        else {
-            return vec![];
-        };
-
+    pub fn autocomplete_runtime<T: Display>(query: T) -> Vec<ApplicationCommandOptionChoice> {
         Self::get_runtimes(query)
             .iter()
             .map(|runtime| ApplicationCommandOptionChoice::new(runtime.to_string(), runtime.to_string()))

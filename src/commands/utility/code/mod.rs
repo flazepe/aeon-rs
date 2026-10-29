@@ -2,7 +2,7 @@ mod delete;
 mod list;
 mod run;
 
-use crate::structs::{command::AeonCommand, command_context::AeonCommandInput, database::Database};
+use crate::structs::{api::piston::Piston, command::AeonCommand, command_context::AeonCommandInput, database::Database};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -63,30 +63,27 @@ pub fn get_slashook_command() -> SlashookCommand {
     )]
     async fn func(input: CommandInput, res: CommandResponder) {
         if input.is_autocomplete() {
-            let value = input
-                .focused
-                .as_ref()
-                .and_then(|focused| input.args.get(focused))
-                .and_then(|option_value| option_value.as_string())
-                .unwrap_or_default()
-                .to_lowercase();
+            let focused = input.focused.as_deref().unwrap_or_default();
+            let value = input.args.get(focused).and_then(|option_value| option_value.as_string()).unwrap_or_default().to_lowercase();
 
-            let mongodb = Database::get_mongodb()?;
-
-            return res
-                .autocomplete(
-                    mongodb
-                        .code_snippets
-                        .get_all(input.user.id)
-                        .await
-                        .unwrap_or_else(|_| vec![])
+            match focused {
+                "programming-language" => res.autocomplete(Piston::autocomplete_runtime(&value)).await?,
+                "name" => {
+                    let mongodb = Database::get_mongodb()?;
+                    let code_snippets = mongodb.code_snippets.get_all(input.user.id).await.unwrap_or_else(|_| vec![]);
+                    let option_choices = code_snippets
                         .iter()
                         .filter(|code_snippet| code_snippet.name.contains(&value))
                         .take(25)
                         .map(|code_snippet| ApplicationCommandOptionChoice::new(&code_snippet.name, code_snippet.name.clone()))
-                        .collect(),
-                )
-                .await?;
+                        .collect();
+
+                    res.autocomplete(option_choices).await?;
+                },
+                _ => {},
+            }
+
+            return;
         }
 
         COMMAND.run(AeonCommandInput::ApplicationCommand(Box::new(input), res)).await?;
