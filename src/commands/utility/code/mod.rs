@@ -36,7 +36,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                     },
                     {
                         name = "name",
-                        description = "The code snippet to run",
+                        description = "The code snippet name to create or run",
                         option_type = InteractionOptionType::STRING,
                         autocomplete = true,
                     },
@@ -48,7 +48,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                 options = [
                     {
                         name = "name",
-                        description = "The code snippet to delete",
+                        description = "The code snippet name to delete",
                         option_type = InteractionOptionType::STRING,
                         autocomplete = true,
                         required = true,
