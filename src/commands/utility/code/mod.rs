@@ -70,7 +70,7 @@ pub fn get_slashook_command() -> SlashookCommand {
                 "programming-language" => res.autocomplete(Piston::autocomplete_runtime(&value)).await?,
                 "name" => {
                     let mongodb = Database::get_mongodb()?;
-                    let code_snippets = mongodb.code_snippets.get_all(input.user.id).await.unwrap_or_else(|_| vec![]);
+                    let code_snippets = mongodb.code_snippets.get_all(input.user.id).await.unwrap_or_default();
                     let option_choices = code_snippets
                         .iter()
                         .filter(|code_snippet| code_snippet.name.contains(&value))
