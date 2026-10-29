@@ -68,8 +68,18 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
 
                 // Exising code snippets should be saved or upserted if a name was provided
                 if let Some(name) = name {
-                    let new = CodeSnippet { name, user_id: ctx.get_user_id(), piston_state: piston_state.clone() };
-                    mongodb.code_snippets.upsert(new).await?;
+                    let new_code_snippet = CodeSnippet {
+                        name,
+                        user_id: ctx.get_user_id(),
+                        piston_state: PistonState {
+                            runtime: Some(runtime.to_string()),
+                            code: code.clone(),
+                            stdin: stdin.clone(),
+                            args: args.clone(),
+                        },
+                    };
+
+                    mongodb.code_snippets.upsert(new_code_snippet).await?;
                 }
 
                 let mut piston = Piston::new(runtime, code, stdin, args);
