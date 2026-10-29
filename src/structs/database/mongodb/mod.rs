@@ -1,4 +1,4 @@
-use crate::statics::CONFIG;
+use crate::{statics::CONFIG, structs::database::mongodb::code_snippets::CodeSnippets};
 use anyhow::Result;
 use guilds::Guilds;
 use mongodb::{Client, Database};
@@ -6,6 +6,7 @@ use oauth::OAuth;
 use reminders::Reminders;
 use tags::Tags;
 
+pub mod code_snippets;
 pub mod guilds;
 pub mod oauth;
 pub mod reminders;
@@ -17,6 +18,7 @@ pub struct MongoDB {
     pub oauth: OAuth,
     pub reminders: Reminders,
     pub tags: Tags,
+    pub code_snippets: CodeSnippets,
 }
 
 impl MongoDB {
@@ -31,7 +33,8 @@ impl MongoDB {
         let oauth = OAuth::new(database.collection("oauth"));
         let reminders = Reminders::new(database.collection("reminders"));
         let tags = Tags::new(database.collection("tags"));
+        let code_snippets = CodeSnippets::new(database.collection("code_snippets"));
 
-        Ok(Self { guilds, oauth, reminders, tags })
+        Ok(Self { guilds, oauth, reminders, tags, code_snippets })
     }
 }

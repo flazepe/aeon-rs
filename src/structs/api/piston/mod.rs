@@ -208,8 +208,8 @@ impl Piston {
 
         Pagination::new(command)
             .add_section("Output", output_pages)
-            .add_section("stdout", stdout_pages)
-            .add_section("stderr", stderr_pages)
+            .add_section("Stdout", stdout_pages)
+            .add_section("Stderr", stderr_pages)
             .add_section("Code", code_pages)
     }
 }
@@ -245,11 +245,10 @@ impl Display for PistonRuntime {
     }
 }
 
-#[derive(Deserialize, Serialize, Default, Debug)]
+#[derive(Deserialize, Serialize, Clone, Default, Debug)]
 pub struct PistonState {
     pub runtime: Option<String>,
     pub code: Option<String>,
     pub stdin: Option<String>,
     pub args: Option<String>,
-    pub keep_state: bool,
 }

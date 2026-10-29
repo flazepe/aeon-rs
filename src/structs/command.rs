@@ -178,10 +178,15 @@ impl AeonCommand {
                     }
                 },
                 AeonCommandInput::ApplicationCommand(input, _) => {
-                    let subcommand = self
-                        .subcommands
-                        .iter()
-                        .find(|entry| entry.name == input.subcommand.as_ref().or(input.custom_id.as_ref()).cloned().unwrap_or_default());
+                    let subcommand = self.subcommands.iter().find(|entry| {
+                        let custom_id = input.custom_id.as_deref().unwrap_or_default();
+                        /*
+                            Split custom ID by `/` and grab the first part. Sometimes we have to add random
+                            gibberish after a `/` to force Discord to not send broken old-state modals.
+                        */
+                        let trimmed_custom_id = custom_id.split('/').next().unwrap_or(custom_id);
+                        entry.name == input.subcommand.as_deref().unwrap_or(trimmed_custom_id)
+                    });
 
                     if let Some(subcommand) = subcommand {
                         func = Some(&subcommand.func);
