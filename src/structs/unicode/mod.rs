@@ -5,7 +5,7 @@ use crate::{
     statics::{colors::PRIMARY_EMBED_COLOR, regex::VISIBLE_CHARACTER_REGEX},
     structs::{pagination::Pagination, unicode::statics::CONTROL_CHARACTERS},
 };
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use nipper::Document;
 use reqwest::Client;
 use slashook::structs::embeds::Embed;
@@ -41,10 +41,7 @@ impl Unicode {
         );
 
         let text = document.select("td:nth-child(4)").text();
-
-        if text.is_empty() {
-            bail!("Unicode character not found.");
-        }
+        ensure!(!text.is_empty(), "Unicode character not found.");
 
         Ok(Self::list(text, true))
     }

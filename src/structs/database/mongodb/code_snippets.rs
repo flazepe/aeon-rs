@@ -1,5 +1,5 @@
 use crate::structs::api::piston::PistonState;
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use futures::TryStreamExt;
 use mongodb::{Collection, bson::doc};
 use serde::{Deserialize, Serialize};
@@ -39,9 +39,7 @@ impl CodeSnippets {
             return Ok(());
         }
 
-        if self.collection.count_documents(doc! {}).await? >= 50 {
-            bail!("You cannot have over 50 code snippets.");
-        }
+        ensure!(self.collection.count_documents(doc! {}).await? < 50, "You cannot have over 50 code snippets.");
 
         self.collection.insert_one(code_snippet).await?;
         Ok(())
@@ -50,10 +48,7 @@ impl CodeSnippets {
     pub async fn delete<T: Display, U: Display>(&self, name: T, user_id: U) -> Result<()> {
         let name = name.to_string().to_lowercase();
         let user_id = user_id.to_string();
-
-        if self.get(&name, &user_id).await.is_none() {
-            bail!("Code snippet not found.");
-        }
+        ensure!(self.get(&name, &user_id).await.is_some(), "Code snippet not found.");
 
         self.collection.delete_one(doc! { "name": name, "user_id": user_id }).await?;
         Ok(())

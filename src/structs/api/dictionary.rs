@@ -2,7 +2,7 @@ use crate::{
     statics::{REQWEST, colors::PRIMARY_EMBED_COLOR},
     structs::pagination::Pagination,
 };
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
@@ -35,10 +35,7 @@ impl Dictionary {
             .await
             .unwrap_or_default();
 
-        if result.entries.is_empty() {
-            bail!("Word not found.");
-        }
-
+        ensure!(!result.entries.is_empty(), "Word not found.");
         Ok(result)
     }
 

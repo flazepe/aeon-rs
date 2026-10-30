@@ -1,5 +1,5 @@
 use crate::{statics::REQWEST, structs::command_context::AeonCommandContext};
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use nipper::Document;
 use std::sync::Arc;
 
@@ -13,9 +13,6 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         status.trim().to_string()
     };
 
-    if status.is_empty() || status.contains("no account") {
-        bail!("Account not found.")
-    }
-
+    ensure!(!status.is_empty() && !status.contains("no account"), "Account not found.");
     ctx.respond(format!("[{user}](<{url}>)\n{status}"), true).await
 }

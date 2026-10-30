@@ -5,7 +5,7 @@ use crate::{
         command_context::{AeonCommandContext, AeonCommandInput},
     },
 };
-use anyhow::bail;
+use anyhow::ensure;
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -22,11 +22,9 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             .await?
             .text()
             .await?;
-        let id = text.split(r#"videoId":""#).nth(1).unwrap_or_default().split('"').next().unwrap();
 
-        if id.is_empty() {
-            bail!("Video not found.");
-        }
+        let id = text.split(r#"videoId":""#).nth(1).unwrap_or_default().split('"').next().unwrap();
+        ensure!(!id.is_empty(), "Video not found.");
 
         ctx.ensure_nsfw_channel().await?;
         ctx.respond(format!("https://www.youtube.com/watch?v={id}"), false).await

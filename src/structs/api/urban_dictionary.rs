@@ -2,7 +2,7 @@ use crate::{
     statics::{REQWEST, colors::PRIMARY_EMBED_COLOR},
     structs::pagination::Pagination,
 };
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
@@ -37,10 +37,7 @@ impl UrbanDictionary {
             .json::<Self>()
             .await?;
 
-        if result.list.is_empty() {
-            bail!("Word not found.");
-        }
-
+        ensure!(!result.list.is_empty(), "Word not found.");
         Ok(result)
     }
 

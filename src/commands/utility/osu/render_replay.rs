@@ -5,7 +5,7 @@ use crate::{
         command_context::{AeonCommandContext, AeonCommandInput},
     },
 };
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, ensure};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
@@ -21,10 +21,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         skin = ctx.get_string_arg("skin", 0, true).ok();
     }
 
-    if CACHE.ordr_rendering_users.read().unwrap().contains_key(&ctx.get_user_id()) {
-        bail!("You already have an ongoing replay rendering.");
-    }
-
+    ensure!(!CACHE.ordr_rendering_users.read().unwrap().contains_key(&ctx.get_user_id()), "You already have an ongoing replay rendering.");
     ctx.defer(false).await?;
 
     let render = OrdrRender::new(replay_url.context("Please provide an image URL or file.")?, skin).await?;

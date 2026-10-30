@@ -7,7 +7,7 @@ use crate::{
         command_context::{AeonCommandContext, AeonCommandInput},
     },
 };
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, bail, ensure};
 use serde::Deserialize;
 use serde_json::{from_str, json};
 use slashook::chrono::Utc;
@@ -97,10 +97,7 @@ impl OrdrRender {
 
             while Utc::now().timestamp() - start_time < 480 {
                 let render = Self::get_render(self.render_id).await?;
-
-                if render.error_code != 0 {
-                    bail!(render.progress.clone());
-                }
+                ensure!(render.error_code == 0, render.progress.clone());
 
                 if render.video_url.starts_with("https://") {
                     res.edit_original_message(render.video_url.as_str()).await?;

@@ -7,7 +7,7 @@ use crate::{
     },
     traits::Commas,
 };
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::structs::embeds::Embed;
@@ -55,7 +55,6 @@ impl VndbTrait {
 impl Vndb {
     pub async fn search_trait<T: Display>(query: T) -> Result<Vec<VndbTrait>> {
         let query = query.to_string();
-
         let results = Self::query(
             "trait",
             if query.starts_with('i') && query.chars().skip(1).all(|char| char.is_numeric()) {
@@ -74,10 +73,7 @@ impl Vndb {
         .await?
         .results;
 
-        if results.is_empty() {
-            bail!("Trait not found.");
-        }
-
+        ensure!(!results.is_empty(), "Trait not found.");
         Ok(results)
     }
 }

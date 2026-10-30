@@ -5,7 +5,7 @@ use crate::{
         command_context::{AeonCommandContext, AeonCommandInput},
     },
 };
-use anyhow::{Context, bail};
+use anyhow::{Context, ensure};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -16,7 +16,6 @@ use std::{sync::Arc, sync::LazyLock, time::Duration};
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("calculate", &["calc", "count", "math", "meth"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let expression = ctx.get_string_arg("expression", 0, true)?;
-
         let body = REQWEST
             .get("https://api.mathjs.org/v4/")
             .query(&[("expr", expression)])
@@ -27,9 +26,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             .text()
             .await?;
 
-        if body.is_empty() || body.contains("Error") {
-            bail!("Invalid expression.");
-        }
+        ensure!(!body.is_empty() && !body.contains("Error"), "Invalid expression.");
 
         ctx.respond_success(format!("``{}``", body.chars().take(1000).collect::<String>().replace('`', "`\u{200b}")), false).await
     })

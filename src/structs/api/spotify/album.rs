@@ -11,7 +11,7 @@ use crate::{
         statics::{SPOTIFY_EMBED_AUTHOR_ICON_URL, SPOTIFY_EMBED_AUTHOR_URL},
     },
 };
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, ensure};
 use serde::Deserialize;
 use slashook::{chrono::NaiveDateTime, structs::embeds::Embed};
 use std::fmt::Display;
@@ -166,10 +166,7 @@ impl Spotify {
         }
 
         let results = Self::query::<_, SpotifySearchAlbumResponse>(format!("search?type=album&q={query}")).await?.albums.items;
-
-        if results.is_empty() {
-            bail!("Album not found.");
-        }
+        ensure!(!results.is_empty(), "Album not found.");
 
         Ok(results)
     }

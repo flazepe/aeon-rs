@@ -7,7 +7,7 @@ use crate::{
     },
     traits::Commas,
 };
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::structs::embeds::Embed;
@@ -77,7 +77,6 @@ impl VndbTag {
 impl Vndb {
     pub async fn search_tag<T: Display>(query: T) -> Result<Vec<VndbTag>> {
         let query = query.to_string();
-
         let results = Self::query(
             "tag",
             if query.starts_with('g') && query.chars().skip(1).all(|char| char.is_numeric()) {
@@ -96,10 +95,7 @@ impl Vndb {
         .await?
         .results;
 
-        if results.is_empty() {
-            bail!("Tag not found.");
-        }
-
+        ensure!(!results.is_empty(), "Tag not found.");
         Ok(results)
     }
 }

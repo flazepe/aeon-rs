@@ -10,7 +10,7 @@ use crate::{
         statics::{SPOTIFY_CAMELOT, SPOTIFY_EMBED_AUTHOR_ICON_URL, SPOTIFY_EMBED_AUTHOR_URL, SPOTIFY_EMBED_COLOR, SPOTIFY_PITCH_NOTATIONS},
     },
 };
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, ensure};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
@@ -55,7 +55,7 @@ impl SpotifyFullTrack {
     }
 
     fn _format(&self) -> Embed {
-        let emojis =  EMOJIS.get().unwrap();
+        let emojis = EMOJIS.get().unwrap();
         let thumbnail = self.album.images.first().map_or("", |image| image.url.as_str());
         let title =
             format!("{}{}", if self.explicit { format!("{} ", emojis.get("aeon_explicit", "🇪").mention()) } else { "".into() }, self.name);
@@ -71,7 +71,7 @@ impl SpotifyFullTrack {
     }
 
     pub fn format(&self) -> Embed {
-        let emojis =  EMOJIS.get().unwrap();
+        let emojis = EMOJIS.get().unwrap();
         let image = Spotify::generate_scannable(&self.uri);
         let artist =
             limit_strings(self.artists.iter().map(|artist| format!("[{}]({})", artist.name, artist.external_urls.spotify)), ", ", 1024);
@@ -160,10 +160,7 @@ impl Spotify {
         }
 
         let results = Spotify::query::<_, SpotifySearchTrackResponse>(format!("search?type=track&q={query}")).await?.tracks.items;
-
-        if results.is_empty() {
-            bail!("Song not found.");
-        }
+        ensure!(!results.is_empty(), "Song not found.");
 
         Ok(results)
     }

@@ -1,5 +1,5 @@
 use crate::statics::FLAZEPE_ID;
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, ensure};
 use futures::stream::TryStreamExt;
 use mongodb::{
     Collection,
@@ -63,9 +63,7 @@ impl Tags {
             .try_collect::<Vec<Tag>>()
             .await?;
 
-        if tags.is_empty() {
-            bail!("No tags found.");
-        }
+        ensure!(!tags.is_empty(), "No tags found.");
 
         Ok(tags)
     }
@@ -80,20 +78,15 @@ impl Tags {
     ) -> Result<String> {
         let has_permission = modifier.permissions.unwrap_or_else(Permissions::empty).contains(Permissions::MANAGE_MESSAGES);
         let is_flazepe = author_id.to_string() == FLAZEPE_ID;
-
-        if !has_permission && !is_flazepe {
-            bail!("Only members with the Manage Messages permission can create tags.");
-        }
+        ensure!(has_permission || is_flazepe, "Only members with the Manage Messages permission can create tags.");
 
         let name = Self::validate_tag_name(name)?;
+        ensure!(self.get(&name, guild_id).await.is_err(), "Tag already exists.");
 
-        if self.get(&name, guild_id).await.is_ok() {
-            bail!("Tag already exists.");
-        }
-
-        if self.collection.count_documents(doc! { "guild_id": guild_id.to_string() }).await? == 100 {
-            bail!("I'm sure 100 tags are enough for your server.");
-        }
+        ensure!(
+            self.collection.count_documents(doc! { "guild_id": guild_id.to_string() }).await? <= 100,
+            "I'm sure 100 tags are enough for your server.",
+        );
 
         let timestamp = Utc::now().timestamp();
 
@@ -137,20 +130,13 @@ impl Tags {
                 tag.name.clone()
             } else {
                 let new_name = Self::validate_tag_name(new_name)?;
-
-                if self.get(&new_name, guild_id).await.is_ok() {
-                    bail!("Tag with that new name already exists.");
-                }
-
+                ensure!(self.get(&new_name, guild_id).await.is_err(), "Tag with that new name already exists.");
                 new_name
             }
         };
 
         let content = content.to_string();
-
-        if name == tag.name && content == tag.content {
-            bail!("No changes detected.");
-        }
+        ensure!(name != tag.name || content != tag.content, "No changes detected.");
 
         self.collection
             .update_one(
@@ -182,14 +168,8 @@ impl Tags {
         let new = !tag.aliases.contains(&alias);
 
         if new {
-            if tag.aliases.len() >= 5 {
-                bail!("Maximum alias amount reached.");
-            }
-
-            if self.get(&alias, guild_id).await.is_ok() {
-                bail!("Tag with that new alias already exists.");
-            }
-
+            ensure!(tag.aliases.len() < 5, "Maximum alias amount reached.");
+            ensure!(self.get(&alias, guild_id).await.is_err(), "Tag with that new alias already exists.");
             tag.aliases.push(alias.clone());
         } else {
             tag.aliases.retain(|entry| entry != &alias)
@@ -243,11 +223,10 @@ impl Tags {
         let has_permission = member.permissions.unwrap_or_else(Permissions::empty).contains(Permissions::MANAGE_MESSAGES);
         let is_author = member.user.as_ref().is_some_and(|user| tag.author_id == user.id.as_str());
 
-        if !has_permission && !is_author {
-            bail!(
-                "You're not the author of that tag. Only tag authors and members with the Manage Messages permission can update or delete tags.",
-            );
-        }
+        ensure!(
+            has_permission || is_author,
+            "You're not the author of that tag. Only tag authors and members with the Manage Messages permission can update or delete tags.",
+        );
 
         Ok(tag)
     }
@@ -256,13 +235,10 @@ impl Tags {
         let name = name.to_string().to_lowercase();
 
         // This should be handled by Discord but I'm adding it anyway
-        if name.len() > 32 {
-            bail!("Tag name length must not exceed 32 characters.");
-        }
+        ensure!(name.len() <= 32, "Tag name length must not exceed 32 characters.");
 
-        if name.contains('`') {
-            bail!("Tag name must not contain `.");
-        }
+        // Purely to avoid weird formatting in the list subcommand lol
+        ensure!(!name.contains('`'), "Tag name must not contain `.");
 
         Ok(name)
     }

@@ -6,7 +6,7 @@ use crate::{
         duration::{Duration, statics::SECS_PER_MONTH},
     },
 };
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use futures::{StreamExt, stream::TryStreamExt};
 use mongodb::{
     Collection,
@@ -141,9 +141,7 @@ impl Reminders {
             .try_collect::<Vec<Reminder>>()
             .await?;
 
-        if reminders.is_empty() {
-            bail!("No reminders found.");
-        }
+        ensure!(!reminders.is_empty(), "No reminders found.");
 
         Ok(reminders)
     }
@@ -157,26 +155,25 @@ impl Reminders {
         reminder: V,
         dm: bool,
     ) -> Result<String> {
-        if self.collection.count_documents(doc! { "user_id": user_id.to_string() }).await? >= 15 {
-            bail!("You can only have up to 15 reminders.");
-        }
+        ensure!(
+            self.collection.count_documents(doc! { "user_id": user_id.to_string() }).await? < 15,
+            "You can only have up to 15 reminders.",
+        );
 
-        if duration.total_secs < 30 || duration.total_secs > SECS_PER_MONTH * 12 {
-            bail!("Duration cannot be under 30 seconds or over a year.");
-        }
+        ensure!(
+            duration.total_secs >= 30 && duration.total_secs <= SECS_PER_MONTH * 12,
+            "Duration cannot be under 30 seconds or over a year.",
+        );
 
-        if interval.total_secs > 0 && (interval.total_secs < 30 || interval.total_secs > SECS_PER_MONTH * 12) {
-            bail!("Interval cannot be under 30 seconds or over a year.");
-        }
+        ensure!(
+            interval.total_secs == 0 || (interval.total_secs >= 30 && interval.total_secs <= SECS_PER_MONTH * 12),
+            "Interval cannot be under 30 seconds or over a year.",
+        );
 
-        if interval.total_secs > 0 && !dm {
-            bail!("Intervals are only supported for DMs.");
-        }
+        ensure!(interval.total_secs == 0 || dm, "Intervals are only supported for DMs.");
 
         // For older snooze messages
-        if !url.to_string().contains('/') {
-            bail!("Unsupported message.");
-        }
+        ensure!(url.to_string().contains('/'), "Unsupported message.");
 
         self.collection
             .insert_one(&Reminder {

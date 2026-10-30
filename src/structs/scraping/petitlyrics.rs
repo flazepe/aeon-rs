@@ -3,7 +3,7 @@ use crate::{
     statics::{REQWEST, colors::PRIMARY_EMBED_COLOR},
     structs::api::google::{Google, statics::GOOGLE_TRANSLATE_LANGUAGES},
 };
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use base64::{Engine, prelude::BASE64_STANDARD};
 use http_req::{
     request::{Method, Request},
@@ -62,10 +62,7 @@ impl PetitLyrics {
             results.push(Self { artist, title, lyrics_id });
         }
 
-        if results.is_empty() {
-            bail!("No results found.");
-        }
-
+        ensure!(!results.is_empty(), "No results found.");
         Ok(results)
     }
 

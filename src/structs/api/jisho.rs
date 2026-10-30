@@ -1,5 +1,5 @@
 use crate::{statics::REQWEST, structs::pagination::Pagination};
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use serde::Deserialize;
 use slashook::structs::embeds::Embed;
 use std::{collections::HashMap, fmt::Display};
@@ -75,10 +75,7 @@ impl JishoSearch {
             .json::<JishoSearchResult>()
             .await?;
 
-        if results.data.is_empty() {
-            bail!("No results found.");
-        }
-
+        ensure!(!results.data.is_empty(), "No results found.");
         Ok(results)
     }
 

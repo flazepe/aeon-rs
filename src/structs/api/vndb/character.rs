@@ -7,7 +7,7 @@ use crate::{
     },
     traits::Commas,
 };
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use serde::Deserialize;
 use serde_json::json;
 use serde_repr::Deserialize_repr;
@@ -203,7 +203,6 @@ impl VndbCharacter {
 impl Vndb {
     pub async fn search_character<T: Display>(query: T) -> Result<Vec<VndbCharacter>> {
         let query = query.to_string();
-
         let results = Self::query(
             "character",
             if query.starts_with('c') && query.chars().skip(1).all(|char| char.is_numeric()) {
@@ -222,10 +221,7 @@ impl Vndb {
         .await?
         .results;
 
-        if results.is_empty() {
-            bail!("Character not found.");
-        }
-
+        ensure!(!results.is_empty(), "Character not found.");
         Ok(results)
     }
 }

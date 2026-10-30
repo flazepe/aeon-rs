@@ -10,7 +10,7 @@ use crate::structs::{
     },
     pagination::Pagination,
 };
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use serde::Deserialize;
 use serde_json::json;
 use slashook::{
@@ -187,10 +187,7 @@ impl AniList {
         )
         .await?;
 
-        if result.data.page.media.is_empty() {
-            bail!("Anime not found.");
-        }
-
+        ensure!(!result.data.page.media.is_empty(), "Anime not found.");
         Ok(result.data.page.media)
     }
 }

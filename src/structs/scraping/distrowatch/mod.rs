@@ -1,7 +1,7 @@
 pub mod statics;
 
 use crate::statics::REQWEST;
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, ensure};
 use nipper::Document;
 use slashook::structs::embeds::Embed;
 use std::fmt::Display;
@@ -36,11 +36,9 @@ impl DistroWatch {
             .await?;
         let url = res.url().to_string();
         let document = Document::from(&res.text().await?);
-        let name = document.select("td.TablesTitle h1").text();
 
-        if name.is_empty() {
-            bail!("Distribution not found.");
-        }
+        let name = document.select("td.TablesTitle h1").text();
+        ensure!(!name.is_empty(), "Distribution not found.");
 
         let get_table_nth_child = |n: u8| -> Result<String> {
             Ok(document

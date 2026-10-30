@@ -6,7 +6,7 @@ use crate::{
         database::{mongodb::code_snippets::CodeSnippet, redis::keys::RedisKey},
     },
 };
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, ensure};
 use slashook::{
     chrono::Utc,
     commands::Modal,
@@ -173,10 +173,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         },
         AeonCommandInput::MessageCommand(message, args, _) => {
             let codeblock = args.get_content();
-
-            if !codeblock.starts_with("```") || !codeblock.ends_with("```") {
-                bail!("Please provide a valid codeblock.");
-            }
+            ensure!(codeblock.starts_with("```") && codeblock.ends_with("```"), "Please provide a valid codeblock.");
 
             let (programming_language, code) =
                 codeblock.trim_matches('`').split_once('\n').context("Please provide a codeblock with a valid programming language.")?;

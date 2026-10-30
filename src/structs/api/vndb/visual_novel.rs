@@ -5,7 +5,7 @@ use crate::{
         statics::{VNDB_EMBED_AUTHOR_ICON_URL, VNDB_EMBED_AUTHOR_URL, VNDB_EMBED_COLOR, VNDB_VISUAL_NOVEL_FIELDS},
     },
 };
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use serde::Deserialize;
 use serde_json::json;
 use serde_repr::Deserialize_repr;
@@ -597,7 +597,6 @@ impl VndbVisualNovel {
 impl Vndb {
     pub async fn search_visual_novel<T: Display>(query: T) -> Result<Vec<VndbVisualNovel>> {
         let query = query.to_string();
-
         let results = Self::query(
             "vn",
             if query.starts_with('v') && query.chars().skip(1).all(|char| char.is_numeric()) {
@@ -616,10 +615,7 @@ impl Vndb {
         .await?
         .results;
 
-        if results.is_empty() {
-            bail!("Visual novel not found.");
-        }
-
+        ensure!(!results.is_empty(), "Visual novel not found.");
         Ok(results)
     }
 }

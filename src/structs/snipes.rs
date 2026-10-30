@@ -7,7 +7,7 @@ use crate::{
     },
     traits::{EmojiReactionExt, UserAvatarExt, UserExt},
 };
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, bail, ensure};
 use slashook::{
     chrono::DateTime,
     commands::MessageResponse,
@@ -44,10 +44,7 @@ impl Snipes {
 
     pub fn to_response(&self) -> Result<MessageResponse> {
         if self.snipes.is_empty() {
-            if !self.permissions.contains(Permissions::VIEW_CHANNEL) {
-                bail!("I do not have the view channel permission to collect snipes.");
-            }
-
+            ensure!(self.permissions.contains(Permissions::VIEW_CHANNEL), "I do not have the view channel permission to collect snipes.");
             bail!("No snipes found.");
         }
 
@@ -109,10 +106,10 @@ impl ReactionSnipes {
 
     pub async fn to_response(&self) -> Result<MessageResponse> {
         if self.reaction_snipes.is_empty() {
-            if !self.permissions.contains(Permissions::VIEW_CHANNEL) {
-                bail!("I do not have the view channel permission to collect reaction snipes.");
-            }
-
+            ensure!(
+                self.permissions.contains(Permissions::VIEW_CHANNEL),
+                "I do not have the view channel permission to collect reaction snipes.",
+            );
             bail!("No reaction snipes found.");
         }
 

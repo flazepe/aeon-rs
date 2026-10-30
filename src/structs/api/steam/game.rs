@@ -6,7 +6,7 @@ use crate::{
         statics::{STEAM_EMBED_AUTHOR_ICON_URL, STEAM_EMBED_AUTHOR_URL, STEAM_EMBED_COLOR},
     },
 };
-use anyhow::{Result, bail};
+use anyhow::{Result, bail, ensure};
 use nipper::Document;
 use serde::Deserialize;
 use serde_json::{Value, from_value};
@@ -377,10 +377,7 @@ impl Steam {
         );
 
         let names = document.select(".title").nodes().iter().map(|node| node.text().to_string()).collect::<Vec<String>>();
-
-        if names.is_empty() {
-            bail!("Game not found.");
-        }
+        ensure!(!names.is_empty(), "Game not found.");
 
         let ids = document
             .select("#search_resultsRows a")

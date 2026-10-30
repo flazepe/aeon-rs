@@ -2,7 +2,7 @@ use crate::structs::{
     command_context::{AeonCommandContext, AeonCommandInput},
     database::Database,
 };
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use std::{cmp::Reverse, sync::Arc};
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
@@ -17,10 +17,7 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
 
     let prefix = ctx.get_string_arg("prefix", 0, true)?.to_lowercase();
     let remove_prefix = guild.prefixes.contains(&prefix);
-
-    if !remove_prefix && guild.prefixes.len() >= 10 {
-        bail!("A server can only have up to 10 prefixes.");
-    }
+    ensure!(remove_prefix || guild.prefixes.len() < 10, "A server can only have up to 10 prefixes.");
 
     let message = if remove_prefix {
         format!("Removed **{}** from prefixes.", prefix.replace('*', "\\*"))

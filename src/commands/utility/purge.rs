@@ -7,7 +7,7 @@ use crate::{
     },
     traits::UserExt,
 };
-use anyhow::{Context, bail};
+use anyhow::{Context, ensure};
 use slashook::{
     chrono::{Duration, Utc},
     command,
@@ -23,22 +23,17 @@ use std::sync::{Arc, LazyLock};
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("purge", &[]).set_main(|ctx: Arc<AeonCommandContext>| async move {
         let AeonCommandInput::ApplicationCommand(input, _) = &ctx.command_input else { return Ok(()) };
+
         let bot_has_permission = input.app_permissions.contains(Permissions::MANAGE_MESSAGES);
         let is_self_purge = ctx.get_user_arg("user").is_ok_and(|user| user.id == CONFIG.bot.client_id);
-
-        if !bot_has_permission && !is_self_purge {
-            bail!("I do not have the Manage Messages permission to purge messages.");
-        }
+        ensure!(bot_has_permission || is_self_purge, "I do not have the Manage Messages permission to purge messages.");
 
         let member_has_permission = input
             .member
             .as_ref()
             .is_some_and(|member| member.permissions.is_some_and(|permissions| permissions.contains(Permissions::MANAGE_MESSAGES)));
         let is_flazepe = input.user.id == FLAZEPE_ID;
-
-        if !member_has_permission && !is_flazepe {
-            bail!("You do not have the Manage Messages permission to purge messages.");
-        }
+        ensure!(member_has_permission || is_flazepe, "You do not have the Manage Messages permission to purge messages.");
 
         let channel = ctx.get_channel_arg("channel").unwrap_or(input.channel.as_ref().unwrap());
         let mut messages = channel
@@ -88,10 +83,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
         });
 
         messages.drain((ctx.get_i64_arg("amount", 0).unwrap_or(1) as usize).min(messages.len())..);
-
-        if messages.is_empty() {
-            bail!("No messages found.");
-        }
+        ensure!(!messages.is_empty(), "No messages found.");
 
         match messages.len() {
             1 => messages[0].delete(&input.rest).await?,

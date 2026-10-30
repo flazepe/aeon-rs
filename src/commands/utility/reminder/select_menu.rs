@@ -2,7 +2,7 @@ use crate::{
     commands::utility::reminder::set,
     structs::command_context::{AeonCommandContext, AeonCommandInput},
 };
-use anyhow::{Result, bail};
+use anyhow::{Result, ensure};
 use std::sync::Arc;
 
 pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
@@ -19,9 +19,6 @@ pub async fn run(ctx: Arc<AeonCommandContext>) -> Result<()> {
         true
     };
 
-    if !is_authorized {
-        bail!("This isn't your reminder.");
-    }
-
+    ensure!(is_authorized, "This isn't your reminder.");
     set::run(ctx).await
 }
