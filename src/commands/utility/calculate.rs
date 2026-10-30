@@ -5,7 +5,7 @@ use crate::{
         command_context::{AeonCommandContext, AeonCommandInput},
     },
 };
-use anyhow::{Context, ensure};
+use anyhow::{anyhow, ensure};
 use slashook::{
     command,
     commands::{Command as SlashookCommand, CommandInput, CommandResponder},
@@ -22,7 +22,7 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             .timeout(Duration::from_secs(2))
             .send()
             .await
-            .context("Calculation took too long.")?
+            .map_err(|_| anyhow!("Calculation took too long."))?
             .text()
             .await?;
 
