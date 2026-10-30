@@ -15,11 +15,13 @@ use std::{sync::Arc, sync::LazyLock, time::Duration};
 
 pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
     AeonCommand::new("calculate", &["calc", "count", "math", "meth"]).set_main(|ctx: Arc<AeonCommandContext>| async move {
+        ctx.defer(false).await?;
+
         let expression = ctx.get_string_arg("expression", 0, true)?;
         let body = REQWEST
             .get("https://api.mathjs.org/v4/")
             .query(&[("expr", expression)])
-            .timeout(Duration::from_secs(2))
+            .timeout(Duration::from_secs(5))
             .send()
             .await
             .map_err(|_| anyhow!("Calculation took too long."))?
@@ -27,7 +29,6 @@ pub static COMMAND: LazyLock<AeonCommand> = LazyLock::new(|| {
             .await?;
 
         ensure!(!body.is_empty() && !body.contains("Error"), "Invalid expression.");
-
         ctx.respond_success(format!("``{}``", body.chars().take(1000).collect::<String>().replace('`', "`\u{200b}")), false).await
     })
 });
