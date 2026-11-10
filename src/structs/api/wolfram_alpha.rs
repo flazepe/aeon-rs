@@ -23,6 +23,7 @@ impl WolframAlpha {
         let result = REQWEST
             .get("http://api.wolframalpha.com/v2/query")
             .query(&[("appid", CONFIG.api.wolfram_alpha_app_id.as_str()), ("input", query.as_str()), ("output", "json")])
+            .header("user-agent", "yes")
             .send()
             .await?
             .json::<Self>()
